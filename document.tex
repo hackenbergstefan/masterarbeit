@@ -55,8 +55,11 @@ pointlessnumbers        %keine Punkte nach Überschriften
 %% Packages für Grafiken & Abbildungen %%%%%%%%%%%%%%%%%%%%%%
 \usepackage{graphicx} %%Zum Laden von Grafiken
 %\usepackage{subfig} %%Teilabbildungen in einer Abbildung
+\usepackage{calc}
 
 \usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{tikzpagenodes}
 \usepackage{tikz-cd} %%PSTricks - nicht verwendbar mit pdfLaTeX
 \usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref}
 \usepackage[nameinlink,german]{cleveref}
@@ -86,8 +89,10 @@ pointlessnumbers        %keine Punkte nach Überschriften
   columns=flexible
 }
 
+\usepackage{lipsum}
 
 
+\usepackage[framemethod=tikz]{mdframed}
 
 %% Theorems %%%%%%%%%%%%%%%%%%%%%%
 \usepackage{framed}
@@ -160,6 +165,26 @@ pointlessnumbers        %keine Punkte nach Überschriften
 \numberwithin{equation}{chapter}
 \allowdisplaybreaks
 
+%% Pagestyle %%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{scrpage2}
+\pagestyle{scrheadings}
+\setheadsepline{0pt}
+\chead{\sffamily\headmark}
+\ohead{\tikz[remember picture]{\node[outer sep=5pt,inner sep=0pt,font=\sffamily]
+  (a) {\sffamily\pagemark};}%
+  \tikz[remember picture, overlay]{
+    \ifthenelse{\isodd{\thepage}}{
+      \draw ($(a.north west)+(-5pt,0)$) |- ($(a.south east)+(0,-5pt)$);
+      \draw ($(a.south west)+(-5pt,0)$)  -- (a.south west -| current page text area.north
+      west);
+    }{
+      \draw ($(a.north east)+(5pt,0)$) |- ($(a.south west)+(3pt,-5pt)$);
+      \draw ($(a.south east)+(5pt,0)$)-- (a.south east -| current page text area.north east);
+    }
+  }
+}
+\ofoot{}
+
 
 %% Makros %%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\A}{\ensuremath \mathbb{A}}
@@ -209,7 +234,6 @@ pointlessnumbers        %keine Punkte nach Überschriften
 
 
 
-\pagestyle{scrheadings}
 
 \begin{document}
 

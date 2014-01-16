@@ -14,12 +14,20 @@ Sei hier stets $n$ eine zu $q$ teilerfremde natürliche Zahl.
 
 \begin{lemma}
   Es gilt:
-  \begin{itemize}
-    \item $| M_q(l\bmod n)| = \ord_{\tilde n}(q)$
-    \item 
-  \end{itemize}
+  \begin{enumerate}
+    \item $| M_q(l\bmod n)| = \ord_{\tilde n}(q)$, 
+      wobei $\tilde n(q) = \tfrac{n}{\ggT(n,l)}$.
+    \item Es gibt ein vollständiges Repräsentantensystem $R_q \subset \Z_n$, so
+      dass 
+      \[ \{0,1,...,n-1\} = \bigcupdot_{l\in R_q} M_q(l \bmod n) \,.\]
+  \end{enumerate}
 \end{lemma}
+\begin{proof}
+  \begin{enumerate}
+    \item Per definitionem ist die $\tilde n$ Ordnung von $q$ gerade die
+      kleinste natürliche Zahl $k$, so dass $q^k \equiv 1 \pmod{\tilde n}$ gilt.
+      Damit folgt die Behauptung in offensichtlicher Weise.
+    \item 
+  \end{enumerate}
+\end{proof}
 
-\lipsum
-
-\lipsum

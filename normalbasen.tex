@@ -1,0 +1,29 @@
+\chapter{Normalbasen -- Ein Überblick}
+
+Seien wieder $F := \F_q$ ein endlicher Körper von Charakteristik $p$ und 
+$E := \F_{q^n} \mid F$ eine Körpererweiterung.
+
+Um effizient normale Elemente in $E\mid F$ zu finden, nutzen wir, dass man
+$(E,\sigma)$ als $F[x]$-Modul betrachten können. 
+
+\begin{satz}
+  \begin{enumerate}
+    \item Die Erzeuger von $(E,\sigma)$ als $F[x]$-Modul sind genau die 
+      normalen Elemente in $E\mid F$.
+    \item Man hat eine Bijektion von Mengen
+      \[ \{V_g :\ g(x) \in F[x] \text{ monisch mit } g(x) \mid x^n-1\}
+        \overset{1-1}{\longleftrightarrow}
+        \{F[x] \text{-Teilmoduln von }E\}\]
+        wobei $V_g := \{v \in E : g(x)\cdot v = 0\} = \ker(g(\sigma))$.
+    \item Jedes $V_g$ ist ein zyklischer Modul und es gilt
+      \[u \text{ erzeugt } V_g \quad\Leftrightarrow \quad
+        \Ord_q(u) = g(x).\]
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  Alles schon in \TODO~gezeigt.
+\end{proof}
+
+\begin{beispiel}
+  
+\end{beispiel}

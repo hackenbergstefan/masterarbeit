@@ -32,7 +32,8 @@ DIV = 15,
 headsepline,
 openany,
 BCOR=0.8cm,
-pointlessnumbers        %keine Punkte nach Überschriften
+pointlessnumbers,        %keine Punkte nach Überschriften
+chapterprefix=true
 ]
 {scrbook}
 
@@ -43,8 +44,6 @@ pointlessnumbers        %keine Punkte nach Überschriften
 \usepackage[ngerman]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-
-\usepackage{lmodern} %Type1-Schriftart für nicht-englische Texte
 
 \usepackage{amsmath,amssymb}
 
@@ -86,7 +85,14 @@ pointlessnumbers        %keine Punkte nach Überschriften
   columns=flexible
 }
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Style Anpassungen
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{lmodern} %Type1-Schriftart für nicht-englische Texte
+%\usepackage[sc]{mathpazo}
+%\renewcommand{\sfdefault}{fav}
+%\setkomafont{disposition}{\sffamily}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %% Theorems %%%%%%%%%%%%%%%%%%%%%%
@@ -193,6 +199,7 @@ pointlessnumbers        %keine Punkte nach Überschriften
 \DeclareMathOperator{\Pic0}{Pic^0}
 \DeclareMathOperator{\Gal}{Gal}
 \DeclareMathOperator{\End}{End}
+\DeclareMathOperator{\Ord}{Ord}
 
 %% Others  %%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\?}{{\huge \color{red} ?}}
@@ -253,8 +260,8 @@ pointlessnumbers        %keine Punkte nach Überschriften
 
 %% Angaben zur Standardformatierung des Titels %%%%%%%%%%%%%%%%%%%%%%%%
 %\titlehead{Titelkopf }
-\subject{\large Bachelorarbeit}
-\title{\Huge Weil-Paarung und Kryptographie}
+\subject{\large Masterarbeit}
+\title{\Huge }
 %\subtitle{Grundlegende Resultate zu elliptischen Kurven, Konstruktionen und
 %Eigenschaften der Weil-Paarung, ein
 %algorithmischer Überblick zu elliptischen Kurven in der Kryptographie und die
@@ -284,6 +291,7 @@ pointlessnumbers        %keine Punkte nach Überschriften
 
 %\include{intro.tex}
 \mainmatter
+\input{normalbasen.tex}
 \input{scheerhorn_dickson.tex}
 
 \end{document}

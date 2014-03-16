@@ -45,7 +45,8 @@ chapterprefix=true
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
-\usepackage{amsmath,amssymb}
+
+\usepackage{amsmath,amssymb,MnSymbol}
 
 \usepackage{enumitem}
 \setlist[enumerate]{label=(\arabic*)}
@@ -54,8 +55,11 @@ chapterprefix=true
 %% Packages für Grafiken & Abbildungen %%%%%%%%%%%%%%%%%%%%%%
 \usepackage{graphicx} %%Zum Laden von Grafiken
 %\usepackage{subfig} %%Teilabbildungen in einer Abbildung
+\usepackage{calc}
 
 \usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{tikzpagenodes}
 \usepackage{tikz-cd} %%PSTricks - nicht verwendbar mit pdfLaTeX
 \usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref}
 \usepackage[nameinlink,german]{cleveref}
@@ -94,6 +98,11 @@ chapterprefix=true
 %\setkomafont{disposition}{\sffamily}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\usepackage{lipsum}
+
+>>>>>>> 0d3ae2b740cf529f144aa38ce7521ecccd22d14c
+
+\usepackage[framemethod=tikz]{mdframed}
 
 %% Theorems %%%%%%%%%%%%%%%%%%%%%%
 \usepackage{framed}
@@ -166,6 +175,30 @@ chapterprefix=true
 \numberwithin{equation}{chapter}
 \allowdisplaybreaks
 
+%% Pagestyle %%%%%%%%%%%%%%%%%%%%%%%%%%
+\addtokomafont{pagenumber}{\sffamily}
+\addtokomafont{pagehead}{\sffamily\upshape}
+\usepackage{scrpage2}
+\pagestyle{scrheadings}
+\setheadsepline{0pt}
+\chead{\headmark}
+\ohead{\tikz[remember picture]{\node[outer sep=5pt,inner sep=0pt]
+  (a) {\sffamily\pagemark};}%
+  \tikz[remember picture, overlay]{
+    \ifthenelse{\isodd{\thepage}}{
+      \draw[line width=1pt]
+        ($(a.north west)+(-5pt,0)$) |- ($(a.south east)+(0,-5pt)$);
+      \draw ($(a.south west)+(-5pt,0)$)  -- (a.south west -| current page text area.north
+      west);
+    }{
+      \draw[line width=1pt]
+        ($(a.north east)+(5pt,0)$) |- ($(a.south west)+(3pt,-5pt)$);
+      \draw ($(a.south east)+(5pt,0)$)-- (a.south east -| current page text area.north east);
+    }
+  }
+}
+\ofoot{}
+
 
 %% Makros %%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\A}{\ensuremath \mathbb{A}}
@@ -216,7 +249,6 @@ chapterprefix=true
 
 
 
-\pagestyle{scrheadings}
 
 \begin{document}
 

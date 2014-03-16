@@ -46,7 +46,10 @@ chapterprefix=true
 \usepackage[utf8]{inputenc}
 
 
+\usepackage{lmodern} %Type1-Schriftart für nicht-englische Texte
+
 \usepackage{amsmath,amssymb,MnSymbol}
+
 
 \usepackage{enumitem}
 \setlist[enumerate]{label=(\arabic*)}
@@ -92,7 +95,6 @@ chapterprefix=true
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Style Anpassungen
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\usepackage{lmodern} %Type1-Schriftart für nicht-englische Texte
 %\usepackage[sc]{mathpazo}
 %\renewcommand{\sfdefault}{fav}
 %\setkomafont{disposition}{\sffamily}
@@ -100,7 +102,6 @@ chapterprefix=true
 
 \usepackage{lipsum}
 
->>>>>>> 0d3ae2b740cf529f144aa38ce7521ecccd22d14c
 
 \usepackage[framemethod=tikz]{mdframed}
 
@@ -144,8 +145,8 @@ chapterprefix=true
 \theoremstyle{plain}
 \theoremheaderfont{\normalfont\sffamily\itshape}
 \theorembodyfont{\normalfont}
-\newtheorem{bem}[satz]{Bemerkung}
-\newtheorem{bsp}[satz]{Beispiel}
+\newtheorem{bemerkung}[satz]{Bemerkung}
+\newtheorem{beispiel}[satz]{Beispiel}
                                      
 \theoremstyle{plain}
 \theoremheaderfont{\normalfont\sffamily\bfseries}
@@ -165,11 +166,12 @@ chapterprefix=true
 
 
 %% Autoref Names %%%%%%%%%%%%%%%%%
-%\crefname{lemma}{Lemma}{Lemmas}
-%\crefname{equation}{Gleichung}{Gleichungen}
-%\crefname{definition}{Definition}{Definitionen}
-%\crefname{algorithmus}{Algorithmus}{Algorithmen}
-%\crefname{kor}{Korollar}{Korollare}
+\crefname{lemma}{Lemma}{Lemmas}
+\crefname{equation}{Gleichung}{Gleichungen}
+\crefname{definition}{Definition}{Definitionen}
+\crefname{algorithmus}{Algorithmus}{Algorithmen}
+\crefname{kor}{Korollar}{Korollare}
+\crefname{satz}{Satz}{Sätze}
 
 %% Amsmath options %%%%%%%%%%%%%%%%%
 \numberwithin{equation}{chapter}
@@ -208,6 +210,7 @@ chapterprefix=true
 \newcommand{\Z}{\ensuremath \mathbb{Z}}
 \newcommand{\C}{\ensuremath \mathbb{C}}
 \newcommand{\F}{\ensuremath \mathbb{F}}
+\newcommand{\K}{\ensuremath \mathbb{K}}
 \renewcommand{\P}{\ensuremath \mathbb{P}}
 \newcommand{\Kb}{\ensuremath \overline K}
 \renewcommand{\O}{\ensuremath \mathcal{O}}
@@ -233,6 +236,15 @@ chapterprefix=true
 \DeclareMathOperator{\Gal}{Gal}
 \DeclareMathOperator{\End}{End}
 \DeclareMathOperator{\Ord}{Ord}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\id}{id}
+
+
+\newcommand{\funcdef}[1]{%
+  \begin{array}[t]{>{\displaystyle}r>{\displaystyle}c>{\displaystyle}l}%
+  #1\end{array}}
+
+
 
 %% Others  %%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\?}{{\huge \color{red} ?}}
@@ -323,7 +335,8 @@ chapterprefix=true
 
 %\include{intro.tex}
 \mainmatter
+\input{moduln.tex}
 \input{normalbasen.tex}
-\input{scheerhorn_dickson.tex}
+%\input{scheerhorn_dickson.tex}
 
 \end{document}

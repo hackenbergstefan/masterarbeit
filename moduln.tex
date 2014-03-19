@@ -1,0 +1,186 @@
+\chapter{Moduln}
+
+Nähern wir uns der Situation von Normalbasen in möglichst allgemeiner Form, so
+beginnt die Reise bei der Betrachtung folgender Situation:
+\begin{definition}[$(V,\tau)$]
+  Sei $\K$ ein Körper und $V$ ein $\K$-Vektorraum und 
+  $\tau \in \End_\K(V)$, so können wir $V$ als $\K[x]$-Modul auffassen:
+  \[ f(x) \cdot v \speq{:=} f(\tau)(v)\]
+  für alle $f(x) \in \K[x]$ und $v\in V$.
+  Nenne das Paar $(V,\tau)$ \emph{$\K[x]$-Modul bzgl. $\tau$}.
+\end{definition}
+
+\begin{notation}
+  Sei $\tau\in \End_\K(V)$.
+  \begin{itemize}
+  \item Es bezeichne $\mu_\tau$ das Minimalpolynom von 
+    $\tau$, also das normierte Polynom kleinsten Grades $f(x)\in \K[x]$ mit 
+    $f(\tau) = 0$.
+  \item Ferner schreibe $\chi_\tau$ für das charakteristische Polynom von 
+    $\tau$, also $\chi_\tau(x) := \det(x \id_V - \tau) \in \K[x]$.
+  \end{itemize}
+\end{notation}
+
+
+\begin{bemerkung}
+  Ist $\K  = F :=\F_q$ ein endlicher Körper, 
+  $V = E := \F_{q^n}$ eine Körpererweiterung
+  von Grad $n$ und 
+  \[\tau = \sigma: \funcdef{E & \to & E\\
+    v &\mapsto & v^q}\]
+  der Frobenius von $E$, so ist
+  \[ \mu_\tau(x) \ =\ \chi_\tau(x) \ =\ x^n - 1\,,\]
+  denn: Es ist klar, dass $n = \deg \chi_\tau$ und da nach dem Satz von
+  Cayley-Hamilton ist $\sigma$ Nullstelle von $\chi_\tau$. Daher teilt
+  $\mu_\tau$ das charakteristische Polynom. Jedoch kennen wir das
+  Minimalpolynom von $\tau$: Nach Dedekinds-Unabhängigkeitslemma ist 
+  $\id_E,\sigma,\ldots,\sigma^{n-1}$ linear unabhänig über $E$, also insbesondere
+  über $F$, und $\sigma^n = \id_E$.\marginpar{References!}
+\end{bemerkung}
+
+
+\begin{definition}[$\tau$-Ordnung, Teilmodul]
+  Sei $(V,\tau)$ ein $\K[x]$-Modul. Zu jedem $v \in V$ betrachte den
+  $\K[x]$-Modulhomomorphismus
+  \[ \psi_w: \funcdef{\K[x] & \to & V \\
+    f(x) & \mapsto & f(x)\cdot v }  \]
+  Sei ferner $\dim V < \infty$.
+  \begin{enumerate}
+    \item Ist $\ker\psi_v = (g(x))$ für $g(x)\in \K[x]$ normiert, so heißt
+      $g(x)$ \emph{$\tau$-Ordnung von $v$}\@. Ferner ist $g(x)$ eindeutig.
+      Schreibe $\Ord_\tau(v) := g(x)$.
+    \item $\K[\tau]\cdot v := \im{\psi_v}$ heißt der von \emph{$v$ erzeugte
+      $\K[x]$-Teilmodul von $V$}.
+  \end{enumerate}
+\end{definition}
+\marginpar{Eindeutigkeit!}
+
+
+\begin{notation}
+  Für $\K = \F_q$ einen endlichen Körper, $V = E \mid \F_q$ eine 
+  Körpererweiterung und $\tau = \sigma$ den Frobenius-Endomorphismus schreibe
+  \[ \Ord_q := \Ord_\tau \]
+  und bezeichne $\Ord_q$ mit \emph{$q$-Ordnung}.
+\end{notation}
+
+\begin{lemma}
+  \label{lemma:eigenschaften-tau-ordnung}
+  Sei $(V,\tau)$ ein $\K[x]$-Modul. Ferner seien
+  $u,v\in V$ mit $g(x) := \Ord_\tau(u)$, $h(x) := \Ord_\tau(v)$ und 
+  $f(x) \in \K[x]$. Dann gilt
+  \begin{enumerate}
+    \item $\Ord_\tau(f(x)\cdot u) = \frac{g(x)}{\ggT(f(x),g(x))}$.
+    \item $\Ord_\tau(u+v) = g(x)h(x)$, falls $\ggT(g,h) = 1$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \begin{enumerate}
+    \item \TODO
+    \item \TODO
+  \end{enumerate}
+\end{proof}
+
+\begin{lemma}
+  Sei $(V,\tau)$ ein $\K[x]$-Modul. Sei $v\in V$. Dann gilt:
+  \[ \dim_\K( \K[x]\cdot v ) \speq= \deg( \Ord_\tau(v) )\,.\]
+\end{lemma}
+\begin{proof}
+  Nach dem Homomorphiesatz gilt: \marginpar{References!}
+  $ \im\psi_v \cong \K[x] \big/ \ker \psi_v$.
+\end{proof}
+
+
+\begin{definition}[zyklischer Modul]
+  $(V,\tau)$ heißt \emph{zyklischer $\K[x]$-Modul bzgl. $w$}, falls es ein 
+  $w\in \K$ gibt, sodass $K[\tau]\cdot w = V$.
+\end{definition}
+
+
+\begin{satz}
+  Es gilt:
+  \[ (V,\tau) \text{ ist ein zyklischer Modul} \quad\Leftrightarrow\quad
+    \mu_\tau = \chi_\tau\]
+\end{satz}
+\begin{proof}
+  Fassen wir zunächst ein paar einfache Tatsachen zusammen:
+  Ist $u \in V$, so haben wir 
+  \[ \dim(\K[x]\cdot v) = \deg( \Ord_\tau(v) ) \speq\leq 
+    \deg\mu_\tau \speq\leq \deg \chi_\tau \]
+  und 
+  \[ \Ord_\tau (v) \speq\mid \mu_\tau \speq\mid \chi_\tau \,,\]
+  wobei die erste Teilbarkeitsrelation per definitionem erfüllt ist und die
+  zweite gerade der Satz von Cayley-Hamilton ist.
+  Damit kommen wir zum direkten Beweis:
+  \begin{description}
+    \item["`$\Rightarrow$"'] Sei $V$ also zyklisch bzgl. $w$, so ist dies nach
+      obigem äquivalent zu $\deg(\Ord_\tau(w)) = n$. Daraus folgt aber sofort
+      $\mu_t = \chi_\tau$, da beide normiert sind.
+    \item["`$\Leftarrow$"'] Zunächst sei behauptet, dass es stets ein 
+      $w \in V$ gibt mit $\Ord_\tau(w) = \mu_\tau$. Sei dazu 
+      $\mu_\tau(x) = \prod_{i=1}^r p_i(x)^{a_i}$ die Zerlegung in irreduzible
+      Faktoren über $\K[x]$, so existieren $w_i \in V$ mit
+      $\Ord_\tau(w_i) = p_i^{a_i}$. Andernfalls hätten wir einen Widerspruch 
+      zum Minimalpolynom von $\tau$!
+      Nach \autoref{lemma:eigenschaften-tau-ordnung} ist dann aber 
+      $w := \sum_{i=1}^r w_i$ ein Element in $V$ mit $\tau$-Ordnung $\mu_\tau$.
+
+      Ist dann also $\mu_\tau = \chi_\tau$, so hat obiges $w$ genau
+      $\tau$-Ordnung $\chi_\tau$; erzeugt also $V$ als $\K[x]$-Modul.
+  \end{description}
+\end{proof}
+
+Nun wollen wir spezielle Untermoduln von $V$ betrachten, welche uns guten
+Aufschluss über die Struktur von $V$ geben können:
+
+\begin{notation}
+  Seien $(V,\tau)$ ein $\K[x]$-Modul und $g(x) \in \K[x]$.
+  Definiere
+  \[ V_g \speq{:=} \{ v \in V \mid g(x)\cdot v = 0 \}\,.\]
+\end{notation}
+
+Zunächst ist klar, dass $V_g \neq 0$ nur für $g$ Teiler von $\mu_\tau$ gelten
+kann. Damit können wir folgende "`Rechenregeln"' formulieren:
+
+\begin{lemma}
+  Seien $g(x), h(x) \in \K[x]$ mit $g,h \mid \mu_\tau$. Dann gilt:
+  \begin{enumerate}
+    \item $V_g \cap V_h \speq= V_{\ggT(g,h)}$
+    \item $V_g + V_h \speq= V_{\kgV(g,h)}$
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  Per definitionem ist klar, dass für $v \in V_g$ gerade
+  $\Ord_\tau(v) \mid g$. Also können wir $V_g$ auch wie folgt auffassen:
+  \[ V_g \speq= \{ v\in V:\ \Ord_\tau(v) \mid g\} \,,\]
+  Damit sind die Behautungen nach \cref{lemma:eigenschaften-tau-ordnung} klar,
+  denn für $v \in V$ gilt:
+  \[ v\in V_g \cap V_h \speq\Leftrightarrow 
+    \Ord_\tau(v) \mid g \land \Ord_\tau(v) \mid h \speq\Leftrightarrow
+    \Ord_\tau(v) \mid \ggT(g,h) \speq\Leftrightarrow v \in V_{\ggT(g,h)}\]
+  und ebenso
+  \[ v \in V_g + V_h \speq\Leftrightarrow 
+    \Ord_\tau(v) \mid g \lor \Ord_\tau(v) \mid h \speq\Leftrightarrow
+    \Ord_\tau(v) \mid \kgV(g,h) \speq\Leftrightarrow v \in V_{\kgV(g,h)}\,.\]
+\end{proof}
+
+
+\begin{satz}
+  Sei $(V,\tau)$ ein zyklischer Modul mit $\dim(V) = n$. Sei ferner 
+  $g(x)\in \K[x]$ normiert mit $g\mid \mu_\tau$. Dann gilt:
+  \begin{enumerate}
+    \item $V_g$ ist ein $\K[x]$-Teilmodul von $V$.
+    \item Alle $\K[x]$-Teilmoduln von $V$ sind von dieser Form.
+    \item $V_g$ ist zyklisch bzgl. $\tau$ mit Minimalpolynom $g(x)$.
+      Ferner ist $\dim(V_g) = \deg(g)$.
+    \item Die Erzeuger von $V_g$ sind genau die Elemente $v\in V$ mit 
+      $\Ord_\tau(v) = g$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  \begin{enumerate}
+    \item 
+    \item
+    \item
+    \item
+  \end{enumerate}
+\end{proof}

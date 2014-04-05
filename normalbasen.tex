@@ -2,9 +2,23 @@
 
 Seien wieder $F := \F_q$ ein endlicher Körper von Charakteristik $p$ und 
 $E := \F_{q^n} \mid F$ eine Körpererweiterung.
+Wir wiederholen kurz die Definition einer \emph{Normalbasis}
 
-Um effizient normale Elemente in $E\mid F$ zu finden, nutzen wir, dass man
-$(E,\sigma)$ als $F[x]$-Modul betrachten können. 
+\begin{definition}[normales Element, normales Polynom, Normalbasis]
+  Sei $F$ ein Körper und $E \mid F$ eine endliche Galoiserweiterung von Grad
+  $n$. Sei ferner $w\in E$ mit $F(w) = E$. $w$ heißt \emph{normal über $F$},
+  falls
+  \[ \{ \gamma(w) \mid \gamma \in G\}\]
+  eine $F$-Basis von $E$ ist. 
+  $\{ \gamma(w) \mid \gamma \in G\}$ heißt entsprechend \emph{Normalbasis} und
+  $g(x) \in F[x]$ mit 
+  \[ g(x) = \prod_{\gamma \in G}(x - \gamma(w))\]
+  heißt \emph{normales Polynom}.
+\end{definition}
+
+Um effizient normale Elemente in $E\mid F$ zu finden, betrachten wir 
+$(E,\sigma)$ als $F[x]$-Modul und nutzen die Aussagen aus
+\autoref{chap:moduln}.
 
 \begin{satz}
   \begin{enumerate}
@@ -18,12 +32,44 @@ $(E,\sigma)$ als $F[x]$-Modul betrachten können.
     \item Jedes $V_g$ ist ein zyklischer Modul und es gilt
       \[u \text{ erzeugt } V_g \quad\Leftrightarrow \quad
         \Ord_q(u) = g(x).\]
+        Insbesondere sind die Erzeuger von $V$ genau die Elemente $v \in V$ mit 
+        $\Ord_\tau(v) = x^n-1$.
   \end{enumerate}
 \end{satz}
 \begin{proof}
   Alles schon in \TODO~gezeigt.
 \end{proof}
 
+Dies liefert uns die grundlegende Idee für das Auffinden von normalen
+Elementen:
+\begin{lemma}
+  Sei $x^n-1 = \prod_{i=1}^s r_i(x)$ eine Zerlegung in paarweise teilerfremde
+  Polynome, so gilt:
+  \[ E \speq= \bigoplus_{i=1}^s V_{r_i} \,.\]
+\end{lemma}
+\begin{proof}
+  \TODO.
+\end{proof}
+
+\begin{kor}
+  Sei $x^n-1 = \prod_{i=1}^s r_i(x)$ eine Zerlegung in paarweise teilerfremde
+  Polynome. Seien ferner $u_i \in V_{r_i}$ Elemente mit 
+  $\Ord_q(u_i) = r_i(x)$ $\forall i=1,\ldots,s$. Dann ist
+  \[ u \speq= u_1 + u_2 + \ldots + u_s\]
+  normal in $E \mid F$.
+\end{kor}
+\begin{proof}
+  Da obige Zerlegung von $x^n-1$ paarweise teilerfremd ist, folgt nach
+  \cref{lemma:eigenschaften-tau-ordnung}
+  $\Ord_q(u) = \prod_{i=1}^s \Ord_q(u_i) = \prod_{i=1}^s r_i(x) = x^n -1$.
+\end{proof}
+
 \begin{beispiel}
   
 \end{beispiel}
+
+
+An diesem Punkt stellt sich natürlich die Frage, wie wir dies nutzbar machen
+können. Ist nämlich $p\nmid n$, so kennen wir eine Faktorisierung von $x^n-1$:
+\[ x^n-1 \speq= \prod_{d\mid n} \Phi_d(x)\,.\]
+Des Weiteren können wir eine Zerlegung von $\Phi_d(x)$ sogar genauer angeben:

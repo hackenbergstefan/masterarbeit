@@ -139,6 +139,7 @@ chapterprefix=true
 %Custom theorems
 \makeatletter
 \newenvironment{plainthm}[1]{\let\plthm\@undefined
+
 \newtheorem{plthm}[satz]{#1} \begin{plthm}}{\end{plthm}}
 \makeatother
 
@@ -259,6 +260,8 @@ chapterprefix=true
 \renewcommand{\marginpar}[1]{\marginparold{\scriptsize\sffamily #1}}
 
 %% Bibliographiestil %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{biblatex}
+\addbibresource{bib.bib}
 
 
 
@@ -336,8 +339,12 @@ chapterprefix=true
 
 %\include{intro.tex}
 \mainmatter
+\input{kreisteilungspolynome.tex}
 \input{moduln.tex}
 \input{normalbasen.tex}
 %\input{scheerhorn_dickson.tex}
 
+
+\nocite{*}
+\printbibliography
 \end{document}

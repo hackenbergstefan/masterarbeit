@@ -42,7 +42,7 @@ beginnt die Reise bei der Betrachtung folgender Situation:
 \begin{definition}[$\tau$-Ordnung, Teilmodul]
   Sei $(V,\tau)$ ein $\K[x]$-Modul. Zu jedem $v \in V$ betrachte den
   $\K[x]$-Modulhomomorphismus
-  \[ \psi_w: \funcdef{\K[x] & \to & V \\
+  \[ \psi_v: \funcdef{\K[x] & \to & V \\
     f(x) & \mapsto & f(x)\cdot v }  \]
   Sei ferner $\dim V < \infty$.
   \begin{enumerate}
@@ -163,6 +163,19 @@ kann. Damit können wir folgende "`Rechenregeln"' formulieren:
     \Ord_\tau(v) \mid \kgV(g,h) \speq\Leftrightarrow v \in V_{\kgV(g,h)}\,.\]
 \end{proof}
 
+Da wir letztlich zyklische Moduln und darin Untermoduln untersuchen wollen, ist
+brauchen wir noch ein Lemma, das garantiert, dass auch die Untermoduln von
+zyklischen Moduln wieder zyklisch sind.
+
+\begin{lemma}
+  \label{lemma:untermoduln_bleiben_zyklisch}
+  Sei $R$ ein Hauptidealbereich. Ferner seien $V$ ein zyklischer $R$-Modul und
+  $W \subseteq V$ ein $R$-Untermodul. Dann ist auch $W$ zyklisch.
+\end{lemma}
+\begin{proof}
+  \marginpar{References!}
+\end{proof}
+
 
 \begin{satz}
   Sei $(V,\tau)$ ein zyklischer Modul mit $\dim(V) = n$. Sei ferner 
@@ -173,14 +186,25 @@ kann. Damit können wir folgende "`Rechenregeln"' formulieren:
     \item $V_g$ ist zyklisch bzgl. $\tau$ mit Minimalpolynom $g(x)$.
       Ferner ist $\dim(V_g) = \deg(g)$.
     \item Die Erzeuger von $V_g$ sind genau die Elemente $v\in V$ mit 
-      $\Ord_\tau(v) = g$.
+      $\Ord_\tau(v) = g$, d.h. für diese gilt
+      $\K[x]\cdot v = V_g$.
   \end{enumerate}
 \end{satz}
 \begin{proof}
   \begin{enumerate}
-    \item 
-    \item
+    \item Klar: $0\in V_g$. Weiter seien $f(x) \in \K[x]$ und 
+      $v \in V_g$ mit $h(x) := \Ord_\tau(v)$, 
+      so ist nach \cref{lemma:eigenschaften-tau-ordnung}
+      $\Ord_\tau(f(x)\cdot v) = \frac{h(x)}{\ggT(f,h)} \mid g(x)$.
+      Damit liegt auch $f(x)\cdot v$ in $V_g$.
+    \item Da $V$ ein zyklischer Modul ist, existiert ein $v\in V$ mit 
+      $V = \K[x]\cdot v$. Sei nun $W\subseteq V$ ein Untermodul,
+      so ist dieser nach \cref{lemma:untermoduln_bleiben_zyklisch} ebenfalls
+      zyklisch; sagen wir zu $w \in W$. 
+
     \item
     \item
   \end{enumerate}
 \end{proof}
+
+

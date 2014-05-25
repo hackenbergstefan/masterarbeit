@@ -64,7 +64,7 @@ beginnt die Reise bei der Betrachtung folgender Situation:
 \end{notation}
 
 \begin{lemma}
-  \label{lemma:eigenschaften-tau-ordnung}
+  \label{lemma:eigenschaften_tau_ordnung}
   Sei $(V,\tau)$ ein $\K[x]$-Modul. Ferner seien
   $u,v\in V$ mit $g(x) := \Ord_\tau(u)$, $h(x) := \Ord_\tau(v)$ und 
   $f(x) \in \K[x]$. Dann gilt
@@ -121,7 +121,7 @@ beginnt die Reise bei der Betrachtung folgender Situation:
       Faktoren über $\K[x]$, so existieren $w_i \in V$ mit
       $\Ord_\tau(w_i) = p_i^{a_i}$. Andernfalls hätten wir einen Widerspruch 
       zum Minimalpolynom von $\tau$!
-      Nach \autoref{lemma:eigenschaften-tau-ordnung} ist dann aber 
+      Nach \autoref{lemma:eigenschaften_tau_ordnung} ist dann aber 
       $w := \sum_{i=1}^r w_i$ ein Element in $V$ mit $\tau$-Ordnung $\mu_\tau$.
 
       Ist dann also $\mu_\tau = \chi_\tau$, so hat obiges $w$ genau
@@ -142,6 +142,7 @@ Zunächst ist klar, dass $V_g \neq 0$ nur für $g$ Teiler von $\mu_\tau$ gelten
 kann. Damit können wir folgende "`Rechenregeln"' formulieren:
 
 \begin{lemma}
+  \label{lemma:moduln:ueber_schnitt_und_vereinigung_von_v_g}
   Seien $g(x), h(x) \in \K[x]$ mit $g,h \mid \mu_\tau$. Dann gilt:
   \begin{enumerate}
     \item $V_g \cap V_h \speq= V_{\ggT(g,h)}$
@@ -152,7 +153,7 @@ kann. Damit können wir folgende "`Rechenregeln"' formulieren:
   Per definitionem ist klar, dass für $v \in V_g$ gerade
   $\Ord_\tau(v) \mid g$. Also können wir $V_g$ auch wie folgt auffassen:
   \[ V_g \speq= \{ v\in V:\ \Ord_\tau(v) \mid g\} \,,\]
-  Damit sind die Behautungen nach \cref{lemma:eigenschaften-tau-ordnung} klar,
+  Damit sind die Behautungen nach \cref{lemma:eigenschaften_tau_ordnung} klar,
   denn für $v \in V$ gilt:
   \[ v\in V_g \cap V_h \speq\Leftrightarrow 
     \Ord_\tau(v) \mid g \land \Ord_\tau(v) \mid h \speq\Leftrightarrow
@@ -173,11 +174,13 @@ zyklischen Moduln wieder zyklisch sind.
   $W \subseteq V$ ein $R$-Untermodul. Dann ist auch $W$ zyklisch.
 \end{lemma}
 \begin{proof}
-  \marginpar{References!}
+\TODO
+\marginpar{References!}
 \end{proof}
 
 
 \begin{satz}
+  \label{satz:moduln_ueber_v_g}
   Sei $(V,\tau)$ ein zyklischer Modul mit $\dim(V) = n$. Sei ferner 
   $g(x)\in \K[x]$ normiert mit $g\mid \mu_\tau$. Dann gilt:
   \begin{enumerate}
@@ -194,7 +197,7 @@ zyklischen Moduln wieder zyklisch sind.
   \begin{enumerate}
     \item Klar: $0\in V_g$. Weiter seien $f(x) \in \K[x]$ und 
       $v \in V_g$ mit $h(x) := \Ord_\tau(v)$, 
-      so ist nach \cref{lemma:eigenschaften-tau-ordnung}
+      so ist nach \cref{lemma:eigenschaften_tau_ordnung}
       $\Ord_\tau(f(x)\cdot v) = \frac{h(x)}{\ggT(f,h)} \mid g(x)$.
       Damit liegt auch $f(x)\cdot v$ in $V_g$.
     \item Da $V$ ein zyklischer Modul ist, existiert ein $v\in V$ mit 
@@ -207,4 +210,15 @@ zyklischen Moduln wieder zyklisch sind.
   \end{enumerate}
 \end{proof}
 
-
+\begin{kor}
+  \label{kor:moduln_ueber_v_g}
+  Sei $v \in V$ mit $\Ord_\tau(v) = g(x)$.
+  Für $w \in V$ gilt dann:
+  \[ w \in V_g \quad\Leftrightarrow\quad 
+    w = f(x)\cdot v \text{ für ein } f(x) \in \K[x]_{< \deg g},\ \ggT(f,g)=1\]
+\end{kor}
+\begin{proof}
+  Nach \thref{satz:moduln_ueber_v_g} ist $v$ Erzeuger von $V_g$, d.h.
+  $V_g = \im \psi_v \cong \K[x]\big/(g(x))$, wobei letztere Isomorphie nach dem
+  Homomorphiesatz gilt. Dies zeigt die Behauptung.
+\end{proof}

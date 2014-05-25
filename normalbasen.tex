@@ -1,4 +1,9 @@
-\chapter{Normalbasen -- Ein Überblick}
+\chapter{Explizite Konstruktion von Normalbasen}
+In diesem Kapitel wollen wir uns Gedanken darüber machen, wie man Normalbasen
+explizit konstruieren kann, indem man die $F[x]$-Modulstruktur eines endlichen
+Körpers $E \mid F$ betrachtet.
+
+\section{Grundlegende Ideen}
 
 Seien wieder $F := \F_q$ ein endlicher Körper von Charakteristik $p$ und 
 $E := \F_{q^n} \mid F$ eine Körpererweiterung.
@@ -60,16 +65,500 @@ Elementen:
 \end{kor}
 \begin{proof}
   Da obige Zerlegung von $x^n-1$ paarweise teilerfremd ist, folgt nach
-  \cref{lemma:eigenschaften-tau-ordnung}
+  \thref{lemma:eigenschaften_tau_ordnung}
   $\Ord_q(u) = \prod_{i=1}^s \Ord_q(u_i) = \prod_{i=1}^s r_i(x) = x^n -1$.
 \end{proof}
 
+\section{Stark reguläre Erweiterungen}
+
 \begin{beispiel}
-  
+  \label{bsp:stark_regular_1}
+  Wählen wir einmal $q = 7$ und $n=9$. Also $F = \F_7$.
+  Ferner wissen wir aus \autoref{chap:kreisteilungspolynome}, dass
+  \[ x^n-1 \speq= x^9-1 \speq= 
+    \Phi_1(x)\Phi_3(x)\Phi_9(x) \speq=
+    \big(x-1\big)\big( (x+3)(x+5)\big)
+    \big( (x^3+3)(x^3+5) \big) \ \in \F_7[x]\]
+  die vollständige Faktorisierung von $x^n-1$ über $\F_7$ ist.
+  Da es sich hier bei den Faktoren lediglich um Binome handelt, können wir
+  relativ einfach Elemente passender $q$-Ordnungen angeben: Beginnen wir 
+  mit $\Phi_9 = (x^3+3)(x^3+5)$. Gesucht ist nun ein Element $u$ in einer 
+  passenden Erweiterung von $F$ mit $\Ord_q(u)= \Phi_9$.
+  Sei dazu $u \in \bar F$ eine primitive $27$-te Einheitswurzel. Dann
+  gilt:
+  \[ \ord(u^{342}) \speq= \ord(u^{18}) \speq= \frac{27}{\ggT(27,18)} \speq= 3\]
+  Wenn man sich die Frage stellt, warum an diesem Punkt gerade $342$ eine
+  interessante Zahl ist, so wird man diese sofort wiederfinden, wenn man
+  versucht ein Element $w\in \bar F^\ast$ mit $q$-Ordnung $x^3+3$ (bzw.
+  $x^3+5$) wiederzufinden:
+  \[ (x^3+3)\cdot w \speq= w^{q^3} + 3 w \speq= 
+    w(w^{7^3-1} +3) \speq= w(w^{342}+3) \speq{\overset{!}{=}} 0.\]
+  Da $w \neq 0$ und per definitionem der Kreisteilungspolynome 
+  $(-3),(-5)\in \F_7$ primitive $3$-te Einheitswurzeln sind, 
+  brauchen wir ein $w$ mit $\ord(w^{342}) = 3$; 
+  was obiges $u$ gerade erfüllt! Damit ist also $u^{18} = u^{342}$ 
+  eine der beiden dritten Einheitswurzeln $(-3)$ oder $(-5) \in \F_7$ und wir
+  können mit \thref{lemma:eigenschaften_tau_ordnung} folgern:
+  \[ \Ord_q(u + u^2) \speq= \Phi_9\]
+
+  Auch die Suche nach einem Element mit $q$-Ordnung $\Phi_3$ ist damit
+  erledigt: Mit analoger Argumentation wie oben erhalten wir, dass 
+  \[ \Ord_q(u^{3} + u^{6}) \speq= \Phi_3.\]
+  Zusammengefasst ist also $u$ ein normales Element von $\F_{7^9} \mid \F_7$.
 \end{beispiel}
 
+Ein entscheidender Vorteil in der Konstruktion eines normalen Elements in
+obigem Beispiel war der Zerfall der Kreisteilungspolynome in Monome. Aus \TODO
+wissen wir bereits, wann genau die Kreisteilungspolynome in Monome zerfallen.
+Damit können wir diese sehr einfache Möglichkeit Normalbasen explizit anzugeben,
+als Reihe von Aussagen formulieren:
 
-An diesem Punkt stellt sich natürlich die Frage, wie wir dies nutzbar machen
-können. Ist nämlich $p\nmid n$, so kennen wir eine Faktorisierung von $x^n-1$:
-\[ x^n-1 \speq= \prod_{d\mid n} \Phi_d(x)\,.\]
-Des Weiteren können wir eine Zerlegung von $\Phi_d(x)$ sogar genauer angeben:
+\begin{definition}[stark regulär]
+  Das Paar $(q,n) \in \N^2$ heißt \emph{stark regulär}, falls
+  \begin{itemize}
+    \item $q = p^r$ mit $p$ einer Primzahl und $r>0$,
+    \item $p \nmid n$,
+    \item $\nu(n) \mid q-1$,
+    \item $4 \mid q-1$, falls $n$ gerade.
+  \end{itemize}
+  Schreibe $n \in \S_q$, falls $(q,n)$ stark regulär.
+  Eine Körpererweiterung $\F_{q^n} \mid \F_q$ heißt \emph{stark regulär}, falls
+  $n \in \S_q$.
+\end{definition}
+
+\begin{satz}
+  \label{satz:konstruktion_q_ordnung}
+  Sei $F = \F_q$ ein endlicher Körper und $m \in \S_q$. Seien
+  $l := \pi_m(q-1)$, $a := \ggT(l,m)$ und $u \in \bar\F_q$ eine primitive
+  $(ml)$-te Einheitswurzel. Dann gilt:
+  \begin{enumerate}
+    \item $\F_q(u) = \F_{q^m} =: E$.
+    \item $\Ord_q(u)$ ist ein irreduziblerTeiler von $\Phi_m$ in $\F_q[x]$.
+    \item $v := \sum_{i \in I_a} u^i$ hat $q$-Ordnung $\Phi_m$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  \begin{enumerate}
+  \item Nach \thref{lemma:uber-pi-m-1} wissen wir, dass 
+   $\pi_m(q^m-1) = m\pi_m(q-1) = ml$ und
+    damit $[F(u):F] = \ord_{ml}(q) = m$. 
+  \item Sei nun $\zeta \in F^\ast$ eine primitive $a$-te Einheitswurzel. Dann
+    ist nach \TODO
+    \[ \Phi_m(x) \speq= \prod_{i\in I_a} (x^{\frac m a} - \zeta^i).\]
+    Wie in \thref{bsp:stark_regular_1} betrachten wir für $i \in I_a$:
+    \begin{align*}
+      (x^{\frac m a} - \zeta^i)\cdot u 
+      \quad&=\quad \big( \sigma^{\frac m a} - \zeta^i \id_E \big)\\
+        &=\quad u^{q^{\frac m a}} - \zeta^i u \\
+        &=\quad u\big( u^{q^{\frac m a}-1} - \zeta^i \big)\,, \tag{$\ast$}
+    \end{align*}
+    wobei wie üblich $\sigma: E \to E, x \mapsto x^q$ den Frobenius von
+    $E\mid F$ meint. Wir wollen nun zeigen, dass $\Ord_q(u) = (x^{\frac m a} -
+    \zeta^i)$ für ein $i\in I_a$, explizit also, dass $(\ast) = 0$ für ein
+    $i\in I_a$ gilt. Dazu müssen wir $q^{\frac m a} -1$ genauer untersuchen:
+    Wiederum nach \thref{lemma:uber-pi-m-1} haben wir:
+    \[ \pi_m(q^{\frac m a} -1 ) \speq= \frac m a \pi_m(q-1) \speq=
+      \frac{ml}{a} \speq= \kgV(m,l) \speq{=:} c\,.\]
+    Nach \thref{lemma:uber-pi-m-2} ist dann $q^{\frac m a}-1 = ck$ für 
+    ein $k\in\N$ mit $\ggT(k,ml) = 1$. Erinnern wir uns kurz, dass $u$ eine
+    primitive $(ml)$-te Einheitswurzel war, so folgern wir:
+    \[ \ord(u^{ck}) \speq= \ord(u^c) \speq= \frac{ml}{\ggT(ml,c)}
+      \speq= \frac{ml}{c} \speq= a\,.\]
+    Ergo gibt es $j\in I_a$ mit $u^{ck} = \zeta^j$ und für dieses $j$ ist
+    $(\ast)$ gerade $0$, was zu zeigen war.
+  \item Seien $j\in I_a$ mit $\Ord_q(u) = x^\frac m a - \zeta^j$ und 
+    $i\in I_a$ beliebig, so gilt
+    \begin{align*}
+      \big( x^\frac m a - \zeta^{ji} \big) u^i \speq{&=}
+      (u^{q^\frac m a})^i - (\zeta^ju)^i \\
+      \speq{&=} (u^{q^\frac m a} - \zeta^ju) 
+        \sum_{k=0}^{i-1} u^{k\,q^\frac m a} \zeta^{(i-1-k)\,j}u^{i-1-k} \\
+        \speq{&=} 0\,.
+    \end{align*}
+    Da $i$ teilerfremd zu $ml$ ist, haben wir ferner $\ord(u) = \ord(u^i)$ und
+    können folgern, dass $\Ord_q(u^i) = x^\frac m a - \zeta^{ji}$.
+    Packen wir nun alles zusammen und bedenken, dass
+    $I_a \to I_a, i\mapsto ij$ eine Bijektion ist, können wir den letzten
+    Schritt im Beweis führen:
+    \[ \Ord_q\big( \sum_{i\in I_a} u^i \big)
+      \speq= \prod_{i\in I_a} \Ord_q(u^i) \speq=
+      \prod_{i \in I_a} \big( x^\frac m a - \zeta^{ji} \big)
+      \speq= \prod_{k\in K_a} \big(x^\frac m a - \zeta^k \big)
+      \speq= \Phi_m(x)\,.\]
+  \end{enumerate}
+\end{proof}
+
+Da wir nun die einzelnen Bausteine kennen, können wir auf die Faktorisierung
+und damit auf eine explizite Angabe eines normalen Elements zu schließen:
+
+\begin{kor}
+  \label{kor:konstruktion-q-ordnung}
+  Für $F = \F_q$, $n\in \S_q$ sei $\lambda \in F^\ast$ eine primitive 
+  $\pi_n(q-1)$-te Einheitswurzel. Zu jedem $m \mid n$ seien
+  \begin{itemize}
+    \item $a(q,m) := \ggT(m,\pi_m(q-1))$ und
+    \item $I_a := \{ i\leq a:\ \ggT(i,a) = 1\}$.
+  \end{itemize}
+  Dann ist
+  \[ x^n-1 \speq= \prod_{m\mid n}\ \prod_{i\in I_{a(q,m)}} 
+    \left( x^\frac{m}{a(q,m)} - \lambda^{\frac{\pi_n(q-1)}{a(q,m)} i}\right)\]
+  die vollständige Faktorisierung von $x^n-1$ über $\F_q$.
+\end{kor}
+\begin{proof}
+  Da  $\ord\big(\lambda^{\frac{\pi_n(q-1)}{a(q,m}}\big) = a(q,m)$
+  und nach \TODO für $m\mid n$ auch $m\in \S_q$, ist obige Aussage lediglich
+  eine Anwendung von \thref{satz:konstruktion_q_ordnung}.
+\end{proof}
+
+\begin{satz}
+  Seien $F = \F_q$ ein endlicher Körper, $n\in \S_q$ und $L:=\pi_n(q-1)$.
+  Ferner sei $u \in \bar F$ eine primitive $(nL)$-te Einheitswurzel. Dann ist
+  mit Notation aus \thref{kor:konstruktion-q-ordnung}
+  \[ w \speq{:=} \sum_{m\mid n} \ \sum_{i\in I_a}
+    u^{\frac{n\, L}{m\, \pi_m(q-1)}i}\]
+  normal in $E := \F_{q^n}$ über $F$.
+\end{satz}
+\begin{proof}
+  Im Grunde haben wir bereits alles gezeigt. Daher reicht ein kurzer Kommentar,
+  warum wir \thref{satz:konstruktion_q_ordnung} anwenden können aus. Es ist
+  trivialerweise 
+  \[ \ord\big( u^{\frac{nL}{m\pi_m(q-1)}} \big) \speq=
+    m\, \pi_m(q-1)\]
+  und damit sind alle Voraussetzungen erfüllt.
+\end{proof}
+
+\begin{bemerkung}
+  Wie wir in \thref{bsp:stark_regular_1} und \thref{satz:konstruktion_q_ordnung}
+  gesehen haben, sind die $(ml)$-ten Einheitswurzeln die Elemente von kleinster
+  multiplikativer Ordnung, deren $q$-Ordnung ein irreduzibler Teiler von
+  $\Phi_m(x)$ wird. Natürlich können wir dieses Konzept auch erweitern und uns
+  überlegen, welche primitiven Einheitswurzeln die selbe Eigenschaft erfüllen.
+  Darüber hinaus können wir die Elemente deren $q$-Ordnung ein irreduzibler
+  Teiler von $\Phi_m(x)$ über $F[x]$ ist, auch durch die Modulstruktur selbst
+  beschreiben.
+  Diese beiden Überlegungen wollen wir in den nächsten beiden Lemmata beweisen.
+\end{bemerkung}
+
+\begin{lemma}
+  \label{lemma:hoehere_wurzeln_auch_erzeuger}
+  Seien die Voraussetzungen wie in \thref{satz:konstruktion_q_ordnung}, also
+  $F = \F_q$ ein endlicher Körper und $m\in \S_q$. Setze ferner 
+  $l := \pi_m(q-1)$, $a := \ggT(l,m)$. 
+  Ist nun $\theta$ eine primitive $(nf)$-te Einheitswurzel für 
+  $l \mid f \mid q-1$, so ist $\Ord_q(\theta)$ ein irreduzibler Teiler
+  von $\Phi_m(x)$ über $F[x]$.
+\end{lemma}
+\begin{proof}
+  Sei $f = le$ mit $\ggT(e,l) = 1$. Diese Zerlegung ist möglich, da
+  $l$ per definitionem der größte Teiler von $q-1$ ist, dessen Primfaktoren
+  allesamt in $m$ vorkommen, d.h. jeder Primfaktor von $q-1$ der $l$ teilt,
+  kommt dort bereits in maximaler Potenz vor.
+  Damit reicht es -- wenn wir wir den Beweis von
+  \thref{satz:konstruktion_q_ordnung} noch einmal nachvollziehen -- zu zeigen,
+  dass $\ggT(mle, ck) = ce$ für $c := \kgV(m,l)$ und 
+  $q^{\frac m a} -1 = ck$ für ein $k$ mit $\ggT(k,ml) = 1$. Da $\ggT(e,l) = 1$,
+  ist per definitionem von $l$ auch $\ggT(e,m) = 1$ und damit auch
+  $\ggT(e,c) = 1$. Da $e \mid q-1\mid q^{\frac m a -1}$ zerfällt $k$ 
+  in $k = \bar k k_e$ mit $e \mid k_e$ und $\ggT(\bar k,e) = 1$. Damit
+  folgt $\ggT(mle, ck) = ce$ und wir haben
+  $\ord(\theta^{ck}) = \frac{mle}{\ggT(mle,ck)} = \frac{mle}{ce} = a$.
+\end{proof}
+
+Als Korollar dieses Lemmas können wir einen Satz von \citeauthor{semaev:1989}
+\citeyear{semaev:1989} in 
+\autocite{semaev:1989} beweisen, welcher erneut von \citeauthor{gao:1997}
+\citeyear{gao:1997} in \autocite{gao:1997} bewiesen wurde:
+
+\begin{satz}[{\autocite[Theorem 2.7]{gao:1997}, \autocite{semaev:1989}}]
+  \label{satz:gao1}
+  Sei $q = p^r$ eine Primzahlpotenz. Sei $n \in \N$ mit $\ggT(n,q)=1$.
+  Ist $x^n - a \in \F_q[x]$ irreduzibel mit Wurzel $\theta\in \F_{q^n}$, so
+  gilt 
+  \[ \F_{q^n} \speq= \bigoplus_{l\in R_q(n)} \langle \theta^l\rangle_q\,,\]
+  wobei $\langle \theta^l\rangle_q := 
+  \spann_{\F_q}\{ \theta^i \mid i\in M_q(l\bmod n)\}$.
+\end{satz}
+\begin{proof}
+  Aus \thref{} \marginpar{References!} wissen wir, dass für $a \in \F_q$
+  $x^n-a \in \F_q[x]$ genau dann irreduzibel ist, wenn
+  $p\nmid n$, $\nu(n) \mid f := \ord(a)$, $l := \pi_n(q-1)\mid f$ und
+  $4 \mid q-1$, falls $4\mid n$. Damit ist $n \in \S_q$.
+  \marginpar{In stark regulär: $4 \mid q-1$, falls $2\mid n$ !?}
+  Damit ist $\theta$ eine primitive $(nf)$-te Einheitswurzel und wir wissen
+  nach \thref{lemma:hoehere_wurzeln_auch_erzeuger}, dass
+  $\Ord_q(\theta)$ ein irreduzibler Teiler von $\Phi_n(x)$ über $\F_q[x]$ ist,
+  womit alles gezeigt wäre.
+\end{proof}
+
+Bevor wir die Ideen der stark regulären Körpererweiterungen verallgemeinern
+wollen, betrachten wir noch ein Lemma, das die irreduziblen Teilmodule genauer
+beschreibt und in ganz ähnlicher Form in \autocite[Theorem
+22.5]{hachenberger1997finite} wiederzufinden ist.
+
+\begin{lemma}
+  \label{lemma:erzeuger_von_irred_teilmoduln}
+  Seien die Voraussetzungen wie in \thref{satz:konstruktion_q_ordnung}, also
+  $F = \F_q$ ein endlicher Körper und $m\in \S_q$. Setze ferner 
+  $l := \pi_m(q-1)$, $a := \ggT(l,m)$. Ist dann $u$ eine primitive 
+  $(ml)$-te Einheitswurzel mit $\Ord_q(u) = f(x)$ für $f(x)$ einen irreduziblen
+  monischen Teiler von $\Phi_m(x)$, so gilt für $v \in E:= \F_{q^m}$:
+  \[ \Ord_q(v) = f(x) \quad\Leftrightarrow\quad
+    v = g(x) \cdot u\quad\text{ für ein } 0\neq g\in F[x]_{<\frac m a}\]
+\end{lemma}
+\begin{proof}
+  In \thref{kor:moduln_ueber_v_g} haben wir gezeigt, dass für $v \in E$ gilt
+  \[ v \in E_f \quad\Leftrightarrow\quad v = g(x)\cdot u 
+    \text{ für ein } g(x) \in F[x]_{<\deg f},\ \ggT(f,g) = 1\]
+  Da $f$ irreduzibel von Grad $\frac m a$ ist, sind alle $v \in
+  E_f\setminus\{0\}$ von $q$-Ordnung $f$ und es folgt die Behauptung.
+\end{proof}
+
+\begin{bemerkung}
+  Obiges Lemma gilt nicht nur für primitive $(ml)$-te Einheitswurzeln, sondern
+  -- wie man offensichtlich erkennen kann -- für jedes Element mit gleicher
+  $q$-Ordnung!
+\end{bemerkung}
+
+
+
+
+\section{Reguläre Erweiterungen}
+
+Die Erkenntnisse über stark reguläre Erweiterungen wollen wir nutzen, um
+Normalbasen auch in einem allgemeineren Kontext angeben zu können. Ist nämlich
+$m\in\N$ ungerade mit $p\nmid m$ und setzen wir $s = \ord_{\nu(m)}(q)$, 
+so erkennen wir, dass $\nu(m) \mid q^s-1$ per definitionem von
+$\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$! 
+
+\begin{definition}[regulär]
+  Sei $q = p^r$ eine Primzahlpotenz und $n\in \N_{>0}$. Setze 
+  $n = n' p^c$ mit $p\nmid n'$. Das Paar $(q,n)$ heißt \emph{regulär}, falls
+  $\ggT(n, \ord_{\nu(n')}(q)) = 1$. 
+  Ist $F = \F_q$ und $E = \F_{q^n}$, so nenne die Erweiterung $E\mid F$ 
+  \emph{regulär}.
+\end{definition}
+
+\begin{satz}
+  \label{satz:konstruktion_q_ordnung_reg}
+  Seien $F := \F_q$ ein endlicher Körper für eine Primzahlpotenz $q = p^r$ 
+  und $m\in\N$ ungerade mit $p\nmid m$.
+  Setze $s := \ord_{\nu(m)}(q)$, 
+  $l := \pi_m(q^s-1)$, $b:= b(q,m) = \ggT(l,m)$, $E := \F_{q^m}$ und
+  $E' = \F_{q^{sm}}$. Ist dann
+  $u$ eine primitive $(ml)$-te Einheitswurzel, so gilt
+  \begin{enumerate}
+    \item $F(u) = E'$,
+    \item $\Ord_q(u) = f(x^s)$ für einen monischen irreduziblen Teiler 
+      $f(x) \in F[x]$ von $\Phi_m(x)$ und 
+    \item $v := \sum_{j \in R_q(m)\atop \ggT(j,m)=1} 
+      u^j$ hat $q$-Ordnung $\Phi_m(x^s)$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  \TODO
+\end{proof}
+
+Nun haben wir also Elemente mit $q$-Ordnung $\Phi_m(x^s)$ gefunden. Es stellt
+sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$ 
+\glqq basteln\grqq können. Dies zeigt uns der folgende Satz:
+
+\begin{satz}
+  \label{satz:q_ordnung_von_trace}
+  Seien alle Voraussetzungen und Notationen wie in 
+  \thref{satz:konstruktion_q_ordnung_reg}.
+  Sei jedoch zusätzlich $\ggT(m,s) = 1$.
+  Bezeichne ferner 
+  $\sigma_E: E'\to E',\ x \mapsto x^{q^m}$ den Frobenius von $E'$ auf $E$.
+  Ist dann $u$ eine primitive $(ml)$-te Einheitswurzel
+  und $v = \sum_{j\in R_q(m)} u^j$, so gilt:
+  \begin{enumerate}
+    \item $H(\sigma_E)(v)$ hat $q$-Ordnung $\Phi_m(x)$ für 
+      $H(x) := \frac{\Phi_m(x^s)}{\Phi_m(x)}$.
+    \item $\Tr_{E'\mid E}(v)$ hat $q$-Ordnung $\Phi_m(x)$.
+    \item $\Ord_q\big(\Tr_{E'\mid E}(u)\big)$ ist ein irreduzibler 
+      monischer Teiler von $\Phi_m(x)$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  Zerlegen wir $s = \bar s p^\beta$ mit $p\nmid s'$, so ist 
+  nach Voraussetzungen $\ggT(\bar s, m) = 1$ und wir sind in der Situation von
+  \thref{}. Damit gilt
+  \[ \Phi_m(x^s) \speq= \Phi_m(x^{\bar s})^{p^\beta}
+    \speq= \prod_{d \mid \bar s} \Phi_{md}(x)^{p^\beta}\,.\]
+  Mit konsequenter Anwendung von \thref{lemma:eigenschaften_tau_ordnung}
+  folgern wir die Behauptungen:
+  \[ \Ord_q(H(\sigma_E)v) = \frac{\Phi_m(x^s)}{\ggT(\Phi_m(x^s), H(x)}
+    = \Phi_m(x)\,.\]
+  Für (2) und (3) überlegen wir uns, dass für $a \in E'$
+  \[ \Tr_{E'\mid E}(a) = \sum_{i=0}^{s-1} a^{q^{im}} = 
+    \left[\frac{x^{sm}-1}{x^m-1}\right](\sigma_E)(a)\]
+  und 
+  \[ \frac{x^{sm} -1}{x^m-1} \speq= 
+    \frac{ \prod_{d\mid \bar sm} \Phi_d(x)^{p^\beta}}{
+      \prod_{d\mid m} \Phi_d(x)} \speq=
+    \Phi_m(x)^{p^\beta-1}\ 
+    \prod_{l\mid m\atop l\neq m} \Phi_l(x)^{p^\beta-1}\ 
+    \prod_{d\mid \bar s\atop d\neq 1} \Phi_{md}(x)^{p^\beta} \,.\]
+  Ergo ist
+  \[ \Ord_q(\Tr_{E'\mid E}(v)) \speq= 
+    \frac{\Phi_m(x^s)}{\ggT(\Phi_m(x^s), \frac{x^{sm}-1}{x^m-1})}
+    \speq= \Phi_m(x)\]
+  und
+  \[ \Ord_q(\Tr_{E'\mid E}(u)) \speq= 
+    \frac{f(x^s)}{\ggT(f(x^s), \frac{x^{sm}-1}{x^m-1})} \speq= f_1(x) \,,\]
+  wobei wir uns hierfür noch einmal an \thref{satz:f_x_s_ist_teiler_von_phimd} 
+  erinnern müssen, wo wir gezeigt haben, dass in genau dieser Situation 
+  $f(x^s) = \prod_{i=1}^? f_i(x) \in F[x]$ mit $f_i$ irreduzibler monischer 
+  Teiler von $\Phi_{md}(x)$ für $d\mid \bar s$, wobei wir \obda 
+  $f_1 \mid \Phi_m(x)$ für den einzigen Teiler von $\Phi_m(x)$ wählen.
+\end{proof}
+
+
+Wir können sogar noch in gewisser Weise eine Verschärfung dieses Satzes
+angeben, die genauer charakterisiert, warum die Spurfunktion in diesem Fall
+gute Dienste leistet.
+
+\begin{satz}
+  \label{satz:q_ordnung_von_zusammensetzen}
+  Seien die Voraussetzungen wie in \thref{satz:q_ordnung_von_trace}.
+  Ist dann wiederum $u$ eine primitive $(nl)$-te Einheitswurzel und
+  $k(x) = \sum_{i=0}^j a_i x^i \in E'[x]$, $j\in\N$, so dass
+  $\Ord_q(u) = \Ord(u^i) = f(x^s)$ für einen irreduziblen monischen Teiler 
+  $f(x)$ von $\Phi_m(x)$ über $F$ für alle $i=0,\ldots,j$. Gilt letztlich
+  $[F(k(u)):F]=n$, so gilt:
+  $\Ord_q(k(u))$ ist ein irreduzibler monischen Teiler 
+  von $\Phi_m(x)$ über $F$.
+\end{satz}
+\begin{proof}
+  Sammeln wir einmal den Wissensstand für gegebene Situation zusammen:
+  \begin{itemize}
+    \item $\Ord_q(u) = \Ord_q(u^i) = f(x^s)$ teilt $\Phi_m(x^s)$.
+    \item Für $s = \bar s p^\beta$ mit $p\nmid \bar s$ gilt nach
+      \thref{}
+      \[\Phi_m(x^s) = \prod_{d\mid \bar s} \Phi_{md}(x)^{p^\beta}\]
+    \item Als leichte Konsequenz aus 
+      \thref{lemma:moduln:ueber_schnitt_und_vereinigung_von_v_g} haben wir 
+      \[\Ord_q(k(u)) \speq\mid \kgV\{\Ord_q(a_iu^i): i=1,\ldots,j\} = f(x^s) \]
+    \item Da $k(u)\in E$ und die $q$-Ordnung immer das Minimalpolynom 
+      des zugehörigen Frobenius teilt, folgt
+      \[\Ord_q(k(u)) \speq\mid x^m-1 = \prod_{d\mid m} \Phi_d(x)\]
+  \end{itemize}
+  Zusammengefasst teilt also $\Ord_q(k(u))$ nur den Anteil von $f(x^s)$,
+  der auch in $\Phi_m(x)$ liegt. Damit folgt nach
+  \thref{satz:f_x_s_ist_teiler_von_phimd} die Behauptung.
+\end{proof}
+
+\begin{bemerkung}
+  Auf diese Weise kann man auch den Beweis von \thref{satz:q_ordnung_von_trace}
+  führen, wenn man sich überlegt, dass für $\Ord_q(u) = f(x^s)$ auch
+  $\Ord_q(u^{q^m}) = f(x^s)$ ($m$ und $s$ sind teilerfremd!) 
+  gilt und gerade $\Tr_{E'\mid E}(u) \in E$ gilt.
+\end{bemerkung}
+
+
+Auch für reguläre Erweiterungen wollen wir ein Analogon von 
+\thref{lemma:hoehere_wurzeln_auch_erzeuger} beweisen:
+
+\begin{lemma}
+  \label{lemma:hoehere_wurzeln_auch_erzeuger_reg}
+  Seien die Voraussetzungen wie in \thref{satz:konstruktion_q_ordnung_reg}, also
+  also $F := \F_q$ ein endlicher Körper für eine Primzahlpotenz $q = p^r$ 
+  und $m\in\N$ ungerade mit $p\nmid m$.
+  Setze $s := \ord_{\nu(m)}(q)$, 
+  $l := \pi_m(q^s-1)$, $b:= b(q,m) := \ggT(l,m)$, $E := \F_{q^m}$ und
+  $E' = \F_{q^{sm}}$. 
+  Ist nun $\theta$ eine primitive $(nf)$-te Einheitswurzel für 
+  $l \mid f \mid q^s-1$, so ist $\Ord_q(\theta) = f(x^s)$ für 
+  $f$ einen irreduzibler Teiler von $\Phi_m(x)$ über $F[x]$.
+\end{lemma}
+\begin{proof}
+  \thref{lemma:hoehere_wurzeln_auch_erzeuger} mit dem Beweis von
+  \thref{satz:konstruktion_q_ordnung_reg}.
+\end{proof}
+
+
+\section{Normalbasen mit Dickson-Polynomen}
+\citeauthor{scheerhorn:1996} zeigt in
+\autocites{scheerhorn:1996}{scheerhorn:1997}, dass sich Dickson-Polynome
+eignen, um Normalbasen zu beschreiben. Insbesondere zeigt er die beiden
+folgenden Resultate.
+
+\begin{satz}[{\autocite[Theorem 2]{scheerhorn:1997}}]
+  \label{satz:scheerhorn1}
+  Seien $n\geq 3$ ein Produkt ungerader Primzahlen von $(q+1)$ und 
+  $a,b\in \F_q =: F$, so dass $D_n(x,a)-b \in F[x]$ irreduzibel ist.
+  Sei $\gamma \in E := \F_{q^n}$ eine Wurzel von $D_n(x,a)$. Dann ist
+  \[ E \speq= \langle 1\rangle_q \oplus 
+    \bigoplus_{l\in R_q(n)\setminus \{0\}} \langle D_l(\gamma,a)\rangle_q\,,\]
+  eine Zerlegung von $E$ in irreduzible $F[x]$-Teilmoduln, wobei
+  \[ \langle D_l(\gamma,a)\rangle_q \speq{:=}
+    \spann_F\{ D_i(\gamma,a) \mid i\in M_q(l\bmod n)\} \,,\]
+  so dass $\{ D_i(\gamma,a) \mid i\in M_q(l\bmod n)\}$ eine $F$-Basis von
+  $\langle D_l(\gamma,a)\rangle_q$ ist.
+\end{satz}
+
+\begin{satz}[{\autocite[Theorem 3]{scheerhorn:1997}}] 
+  \label{satz:scheerhorn2}
+  Seien $n\geq 3$ ein Produkt ungerader Primzahlen von $(q-1)$ und
+  $a,b \in \F_q =: F$, so dass $D_n(x,a)-b\in F[x]$ irreduzibel ist.
+  Seien ferner $x^2+bx +a^n = (x-\beta)(x-a^n\beta\inv) \in \F_q$ und
+  $\theta \in \F_{q^n}$ eine Wurzel von $x^n-\beta$. Ist schießlich
+  $\gamma\in \F_{q^n}$ eine Wurzel von $D_n(x,a) -b$, so gilt für
+  $l\in R_q(n) \setminus\{0\}$
+  \[ \langle \theta^l\rangle_q \oplus \langle \theta^{n-l}\rangle_q
+  \speq= \langle D_l(\gamma,a)\rangle_q\]
+\end{satz}
+
+Wir wollen nun im Folgenden zeigen, dass dies relativ einfach aus der
+allgemeinen Theorie aus dem vorherigen Abschnitt folgt.
+Zunächst brauchen wir jedoch eine wesentliche Eigenschaft der Dickson-Polynome.
+
+\begin{lemma}[{??}]
+  \label{lemma:dickson:dickson_polynome_potenz}
+  Es gilt $D_n(x+a x\inv,a) = x^n + a^n x^{-n}$.
+\end{lemma}
+
+Nun können wir obige Sätze beweisen.
+
+\begin{proof}[von \thref{satz:scheerhorn1}]
+  Betrachten wir die vorliegende Situation, so sehen wir, dass
+  $s := \ord_{\nu(n)}(q) = 2$ und damit $n \in \S_{q^2}$.
+  Nach \thref{} ist $x^2 +bx+a^n \in F[x]$ irreduzibel. Sei 
+  $x^2+bx+a^n = (x -\beta)(x -a^n\beta\inv)$ über $K := \F_{q^2}$.
+  Dann ist $x^n-\beta \in \F_{q^2}[x]$ irreduzibel.
+  Ist dann $\theta \in \F_{q^{2n}} =: E'$ eine Wurzel, so wissen wir nach
+  \thref{satz:gao1} und \thref{lemma:hoehere_wurzeln_auch_erzeuger_reg}, dass
+  $\Ord_q(\theta) = f(x^s)$ für einen irreduziblen Teiler $f(x)$ von
+  $\Phi_n(x)$ über $F$. Nach \thref{satz:q_ordnung_von_trace}
+  ist
+  \[ f_1(x) \speq{:=} \Ord_q( \Tr_{E'\mid E}(\theta) ) \speq=
+    \Ord_q(\theta + \theta^{q^n})\]
+  ein irreduzibler Teiler von $\Phi_n(x)$ in $F[x]$.
+  
+  Es ist nun $\theta^{q^n} = \theta\inv$: 
+  Da $\theta \in E'$, gilt $\theta^{q^{2n}} = \theta$, also
+  \[ \theta^{q^{2n}-1} \speq= 1 \speq= \theta^{(q^n+1)(q^n-1)}\,. \]
+  wäre $\theta^{q^n-1} = 1$, so läge $\theta$ bereits in $\F_{q^n}$, im Widerspruch
+  zur Definition von $\theta$.
+  Also haben wir nach \thref{satz:q_ordnung_von_zusammensetzen} 
+  gerade 
+  \[ \Ord_q(\theta + a\theta\inv) = f_1(x)\,,\]
+  da mit \thref{lemma:dickson:dickson_polynome_potenz}
+  \[ D_n(\theta + a\theta\inv,a) \speq= \theta^n + a^n\theta^{-n}
+    \speq= \beta +a^n\beta\inv \speq= 0\,,\]
+  also $\theta + a\theta\inv$ Grad $n$ über $F$ hat.
+  Da wir mit $\theta^l$ für $l \in R_q(n)$ alle irreduziblen Teilmoduln
+  %
+  \footnote{hier vielleicht noch ein Satz/Lemma/Bemerkung im vorherigen 
+  Abschnitt über die Erzeugung \emph{aller} irreduziblen Teilmodule}
+  %
+  von $x^n-1$ erzeugen können, also $\Ord_q(\theta^i) = g(x^s)$ für einen
+  irreduziblen monischen Teiler $g(x)$ von $x^n-1$ über $F$, ist alles gezeigt,
+  da analog zu oben
+  \[ \Ord_q(\theta^l + a^l\theta^{-l}) \speq\mid x^n-1 \]
+  für $l\in R_q(n)$ ein irreduzibler Teiler von $x^n-1$ ist
+  (für $l=0$ hat $\theta^l+a^l\theta^{-l}$ natürlich Grad $0$ über $F$).
+  $\gamma := \theta + a\theta\inv$ und $D_l(\gamma,a) =
+  \theta^l+a^l\theta^{-l}$ schließt den Beweis ab.
+\end{proof}
+

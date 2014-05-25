@@ -31,12 +31,12 @@ bibtotoc,           % Literaturverzeichnis im Inhalt
 DIV = 15,
 headsepline,
 openany,
-BCOR=0.8cm,
+BCOR=0.5cm,
 pointlessnumbers,        %keine Punkte nach Überschriften
 chapterprefix=true
 ]
 {scrbook}
-
+\synctex=1
 
 
 %% Deutsche Anpassungen %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -49,10 +49,13 @@ chapterprefix=true
 \usepackage{lmodern} %Type1-Schriftart für nicht-englische Texte
 
 \usepackage{amsmath,amssymb,MnSymbol}
+\usepackage{xcolor}
 
 
 \usepackage{enumitem}
 \setlist[enumerate]{label=(\arabic*)}
+
+\usepackage{array}
 
 
 %% Packages für Grafiken & Abbildungen %%%%%%%%%%%%%%%%%%%%%%
@@ -61,7 +64,10 @@ chapterprefix=true
 \usepackage{calc}
 
 \usepackage{tikz}
-\usetikzlibrary{calc}
+\usetikzlibrary{calc,positioning,backgrounds}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
 \usepackage{tikzpagenodes}
 \usepackage{tikz-cd} %%PSTricks - nicht verwendbar mit pdfLaTeX
 \usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref}
@@ -69,7 +75,6 @@ chapterprefix=true
 
 \usepackage{listings}
 \usepackage[automark]{scrpage2} % Headline styles 
-\usepackage[square,numbers]{natbib}
 
 
 %% Listings setup %%%%%%%%%%%%%%%%
@@ -99,38 +104,29 @@ chapterprefix=true
 %\renewcommand{\sfdefault}{fav}
 %\setkomafont{disposition}{\sffamily}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\usepackage{lipsum}
-
-
-\usepackage[framemethod=tikz]{mdframed}
+\colorlet{mycol}{red!50!black}
 
 %% Theorems %%%%%%%%%%%%%%%%%%%%%%
-\usepackage{framed}
-\usepackage[thref, hyperref, thmmarks, amsmath, framed]{ntheorem}
-
-%\theoremseparator{.}
-%\theoremheaderfont{\normalfont\sffamily\bfseries}
-%\newtheorem*{beh}{Behauptung}
-%\theorembodyfont{\normalfont}
-
-\theoremseparator{.}
+\usepackage{tikztheorems}
+\newtikztheorem[
+  style=elegantbreak,
+  color=mycol,
+  font header=\normalfont\sffamily\bfseries,
+  counter zero=chapter,
+  postskip=20pt
+  ]{satz}{Satz}
+  
+\newtikztheorem[
+  style=elegantbreak,
+  color=mycol,
+  font header=\normalfont\sffamily\bfseries,
+  font body=\normalfont,
+  counter parent=satz,
+  postskip=20pt
+  ]{definition}{Definition}
 
 \theoremstyle{plain}
-\theoremheaderfont{\normalfont\sffamily\bfseries}
-\theorembodyfont{\normalfont\itshape}      
-%\newcommand{\thmbox}[1]{
-%  \tikzstyle{thmnode}=[inner sep=0pt, outer sep=0pt]
-%  \begin{tikzpicture}
-%    \node[thmnode] (thm) {#1}; 
-%    \path[draw] (thm.north west) -- (thm.south west);
-%  \end{tikzpicture}}
-%\newcommand{\thmbox}[1]{\def\FrameCommand{\vrule width 1pt \hspace{10pt}}
-%  \MakeFramed{\advance\hsize-\width \FrameRestore} #1\endMakeFramed}
-\renewcommand*\FrameCommand{{%
-  \hspace*{-10pt} \vrule width 0.5pt\hspace{1pt}\vrule width 0.5pt 
-  \hspace{3pt}\FrameRestore}}
-\newframedtheorem{satz}{Satz}[chapter]
+\theorembodyfont{\itshape}
 \newtheorem{lemma}[satz]{Lemma}
 \newtheorem{kor}[satz]{Korollar}
 \newtheorem{prop}[satz]{Proposition}
@@ -139,7 +135,6 @@ chapterprefix=true
 %Custom theorems
 \makeatletter
 \newenvironment{plainthm}[1]{\let\plthm\@undefined
-
 \newtheorem{plthm}[satz]{#1} \begin{plthm}}{\end{plthm}}
 \makeatother
 
@@ -152,7 +147,7 @@ chapterprefix=true
 \theoremstyle{plain}
 \theoremheaderfont{\normalfont\sffamily\bfseries}
 \theorembodyfont{\normalfont}
-\newframedtheorem{definition}[satz]{Definition}
+\newtheorem{definition}[satz]{Definition}
 \newtheorem{deflemma}[satz]{Definition/Lemma}
 
 \newtheorem{notation}[satz]{Notation}
@@ -179,33 +174,71 @@ chapterprefix=true
 \allowdisplaybreaks
 
 %% Pagestyle %%%%%%%%%%%%%%%%%%%%%%%%%%
-\addtokomafont{pagenumber}{\sffamily}
-\addtokomafont{pagehead}{\sffamily\upshape}
 \usepackage{scrpage2}
+\addtokomafont{pagenumber}{\sffamily\color{gray!50!black}}
+\addtokomafont{pagehead}{\sffamily\upshape\color{gray!50!black}}
+%\setheadwidth[0pt]{textwithmarginpar}}
 \pagestyle{scrheadings}
+\clearscrheadfoot
 \setheadsepline{0pt}
 \chead{\headmark}
-\ohead{\tikz[remember picture]{\node[outer sep=5pt,inner sep=0pt]
-  (a) {\sffamily\pagemark};}%
-  \tikz[remember picture, overlay]{
+\ohead[\myheadcmd]{\myheadcmd}
+\ofoot{}
+
+\def\myheadcmd{\tikz[remember picture]{
+  \node[outer xsep=1pt, outer ysep=3pt, inner ysep=0pt,
+    inner xsep=5pt, font=\sffamily] (a) {\pagemark};}%
+    \tikz[remember picture, overlay]{
     \ifthenelse{\isodd{\thepage}}{
-      \draw[line width=1pt]
-        ($(a.north west)+(-5pt,0)$) |- ($(a.south east)+(0,-5pt)$);
-      \draw ($(a.south west)+(-5pt,0)$)  -- (a.south west -| current page text area.north
-      west);
+      \draw[gray,line width=1pt]
+        ($(a.north west)+(0pt,0)$) |- ($(a.south east)+(-3pt,-3pt)$);
+      \draw[gray] ($(a.south west)+(0pt,0pt)$)  -- 
+        (a.south west -| current page text area.north west);
+    }{%
+      \draw[gray,line width=1pt]
+        ($(a.north east)+(0pt,0)$) |- ($(a.south west)+(3pt,-3pt)$);
+      \draw[gray] ($(a.south east)+(0pt,0pt)$)-- 
+        (a.south east -| current page text area.north east);
+    }%
+  }%
+}
+
+\def\myheadcmdempty{\tikz[remember picture]{\node[outer sep=4pt,inner sep=0pt] (a) {\sffamily\pagemark};}
+    \tikz[remember picture, overlay]{
+    \ifthenelse{\isodd{\thepage}}{
+      \draw[gray,line width=1pt]
+        ($(a.north west)+(0pt,0)$) |- ($(a.south east)+(0,-3pt)$);
     }{
-      \draw[line width=1pt]
-        ($(a.north east)+(5pt,0)$) |- ($(a.south west)+(3pt,-5pt)$);
-      \draw ($(a.south east)+(5pt,0)$)-- (a.south east -| current page text area.north east);
+      \draw[gray,line width=1pt]
+        ($(a.north east)+(0pt,0)$) |- ($(a.south west)+(0pt,-3pt)$);
     }
   }
 }
-\ofoot{}
+
+%% titlesec %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{titlesec}
+  
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\huge\bfseries\color{mycol!95}}
+  {\color{gray}\chaptertitlename~\thechapter}{}{}
+
+\titleformat{\section}[hang]%
+  {\normalfont\sffamily\huge\bfseries\color{mycol!95}}%
+  {\color{gray}\thesection\hspace{1ex}\raisebox{-0.1\baselineskip}{\rule{1pt}{.8\baselineskip}}}{1ex}{}
+
+\titleformat{\subsection}[hang]%
+  {\normalfont\sffamily\Large\bfseries\color{mycol!95}}%
+  {\color{gray}\thesubsection\hspace{1ex}\raisebox{-0.1\baselineskip}{\rule{0.5pt}{.8\baselineskip}}}{1ex}{}
+
+  
+\titleformat{\subsubsection}[hang]%
+  {\normalfont\sffamily\large\bfseries\color{mycol!95}}%
+  {\color{gray}\thesubsubsection\hspace{1ex}\raisebox{-0.1\baselineskip}{\rule{0.5pt}{.8\baselineskip}}}{1ex}{}
 
 
 %% Makros %%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\A}{\ensuremath \mathbb{A}}
-\newcommand{\R}{\ensuremath \mathbb{R}}
+\newcommand{\R}{\ensuremath \mathcal{R}}
 \newcommand{\N}{\ensuremath \mathbb{N}}
 \newcommand{\Q}{\ensuremath \mathbb{Q}}
 \newcommand{\Z}{\ensuremath \mathbb{Z}}
@@ -217,11 +250,14 @@ chapterprefix=true
 \renewcommand{\O}{\ensuremath \mathcal{O}}
 \renewcommand{\L}{\ensuremath \mathcal{L}}
 \renewcommand{\l}{\ensuremath \ell}
+\renewcommand{\S}{\ensuremath\mathcal{S}}
 \newcommand{\m}{\ensuremath \mathfrak{m}}
 \newcommand{\speq}[1]{\ #1\ }
 \newcommand{\const}{\ensuremath \mathrm{const}}
 \newcommand{\divp}[1]{\ensuremath [#1]} %Divisorpunkt
 \newcommand{\probn}[1]{{\sffamily #1}} %Problem Name
+\newcommand{\obda}{\small oBdA\space}
+\newcommand{\inv}{^{-1}}
 
 \let\div\undefined
 \DeclareMathOperator{\charak}{char}
@@ -240,6 +276,8 @@ chapterprefix=true
 \DeclareMathOperator{\Ord}{Ord}
 \DeclareMathOperator{\im}{im}
 \DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\spann}{span}
 
 
 \newcommand{\funcdef}[1]{%
@@ -247,6 +285,8 @@ chapterprefix=true
   #1\end{array}}
 
 
+\let\grqqnospace\grqq
+\renewcommand{\grqq}{\grqqnospace\space}
 
 %% Others  %%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\?}{{\huge \color{red} ?}}
@@ -257,10 +297,14 @@ chapterprefix=true
 {\displaystyle#1}\end{array}}%
 
 \let\marginparold\marginpar
-\renewcommand{\marginpar}[1]{\marginparold{\scriptsize\sffamily #1}}
+\renewcommand{\marginpar}[1]{%
+  \marginparold[\raggedleft\scriptsize\sffamily #1]%
+  {\raggedright\scriptsize\sffamily #1}}
+
 
 %% Bibliographiestil %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\usepackage{biblatex}
+\usepackage[german=guillemets]{csquotes}
+\usepackage[backend=biber]{biblatex}
 \addbibresource{bib.bib}
 
 
@@ -283,11 +327,22 @@ chapterprefix=true
 \thispagestyle{empty}
 \newcommand{\Rule}{\rule{\textwidth}{1mm}}
 \begin{center}\sffamily\bfseries
-\LARGE Masterarbeit
-\vfill
-\Rule\vspace{5mm}
-\Huge
-\vspace{1mm}\Rule
+\LARGE\textcolor{gray}{Masterarbeit}
+\par\vspace*{2cm}
+\tikz[baseline]{ \node[anchor=base, minimum width=\textwidth,
+  text=mycol,
+  inner xsep=5pt,
+  inner ysep=10pt,
+  align=center,
+  font=\Huge]
+  (main title) {Über explizite Konstruktionen\\ von Normalbasen\\
+  über endlichen Körpern};
+  \draw[overlay, line width=1mm, gray,
+    line cap=round]
+    (main title.south west)
+    ++(0,-10pt) -- +(\textwidth,0)
+    (main title.north west)
+    ++(0,10pt) -- +(\textwidth,0);
 \vfill
 \normalfont\sffamily\large vorgelegt von\par
 \bfseries\LARGE Stefan Hackenberg
@@ -300,8 +355,8 @@ chapterprefix=true
 \normalfont\sffamily\large betreut durch \\
 \bfseries\Large Prof. Dr. Dirk Hachenberger\par
 \vfill
-\normalfont\sffamily\large abgegeben am \\
-\bfseries\Large 
+\normalfont\sffamily\large Stand\\
+\bfseries\Large \today
 \end{center}
 \end{titlepage}
 
@@ -333,18 +388,49 @@ chapterprefix=true
 
 
 \cleardoubleemptypage
+\tableofcontents
 
 
 %% Der Text %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\include{intro.tex}
 \mainmatter
-\input{kreisteilungspolynome.tex}
-\input{moduln.tex}
-\input{normalbasen.tex}
+\input{kreisteilungspolynome}
+\input{moduln}
+\input{normalbasen}
 %\input{scheerhorn_dickson.tex}
 
 
 \nocite{*}
 \printbibliography
+
+
+\appendix
+\chapter{\texttt{Sage}-Quellcodes}
+\lstset{language=python,
+  basicstyle = \footnotesize\normalfont\ttfamily,
+  commentstyle = \itshape\color{gray},
+  caption ={\lstname},
+  frame = tb,
+  framexleftmargin = 0pt,
+  numbers = left,
+  numberstyle = \tiny,
+% numbersep = 5pt,
+  breaklines = true,
+  xleftmargin = 0.1\linewidth,
+  xrightmargin = 0.1\linewidth,
+  showstringspaces=false,
+  columns=fullflexible,
+  tabsize=3}
+
+\lstinputlisting{../Sage/algorithmen.spyx}
+\lstinputlisting{../Sage/examples/scheerhorn1.sage}
+\lstinputlisting{../Sage/examples/satz1.sage}
+\lstinputlisting{../Sage/examples/satz1_1.sage}
+\lstinputlisting{../Sage/examples/satz2.sage}
+
+
+\addchap{Fragen 1}
+\input{fragen1}
+
 \end{document}

@@ -1,0 +1,64 @@
+from sage.all import *
+
+
+def isNormal(x,F):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    R = PolynomialRing(E, 'X');
+    if R(map((lambda i: x ** (q ** i)), range(n-1,0,-1))).gcd(R('X^'+n.str()+'-1')) == 1:
+        return True
+    return False
+
+
+def isCompletelyNormal(x,F):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    R = PolynomialRing(E, 'X');
+    for d in n.divisors():
+        e = n / d
+        if R(map((lambda i: x ** (q ** (i*d))), range(e-1,0,-1))).gcd(R('X^'+e.str()+'-1')) == 1:
+            return True
+        return False
+
+def isCompletelyNormal_shorten(x,F):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    R = PolynomialRing(E, 'X');
+    for d in n.divisors()[1::]:
+        e = n / d
+        if R(map((lambda i: x ** (q ** (i*d))), range(e-1,0,-1))).gcd(R('X^'+e.str()+'-1')) == 1:
+            return True
+        return False
+
+
+def allCompletelyNormal(F,E):
+    p = F.characteristic();
+    q = F.order();
+    n = E.order().log(q);
+    for d in divisors(n)[1::]:
+        if not isAdmissable(squareFreeRelPrimeTo(n/d,p),d,F):
+            return False;
+    return True;
+
+# test whether (n,k) is F-admissable
+def isAdmissable(n,k, F):
+    K = F.extension(k,'a');
+    R = PolynomialRing(K,'x');
+    P = PolynomialRing(F,'x');
+    for (f,l) in R('x^'+n.str()+'-1').factor():
+        try:
+            P(f)
+        except:
+            return False;
+    return True;
+
+
+# returns n' = max{ k : k|n, ggT(k,p) = 1}
+def squareFreeRelPrimeTo(n,p):
+    for k in reversed(divisors(n)):
+        if k.gcd(p) == 1: return k
+    return 1
+

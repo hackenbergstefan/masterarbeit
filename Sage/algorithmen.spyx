@@ -1,0 +1,386 @@
+from sage.all import *
+import re
+
+def isNormal(x, F):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    m = matrix(E, n,n, lambda i, j: x**(q**(i+j)));
+    return m.is_invertible();
+
+
+def tau_order_old(x,F, factors=[]):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    fac = factors;
+    if fac == []:
+        Fx = PolynomialRing(F,'x');
+        for (f,i) in (Fx.gen()**n-1).factor():
+            fac = fac + [f]*i
+    #print fac
+    for i in range(0,2**len(fac)):
+        f = combinePolys(fac, dec_to_bin(i));
+        #print "\tf = ", f, "\tfrob_eval(f,x) = ", frob_eval(f,x)
+        if frob_eval(f,x) == 0: 
+            return f;
+
+def tau_order(x,F, factors, prods):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    fac = factors;
+    pows = dict();
+    pre = [];
+    for idx,(f,mult) in enumerate(fac):
+        for j in xrange(mult-1,-1,-1):
+            ev = str( pre + [j] + map(lambda i: i[1], fac[idx+1:]));
+            g = prods[str(ev)];
+            ret = E.zero();
+            for i,g in enumerate(list(g)):
+                if pows != []:
+                    if pows.has_key(i):
+                        xi = pows[i];
+                    else:
+                        xi = x**(q**i);
+                        pows[i] = xi;
+                else: xi = x**(q**i);
+                try:
+                    ret += g*xi;
+                except:
+                    h = Hom(F,E)[0];
+                    ret += h(g)*xi;
+            if ret != 0:
+                pre += [j+1]; 
+                break;
+            elif j==0: pre += [0];
+    return prods[str(pre)];
+
+def isNormal(x,F, factors, prods):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    fac = factors;
+    pows = dict();
+    pre = [];
+    for idx,(f,mult) in enumerate(fac):
+        for j in xrange(mult-1,-1,-1):
+            ev = str( pre + [j] + map(lambda i: i[1], fac[idx+1:]));
+            g = prods[str(ev)];
+            ret = E.zero();
+            for i,g in enumerate(list(g)):
+                if pows != []:
+                    if pows.has_key(i):
+                        xi = pows[i];
+                    else:
+                        xi = x**(q**i);
+                        pows[i] = xi;
+                else: xi = x**(q**i);
+                try:
+                    ret += g*xi;
+                except:
+                    h = Hom(F,E)[0];
+                    ret += h(g)*xi;
+            if ret != 0:
+                pre += [j+1]; 
+                break;
+            else: return False;
+    #print "q=",q,"n=",n,"pre=",pre,"x=",x;
+    return True;
+
+# factors = [ [polys], [mults] ]
+#def tau_order2(x,F, factors=[[],[]]):
+    #E = x.parent();
+    #q = F.order();
+    #n = E.order().log(q);
+    #fac = factors;
+    #polys = fac[0];
+    #mults = fac[1];
+    #if len(polys) == 0:
+        #Fx = PolynomialRing(F,'x');
+        #polys = [];
+        #mults = [];
+        #for (f,i) in (Fx.gen()**n-1).factor():
+            #polys = polys + [f];
+            #mults = mults + [i];
+    #else: Fx = polys[0].parent();
+    ##print fac
+
+    #pre = Fx.one();
+    #pows = [0]*n;
+    #for i in range(0,len(polys)):
+        #for j in range(mults[i]-1,-1,-1):
+            #f = polys[i]**j;
+            #for k in range(i+1,len(polys)):
+                #f = f * polys[k]**mults[k];
+            ##print "test i=",i, "j=",j
+            ##print "\tf=", f
+            #if frob_eval(f,x,pows) != 0:
+                ##print "\t =>frob != 0!"
+                #pre = pre * polys[i]**(j+1);
+                #break;
+    #return pre;
+
+#def isNormal2(x,F, factors=[[],[]]):
+    #E = x.parent();
+    #q = F.order();
+    #n = E.order().log(q);
+    #fac = factors;
+    #polys = fac[0];
+    #mults = fac[1];
+    #if len(polys) == 0:
+        #Fx = PolynomialRing(F,'x');
+        #polys = [];
+        #mults = [];
+        #for (f,i) in (Fx.gen()**n-1).factor():
+            #polys = polys + [f];
+            #mults = mults + [i];
+    #else: Fx = polys[0].parent();
+    #pre = Fx.one();
+    #pows = [0]*n;
+    #for i in range(0,len(polys)):
+        #for j in range(mults[i]-1,-1,-1):
+            #f = polys[i]**j;
+            #for k in range(i+1,len(polys)):
+                #f = f * polys[k]**mults[k];
+            #if frob_eval(f,x,pows) != 0:
+                #pre = pre * polys[i]**(j+1);
+                #break;
+            #else: return False;
+    #return True;
+
+#def isNormal(x,F, factors=[]):
+    #E = x.parent();
+    #q = F.order();
+    #n = E.order().log(q);
+    #fac = factors;
+    #if len(fac) == 0:
+        #Fx = PolynomialRing(F,'x');
+        #fac = list((Fx.gen()**n-1).factor());
+    #else: Fx = fac[0][0].parent();
+    #pre = Fx.one();
+    #pows = [0]*n;
+    #for idx,(f,mult) in enumerate(fac):
+        #for j in range(mult-1,-1,-1):
+            #g = f**j;
+            #g = g * prod(map(lambda (g,i): g**i, fac[idx+1:]));
+            #if frob_eval(g,x,pows) != 0:
+                #pre = pre * f**(j+1);
+                #break;
+            #else: return False;
+    #return True;
+
+
+
+# facs is list of polynoms 
+# bins a list of 0,1 
+# is bins is of shorter length then bins is headed by zeros
+# returns product of facs where i-th factor is used iff bins[i] = 1
+def combinePolys(facs, bins):
+    b = (len(facs)-len(bins))*[0] + bins
+    ret = facs[0].parent().one();
+    for i in range(0,len(b)):
+        if b[i] == 1: ret = ret * facs[i]
+    return ret
+
+
+def dec_to_bin(x):
+    return map(int,bin(x)[2:])
+
+
+
+# evaluate Frob of E|F in Polynom
+# where
+# f Polynom in Polynomialring over F
+# x Element in E
+# pows a list of powers of x, i.e. pows[i] = x^(q^i).
+def frob_eval(f, x, pows = []):
+    E = x.parent();
+    P = f.parent();
+    F = P.base_ring();
+    R = PolynomialRing(E, 'z');
+    q = F.order();
+    n = E.order().log(q);
+    #try:
+        #h = Hom(F,E)[0];
+        #f = f.map_coefficients(lambda i: h(i), E)
+    #except: pass
+    glist = f.list();
+    ret = E.zero();
+    for i,g in enumerate(glist):
+        if pows != []:
+            if pows.has_key(i):
+                xi = pows[i];
+            else:
+                xi = x**(q**i);
+                pows[i] = xi;
+        else: xi = x**(q**i);
+        try:
+            ret += g*xi;
+        except:
+            h = Hom(F,E)[0];
+            ret += h(g)*xi;
+
+    #print floor((time.clock()-curTime)*1000),"ms";
+    return ret;
+
+def _frob_eval(E, F, n, q, f, x, pows):
+    glist = f.list();
+    ret = E.zero();
+    for i,g in enumerate(glist):
+        if pows != []:
+            if pows.has_key(i):
+                xi = pows[i];
+            else:
+                xi = x**(q**i);
+                pows[i] = xi;
+        else: xi = x**(q**i);
+        try:
+            ret += g*xi;
+        except:
+            h = Hom(F,E)[0];
+            ret += h(g)*xi;
+
+    #print floor((time.clock()-curTime)*1000),"ms";
+    return ret;
+
+# calculate pi_m(q) = max{k: k | q, nu(k) | nu(m) }
+def pim(m,q):
+    num = squarefree(m);
+    for k in reversed(sage.all.divisors(q)):
+        if num%squarefree(k) == 0:
+            return k;
+
+# computes the quadratic free part of an integer
+def squarefree(n):
+    return sage.all.prod(map(lambda x: x[0], sage.all.factor(Integer(n))))
+
+# computes ordn m(q) = min{ k: q ** k = 1 mod m }
+def ordn(m,q):
+    for i in range(1,m+1):
+        if (q ** i)%m == 1: return i;
+
+# returns the i-th Dickson-Polynom D_i(X,a) over the
+# Polynomialring P
+def dickson(i,a, P):
+    if i == 0: return 2 * P.base_ring().gen();
+    if i == 1: return P.gen();
+    else: return P.gen() * dickson(i-1,a,P) - a * dickson(i-2,a,P)
+
+
+def gen_irred_dickson(n,P):
+    F = P.base_ring();
+    for a in F:
+        for b in F:
+            if a == 0 or b == 0: continue;
+            f = dickson(n,a,P) - b;
+            if f.is_irreducible(): return a, b, f;
+
+
+# calcs V_g as subset of E where g is irreducible(!), monic divisor of 
+# a Phi_n(x) over F
+def calc_V_g(n,g):
+    Fx = g.parent();
+    F = Fx.base_ring();
+    q = F.order();
+    s = ordn(squarefree(n),q)
+    l = pim(n,q**s-1);
+    E = F.extension(Fx.cyclotomic_polynomial(n*l).factor()[0][0],'u');
+    u = E.gen();
+    print "---- Calc V_g for"
+    print "\tg =",g
+    print "\t F = GF("+str(q)+"); "+\
+            "E = GF(q^(n*l)) = GF(q^("+str(n)+"*"+str(l)+"))=",E
+    print "where u is primitive n*l="+str(n*l)+" root of unity,",\
+            multiplicative_order(u) == n*l;
+    print "Minpoly(u) =", u.minpoly();
+    for f in Fx.monics(g.degree()):
+        v = frob_eval(f,u);
+        print "f.u == (f mod g).u", v == frob_eval(f.mod(g),u);
+        #print "f=", f, "f.u=",v, \
+                #"\tOrd_q(v)=",tau_order(v,F),\
+                #" == ", tau_order(frob_eval(f.mod(g),u),F);
+        #print "f=",f, " f.u =",v, \
+                #"\tOrd_q(v) =", tau_order(v,F),\
+                #"\tMinpol(f.u) =", v.minpoly();
+        #print "\tord(v) =", multiplicative_order(v).factor();
+
+def multiplicative_order(x):
+    try:
+        return x.multiplicative_order();
+    except:
+        for i in range(1,1000):
+            if x**i == 1: return Integer(i);
+    return Integer(1);
+
+
+# finds minimal polynomial for BINOM f
+# i.e. if f = X^k - b it returns prod_(i=0)^(s-1) (X^k - b^(frobPower^i))
+def mipo(q,s,f):
+    P = f.parent();
+    ret = P.one();
+    b = f[0];
+    k = f.degree();
+    x = P.gen();
+    for i in range(0,s):
+        ret = ret * (x**k - (-b)**(q**i))
+    return ret;
+
+
+# computes Trace_(E | F) (x)
+def trace(E,F,x):
+    #E = x.parent();
+    ret = E.zero();
+    q = F.order();
+    n = E.order().log(q);
+    xi = x;
+    ret = x;
+    for i in range(1,n):
+        xi = xi**q;
+        ret = ret + xi;
+    Fx = PolynomialRing(F,'x');
+    return F(Fx.gen()-Fx(ret.minpoly('x')).factor()[0][0]);
+    #retSubs = re.sub(str(E.gen()), 'x', str(ret));
+    #for h in Hom(F,E):
+        #hSubs = re.sub(str(E.gen()), 'x', str(h(F.gen())));
+        #Fx = PolynomialRing(F,'x');
+        #f = Fx(hSubs+'-'+str(F.gen()));
+        #print "ret  = ", ret;
+        #print "f = ", f;
+        #print "ret.mod(f) = ", Fx(retSubs).mod(f);
+        #if Fx(retSubs).mod(f).is_constant():
+            #return F(Fx(retSubs).mod(f));
+
+def cosets(n,q):
+    L = []
+    Ls = []
+    l = ordn(n,q)
+    for k in range(0,n):
+        cs = coset_l(n,q,k);
+        if not cs in Ls: #and len(cs) == l:
+            Ls = Ls + [cs];
+            L = L + [(k,cs)];
+    return L
+
+def coset_l(n,q,l):
+    return sorted(list(set(map(lambda i: (l*q**i)%n, range(0,n)))));
+
+def print_cosets(n,q):
+    for (k,cs) in cosets(n,q):
+        print k, cs
+
+
+def isNormal_bruteforce(x,F):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    l = ordn(n,q);
+    Fx = PolynomialRing(F,'x');
+    S = set();
+    for i in xrange(0,n):
+        for f in Fx.monics(i):
+            for e in F:
+                S.add(sum(map(lambda fi: fi[0]*x**(q**fi[1]) , zip(list(f+e*Fx.gen()), xrange(0,100)))))
+    if len(S) == E.order():
+        return True;
+    return False;

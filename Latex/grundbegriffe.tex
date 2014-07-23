@@ -1,0 +1,100 @@
+\chapter{Grundbegriffe}
+\label{chap:grundbegriffe}
+
+In diesem Kapitel wollen wir ein paar grundlegende Resultate wiederholen, die
+dem Leser sicherlich bekannt sind. Daher werden wir die meisten Aussagen ohne
+Beweis lediglich zitieren.
+
+\section{Ein wenig Gruppentheorie}
+
+Um später den Zerfall der Kreisteilungspolynome übe endlichen Körpern zu
+verstehen, wiederholen wir zunächst ein paar Aussagen über zyklische Gruppen.
+
+\autocite[Theorem 1.15]{lidl1997finite} fasst alle notwendigen Resultate
+zusammen.
+
+\begin{satz}
+  \label{satz:zykl_gruppen}
+  \begin{enumerate}
+    \item Jede Untergruppe einer zyklischen Gruppe ist wieder zyklisch.
+    \item Sei $\langle a \rangle$ eine zyklische Gruppe der Ordnung $m$,
+      so erzeugt $a^k$ eine Untergruppe der Ordnung $\frac{m}{\ggT(m,k)}$.
+    \item Sei $\langle a\rangle$ eine zyklische Gruppe der Ordnung $m$ und
+      $d \mid m$, so enthält $\langle a \rangle$ genau eine Untergruppe der
+  u    Ordnung $d$.
+     \item Sei $f$ ein positiver Teiler der Gruppenordnung einer endlichen
+        zyklischen Gruppe $\langle a \rangle$. Dann enthält $\langle a \rangle$
+        genau $\phi(f)$ Elemente der Ordnung $f$.
+     \item Eine zyklische Gruppe der Ordnung $m$ enthält genau $\varphi(m)$
+        ($\varphi$ bezeichne die Eulersche Phifunktion)
+        Erzeuger. Ist $a$ ein Erzeuger, so sind alle Erzeuger der Form
+        $a^r$ mit $\ggT(r,m) = 1$.
+  \end{enumerate}
+\end{satz}
+
+\section{Automorphismen über endlichen Körpern}
+
+\begin{satz}
+  \label{satz:frob_auto}
+  Seien $F$ ein endlicher Körper der Charakteristik $p\neq 0$ und 
+  $n\in \N_{>0}$. Dann ist
+  \[ \sigma_n: \funcdef{F &\to& F\\
+    a &\mapsto& a^{p^n}}\]
+  ein Automorphismus auf $F$.
+\end{satz}
+\begin{proof}
+  \autocite[Corollary 3.18]{wan2003lectures}.
+\end{proof}
+
+\begin{bemerkung}
+  Insbesondere gilt also für alle $a,b\in F$, $F$ wie oben:
+  \[ (a\pm b)^{p^n} = a^{p^n} \pm b^{p^n}\,.\]
+\end{bemerkung}
+
+\begin{satz}
+  \label{satz:frob_auto}
+  Sei $q$ eine Primpotenz und $n\in \N_{>0}$. Der Automorphismus
+  \[ \sigma: \funcdef{\F_{q^n} &\to& \F_{q^n}\\
+    a &\mapsto& a^q}\]
+  hält die Elemente von $\F_q$ fest, also 
+  \[ \sigma |_{\F_q} = \id_{\F_q}\,.\]
+  Ferner ist $\sigma^k \neq \id_{\F_{q^n}}$ für $k=1,\ldots,n-1$, alle
+  $\sigma^k$s sind paarweise verschiedene Automorphismen und 
+  $\sigma^n = \id_{\F_{q^n}}$.
+\end{satz}
+
+
+Bezeichne $\Gal(E \mid F)$ die Galoisgruppe einer Galoiserweiterung $E$ über
+$F$, so können wir das folgende zentrale Resultat zitieren:
+
+\begin{satz}
+  \label{satz:frob_sind_alle_autos}
+  Es gilt
+  \[ \Gal(\F_{q^n}\mid \F_q) \speq= \langle \sigma\rangle\,.\]
+  Das bedeutet, dass es neben $\sigma,\ldots,\sigma^{n-1}$ keine weiteren
+  Automorphismen von $\F_{q^n}$ gibt, die $\F_q$ fixieren.
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 7.3]{wan2003lectures}.
+\end{proof}
+
+
+Mit \thref{satz:frob_sind_alle_autos} wird klar, dass für ein
+irreduzibles Polynom $f(X) \in \F_q[X]$, das in $\F_{q^n}$ eine Nullstelle 
+$\alpha$ besitzt, auch $\sigma^i(\alpha)$ für alle $i=1,\ldots,n-1$
+Nullstellen sind. 
+Ferner kann man sich relativ einfach überlegen, dass
+für ein irreduzibles Polynom $f(X)\in \F_q[X]$ eine Nullstelle 
+in $\F_{q^n}$ zu besitzen hinreichend ist, dass $f(X)$ vom Grad $n$ ist. 
+Beides fasst nachstehender Satz zusammen.
+
+\begin{satz}
+  \label{satz:nst_irred_polys}
+  Ist $f(X) \in \F_q[X]$ ein irreduzibles Polynom vom Grad $n$. Dann 
+  existiert eine Nullstelle $\alpha$ von $f(X)$ in $\F_{q^n}$, alle 
+  Nullstellen von $f(X)$ sind einfach und gegeben durch
+  \[ \alpha, \alpha^{q^2}, \ldots, \alpha^{q^{n-1}}\ \in \F_{q^n}\,.\]
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 2.14]{lidl1997finite}.
+\end{proof}

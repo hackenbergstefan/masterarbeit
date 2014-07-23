@@ -6,7 +6,7 @@
 \RequirePackage{calc}
 \usetikzlibrary{calc}
 \RequirePackage{kvoptions}
-\RequirePackage{comment}
+%\RequirePackage{comment}
 
 %Option to hide or show proofs
 \DeclareBoolOption[false]{hideproof}
@@ -159,34 +159,37 @@
  	
 	
 	\def\pretok{}
-	\@ifundefined{#2}{}{\def\pretok{re}}
+	%\@ifundefined{#2}{}{\def\pretok{re}}
+  \expandafter\let\csname #2\endcsname\@undefined
+  \typeout{#2 is}
+  \@ifundefined{#2}{\typeout{undefined}}{\typeout{defined}}
 	
 	\edef\tocall{\noexpand\csname\pretok newtheorem\noexpand\endcsname}
 	
 	
-	%if counter zero is set
-	\ifthenelse{\equal{\the\theoremcounterzero}{}}{
-		%if counter parent is set
-		\ifthenelse{\equal{\the\theoremcounterparent}{}}{
-			\ifttm@nocounter
-				\expandafter\tocall\expandafter*{#2}{#3}
-			\else
-				\expandafter\tocall{#2}{#3}
-			\fi
-		}{
-			\edef\args{{#2}[\the\theoremcounterparent]{#3}}
-			\expandafter\tocall\args
-		}	
-	}{
-		\edef\args{{#2}{#3}[\the\theoremcounterzero]}
-		\expandafter\tocall\args
-	}
-	%if cleveref loaded
-	\@ifpackageloaded{cleveref}{
- 		\crefname{#2}{#3}{#3}
-	}{}
-	%add autoref name
-	\expandafter\def\csname #2autorefname\endcsname{#3}
+  %if counter zero is set
+  \ifthenelse{\equal{\the\theoremcounterzero}{}}{
+    %if counter parent is set
+    \ifthenelse{\equal{\the\theoremcounterparent}{}}{
+      \ifttm@nocounter
+        \expandafter\tocall\expandafter*{#2}{#3}
+      \else
+        \expandafter\tocall{#2}{#3}
+      \fi
+    }{
+      \edef\args{{#2}[\the\theoremcounterparent]{#3}}
+      \expandafter\tocall\args
+    }	
+  }{
+    \edef\args{{#2}{#3}[\the\theoremcounterzero]}
+    \expandafter\tocall\args
+  }
+  %if cleveref loaded
+  \@ifpackageloaded{cleveref}{
+     \crefname{#2}{#3}{#3}
+  }{}
+  %add autoref name
+  \expandafter\def\csname #2autorefname\endcsname{#3}
 }
 
 
@@ -609,7 +612,7 @@
 \qedsymbol{\ensuremath{_\square}}
 
 \iftikztheorems@hideproof
-    \excludecomment{proof}
+    %\excludecomment{proof}
 \fi
 %% ----------------------------------------------------------------------------
 

@@ -146,19 +146,10 @@ chapterprefix=true
                                      
 \theoremstyle{plain}
 \theoremheaderfont{\normalfont\sffamily\bfseries}
-\theorembodyfont{\normalfont}
-\newtheorem{definition}[satz]{Definition}
-\newtheorem{deflemma}[satz]{Definition/Lemma}
+\theorembodyfont{\normalfont}                
 
 \newtheorem{notation}[satz]{Notation}
 
-\theoremstyle{nonumberplain}
-\theoremindent0pt
-\theoremheaderfont{\sffamily\itshape}
-\theorembodyfont{\normalfont}
-\theoremsymbol{\ensuremath{_\square}}
-\newtheorem{proof}{Beweis}
-\qedsymbol{\ensuremath{_\square}}
 
 
 %% Autoref Names %%%%%%%%%%%%%%%%%
@@ -218,9 +209,9 @@ chapterprefix=true
 %% titlesec %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{titlesec}
   
-\titleformat{\chapter}[display]
-  {\normalfont\sffamily\huge\bfseries\color{mycol!95}}
-  {\color{gray}\chaptertitlename~\thechapter}{}{}
+\titleformat{\chapter}[display]%
+  {\normalfont\sffamily\huge\bfseries\color{mycol!95}}%
+  {\color{gray}\chaptertitlename~\thechapter}{0ex}{}
 
 \titleformat{\section}[hang]%
   {\normalfont\sffamily\huge\bfseries\color{mycol!95}}%
@@ -258,6 +249,7 @@ chapterprefix=true
 \newcommand{\probn}[1]{{\sffamily #1}} %Problem Name
 \newcommand{\obda}{\small oBdA\space}
 \newcommand{\inv}{^{-1}}
+\newcommand{\kl}[1]{^{(#1)}}
 
 \let\div\undefined
 \DeclareMathOperator{\charak}{char}
@@ -304,7 +296,10 @@ chapterprefix=true
 
 %% Bibliographiestil %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage[german=guillemets]{csquotes}
-\usepackage[backend=biber]{biblatex}
+\usepackage[style=numeric,backend=biber,
+  isbn=false,
+  firstinits=true
+  ]{biblatex}
 \addbibresource{bib.bib}
 
 
@@ -343,6 +338,7 @@ chapterprefix=true
     ++(0,-10pt) -- +(\textwidth,0)
     (main title.north west)
     ++(0,10pt) -- +(\textwidth,0);
+}
 \vfill
 \normalfont\sffamily\large vorgelegt von\par
 \bfseries\LARGE Stefan Hackenberg
@@ -395,10 +391,10 @@ chapterprefix=true
 
 %\include{intro.tex}
 \mainmatter
+\input{grundbegriffe}
 \input{kreisteilungspolynome}
 \input{moduln}
 \input{normalbasen}
-%\input{scheerhorn_dickson.tex}
 
 
 \nocite{*}
@@ -406,31 +402,31 @@ chapterprefix=true
 
 
 \appendix
-\chapter{\texttt{Sage}-Quellcodes}
-\lstset{language=python,
-  basicstyle = \footnotesize\normalfont\ttfamily,
-  commentstyle = \itshape\color{gray},
-  caption ={\lstname},
-  frame = tb,
-  framexleftmargin = 0pt,
-  numbers = left,
-  numberstyle = \tiny,
-% numbersep = 5pt,
-  breaklines = true,
-  xleftmargin = 0.1\linewidth,
-  xrightmargin = 0.1\linewidth,
-  showstringspaces=false,
-  columns=fullflexible,
-  tabsize=3}
+%\chapter{\texttt{Sage}-Quellcodes}
+%\lstset{language=python,
+  %basicstyle = \footnotesize\normalfont\ttfamily,
+  %commentstyle = \itshape\color{gray},
+  %caption ={\lstname},
+  %frame = tb,
+  %framexleftmargin = 0pt,
+  %numbers = left,
+  %numberstyle = \tiny,
+%% numbersep = 5pt,
+  %breaklines = true,
+  %xleftmargin = 0.1\linewidth,
+  %xrightmargin = 0.1\linewidth,
+  %showstringspaces=false,
+  %columns=fullflexible,
+  %tabsize=3}
 
-\lstinputlisting{../Sage/algorithmen.spyx}
-\lstinputlisting{../Sage/examples/scheerhorn1.sage}
-\lstinputlisting{../Sage/examples/satz1.sage}
-\lstinputlisting{../Sage/examples/satz1_1.sage}
-\lstinputlisting{../Sage/examples/satz2.sage}
+%\lstinputlisting{../Sage/algorithmen.spyx}
+%\lstinputlisting{../Sage/examples/scheerhorn1.sage}
+%\lstinputlisting{../Sage/examples/satz1.sage}
+%\lstinputlisting{../Sage/examples/satz1_1.sage}
+%\lstinputlisting{../Sage/examples/satz2.sage}
 
 
-\addchap{Fragen 1}
-\input{fragen1}
+%\addchap{Fragen 1}
+%\input{fragen1}
 
 \end{document}

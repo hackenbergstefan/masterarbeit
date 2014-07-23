@@ -1,48 +1,192 @@
 \chapter{Der Zerfall von $x^n-1$ und die Kreisteilungspolynome $\Phi_D(x)$}
 \label{chap:kreisteilungspolynome}
 
-Sei $K$ ein beliebiger Körper und $\bar K$ ein fest gewählter algebraischer
+Sei $K$ ein beliebiger Körper der Charakteristik $p$ 
+und $\bar K$ ein fest gewählter algebraischer
 Abschluss.. Wir wollen nun untersuchen, wie das Polynom
 $x^n-1 \in K[x]$ über $K$ zerfällt. Dazu orientieren wir uns 
-an \autocite{lidl1997finite} und starten mit einigen hilfreichen Notationen:
+an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
+
+\begin{definition}[Kreisteilungskörper, Einheitswurzeln]
+  Sei $n\in\N^\ast$. Der Zerfällungskörper von $X^n-1 \in K[X]$ heißt
+  der \emph{$n$-te Kreisteilungskörper} und wird mit $K\kl n$ notiert.
+  Die Nullstellen von $X^n-1$ in $K\kl n$ heißen \emph{$n$-ten
+  Einheitswurzeln} und die Menge derer wird mit $E\kl n$ bezeichnet.
+\end{definition}
 
 
-\begin{lemma}
-  \label{lemma:uber-pi-m-1}
-  
-\end{lemma}
-
-\begin{lemma}
-  \label{lemma:uber-pi-m-2}
-  Für natürliche Zahlen $m$, $k$ gilt
-  \[ k \speq= \pi_m(k)\cdot l \]
-  mit $\ggT(m \pi_m(k), l) = 1$.
-\end{lemma}
+\begin{satz}
+  Sei $n\in \N^\ast$.
+  \begin{enumerate}
+    \item Sei $p\nmid n$. Dann ist $E\kl n$ eine zyklische Gruppe (bzgl. der
+      Multiplikation in $K\kl n$) der Ordnung $n$.
+    \item Ist $p \mid n$ und schreibt man $n = p^e m$ 
+      für positive ganze Zahlen $m$ und $e$ mit $p\nmid m$, so
+      ist $K\kl n = K\kl m$ und $E\kl n= E\kl m$ und die Nullstellen von
+      $X^n-1 \in K[X]$ sind gerade die Elemente in $E\kl m$ jedoch jeweils mit
+      Multiplizität $p^e$.
+  \end{enumerate}
+\end{satz}
 \begin{proof}
-  Dies sieht man sehr leicht, wenn man sich die Primfaktorzerlegungen der
-  gegebenen Zahlen zu Gemüte führt: Sei also 
-  \begin{align*}
-    m \quad&=\quad p_1^{\nu_1} \cdot\ldots\cdot p_s^{\nu_s}\ \cdot\ 
-      r_1^{\eta_1}\cdot\ldots\cdot r_t^{\eta_t}\,,\\
-    k \quad&=\quad p_1^{\nu'_1} \cdot\ldots\cdot p_s^{\nu'_s}\ \cdot\ 
-      r'_1^{\eta'_1}\cdot\ldots\cdot r'_{t'}^{\eta'_{t'}}\,,
-  \end{align*}
-  für geeignete $\nu_\cdot,\nu'_\cdot,\eta_\cdot,\eta'_\cdot > 0$, wobei
-  natürlich $\ggT(r_1\cdot\ldots\cdot r_t, r'_1\cdot\ldots\cdot r'_{t'}) = 1$.
-  Dann ist $\pi_m(k)$ der größte Teiler von $k$, dessen quadratfreier Teil, den
-  quadratfreien Teil von $m$ teilt, also
-  \[ \pi_m(k) \speq= p_1^{\nu'_1}\cdot\ldots\cdot p_s^{\nu'_s}\,.\]
-  Damit ist $l = r'_1^{\eta'_1}\cdot\ldots\cdot r'_{t'}^{\eta'_{t'}}$ und die
-  Behauptung folgt sofort.
-\end{proof} 
+  \autocite[Theorem 2.42]{lidl1997finite}.
+\end{proof}
+
+
+\begin{definition}[primitive Einheitswurzeln]
+  Sei $n\in \N^\ast$ und $p\nmid n$. Dann heißen die Erzeuger von 
+  $E\kl n$ \emph{primitive $n$-te Einheitswurzeln}. 
+  Die Untergruppe der primitiven Einheitswurzeln wird mit
+  $C\kl n$ bezeichnet.
+\end{definition}
+
+
+\begin{definition}[Kreisteilungspolynom]
+  Seien $n \in \N^\ast$, $p\nmid n$ und $\zeta \in C\kl n$. Das Polynom 
+  \[ \Phi_d(X) \speq{:=} \prod_{i=1\atop \ggT(i,n)=1}^n (X - \zeta^i)\]
+  heißt \emph{$d$-tes Kreisteilungspolynom}.
+\end{definition}
+
+\begin{satz}
+  \label{satz:zerfall_xn-1}
+  Seien $K$ ein Körper der Charakteristik $p$ und $n \in \N^\ast$ mit $p\nmid
+  n$. Dann gilt:
+  \begin{enumerate}
+    \item $X^n-1 = \prod_{d\mid n} \Phi_d(X)$.
+    \item $\Phi_n(X) \in P[X]$, wobei $P\subset K$ den Unterkörper mit $p$
+      Elementen notiert.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  \begin{enumerate}
+    \item Dies ist eine einfache Folgerung aus \thref{satz:zykl_gruppen}.
+    \item Lässt sich per Induktion recht einfach beweisen 
+      (vgl. \autocite[Theorem 2.45 (ii)]{lidl1997finite}).
+  \end{enumerate}
+\end{proof}
+
+
+\begin{definition}
+  Für zwei teilerfremde natürliche Zahlen $q,n$ größer Null sei
+  \[ \ord_n(q) \speq{:=} \min\{k \mid q^k \equiv 1 \bmod n\}\,.\]
+\end{definition}
+
+Damit können wir nun zu einem zentralen Resultat dieses Abschnittes kommen, das
+uns über die gesamte Arbeit hinweg begleiten wird.
+
+\begin{satz}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$ mit $\ggT(q,n)=1$. Dann
+  zerfällt das $n$-te Kreisteilungspolynom $\Phi_n(X)$ über $\F_q$ in
+  \[ \frac{\varphi(n)}{\ord_n(q)}\]
+  irreduzible paarweise teilerfremde Polynome von jeweils Grad $\ord_n(q)$.
+\end{satz}
+\begin{proof}
+  Sei $f(X) \mid \Phi_n(X)$ ein irreduzibler Teiler über $\F_q$. Ist dann
+  $\zeta \in C\kl n$ eine Nullstelle von $f(X)$, so sind 
+  nach \thref{satz:nst_irred_polys} auch
+  \[ \zeta^q, \zeta^{q^2}, \ldots, \zeta^{q^n} \]
+  Nullstellen von $f(X)$. Jedoch sind offenbar nur $\ord_n(q)$ dieser 
+  verschieden und da $f$ als irreduzibles Polynom wieder nach 
+  \thref{satz:nst_irred_polys} nur einfache Nullstellen besitzt,
+  können wir folgern, dass $\deg f = \ord_n(q)$.
+  Da $f(X)$ als beliebiger irreduzibler Teiler von $\Phi_n(X)$ gewählt wurde,
+  folgt sofort die Behauptung, wenn man sich überlegt, dass der Grad des
+  $n$-ten Kreisteilungspolynoms per definitionem gerade $\varphi(n)$ ist.
+\end{proof}
+
+
+Im Beweis obigen Satzes haben wir gesehen, dass die Wirkung der Galoisgruppe
+$\Gal(\F_{q^n}\mid \F_q)$ auf der Menge der primitiven $n$-ten Einheitswurzeln
+$C\kl n$ (die Wirkung ist selbstredend durch Einsetzen gegeben) diese in 
+Teilmengen der Mächtigkeit $\ord_n(q)$ zerlegt.
+Dies lässt sich natürlich auf $E\kl n$ übertragen, da ja gerade 
+nach \thref{satz:zykl_gruppen}
+$E\kl n = \bigcupdot_{d\mid n} C\kl d$. 
+Dies motiviert nachstehende Definition.
+
+
+%\begin{lemma}
+  %\label{lemma:uber-pi-m-1}
+  
+%\end{lemma}
+
+%\begin{lemma}
+  %\label{lemma:uber-pi-m-2}
+  %Für natürliche Zahlen $m$, $k$ gilt
+  %\[ k \speq= \pi_m(k)\cdot l \]
+  %mit $\ggT(m \pi_m(k), l) = 1$.
+%\end{lemma}
+%\begin{proof}
+  %Dies sieht man sehr leicht, wenn man sich die Primfaktorzerlegungen der
+  %gegebenen Zahlen zu Gemüte führt: Sei also 
+  %\begin{align*}
+    %m \quad&=\quad p_1^{\nu_1} \cdot\ldots\cdot p_s^{\nu_s}\ \cdot\
+      %r_1^{\eta_1}\cdot\ldots\cdot r_t^{\eta_t}\,,\\
+    %k \quad&=\quad p_1^{\nu'_1} \cdot\ldots\cdot p_s^{\nu'_s}
+      %\ \cdot\ {r'}_1^{{\eta'}_1} \cdot\ldots\cdot {r'}_{t'}^{{\eta'}_{t'}}\,,
+  %\end{align*}
+  %für geeignete $\nu_\cdot,\nu'_\cdot,\eta_\cdot,\eta'_\cdot > 0$, wobei
+  %natürlich $\ggT(r_1\cdot\ldots\cdot r_t, r'_1\cdot\ldots\cdot r'_{t'}) = 1$.
+  %Dann ist $\pi_m(k)$ der größte Teiler von $k$, dessen quadratfreier Teil, den
+  %quadratfreien Teil von $m$ teilt, also
+  %\[ \pi_m(k) \speq= p_1^{\nu'_1}\cdot\ldots\cdot p_s^{\nu'_s}\,.\]
+  %Damit ist $l = {r'}_1^{{\eta'}_1}\cdot\ldots\cdot {r'}_{t'}^{{\eta'}_{t'}}$ 
+  %und die Behauptung folgt sofort.
+%\end{proof} 
 
 \begin{definition}
   Für $m,q\in\N$ mit $\ggT(m,q) = 1$ und $j \in \Z_m$ definieren wir
-  \[ M_q(j\bmod m) \speq{:=} \{ j\,q^i \mid i\in\N\} \speq= 
-    \{j,\ jq,\ jq^2,\ jq^3,\ldots\}\]
+  \[ M_q(j\bmod m) \speq{:=} \{ j\,q^i \bmod m\mid i\in\N\} \speq= 
+    \{j,\ jq,\ jq^2,\ jq^3,\ldots\ \bmod m\}\]
   Ein vollständiges Repräsentantensystem von Nebenklassen von $M_q(1\bmod m)$
-  in $\Z_b$ sei mit $R_q(m)$ bezeichnet.
+  in $\Z_m$ sei mit $R_q(m)$ bezeichnet.
 \end{definition}
+
+
+\begin{beispiel}
+  Wollen wir den Zerfall von $X^{21}-1$ über $\F_2$ untersuchen, so berechnen
+  wir erst ein Vertretersystem von Restklassen $\bmod{21}$:
+  \[\begin{array}[t]{r|l}
+    l \in R_2(21) & M_2(l \bmod{21}) \\\hline
+    0 & 0 \\
+    1 & 1, 2, 4, 8, 11, 16 \\
+    3 & 3, 6, 12 \\
+    5 & 5, 10, 13, 17, 19, 20 \\
+    7 & 7, 14 \\
+    9 & 9, 15, 18
+  \end{array}\]
+  Nun wissen wir aus \thref{satz:zerfall_xn-1}, dass 
+  \[ X^{21} -1 = \Phi_1(X) \cdot \Phi_3(X) \cdot \Phi_7(X) \cdot
+  \Phi_{21}(X)\,.\]
+  Ist $\zeta \in C\kl{21}$ eine primitive $21$-te Einheitswurzel, so 
+  partitionieren sich die Nullstellen von $\Phi_{21}(X)$ gerade in
+  diejenigen $M_2(l\bmod{21})$ für die $l=1,5$, da wir ja gerade diejenigen
+  $i\in \{1,\ldots,20\}$ suchen für die $\zeta^i$ Erzeuger von $C\kl{21}$ ist.
+  Also haben wir 
+  \[\footnotesize\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
+    \begin{array}{rcccc} 
+      \Phi_{21}(X) &=& (X^{6} + X^{4} + X^{2} + X + 1) 
+        &\cdot& (X^{6} + X^{5} + X^{4} + X^{2} + 1) \\
+      &=& (X-\zeta)(X-\zeta^2)(X-\zeta^4)(X-\zeta^8)(X-\zeta^{11})
+        (X-\zeta^{16}) &\cdot&
+        (X-\zeta^5)(X-\zeta^{10})(X-\zeta^{13})(X-\zeta^{17})
+        (X-\zeta^{19})(X-\zeta^{20})\,.
+    \end{array}\]
+  Analog erhalten wir den Zerfall von $\Phi_7(X)$ durch Betrachtung der
+  $M_2(l\bmod{21})$ für $l=3,9$. 
+  \[\footnotesize\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
+    \begin{array}{rcccc} 
+      \Phi_7(X)&=& (X^{3} + X + 1) &\cdot& (X^{3} + X^{2} + 1) \\
+      &=& (X-\zeta^3)(X-\zeta^{3\cdot 2})(X-\zeta^{3\cdot 4}) &\cdot&
+        (X-\zeta^{3\cdot 3})(X-\zeta^{3\cdot 5})(X-\zeta^{3\cdot 6}) 
+    \end{array}\]
+  Sammeln wir den Rest auf, erhalten wir die Partitionierung für
+  $\Phi_3(X)$ und den trivialen Fall $\Phi_1(X)$.
+  \[ \begin{array}{rcc} 
+    \Phi_3(X) &=& X^2 + X + 1\\
+              &=& (X-\zeta^7)(X-\zeta^{14})\,,\\[10pt]
+    \Phi_1(X) &=& X-1\,.
+    \end{array}\]
+\end{beispiel}
 
 
 \begin{satz}
@@ -164,8 +308,8 @@ an \autocite{lidl1997finite} und starten mit einigen hilfreichen Notationen:
   Hieraus wählen wir einen irreduziblen Teiler, sagen wir
   \[ f(x) = x^3 + x +1\,.\]
   Nun wollen wir den Beweis von \cref{satz:f_x_s_ist_teiler_von_phimd}
-  nachvollziehen. Dazu berechnen wir erst $s = \ord_{\nu(n)}(q) = 
-  \ord_7(2) = 3  = \bar s$. Sei Dann $\zeta$ eine 
+  nachvollziehen. Dazu berechnen wir erst $\ord_7(2) = 3  =: s$. 
+  Sei dann $\zeta$ eine 
   $(ms) = 21$-te Einheitswurzel. Um $\Phi_7$ in Termen von $\zeta$ darstellen
   zu können, brauchen wir ein Vertretersystem von Restklassen ${}\bmod 21$
   \[\begin{array}[t]{r|l}

@@ -1,7 +1,144 @@
 \chapter{Moduln}
 
+\section{Über Moduln über Hauptidealbereichen}
+
 Nähern wir uns der Situation von Normalbasen in möglichst allgemeiner Form, so
-beginnt die Reise bei der Betrachtung folgender Situation:
+beginnt die Reise bei der Betrachtung von Moduln über Hauptidealbereichen. Dazu
+wiederholen wir die wichtigsten Definitionen und Aussagen. Für eine intensivere
+Betrachtung sei auf Standardwerke der Algebra, z.B. 
+\autocite{lang2002algebra} oder \autocite{hartley1974rings}, verwiesen.
+
+\begin{definition}[Integritätsbereich]
+  Sei $R$ ein kommutativer Ring, so heißt $R$ \emph{Integritätsbereich},
+  falls $R$ nullteilerfrei ist und $1\neq 0$ in $R$.
+\end{definition}
+
+\begin{definition}[Hauptidealbereich]
+  Sei $R$ ein Integritätsbereich, so heißt $R$ \emph{Hauptidealbereich}
+  oder \emph{Hauptidealring}, falls jedes Ideal $I\ideal R$ ein
+  Hauptideal ist, d.h. ein $r \in R$ existiert mit
+  $I = (r)$.
+\end{definition}
+
+\begin{definition}[irreduzibles Element]
+  Sei $R$ ein Integritätsbereich, so heißt $p\in R$ 
+  \emph{irreduzibel}, falls $p\neq 0$, $p\notin R^\times$ und
+  gilt:
+  \[ \forall a,b \in R:\ p \mid ab \ \Rightarrow\ 
+    p\mid a \lor p\mid b\,.\]
+\end{definition}
+
+\begin{definition}[Faktorieller Ring]
+  Ein Integritätsbereich $R$ heißt \emph{faktorieller Ring}, falls jedes
+  Element $0\neq r \in R$ eine Zerlegung in irreduzible Faktoren besitzt, d.h.
+  \[ r \speq= e a_1 \ldots a_n\]
+  mit $e \in R^\times$, $n\geq 0$ und $a_i\in R$ irreduzibel und diese
+  Zerlegung eindeutig ist, d.h.  sind 
+  \[ e a_1 \ldots a_n \speq= f b_1 \ldots b_m \]
+  zwei Zerlegungen mit $e, f\in R^\times$, $a_i,b_j$ irreduzibel, so
+  folgt $n = m$ und $a_i = u_i b_{\pi(i)}$ für eine Permutation
+  $\pi$ von $\{1,\ldots,n\}$ und Einheiten $a_i$ für alle $i=1,\ldots,n$.
+\end{definition}
+
+\begin{definition}[assoziierte Elemente]
+  Sei $R$ ein Integritätsbereich. Zwei Elemente $r,s\in R$ heißen 
+  \emph{assoziiert}, falls sie sich nur um eine Einheit unterscheiden, d.h. ein
+  $u \in R^\times$ existiert mit $r = us$.
+\end{definition}
+
+\begin{bemerkung}
+  Man sieht leicht ein, dass Assoziiertheit eine Äquivalentzrelation definiert.
+\end{bemerkung}
+
+\begin{satz}
+  Integritätsbereiche sind faktorielle Ringe.
+\end{satz}
+\begin{proof}
+  \autocite{}.
+\end{proof}
+
+\begin{definition}[Modul]
+  Sei $R$ ein kommutativer Ring, so ist ein \emph{$R$-Modul}
+  eine abelsche Gruppe $(M,+,0)$ zusammen mit einer 
+  Abbildung 
+  \[ \cdot:\ R \times M \to M,\ (r,m) \mapsto r\cdot m\,,\]
+  sodass für alle $r, r' \in R$, $m,m' \im M$ gilt
+  \begin{enumerate}
+    \item $r\cdot (r'\cdot m) = (rr')\cdot m$,
+    \item $(r+r')\cdot m = r\cdot m + r'\cdot m$ und 
+    \item $r\cdot(m+m') = r\cdot m + r\cdot m'$.
+  \end{enumerate}
+\end{definition}
+
+
+\begin{definition}[zyklischer Modul]
+  Ein $R$-Modul $M$ heißt \emph{zyklisch}, falls
+  ein $x\in M$ existiert, so dass
+  \[ M = xR\,.\]
+\end{definition}
+
+\begin{definition}[Annihilator]
+  Sei $M$ ein $R$-Modul. Für $S\subset M$ heißt
+  \[ \Ann_R(S) := \{ r \in R \mid sr = 0\ \forall s\in S\}\]
+  der \emph{Annihilator von $S$ in $R$}. 
+  Für $S= \{x\}$ schreibe $\Ann_R(x) := \Ann_R(\{x\})$.
+\end{definition}
+
+\begin{bemerkung}
+  In mancher Literatur wird auch die Schreibweise $M = (x)$ für einen
+  zyklischen Modul benutzt, jedoch suggeriert $(x)$ ein Ideal in $R$ zu
+  bezeichnen. Da dies im Allgemeinen nicht der Fall ist, verzichten wir auf
+  diese Schreibweise.
+\end{bemerkung}
+
+\begin{bemerkung}
+  Man spricht in obiger Definition auch vom \emph{Annihilator-Ideal}, da in der
+  Tat $\Ann_R(S)$ ein Ideal in $R$ ist. Insbesondere, falls 
+  $M = xR$ ein zyklischer $R$-Modul über einem Hauptidealbereich $R$ ist, so
+  ist 
+  \[ \Ann_R x \speq= (r)\]
+  für ein $r\in R$.
+\end{bemerkung}
+
+
+\begin{lemma}
+  Sei $M = xR$ ein zyklischer $R$-Modul. Dann gilt
+  \[M \cong R\big/\Ann_Rx\]
+  als $R$-Moduln und dieser Isomorphismus ist kanonisch.
+\end{lemma}
+\begin{proof}
+  $\phi:R \to M,\ r \mapsto rx$ liefert einen surjektiven Homomorphismus von
+  $R$-Moduln, dessen Kern gerade $\Ann_Rx$ ist. Damit folgt die Behauptung
+  sofort aus dem Homomorphiesatz für Moduln.
+\end{proof}
+
+\begin{definition}[Exponent eines Moduls]
+  Sei $M$ ein $R$-Modul. Existiert ein $r \in R$ mit
+  \[ rM \speq= 0\,,\]
+  so heißt $r$ \emph{Exponent von $M$}.
+\end{definition}
+
+
+Nun können wir ein zentrales Resultat über Moduln mit Exponenten beweisen, das
+sich so auch beispielsweise in \autocite[Lemma 8.10]{hartley1974rings}
+wiederfindet.
+
+\begin{satz}[Zerlegungssatz für Moduln mit Exponenten]
+  Seien $R$ ein Integritätsbereich und 
+  $M$ ein nicht-trivialer $R$-Modul mit Exponent $r$, also $rM = 0$.
+  Sei $r = e p_1^{\alpha_1}\ldots p_k^{\alpha_k}$ eine Zerlegung in irreduzible
+  Faktoren, sodass die $p_i$ paarweise nicht assoziiert sind, 
+  so existieren eindeutig bestimmte $R$-Moduln 
+  $M_1,\ldots,M_k$ mit $p_i^{\alpha_i}M_i = 0$ für alle $i=1,\ldots,k$, sodass
+  \[ M \speq= \bigoplus_{i=1}^k M_i\,.\]
+\end{satz}
+\begin{proof}
+  
+\end{proof}
+
+
+\section{Vektorräume als Moduln}
+
 \begin{definition}[$(V,\tau)$]
   Sei $\K$ ein Körper und $V$ ein $\K$-Vektorraum und 
   $\tau \in \End_\K(V)$, so können wir $V$ als $\K[x]$-Modul auffassen:

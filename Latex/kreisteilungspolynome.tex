@@ -3,7 +3,7 @@
 
 Sei $K$ ein beliebiger Körper der Charakteristik $p$ 
 und $\bar K$ ein fest gewählter algebraischer
-Abschluss.. Wir wollen nun untersuchen, wie das Polynom
+Abschluss. Wir wollen nun untersuchen, wie das Polynom
 $x^n-1 \in K[x]$ über $K$ zerfällt. Dazu orientieren wir uns 
 an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 
@@ -41,13 +41,13 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 
 
 \begin{definition}[Kreisteilungspolynom]
-  Seien $n \in \N^\ast$, $p\nmid n$ und $\zeta \in C\kl n$. Das Polynom 
-  \[ \Phi_d(X) \speq{:=} \prod_{i=1\atop \ggT(i,n)=1}^n (X - \zeta^i)\]
+  Seien $n \in \N^\ast$, $p\nmid n$. Das Polynom 
+  \[ \Phi_n(X) \speq{:=} \prod_{\zeta \in C\kl n} (X - \zeta)\]
   heißt \emph{$d$-tes Kreisteilungspolynom}.
 \end{definition}
 
 \begin{satz}
-  \label{satz:zerfall_xn-1}
+  \label{satz:zerfall_xn_1}
   Seien $K$ ein Körper der Charakteristik $p$ und $n \in \N^\ast$ mit $p\nmid
   n$. Dann gilt:
   \begin{enumerate}
@@ -67,13 +67,48 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 
 \begin{definition}
   Für zwei teilerfremde natürliche Zahlen $q,n$ größer Null sei
-  \[ \ord_n(q) \speq{:=} \min\{k \mid q^k \equiv 1 \bmod n\}\,.\]
+  \[ \ord_n(q) \speq{:=} \ord([q]_n)\]
+  die \emph{multiplikative Ordnung von $q$ modulo $n$},
+  wobei $[q]_n$ die Restklasse von $q$ in $\Z_n$ bezeichnet und 
+  die Ordnung als Gruppenordnung in den Einheiten von $\Z_n$, notiert 
+  durch $\Z_n^\times$, zu lesen ist.
 \end{definition}
+
+\begin{lemma}[Rechenregeln der multiplikation Ordnung modulo $n$]
+  \label{lemma:rechenregeln_ordn}
+  Seien $m,n,q \in \N^\ast$ mit $\ggT(n,q)=1$,
+  $\ggT(m,q) = 1$ und $\ggT(m,n) = 1$, so gilt
+  \begin{enumerate}
+    \item $\ord_n(q) \mid \varphi(n)$,
+    \item $\ord_{mn}(q) = \kgV\{ \ord_m(q), \ord_n(q)\}$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \begin{enumerate}
+    \item Klar, da $[q]_n$ in $\Z_n^\times$ eine Untergruppe der Ordnung
+      $\ord_n(q)$ erzeugt. 
+      Nach dem Satz von Lagrange teilt deren Ordnung die 
+      Gruppenordnung $|\Z_n^\times| = \varphi(n)$.
+    \item Nach dem Chinesischen Restsatz 
+      (z.B. \autocite[Kapitel 2 Satz 12]{bosch2009algebra}) ist
+      \[ f: \funcdef{ \Z_{nm} &\xrightarrow{\cong}& \Z_n \times \Z_m\,,\\{} 
+          [x]_{nm} &\mapsto& ([x]_n, [x]_m)}\]
+      ein Isomorphismus von Ringen, 
+      da algebraisch $\Z_n$ ja nichts anderes ist, als
+      $\Z\big/(n)$, wobei $(n)$ das von $n$ im Ring $\Z$ erzeugte Ideal meint.
+      Dieser liefert einen Gruppenhomomorphismus auf
+      den Einheiten:
+      \[ f: \Z_{nm}^\times \to \Z_n^\times \times \Z_m^\times\,.\]
+      Nun ist per definitionem von $\ord_{\bullet}(q)$ die Behauptung
+      klar.
+  \end{enumerate}
+\end{proof}
 
 Damit können wir nun zu einem zentralen Resultat dieses Abschnittes kommen, das
 uns über die gesamte Arbeit hinweg begleiten wird.
 
 \begin{satz}
+  \label{satz:zerfall_kreisteilungspolys}
   Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$ mit $\ggT(q,n)=1$. Dann
   zerfällt das $n$-te Kreisteilungspolynom $\Phi_n(X)$ über $\F_q$ in
   \[ \frac{\varphi(n)}{\ord_n(q)}\]
@@ -143,6 +178,7 @@ Dies motiviert nachstehende Definition.
 
 
 \begin{beispiel}
+  \label{beispiel:zerfall_x21_1_1}
   Wollen wir den Zerfall von $X^{21}-1$ über $\F_2$ untersuchen, so berechnen
   wir erst ein Vertretersystem von Restklassen $\bmod{21}$:
   \[\begin{array}[t]{r|l}
@@ -154,13 +190,11 @@ Dies motiviert nachstehende Definition.
     7 & 7, 14 \\
     9 & 9, 15, 18
   \end{array}\]
-  Nun wissen wir aus \thref{satz:zerfall_xn-1}, dass 
+  Nun wissen wir aus \thref{satz:zerfall_xn_1}, dass 
   \[ X^{21} -1 = \Phi_1(X) \cdot \Phi_3(X) \cdot \Phi_7(X) \cdot
   \Phi_{21}(X)\,.\]
-  Ist $\zeta \in C\kl{21}$ eine primitive $21$-te Einheitswurzel, so 
-  partitionieren sich die Nullstellen von $\Phi_{21}(X)$ gerade in
-  diejenigen $M_2(l\bmod{21})$ für die $l=1,5$, da wir ja gerade diejenigen
-  $i\in \{1,\ldots,20\}$ suchen für die $\zeta^i$ Erzeuger von $C\kl{21}$ ist.
+  Die Nullstellen von $\Phi_{21}(X)$ partitionieren sich gerade in
+  diejenigen $M_2(l\bmod{21})$ für die $l=1,5$.
   Also haben wir 
   \[\footnotesize\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
     \begin{array}{rcccc} 
@@ -169,8 +203,10 @@ Dies motiviert nachstehende Definition.
       &=& (X-\zeta)(X-\zeta^2)(X-\zeta^4)(X-\zeta^8)(X-\zeta^{11})
         (X-\zeta^{16}) &\cdot&
         (X-\zeta^5)(X-\zeta^{10})(X-\zeta^{13})(X-\zeta^{17})
-        (X-\zeta^{19})(X-\zeta^{20})\,.
+        (X-\zeta^{19})(X-\zeta^{20})\,
     \end{array}\]
+  falls wir $\zeta \in C\kl{21}$ als Nullstelle von
+  $X^6+X^4+X^2+X+1$ setzen.
   Analog erhalten wir den Zerfall von $\Phi_7(X)$ durch Betrachtung der
   $M_2(l\bmod{21})$ für $l=3,9$. 
   \[\footnotesize\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
@@ -184,55 +220,145 @@ Dies motiviert nachstehende Definition.
   \[ \begin{array}{rcc} 
     \Phi_3(X) &=& X^2 + X + 1\\
               &=& (X-\zeta^7)(X-\zeta^{14})\,,\\[10pt]
-    \Phi_1(X) &=& X-1\,.
+    \Phi_1(X) &=& X-1\\
+             &=& X-\zeta^0\,.
     \end{array}\]
 \end{beispiel}
 
 
+Nun können wir uns überlegen, ob und wie unterschiedliche Kreisteilungspolynome
+zusammenhängen und kommen dabei auf die bekannten Resultate, die z.B. in 
+\autocite[Proposition 10.6, 10.7]{hachenberger1997finite} zu finden sind. Um
+diese anzugeben, benötigen wir jedoch noch eine Definitionen.
+
+\begin{definition}
+  Seien $r,n\in \N$, so definiere
+  \[ \pi_r(n) \speq{:=} \max\{k \in \N^\ast:\ k \mid n,\ \nu(k) \mid \nu(r)
+  \}\,.\]
+\end{definition}
+
 \begin{satz}
-  \label{satz:f_x_s_ist_teiler_von_phimd}
+  \label{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}
+  Seien $t,k \in \N^\ast$.
+  \begin{enumerate}
+    \item Ist $\nu(t) \mid k$, so gilt
+      \[ \Phi_k(X^t) \speq= \Phi_{kt}(X) \ \in K[X]\,.\]
+    \item Sind $t$ und $k$ teilerfremd, so gilt
+      \[ \Phi_k(X^t) \speq= \prod_{d\mid t} \Phi_{kd}(X)\ \in K[X]\,.\]
+    \item Insbesondere gilt: Ist $q = p^r$ eine Primzahlpotenz,
+      $t,k\in\N^\ast$ mit $p\nmid t,k$ und $\pi$ eine Potenz von $p$. Sei ferner
+      $t = \pi_k(t)\cdot \bar t$, so gilt
+      \[ \Phi_k(X^{t\pi}) \speq= 
+        \left(\prod_{d\mid \bar t} \Phi_{k\,d\,\pi_k(t)} (X)\right)^\pi
+        \ \in \F_q[X]\,. \]
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  Dass sich Potenzen von $p$ aus dem Argument herausziehen lassen, ist klar,
+  da $\id_P = (.)^\pi: P \to P$ für den Primkörper $P \subset K$ nach 
+  \thref{satz:frob-auto}. Ferner haben nach \thref{satz:zerfall_xn_1} die
+  Kreisteilungspolynome nur Koeffizienten in $P$.
+
+  Der Kern des Beweises des Rests liegt in der Betrachtung des 
+  Gruppenhomomorphismus
+  \[ \psi_n:\ \bar K^\ast \to \bar K^\ast,\ x \mapsto x^n\]
+  für $p\nmid n$. Denn nun ist offensichtlich, dass die Nullstellen von 
+  $\Phi_k(X^t)$ gerade alle Elemente in $\bar K^\ast$, deren $t$-te Potenz
+  eine primitive $k$-te Einheitswurzel ist, sind, also $\psi_t\inv(C\kl k)$.
+  Ergo formulieren sich die Aussagen wie folgt um:
+  \begin{enumerate}[label=(\arabic*')]
+    \item Ist $\nu(t) \mid k$, so gilt
+      $\psi_t\inv(C\kl k) \speq= C\kl{kt}$.
+    \item Ist $\ggT(t,k)=1$, so gilt
+      $\psi_t\inv(C\kl k) \speq= \bigcupdot_{d\mid t} C\kl{kd}$.
+    \item Ist $k,t\in \N^\ast$ mit $p\nmid t,k$ und $k = \pi_k(t) \bar t$,
+      so gilt
+      \[ \psi_t\inv(C\kl k) \speq= 
+        \bigcupdot_{d\mid \bar t} C\kl{k\,d\,\pi_k(t)}\]
+  \end{enumerate}
+  Nun ist offensichtlich, dass es reicht (3') zu zeigen. 
+  Dazu notiere $t_0 := \pi_k(t)$ und seien $d\mid \bar t$ 
+  und $\zeta \in C\kl{kd t_0}$ beliebig. Dann ist 
+  \[ \ord(\zeta^t) = \ord((\zeta^{t_0d})^{\frac{\bar t}{d}})
+    = k\,,\]
+  da per definitionem von $\pi_k(t)$ gerade $\ggT(\bar t, kt_0) = 1$.
+  Also gilt $\psi_t(C\kl{kdt_0}) \subseteq C\kl k$
+  und damit
+  \[ \bigcupdot_{d\mid \bar t} C\kl{kdt_0} \speq\subseteq 
+    \psi_t\inv \psi_t ( \cupdot_{d\mid \bar t} C\kl{kdt_0}) 
+    \speq\subseteq \psi_t\inv(C\kl k)\]
+  Die Gleichheit folgt mit einem Zählargument:
+  Auf der einen Seite ist
+  \[ \big|\bigcupdot_{d\mid \bar t} C\kl{kdt_0}\big| = 
+    \sum_{d\mid \bar t} \varphi(kdt_0) = 
+    \varphi(kt_0)\sum_{d\mid \bar t}\varphi(d) = \varphi(kt_0) \cdot \bar t
+     = \varphi(k)t\,,\]
+  wobei an \thref{lemma:rechenregeln_phifunktion} erinnert sei.
+  Auf der anderen Seite haben wir
+  \[ \big| \psi_t\inv(C \kl k)\big| \speq= t |C\kl k| \speq= t \varphi(k)\,,\]
+  was den Beweis abschließt.
+\end{proof}
+
+An dieser Stelle kann man sich an \thref{satz:zerfall_kreisteilungspolys}
+erinnern und sich die Frage stellen, ob man den
+Zusammenhang unterschiedlicher Kreisteilungspolynome aus 
+\thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}
+in dem Sinne verfeinern kann, dass man sich nicht für das gesamte 
+Kreisteilungspolynom interessiert, sondern lediglich für einen irreduziblen
+Teiler. Diese Frage beantwortet nachstehender Satz.
+
+
+\begin{satz}
+  \label{satz:zerfall_f_x_s}
   Seien $q=p^r$ eine Primzahlpotenz und
   $m,t\in \N$ mit $p\nmid m$, $p\nmid t$ und $\ggT(m,t) = 1$. Ist dann 
-  $f(x) \mid \Phi_m(x)$ ein über $\F_q$ irreduzibler monischer Teiler des
+  $f(X) \mid \Phi_m(x)$ ein über $\F_q$ irreduzibler monischer Teiler des
   $m$-ten Kreisteilungspolynoms. Definieren wir 
   ferner 
   \[ \Delta_q(m,d) \speq{:=} \frac{\varphi(d) \ord_m(q)}{\ord_{md}(q)}\,,\]
   so gilt:
-  \[ f(x^t) \speq= \prod_{d\mid t} \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x)\,,\]
+  \[ f(X^t) \speq= \prod_{d\mid t} \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(X)\,,\]
   wobei für alle $i=1,\ldots,\Delta_q(m,d)$ 
-  \[ f_{d,i}\in \F_q[x] 
-    \text{ monisch, irreduzibel und } f_{d,i}(x) \mid \Phi_{md}(x)\,.\]
-  Ferner sind alle $f_{d,i}(x)$ paarweise teilerfremd.
+  \[ f_{d,i}\in \F_q[X] 
+    \text{ monisch, irreduzibel und } f_{d,i}(X) \mid \Phi_{md}(X)\,.\]
+  Ferner sind alle $f_{d,i}(X)$ paarweise teilerfremd.
 \end{satz}
 \begin{proof}
-  Sei für $n\in \N$
-  \[ U_n := \{ \lambda \in \bar\F_q:\ \ord(\lambda)\mid n\}\]
-  die Menge der $n$-ten Einheitswurzeln und
-  \[ C_n := \{\lambda \in \bar \F_q:\ \ord(\lambda) = n\}\]
-  die Menge der primitiven $n$-ten Einheitswurzeln, so können wir folgenden
-  Gruppenhomomorphismus betrachten:
-  \[ \psi: \funcdef{U_{mt} &\to& U_t\,,\\ \lambda&\mapsto& \lambda^t\,.}\]
-  Offensichtlich ist $\ker\psi = U_t$. Da $\ggT(m,t) = 1$, also 
-  $U_{mt} = U_m \odot U_t$ nach \thref{}, ist $\psi$ auch surjektiv.
+  Wie schon im Beweis von
+  \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys} betrachten wir
+  den Gruppenhomomorphismus $\psi_t$, diesmal eingeschränkt auf $E\kl{mt}$:
+  \[ \psi_t:\ \funcdef{E\kl{mt} & \to& E\kl m\,,\\
+    x &\mapsto& x^t\,,}\]
+  was offenbar ein wohldefinierter Gruppenhomomorphismus bleibt.
+  Offensichtlich ist $\ker\psi_t = E\kl t$. Da $\ggT(m,t) = 1$, also 
+  $E\kl{mt} = E\kl m \odot E\kl t$ als leichte Folgerung aus
+  \thref{satz:zykl_gruppen}, ist $\psi$ auch surjektiv.
 
-  Ist nun $\alpha \in C_m$ eine Nullstelle von $f(x)$, so existiert -- wiederum
-  weil $m$ und $t$ teilerfremd sind -- genau ein $\beta \in C_m$ mit
+  Ist nun $\alpha \in C\kl m$ eine Nullstelle von $f(x)$, 
+  so existiert -- wiederum
+  weil $m$ und $t$ teilerfremd sind -- genau ein $\beta \in C\kl m$ mit
   $\beta^t = \alpha$. Damit ist also
-  \[ \psi\inv(\{\alpha\}) \speq= \beta\, U_t \speq=
-    \bigcupdot_{d\mid t}\ \beta\, C_d \,.\]
-  Sei nun $\sigma_F: \bar\F_q \to \bar\F_q, x\mapsto x^q$ der Frobenius von
-  $\F_q$, so sind $\sigma^j(\alpha)$, $j=0,\ldots,\delta-1$ für 
-  $\delta=\ord_q(m)$ die Nullstellen von $f(x)$. Damit ist die Menge der
-  Nullstellen von $f(x^t)$ gerade
-  \[ \bigcupdot_{j=0}^{\delta-1} \sigma^j(\beta)\, U_t \speq=
-    \bigcupdot_{j=0}^{\delta-1}\ \bigcupdot_{d\mid t}\ \beta^{q^j}\, C_d
+  \[ \psi\inv(\{\alpha\}) \speq= \beta\, E\kl t \speq=
+    \bigcupdot_{d\mid t}\ \beta\, C\kl d \,.\]
+  Notiert wieder $\sigma$ der Frobenius von
+  $\F_q$, so sind nach \thref{satz:nst_irred_polys}
+  $\sigma^j(\alpha)$, $j=0,\ldots,\delta-1$ für 
+  $\delta=\ord_q(m)$ die Nullstellen von $f(x)$. Da $p\nmid t$ bleibt
+  die Menge der $t$-en Einheitswurzeln invariant unter $\sigma $ und 
+  damit ist die Menge der Nullstellen von $f(x^t)$ gerade
+  \[ \bigcupdot_{j=0}^{\delta-1} \sigma^j(\beta)\, E\kl t \speq=
+    \bigcupdot_{j=0}^{\delta-1}\ \bigcupdot_{d\mid t}\ \beta^{q^j}\, C\kl d
     \speq=
-    \bigcupdot_{d\mid t}\ \bigcupdot_{j=0}^{\delta-1}\ \beta^{q^j}\, C_d
+    \bigcupdot_{d\mid t}\ \bigcupdot_{j=0}^{\delta-1}\ \beta^{q^j}\, C\kl d
     \speq{=:} \bigcupdot_{d\mid t} N_d\,. \]
-  Wollen wir nun einsehen, wie $f(x^t)$ über $\F_q$ zerfällt, so müssen wir
+  %Wir bemerken kurz, dass $\alpha$ nicht in obiger Nullstellenmenge liegt, da
+  %$q^i \neq t$ für alle $i=1,\ldots,\delta-1$ und damit 
+  %$\beta^{q^i} \neq \alpha$ für alle $i=1,\ldots,\delta-1$, was
+  %$f(X)\nmid f(X^t)$ zeigt.
+  Wollen wir nun einsehen, wie $f(X^t)$ über $\F_q$ zerfällt, so müssen wir
   überlegen, wie obige Nullstellenmenge in $\sigma$-invariante Teilmengen
-  zerfällt. Für jedes $d\mit t$ und jedes $j\in\{0,\ldots,\delta -1\}$ ist
-  $\zeta \in \beta^{q^j}\,C_d$ ein Element mit $\ord(\zeta) = md$, also
+  zerfällt. Für jedes $d\mid t$ und jedes $j\in\{0,\ldots,\delta -1\}$ ist
+  $\zeta \in \beta^{q^j}\,C\kl d$ ein Element mit $\ord(\zeta) = md$, also
   Nullstelle von $\Phi_{md}(x)$. Ferner gilt
   offenbar $\forall d\mid t:\ |N_d| = \delta\varphi(d)$
   und wir können folgern, dass $N_d$ in genau
@@ -240,11 +366,10 @@ Dies motiviert nachstehende Definition.
     \varphi(d)}{\ord_{md}(q)} \speq=
     \Delta_q(m,d)\]
   $\sigma$-invariante Teilmengen zerfällt. $\Delta_q(m,d)$ ist in der Tat eine
-  natürliche Zahl größer 0, da nach \thref{}
+  natürliche Zahl größer 0, da nach \thref{lemma:rechenregeln_ordn} (2)
   \[ \frac{\ord_m(q)\,\varphi(d)}{\ord_{md}(q)} \speq=
     \frac{\varphi(d)\, \ggT(\ord_m(q),\ord_d(q))}{\ord_d(q)}\]
-  und $\ord_d(q)$, also die multiplikative Ordnung von $q$ in $\Z_d$, ein
-  Teiler der Gruppenordnung der Einheiten von $\Z_d$, also $\varphi(d)$, ist.
+  und $\ord_d(q) \mid \varphi(d)$ nach \thref{lemma:rechenregeln_ordn} (1).
   Damit ist alles gezeigt.
 \end{proof}
 
@@ -298,69 +423,111 @@ Dies motiviert nachstehende Definition.
   %das kleinste Produkt ist, das $f(x^s)$ zu einem Polynom über $F$ macht.
 %\end{proof}
 
-\begin{beispiel}
-  Sei $q = p = 2$ und $m = 7$, so haben wir über $\F_2$
-  \begin{align*}
-    \Phi_m(x) = \Phi_7(x) &= 
-      x^{6} + x^{5} + x^{4} + x^{3} + x^{2} + x + 1 \\
-    &= (x^{3} + x + 1) \cdot (x^{3} + x^{2} + 1)
-  \end{align*}
-  Hieraus wählen wir einen irreduziblen Teiler, sagen wir
-  \[ f(x) = x^3 + x +1\,.\]
-  Nun wollen wir den Beweis von \cref{satz:f_x_s_ist_teiler_von_phimd}
-  nachvollziehen. Dazu berechnen wir erst $\ord_7(2) = 3  =: s$. 
-  Sei dann $\zeta$ eine 
-  $(ms) = 21$-te Einheitswurzel. Um $\Phi_7$ in Termen von $\zeta$ darstellen
-  zu können, brauchen wir ein Vertretersystem von Restklassen ${}\bmod 21$
-  \[\begin{array}[t]{r|l}
-    l \in R_2(21) & M_2(l \bmod 21) \\\hline
-    0 & 0 \\
-    1 & 1, 2, 4, 8, 11, 16 \\
-    3 & 3, 6, 12 \\
-    5 & 5, 10, 13, 17, 19, 20 \\
-    7 & 7, 14 \\
-    9 & 9, 15, 18
-  \end{array}\]
-  Damit haben wir 
-  \[ \setlength{\arraycolsep}{2pt}\begin{array}{rcccc}
-    \Phi_7(x) &=& (x^{3} + x + 1) &\cdot& (x^{3} + x^{2} + 1) \\
-      &=& (x-\zeta^3)(x-\zeta^{3\cdot 2})(x-\zeta^{3\cdot 4}) &\cdot&
-        (x-\zeta^{3\cdot 3})(x-\zeta^{3\cdot 5})(x-\zeta^{3\cdot 6})
-  \end{array}\]
-  Nun folgt 
-  \[\Phi_7(x^3) 
-        = \prod_{d \mid \bar s} \Phi_{md}(x) = \Phi_7(x) \cdot \Phi_{21}(x)\]
-  für 
-  \[\footnotesize\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
-    \begin{array}{rcccc} 
-      \Phi_7(x)&=& (x^{3} + x + 1) &\cdot& (x^{3} + x^{2} + 1) \\
-      &=& (x-\zeta^3)(x-\zeta^{3\cdot 2})(x-\zeta^{3\cdot 4}) &\cdot&
-        (x-\zeta^{3\cdot 3})(x-\zeta^{3\cdot 5})(x-\zeta^{3\cdot 6}) \\[10pt]
-      \Phi_{21}(x) &=& (x^{6} + x^{4} + x^{2} + x + 1) 
-        &\cdot& (x^{6} + x^{5} + x^{4} + x^{2} + 1) \\
-      &=& (x-\zeta)(x-\zeta^2)(x-\zeta^4)(x-\zeta^8)(x-\zeta^{11})
-        (x-\zeta^{16}) &\cdot&
-        (x-\zeta^5)(x-\zeta^{10})(x-\zeta^{13})(x-\zeta^{17})
-        (x-\zeta^{19})(x-\zeta^{20}) 
-    \end{array}\]
-  Ferner ist 
-  \begin{align*}
-    f(x^s) = f(x^3) &= x^{9} + x^{3} + 1\\
-    &= (x^{3} + x^{2} + 1) \cdot (x^{6} + x^{5} + x^{4} + x^{2} + 1)
-  \end{align*}
-  und wir erkennen, dass bereits alles durch
-  \[ (x-\zeta^3)(x^3) \speq= (x-\zeta) (x-\zeta^8) (x-\zeta^{15})\]
-  festgelegt ist.
-  Hier wäre also $f(x^s) = f_1(x)f_2(x)$ mit 
-  \[ d:\ \{1,2\} \to \{1,3\},\ 1\mapsto 1,\ 2\mapsto 3\,,\]
-  was in diesem Fall sogar bijektiv ist.
-\end{beispiel}
 
 \begin{beispiel}
-  Als zweites Beispiel wollen wir uns einen Fall betrachten, in dem $d$ nicht
-  bijektiv ist:
-  Sei $p=q=3$ und $m=5$. Damit ist $s = \ord_{\nu(n)}(q) = 4 = \bar s$.
-  Betrachten wir wieder ein Vertretersystem von Restklassen ${}\bmod 20$
+  Greifen wir noch einmal \thref{beispiel:zerfall_x21_1_1} auf und betrachten
+  einen irreduziblen Teiler $f(X)$ von $\Phi_7(X)$ über $\F_2$, sagen wir
+  \[ f(X) \speq{:=} X^3+ X +1\,.\]
+  Sei $t := 3$.
+  Nun wissen wir nach \thref{satz:zerfall_f_x_s}, dass $f(X^3)$ wie folgt über
+  $\F_2$ zerfällt:
+  \[ f(X^3) \speq= 
+    \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
+      (n)
+      {$\displaystyle\prod_{i=1}^{\Delta_2(7,1)} f_{1,i}(X)$};
+      \node[above=0pt of n, font=\scriptsize, text=gray]{$d=1 \mid 3$};}
+    \cdot
+    \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
+      (n)
+      {$\displaystyle\prod_{i=1}^{\Delta_2(7,3)} f_{3,i}(X)$};
+      \node[above=0pt of n, font=\scriptsize, text=gray]{$d=3 \mid 3$};}
+    \speq=
+    \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
+      (n)
+      {$\displaystyle f_{1,1}(X)$};}
+    \cdot
+    \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
+      (n)
+      {$\displaystyle f_{3,1}(X)$};}
+    \]
+    da 
+    \begin{alignat*}{6}
+      \Delta_2(7,1) &\speq=& \frac{\phi(1)\ord_7(2)}{\ord_{7}(2)} &\speq=&
+        \frac{1\cdot 3}{3} &\speq=& 1\,, \\
+      \Delta_2(7,3) &\speq=& \frac{\phi(3)\ord_7(2)}{\ord_{21}(2)} &\speq=&
+        \frac{2\cdot 3}{6} &\speq=& 1\,. 
+    \end{alignat*}
+    Wir wollen nun herausfinden, welche Teiler $f_{1,1}(X)$ und $f_{3,1}(X)$ 
+    von $\Phi_7(X)$ und $\Phi_{21}(X)$ sind. Wir übernehmen den Zerfall
+    der Kreisteilungspolynome aus \thref{beispiel:zerfall_x21_1_1}
+    und können einsehen, dass
+    \[ f_{1,1}(X) \speq= X^3+X^2+1\,,\qquad
+      f_{3,1}(X) \speq= X^6+X^5+X^4+X^2+1\,.\]
+\end{beispiel}
+
+%\begin{beispiel}
+  %Sei $q = p = 2$ und $m = 7$, so haben wir über $\F_2$
+  %\begin{align*}
+    %\Phi_m(x) = \Phi_7(x) &= 
+      %x^{6} + x^{5} + x^{4} + x^{3} + x^{2} + x + 1 \\
+    %&= (x^{3} + x + 1) \cdot (x^{3} + x^{2} + 1)
+  %\end{align*}
+  %Hieraus wählen wir einen irreduziblen Teiler, sagen wir
+  %\[ f(x) = x^3 + x +1\,.\]
+  %Nun wollen wir den Beweis von \cref{satz:f_x_s_ist_teiler_von_phimd}
+  %nachvollziehen. Dazu berechnen wir erst $\ord_7(2) = 3  =: s$. 
+  %Sei dann $\zeta$ eine 
+  %$(ms) = 21$-te Einheitswurzel. Um $\Phi_7$ in Termen von $\zeta$ darstellen
+  %zu können, brauchen wir ein Vertretersystem von Restklassen ${}\bmod 21$
+  %\[\begin{array}[t]{r|l}
+    %l \in R_2(21) & M_2(l \bmod 21) \\\hline
+    %0 & 0 \\
+    %1 & 1, 2, 4, 8, 11, 16 \\
+    %3 & 3, 6, 12 \\
+    %5 & 5, 10, 13, 17, 19, 20 \\
+    %7 & 7, 14 \\
+    %9 & 9, 15, 18
+  %\end{array}\]
+  %Damit haben wir 
+  %\[ \setlength{\arraycolsep}{2pt}\begin{array}{rcccc}
+    %\Phi_7(x) &=& (x^{3} + x + 1) &\cdot& (x^{3} + x^{2} + 1) \\
+      %&=& (x-\zeta^3)(x-\zeta^{3\cdot 2})(x-\zeta^{3\cdot 4}) &\cdot&
+        %(x-\zeta^{3\cdot 3})(x-\zeta^{3\cdot 5})(x-\zeta^{3\cdot 6})
+  %\end{array}\]
+  %Nun folgt 
+  %\[\Phi_7(x^3) 
+        %= \prod_{d \mid \bar s} \Phi_{md}(x) = \Phi_7(x) \cdot \Phi_{21}(x)\]
+  %für 
+  %\[\footnotesize\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
+    %\begin{array}{rcccc} 
+      %\Phi_7(x)&=& (x^{3} + x + 1) &\cdot& (x^{3} + x^{2} + 1) \\
+      %&=& (x-\zeta^3)(x-\zeta^{3\cdot 2})(x-\zeta^{3\cdot 4}) &\cdot&
+        %(x-\zeta^{3\cdot 3})(x-\zeta^{3\cdot 5})(x-\zeta^{3\cdot 6}) \\[10pt]
+      %\Phi_{21}(x) &=& (x^{6} + x^{4} + x^{2} + x + 1) 
+        %&\cdot& (x^{6} + x^{5} + x^{4} + x^{2} + 1) \\
+      %&=& (x-\zeta)(x-\zeta^2)(x-\zeta^4)(x-\zeta^8)(x-\zeta^{11})
+        %(x-\zeta^{16}) &\cdot&
+        %(x-\zeta^5)(x-\zeta^{10})(x-\zeta^{13})(x-\zeta^{17})
+        %(x-\zeta^{19})(x-\zeta^{20}) 
+    %\end{array}\]
+  %Ferner ist 
+  %\begin{align*}
+    %f(x^s) = f(x^3) &= x^{9} + x^{3} + 1\\
+    %&= (x^{3} + x^{2} + 1) \cdot (x^{6} + x^{5} + x^{4} + x^{2} + 1)
+  %\end{align*}
+  %und wir erkennen, dass bereits alles durch
+  %\[ (x-\zeta^3)(x^3) \speq= (x-\zeta) (x-\zeta^8) (x-\zeta^{15})\]
+  %festgelegt ist.
+  %Hier wäre also $f(x^s) = f_1(x)f_2(x)$ mit 
+  %\[ d:\ \{1,2\} \to \{1,3\},\ 1\mapsto 1,\ 2\mapsto 3\,,\]
+  %was in diesem Fall sogar bijektiv ist.
+%\end{beispiel}
+
+\begin{beispiel}
+  Als zweites Beispiel wollen wir uns einen Fall betrachten, 
+  in dem $\Delta_q(d,m)$ nicht immer $1$ ist.
+  Sei $p=q=3$, $m=5$ und $t:= 4$.
+  Also müssen wir ein Vertretersystem von Restklassen ${}\bmod 20$ betrachten:
   \[\begin{array}[t]{r|l}
     l \in R_3(20) & M_2(l \bmod 20) \\\hline
     0 & 0 \\
@@ -371,33 +538,57 @@ Dies motiviert nachstehende Definition.
     10& 10 \\
     11& 11, 13, 17, 19 
     \end{array}\]
-  und eine $ml = 20$-ste Einheitswurzel $\zeta$, so haben wir
+  Wir sehen, dass $\Phi_{20}(X)$ für $l=1,11$ in 
+  2 Polynome von jeweils Grad $4$ zerfällt:
   \[\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
     \begin{array}{rcccc} 
-      \Phi_5(x)&=& x^4 + x^3 + x^2 + x + 1\\
-      &=& (x-\zeta^4)(x-\zeta^{8})(x-\zeta^{12})(x-\zeta^{16}) \\[10pt]
-      \Phi_{10}(x) &=& x^{4} + 2 x^{3} + x^{2} + 2 x + 1 \\
-      &=& (x-\zeta^2)(x-\zeta^6)(x-\zeta^{14})(x-\zeta^{16})\\[10pt]
       \Phi_{20}(x) &=& 
-        (x^{4} + x^{3} + 2 x + 1) &\cdot& (x^{4} + 2 x^{3} + x + 1) \\
-      &=& (x-\zeta^{11})(x-\zeta^{13})(x-\zeta^{17})(x-\zeta^{19}) &\cdot&
-        (x-\zeta)(x-\zeta^{3})(x-\zeta^{7})(x-\zeta^{9})
+        (X^{4} + X^{3} + 2 X + 1) &\cdot& (X^{4} + 2 X^{3} + X + 1) \\
+      &=& (X-\zeta^{11})(X-\zeta^{13})(X-\zeta^{17})(X-\zeta^{19}) &\cdot&
+        (X-\zeta)(X-\zeta^{3})(X-\zeta^{7})(X-\zeta^{9})\,,
     \end{array}\]
-  Hier haben wir nur eine Wahl für einen irreduziblen monischen Teiler von
-  $\Phi_m(x)$ und setzen daher $f(x) = \Phi_m(x)$.
-  Betrachten wir nun 
-  \[ (x -\zeta^4)(x^4) \speq= (x-\zeta)(x-\zeta^6)(x-\zeta^{11})
-    (x-\zeta^{16})\]
-  so erkennen wir, dass in diesem Fall beide irreduziblen Faktoren von
-  $\Phi_{20}(x)$ getroffen werden und können folgern:
-  \[ f(x^s) \speq= [x^4 + x^3 + x^2 + x + 1]
-    [x^{4} + 2 x^{3} + x^{2} + 2 x + 1]
-    [(x^{4} + x^{3} + 2 x + 1) (x^{4} + 2 x^{3} + x + 1)]\]
-  Dies ist auch nicht weiter überraschend, da in diesem Fall
-  $f(x^s) = \Phi_m(x^s) = \prod_{d\mid \bar s} \Phi_{md}(x) = 
-  \Phi_5(x)\Phi_{10}(x)\Phi_{20}(x)$ ist.
-  Die Abbildung $d$ erschließt sich zu
-  \[ d: \{1,2,3,4\} \to \{1,2,4\},\ 1\mapsto 1,\ 2\mapsto 2,\ 3,4\mapsto 4\]
+  wobei wir $\zeta \in C\kl{20}$ mit Minimalpolynom $X^4+2X^3+X+1$ gewählt
+  haben.
+  Nun können wir den Zerfall von $\Phi_5(X)$ und $\Phi_{10}(X)$ in Termen von
+  $\zeta$ anhand der Restklassen ${}\bmod{20}$ beschreiben:
+  \[\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
+    \begin{array}{rcccc} 
+      \Phi_5(X)&=& X^4 + X^3 + X^2 + X + 1\\
+      &=& (X-\zeta^4)(X-\zeta^{8})(X-\zeta^{12})(X-\zeta^{16})\,, \\[10pt]
+      \Phi_{10}(X) &=& X^{4} + 2 X^{3} + X^{2} + 2 X + 1 \\
+      &=& (X-\zeta^2)(X-\zeta^6)(X-\zeta^{14})(X-\zeta^{16})\,.
+    \end{array}\]
+  Die Restklassen für $l=0,5,10$ gehören zu den Kreisteilungspolynomen 
+  $\Phi_1(X), \Phi_4(X)$ und $\Phi_2(X)$, die wir für ein Beispiel zu
+  \thref{satz:zerfall_f_x_s} nicht benötigen.
+  Nun brauchen wir wieder einen irreduziblen monischen Teiler von
+  $\Phi_m(X)$ und setzen daher $f(X) = \Phi_m(X)$.
+  Wir berechnen wie oben
+  \begin{alignat*}{6}
+    \Delta_3(5,1) &\speq=& \frac{\phi(1)\ord_5(3)}{\ord_{5}(3)} &\speq=&
+      \frac{1\cdot 4}{4} &\speq=& 1\,, \\
+    \Delta_3(5,2) &\speq=& \frac{\phi(1)\ord_5(3)}{\ord_{10}(3)} &\speq=&
+      \frac{1\cdot 4}{4} &\speq=& 1\,, \\
+    \Delta_3(5,4) &\speq=& \frac{\phi(4)\ord_5(3)}{\ord_{20}(3)} &\speq=&
+      \frac{2\cdot 4}{4} &\speq=& 2\,. 
+  \end{alignat*}
+  Nun ist klar, wie $f(X^t)$ über $\F_3$ zerfällt:
+  \[\small f(X^3) \speq= \big(
+    \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
+      (n)
+      {$\displaystyle X^4+X^3+X^2+X+1$};
+      \node[above=0pt of n, font=\scriptsize, text=gray]{$d=1 \mid 4$};}
+    \big)\cdot\big(
+    \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
+      (n)
+      {$\displaystyle X^4+2X^3+X^2+2X+1$};
+      \node[above=0pt of n, font=\scriptsize, text=gray]{$d=2 \mid 4$};}
+    \big)\cdot\big(
+    \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
+      (n)
+      {$\displaystyle (X^4+X^3+2X+1)(X^4+2X^3+X+1)$};
+      \node[above=0pt of n, font=\scriptsize, text=gray]{$d=4 \mid 4$};}
+    \big) \]
 \end{beispiel}
 
 %\begin{beispiel}

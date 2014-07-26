@@ -32,6 +32,28 @@ zusammen.
   \end{enumerate}
 \end{satz}
 
+Da wir später ein paar Eigenschaften der Eulerschen Phifunktion benötigen
+werden, wiederholen wir die wohlbekannte Definition der Eulerschen
+Phifunktion und geben wir dann die wichtigsten Rechenregeln an.
+
+\begin{definition}[quadratfreier Teil]
+  Sei $n \in \N$ und $n = p_1^{r_1}\cdot\ldots\cdot p_l^{r_l}$ seine
+  Primfaktorzerlegung. Dann heißt
+  \[ \nu(n) \speq{:=} p_1\cdot \ldots\cdot p_l\]
+  \emph{quadratfreier Teil von $n$}.
+\end{definition}
+
+
+\begin{lemma}[Rechenregeln der Eulerschen Phifunktion]
+  \label{lemma:rechenregeln_phifunktion}
+  Sei $a,b\in\N^\ast$, so gilt
+  \begin{enumerate}
+    \item $\varphi(ab) = \varphi(a)\varphi(b)$, falls $\ggT(a,b) = 1$,
+    \item $\varphi(a) = \sum_{d\mid a} \varphi(d)$ und
+    \item $\varphi(a) = \tfrac{a}{\nu(a)}\varphi(\nu(a))$.
+  \end{enumerate}
+\end{lemma}
+
 \section{Automorphismen über endlichen Körpern}
 
 \begin{satz}

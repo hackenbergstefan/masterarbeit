@@ -112,10 +112,10 @@ Betrachtung sei auf Standardwerke der Algebra, z.B.
   sofort aus dem Homomorphiesatz für Moduln.
 \end{proof}
 
-\begin{definition}[Exponent eines Moduls]
+\begin{definition}[Ordnung eines Moduls]
   Sei $M$ ein $R$-Modul. Existiert ein $r \in R$ mit
   \[ rM \speq= 0\,,\]
-  so heißt $r$ \emph{Exponent von $M$}.
+  so heißt $r$ \emph{Ordnung von $M$}.
 \end{definition}
 
 
@@ -123,7 +123,7 @@ Nun können wir ein zentrales Resultat über Moduln mit Exponenten beweisen, das
 sich so auch beispielsweise in \autocite[Lemma 8.10]{hartley1974rings}
 wiederfindet.
 
-\begin{satz}[Zerlegungssatz für Moduln mit Exponenten]
+\begin{satz}[Zerlegungssatz für Moduln mit Ordnung]
   Seien $R$ ein Integritätsbereich und 
   $M$ ein nicht-trivialer $R$-Modul mit Exponent $r$, also $rM = 0$.
   Sei $r = e p_1^{\alpha_1}\ldots p_k^{\alpha_k}$ eine Zerlegung in irreduzible
@@ -133,7 +133,39 @@ wiederfindet.
   \[ M \speq= \bigoplus_{i=1}^k M_i\,.\]
 \end{satz}
 \begin{proof}
-  
+  Zu Beginn stellen wir fest, dass die geforderte Zerlegung für $r$ existiert
+  und eindeutig ist, in dem wir ($R$ ist faktoriell) $r$ in irreduzibele
+  Elemente zerlegen und dann diejenigen, die zueinander assoziiert sind,
+  zusammenfassen. Ferner notieren wir $d_i = \frac{r}{p_i^{\alpha_i}}$.
+  Kümmern wir nun um die Eindeutigkeit. Sei also 
+  \[ M = M_1 \oplus \ldots \oplus M_k \quad\text{mit } p_i^{\alpha_i} M_i = 0\]
+  gegeben, so wollen wir zeigen, dass $M_i = d_i M$ und dadurch die Komponenten
+  $M_i$ eindeutig festgelegt sind. Es gilt offenbar für alle $i=1,\ldots,k$
+  \[ d_i M \speq\subseteq d_i M_1 + \ldots + d_i M_k \speq\speq= d_i M_i 
+    \speq\subseteq M_i\,,\]
+  denn $d_i M_j = 0$ für $i\neq j$ nach Voraussetzung. 
+  Wählen wir ein $i = 1,\ldots,k$ beliebig, so ist 
+  $(d_i, p_i^{\alpha_i}) = (1)$, d.h. es existieren $s,t \in R$ mit
+  $sd_i + t p_i^{\alpha_i} = 1$. Für $m\in M_i$ folgt dann
+  \[ m \speq= 1m \speq= (sd_i + tp_i^{\alpha_i})m \speq= d_i (sm)\ 
+    \in d_i M\,. \]
+  Zusammen haben wir 
+  \[ M_i \speq\subseteq d_iM \subseteq d_iM_i \subseteq M_i\]
+  und damit Gleichheit.
+
+  Um die Existenz zu zeigen, definieren wir einmal $M_i := d_iM$ und müssen nun
+  die geforderten Eigenschaften nachprüfen. Zunächst ist klar, dass
+  $p_i^{\alpha_i}M_i = 0$. Da $(d_1,\ldots,d_k) = (1)$ existeren 
+  $t_1,\ldots,t_k$ mit $\sum_{i=1}^kt_id_i$ und für alle $x \in M$ folgt
+  \[ x \speq= 1x \speq= \sum_{i\speq=1}^k d_i(t_ix) 
+    \ \in \sum d_iM \speq= \sum M_i\,.\]
+  Es fehlt nur noch zu zeigen, dass diese Summe auch direkt ist. 
+  Dazu sei wieder $i\in\{1,\ldots,k\}$ beliebig und 
+  $y \in \sum_{i\neq j} M_j$. Also ist $d_iy = 0$. Ist ferner zusätzlich
+  $y \in M_i$, so ist $p_i^{\alpha_i}y = 0$. Wie oben existieren $s,t \in R$
+  mit $sd_i + tp_i^{\alpha_i} = 1$. Also
+  \[ y \speq= 1y \speq= (s_di + tp_i^{\alpha_i})y \speq= 0\,,\]
+  was den Beweis abschließt.
 \end{proof}
 
 

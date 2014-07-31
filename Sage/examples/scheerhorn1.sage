@@ -17,7 +17,7 @@ n = 7   # nu(n) | q+1
 
 F = GF(q, 'a');
 Fx = PolynomialRing(F,'x');
-s = ord(squarefree(n),q)
+s = ordn(squarefree(n),q)
 
 
 print "----------------------------------------"
@@ -87,28 +87,28 @@ for i in divisors(s*n):
     sys.stdout.write(" over K\n")
 
 print "----------------------------------------"
-print "Ord_q^2(th) = ",tau_order(th,K)
+print "Ord_q^2(th) = ",tau_order_old(th,K)
 print "it should be: Ord_q(th) = f(x^s) for f=MiPo_F( Ord_q^s(th) )"
-print "\t we have:\tf = ", mipo(q,s,tau_order(th,K))
-print "\t and \t Ord_q(th) = ", tau_order(th,F)
+print "\t we have:\tf = ", mipo(q,s,tau_order_old(th,K))
+print "\t and \t Ord_q(th) = ", tau_order_old(th,F)
 
 
 print "----------------------------------------"
 print "----- test tau-orders: "
 print "Ord_q(th^i):"
 for i in range(0,n+1):
-    print "i="+str(i)+" =>", tau_order(th**i, F),\
-        "\t\ti=-"+str(i)+" =>", tau_order(th**(-i), F)
+    print "i="+str(i)+" =>", tau_order_old(th**i, F),\
+        "\t\ti=-"+str(i)+" =>", tau_order_old(th**(-i), F)
 
 print "Ord_q^s(th^i):"
 for i in range(0,n+1):
-    print "i="+str(i)+" =>", tau_order(th**i, K),\
-        "\t\ti=-"+str(i)+" =>", tau_order(th**(-i), K)
+    print "i="+str(i)+" =>", tau_order_old(th**i, K),\
+        "\t\ti=-"+str(i)+" =>", tau_order_old(th**(-i), K)
 
 print "Ord_q(th^i+a^i*th^(-i)) = Ord_q(D_i(th+a*th^-1) = "
 for i in range(0,n+1):
-    print "i="+str(i)+" =>", tau_order(th**i+a**i*th**(-i), F)
+    print "i="+str(i)+" =>", tau_order_old(th**i+a**i*th**(-i), F)
 
 print "Ord_q^s(th^i+a^i*th^(-i)) = Ord_q^s(D_i(th+a*th^-1) = "
 for i in range(0,n+1):
-    print "i="+str(i)+" =>", tau_order(th**i+a**i*th**(-i), K)
+    print "i="+str(i)+" =>", tau_order_old(th**i+a**i*th**(-i), K)

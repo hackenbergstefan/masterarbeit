@@ -1,5 +1,8 @@
 from sage.all import *
 import re
+import time
+from multiprocessing import Pool
+import itertools
 
 def isNormal(x, F):
     E = x.parent();
@@ -25,48 +28,29 @@ def tau_order_old(x,F, factors=[]):
         if frob_eval(f,x) == 0: 
             return f;
 
-def tau_order(x,F, factors, prods):
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    fac = factors;
-    pows = dict();
-    pre = [];
-    for idx,(f,mult) in enumerate(fac):
-        for j in xrange(mult-1,-1,-1):
-            ev = str( pre + [j] + map(lambda i: i[1], fac[idx+1:]));
-            g = prods[str(ev)];
-            ret = E.zero();
-            for i,g in enumerate(list(g)):
-                if pows != []:
-                    if pows.has_key(i):
-                        xi = pows[i];
-                    else:
-                        xi = x**(q**i);
-                        pows[i] = xi;
-                else: xi = x**(q**i);
-                try:
-                    ret += g*xi;
-                except:
-                    h = Hom(F,E)[0];
-                    ret += h(g)*xi;
-            if ret != 0:
-                pre += [j+1]; 
-                break;
-            elif j==0: pre += [0];
-    return prods[str(pre)];
 
-def isNormal(x,F, factors, prods):
+
+def tau_order(x,F, factors=[], prods=[]):
+    Fx = PolynomialRing(F,'x');
     E = x.parent();
     q = F.order();
     n = E.order().log(q);
-    fac = factors;
+    if factors == []:
+        fac = (Fx.gen()**n-1).factor();
+    else:
+        fac = factors;
     pows = dict();
     pre = [];
     for idx,(f,mult) in enumerate(fac):
         for j in xrange(mult-1,-1,-1):
-            ev = str( pre + [j] + map(lambda i: i[1], fac[idx+1:]));
-            g = prods[str(ev)];
+            g = f.parent().one();
+            ev = pre + [j] + map(lambda i: i[1], fac[idx+1:]);
+            if prods == []:
+                #generate factor
+                for kidx, k in enumerate(ev):
+                    g *= fac[kidx][0]**k;
+            else:
+                g = prods[str(ev)];
             ret = E.zero();
             for i,g in enumerate(list(g)):
                 if pows != []:
@@ -84,91 +68,336 @@ def isNormal(x,F, factors, prods):
             if ret != 0:
                 pre += [j+1]; 
                 break;
-            else: return False;
-    #print "q=",q,"n=",n,"pre=",pre,"x=",x;
+            elif j == 0: 
+                pre += [0];
+    if prods == []:
+        g = f.parent().one();
+        for jidx, j in enumerate(pre):
+            g *= fac[jidx][0]**j;
+        return g;
+    else:
+        return prods[str(pre)];
+
+def isNormal(x,F, factors=[], prods=[]):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    Fx = PolynomialRing(F,'x');
+    if factors == []:
+        fac = (Fx.gen()**n-1).factor();
+    else: fac = factors;
+    pows = dict();
+    for idx,(f,mult) in enumerate(fac):
+        # generate product key
+        ev = map(lambda i: fac[i][1], xrange(idx)) + \
+                [0] + map(lambda i: i[1], fac[idx+1:]); 
+        if prods != [] and prods.has_key(str(ev)):
+            g = prods[str(ev)];
+        else: #generate factor manually
+            g = f.parent().one();
+            for jidx, j in enumerate(ev):
+                g *= fac[jidx][0]**j;
+        ret = E.zero();
+        iold = 0
+        xiold = x
+        for i,g in enumerate(list(g)):
+            if pows.has_key(i):
+                xi = pows[i];
+                iold = i
+                xiold = xi
+            else:
+                xi = xiold**(q**(i-iold));
+                pows[i] = xi;
+                xiold = xi
+                iold = i
+            try:
+                ret += g*xi;
+            except:
+                h = Hom(F,E)[0];
+                ret += h(g)*xi;
+        if ret == 0: return False;
     return True;
 
-# factors = [ [polys], [mults] ]
-#def tau_order2(x,F, factors=[[],[]]):
-    #E = x.parent();
-    #q = F.order();
-    #n = E.order().log(q);
-    #fac = factors;
-    #polys = fac[0];
-    #mults = fac[1];
-    #if len(polys) == 0:
-        #Fx = PolynomialRing(F,'x');
-        #polys = [];
-        #mults = [];
-        #for (f,i) in (Fx.gen()**n-1).factor():
-            #polys = polys + [f];
-            #mults = mults + [i];
-    #else: Fx = polys[0].parent();
-    ##print fac
+def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    divs = divisors(n);
+    if facAll == []:
+        facAll = dict();
+        prodsAll = dict();
+        fieldsAll = dict();
+        for d in divs:
+            G = F.extension(d, 'c');
+            Gx = PolynomialRing(G,'x');
+            fieldsAll[d] = G;
+            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+            prodsAll[d] = dict();
+            for idx,(f,mult) in enumerate(facAll[d]):
+                ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
+                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
+                pr = Gx.one();
+                for jidx, j in enumerate(ev):
+                    pr *= facAll[d][jidx][0]**j;
+                prodsAll[d][str(ev)] = pr;
+    #test isNormal for each divisor
+    pows = dict()
+    for d in divs[:len(divs)-1]:
+        h = Hom(fieldsAll[d],E)[0];
+        for idx,(f,mult) in enumerate(facAll[d]):
+            # generate product key
+            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
+                [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
+            g = prodsAll[d][str(ev)];
+            ret = E.zero();
+            iold = 0
+            xiold = x
+            for i,gi in enumerate(list(g)):
+                if pows.has_key(i*d):
+                    xi = pows[i*d];
+                    iold = i*d
+                    xiold = xi
+                else:
+                    xi = xiold**(q**(d*i-iold));
+                    pows[i*d] = xi;
+                    xiold = xi
+                    iold = i*d
+                try:
+                    ret += gi*xi;
+                except:
+                    ret += h(gi)*xi;
+            if ret == 0: return False;
+    return True
 
-    #pre = Fx.one();
-    #pows = [0]*n;
-    #for i in range(0,len(polys)):
-        #for j in range(mults[i]-1,-1,-1):
-            #f = polys[i]**j;
-            #for k in range(i+1,len(polys)):
-                #f = f * polys[k]**mults[k];
-            ##print "test i=",i, "j=",j
-            ##print "\tf=", f
-            #if frob_eval(f,x,pows) != 0:
-                ##print "\t =>frob != 0!"
-                #pre = pre * polys[i]**(j+1);
-                #break;
-    #return pre;
 
-#def isNormal2(x,F, factors=[[],[]]):
-    #E = x.parent();
-    #q = F.order();
-    #n = E.order().log(q);
-    #fac = factors;
-    #polys = fac[0];
-    #mults = fac[1];
-    #if len(polys) == 0:
-        #Fx = PolynomialRing(F,'x');
-        #polys = [];
-        #mults = [];
-        #for (f,i) in (Fx.gen()**n-1).factor():
-            #polys = polys + [f];
-            #mults = mults + [i];
-    #else: Fx = polys[0].parent();
-    #pre = Fx.one();
-    #pows = [0]*n;
-    #for i in range(0,len(polys)):
-        #for j in range(mults[i]-1,-1,-1):
-            #f = polys[i]**j;
-            #for k in range(i+1,len(polys)):
-                #f = f * polys[k]**mults[k];
-            #if frob_eval(f,x,pows) != 0:
-                #pre = pre * polys[i]**(j+1);
-                #break;
-            #else: return False;
-    #return True;
+def isCompletelyNormal_ggt(x,F):
+    if x == 0: return False
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    Ex = PolynomialRing(E,'x');
+    for d in divisors(n):
+        e = n/d;
+        xem1 = Ex.gen()**e-1;
+        f = Ex.one();
+        for i in xrange(e):
+            f += x**(q**(d*(e-1-i)))*Ex.gen()**i
+        if xem1.gcd(f) != 1:
+            return False
+    return True
 
-#def isNormal(x,F, factors=[]):
-    #E = x.parent();
-    #q = F.order();
-    #n = E.order().log(q);
-    #fac = factors;
-    #if len(fac) == 0:
-        #Fx = PolynomialRing(F,'x');
-        #fac = list((Fx.gen()**n-1).factor());
-    #else: Fx = fac[0][0].parent();
-    #pre = Fx.one();
-    #pows = [0]*n;
-    #for idx,(f,mult) in enumerate(fac):
-        #for j in range(mult-1,-1,-1):
-            #g = f**j;
-            #g = g * prod(map(lambda (g,i): g**i, fac[idx+1:]));
-            #if frob_eval(g,x,pows) != 0:
-                #pre = pre * f**(j+1);
-                #break;
-            #else: return False;
-    #return True;
+
+def countCNAndPCN_parallel(F,n):
+    TIME = time.clock()
+    q = F.order();
+    E = F.extension(Integer(n),'a');
+    #generate factors
+    facAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    divs = divisors(n);
+    for d in divs:
+        G = F.extension(d, 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facAll[d]):
+            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
+                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
+            pr = Gx.one();
+            for jidx, j in enumerate(ev):
+                pr *= facAll[d][jidx][0]**j;
+            prodsAll[d][str(ev)] = pr;
+    #count all elements
+    pool = Pool()
+    results = pool.map(_isCompletelyNormal, \
+                itertools.izip(E\
+                , itertools.repeat(F)\
+                , itertools.repeat(q)\
+                , itertools.repeat(divs)\
+                , itertools.repeat(fieldsAll)\
+                , itertools.repeat(facAll)\
+                , itertools.repeat(prodsAll)))
+    countCN, countPCN = zip(*results)
+    return sum(countCN), sum(countPCN), (time.clock()-TIME)
+
+
+def _isCompletelyNormal(data):
+    x = data[0]
+    E = x.parent()
+    F = data[1]
+    q = data[2]
+    divs = data[3]
+    fieldsAll = data[4]
+    facAll = data[5]
+    prodsAll = data[6]
+    countCN = 0
+    countPCN = 0
+    isCn = True
+    #test isNormal for each divisor
+    #  ---------------------------
+    pows = dict()
+    for d in divs[:len(divs)-1]:
+        if not isCn: break
+        for idx,(f,mult) in enumerate(facAll[d]):
+            if not isCn: break
+            # generate product key
+            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
+                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
+            g = prodsAll[d][str(ev)];
+            ret = E.zero();
+            iold = 0
+            xiold = x
+            for i,gi in enumerate(list(g)):
+                h = Hom(fieldsAll[d],E)[0];
+                if pows.has_key(i*d):
+                    xi = pows[i*d];
+                    iold = i*d
+                    xiold = xi
+                else:
+                    xi = xiold**(q**(d*i-iold));
+                    pows[i*d] = xi;
+                    xiold = xi
+                    iold = i*d
+                try:
+                    ret += gi*xi;
+                except:
+                    ret += h(gi)*xi;
+            if ret == 0: isCn = False;
+    #  ---------------------------
+    if isCn: countCN += 1;
+    if isCn and x.multiplicative_order() == E.order()-1:
+        countPCN += 1;
+    return countCN, countPCN
+
+
+
+def countCNAndPCN(F,n):
+    TIME = time.clock();
+    q = F.order();
+    E = F.extension(Integer(n),'a');
+    #generate factors
+    facAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    divs = divisors(n);
+    for d in divs:
+        G = F.extension(d, 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facAll[d]):
+            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
+                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
+            pr = Gx.one();
+            for jidx, j in enumerate(ev):
+                pr *= facAll[d][jidx][0]**j;
+            prodsAll[d][str(ev)] = pr;
+    #count all elements
+    countCN = 0;
+    countPCN = 0;
+    for idx,x in enumerate(E):
+        isCn = True
+        #test isNormal for each divisor
+        #  ---------------------------
+        pows = dict()
+        for d in divs[:len(divs)-1]:
+            if not isCn: break
+            for idx,(f,mult) in enumerate(facAll[d]):
+                if not isCn: break
+                # generate product key
+                ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
+                        [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
+                g = prodsAll[d][str(ev)];
+                ret = E.zero();
+                iold = 0
+                xiold = x
+                for i,gi in enumerate(list(g)):
+                    h = Hom(fieldsAll[d],E)[0];
+                    if pows.has_key(i*d):
+                        xi = pows[i*d];
+                        iold = i*d
+                        xiold = xi
+                    else:
+                        xi = xiold**(q**(d*i-iold));
+                        pows[i*d] = xi;
+                        xiold = xi
+                        iold = i*d
+                    try:
+                        ret += gi*xi;
+                    except:
+                        ret += h(gi)*xi;
+                if ret == 0: isCn = False;
+        #  ---------------------------
+        if isCn: countCN += 1;
+        if isCn and x.multiplicative_order() == E.order()-1:
+            countPCN += 1;
+    return countCN, countPCN, (time.clock()-TIME)
+
+
+def findPCNElement(F,n):
+    TIME = time.clock();
+    q = F.order();
+    E = F.extension(Integer(n),'a');
+    #generate factors
+    facAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    divs = divisors(n);
+    for d in divs:
+        G = F.extension(d, 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facAll[d]):
+            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
+                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
+            pr = Gx.one();
+            for jidx, j in enumerate(ev):
+                pr *= facAll[d][jidx][0]**j;
+            prodsAll[d][str(ev)] = pr;
+    #count all elements
+    countCN = 0;
+    countPCN = 0;
+    for idx,x in enumerate(E):
+        isCn = True
+        #test isNormal for each divisor
+        #  ---------------------------
+        pows = dict()
+        for d in divs[:len(divs)-1]:
+            if not isCn: break
+            for idx,(f,mult) in enumerate(facAll[d]):
+                if not isCn: break
+                # generate product key
+                ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
+                        [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
+                g = prodsAll[d][str(ev)];
+                ret = E.zero();
+                iold = 0
+                xiold = x
+                for i,gi in enumerate(list(g)):
+                    h = Hom(fieldsAll[d],E)[0];
+                    if pows.has_key(i*d):
+                        xi = pows[i*d];
+                        iold = i*d
+                        xiold = xi
+                    else:
+                        xi = xiold**(q**(d*i-iold));
+                        pows[i*d] = xi;
+                        xiold = xi
+                        iold = i*d
+                    try:
+                        ret += gi*xi;
+                    except:
+                        ret += h(gi)*xi;
+                if ret == 0: isCn = False;
+        #  ---------------------------
+        if isCn and x.multiplicative_order() == E.order()-1:
+            return x
+    return False
 
 
 
@@ -208,6 +437,7 @@ def frob_eval(f, x, pows = []):
     glist = f.list();
     ret = E.zero();
     for i,g in enumerate(glist):
+        print "frob: i=",i,"gi=",g
         if pows != []:
             if pows.has_key(i):
                 xi = pows[i];
@@ -215,11 +445,13 @@ def frob_eval(f, x, pows = []):
                 xi = x**(q**i);
                 pows[i] = xi;
         else: xi = x**(q**i);
+        print "\t->x^(q^i)=",xi
         try:
             ret += g*xi;
         except:
             h = Hom(F,E)[0];
             ret += h(g)*xi;
+        print "\t\t->ret=",ret
 
     #print floor((time.clock()-curTime)*1000),"ms";
     return ret;
@@ -383,4 +615,63 @@ def isNormal_bruteforce(x,F):
                 S.add(sum(map(lambda fi: fi[0]*x**(q**fi[1]) , zip(list(f+e*Fx.gen()), xrange(0,100)))))
     if len(S) == E.order():
         return True;
+    return False;
+
+
+def hasPCNs(q,n):
+    TIME = time.clock();
+
+    #setup
+    n = Integer(n);
+    q = Integer(q);
+    F = GF(q,'a');
+    E = F.extension(n,'b');
+    facAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    divs = divisors(n);
+    for d in divs:
+        G = F.extension(d, 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        # setup all products of factors of x^(n/d)-1
+        #for i in xmrange(map(lambda f: f[1]+1, facAll[d])):
+            #pr = Gx.one();
+            #for jidx, j in enumerate(i):
+                #pr *= facAll[d][jidx][0]**j;
+            #prodsAll[d][str(i)] = pr;
+    #print facAll
+    #print prodsAll
+    #print fieldsAll
+    # do test
+    countPCN = 0;
+
+    perOld = 0;
+    for idx,x in enumerate(E):
+        if x == 0: continue;
+        if not x.multiplicative_order() == E.order()-1:
+            continue;
+        isCn = True;
+        #isCnBrute = True;
+        for d in divs[:len(divs)-1]:
+            if not isNormal(x,fieldsAll[d],facAll[d],[]):
+            #if trace(E,fieldsAll[d],x) == 0:
+                isCn = False;
+            #if not isNormal_bruteforce(x,fieldsAll[d]):
+                #isCnBrute = False;
+        #if isCn != isCnBrute:
+            #print "x = ",x
+        if isCn: 
+            print "PCN found for q = ",q, "n = ",n;
+            return True;
+            countPCN += 1;
+        #per = idx/E.order();
+        #if floor(100*per) > perOld: 
+            #print round(100*per),"% tested."
+        #perOld = floor(100*per);
+    #print "q = ",q,", n = ",n,", PCN = ",countPCN;
+    #print "\tTIME = ",time.clock()-TIME,"s";
+    print "NO PCN found for q = ",q," n = ", n;
     return False;

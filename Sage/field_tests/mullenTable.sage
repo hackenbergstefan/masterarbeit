@@ -31,11 +31,11 @@ for q, nlist in SETUP:
     for n in xrange(2,6):
         GENLIST += [[q,n]]
 
-#def main():
-    #pool = Pool();
-    #pool.map(process, GENLIST)
-
 def main():
-    for qn in GENLIST:
-        process_parallel(qn)
+    pool = Pool();
+    pool.map(process, GENLIST)
+
+#def main():
+    #for qn in GENLIST:
+        #process_parallel(qn)
 

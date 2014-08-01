@@ -119,16 +119,19 @@ def isNormal(x,F, factors=[], prods=[]):
     return True;
 
 def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
+    if x == 0: return False
     E = x.parent();
     q = F.order();
     n = E.order().log(q);
-    divs = divisors(n);
+    p = F.characteristic();
+    e = q.log(p)
+    divs = get_module_characters(decompose(p,e,n))
     if facAll == []:
         facAll = dict();
         prodsAll = dict();
         fieldsAll = dict();
         for d in divs:
-            G = F.extension(d, 'c');
+            G = F.extension(Integer(d), 'c');
             Gx = PolynomialRing(G,'x');
             fieldsAll[d] = G;
             facAll[d] = list((Gx.gen()**(n/d)-1).factor());
@@ -142,7 +145,7 @@ def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
                 prodsAll[d][str(ev)] = pr;
     #test isNormal for each divisor
     pows = dict()
-    for d in divs[:len(divs)-1]:
+    for d in divs:
         h = Hom(fieldsAll[d],E)[0];
         for idx,(f,mult) in enumerate(facAll[d]):
             # generate product key
@@ -176,14 +179,32 @@ def isCompletelyNormal_ggt(x,F):
     q = F.order();
     n = E.order().log(q);
     Ex = PolynomialRing(E,'x');
-    for d in divisors(n):
-        e = n/d;
-        xem1 = Ex.gen()**e-1;
-        f = Ex.one();
+    p = F.characteristic();
+    e = q.log(p)
+    divs = get_module_characters(decompose(p,e,n))
+    if x == 0: return False
+    #test isNormal for each divisor
+    #  ---------------------------
+    pows = dict()
+    for d in divs:
+        if d == n: continue
+        e = n/d
+        g = Ex.zero()
+        iold = 0
+        xiold = x
         for i in xrange(e):
-            f += x**(q**(d*(e-1-i)))*Ex.gen()**i
-        if xem1.gcd(f) != 1:
-            return False
+            if pows.has_key(i):
+                xi = pows[i*d];
+                iold = i*d
+                xiold = xi
+            else:
+                xi = xiold**(q**(d*i-iold));
+                pows[i*d] = xi;
+                xiold = xi
+                iold = i*d
+            g += xi*Ex.gen()**(e-1-i)
+            #print g
+        if g.gcd(Ex.gen()**e-1) != 1: return False
     return True
 
 
@@ -275,15 +296,20 @@ def _isCompletelyNormal(data):
 
 def countCNAndPCN(F,n):
     TIME = time.clock();
+    p = F.characteristic()
     q = F.order();
+    e = q.log(p)
     E = F.extension(Integer(n),'a');
+    qn = q**n
     #generate factors
     facAll = dict();
     prodsAll = dict();
     fieldsAll = dict();
-    divs = divisors(n);
+    # only consider factors obtained by the Decomposition Theorem
+    divs = get_module_characters(decompose(p,e,n))
+    #divs = divisors(n)
     for d in divs:
-        G = F.extension(d, 'c');
+        G = F.extension(Integer(d), 'c');
         Gx = PolynomialRing(G,'x');
         fieldsAll[d] = G;
         facAll[d] = list((Gx.gen()**(n/d)-1).factor());
@@ -300,11 +326,13 @@ def countCNAndPCN(F,n):
     countPCN = 0;
     for idx,x in enumerate(E):
         isCn = True
+        if x == 0: isCn = False
         #test isNormal for each divisor
         #  ---------------------------
         pows = dict()
-        for d in divs[:len(divs)-1]:
+        for d in divs:
             if not isCn: break
+            if d == n: continue
             for idx,(f,mult) in enumerate(facAll[d]):
                 if not isCn: break
                 # generate product key
@@ -332,7 +360,7 @@ def countCNAndPCN(F,n):
                 if ret == 0: isCn = False;
         #  ---------------------------
         if isCn: countCN += 1;
-        if isCn and x.multiplicative_order() == E.order()-1:
+        if isCn and x.multiplicative_order() == qn-1:
             countPCN += 1;
     return countCN, countPCN, (time.clock()-TIME)
 
@@ -400,6 +428,54 @@ def findPCNElement(F,n):
     return False
 
 
+def countCNAndPCN_ggt(F,n):
+    TIME = time.clock();
+    p = F.characteristic()
+    q = F.order();
+    e = q.log(p)
+    E = F.extension(Integer(n),'a');
+    Ex = PolynomialRing(E,'x')
+    qn = q**n
+    #generate factors
+    facAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    # only consider factors obtained by the Decomposition Theorem
+    divs = get_module_characters(decompose(p,e,n))
+    #divs = divisors(n)
+    #count all elements
+    countCN = 0;
+    countPCN = 0;
+    for idx,x in enumerate(E):
+        isCn = True
+        if x == 0: isCn = False
+        #test isNormal for each divisor
+        #  ---------------------------
+        pows = dict()
+        for d in divs:
+            if not isCn: break
+            if d == n: continue
+            e = n/d
+            g = Ex.zero()
+            iold = 0
+            xiold = x
+            for i in xrange(e):
+                if pows.has_key(i):
+                    xi = pows[i*d];
+                    iold = i*d
+                    xiold = xi
+                else:
+                    xi = xiold**(q**(d*i-iold));
+                    pows[i*d] = xi;
+                    xiold = xi
+                    iold = i*d
+                g += xi*Ex.gen()**(e-1-i)
+            if g.gcd(Ex.gen()**e-1) != 1: isCn = False
+        #  ---------------------------
+        if isCn: countCN += 1;
+        if isCn and x.multiplicative_order() == qn-1:
+            countPCN += 1;
+    return countCN, countPCN, (time.clock()-TIME)
 
 # facs is list of polynoms 
 # bins a list of 0,1 
@@ -618,60 +694,36 @@ def isNormal_bruteforce(x,F):
     return False;
 
 
-def hasPCNs(q,n):
-    TIME = time.clock();
+# Application of the Decomposition Theorem (Section 19)
+# for x^n-1 over F_p^e
+def decompose(p,e, n):
+    pi = largestDiv(p,n)
+    return _decompose(p,e, 1, n/pi, pi)
 
-    #setup
-    n = Integer(n);
-    q = Integer(q);
-    F = GF(q,'a');
-    E = F.extension(n,'b');
-    facAll = dict();
-    prodsAll = dict();
-    fieldsAll = dict();
-    divs = divisors(n);
-    for d in divs:
-        G = F.extension(d, 'c');
-        Gx = PolynomialRing(G,'x');
-        fieldsAll[d] = G;
-        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-        prodsAll[d] = dict();
-        # setup all products of factors of x^(n/d)-1
-        #for i in xmrange(map(lambda f: f[1]+1, facAll[d])):
-            #pr = Gx.one();
-            #for jidx, j in enumerate(i):
-                #pr *= facAll[d][jidx][0]**j;
-            #prodsAll[d][str(i)] = pr;
-    #print facAll
-    #print prodsAll
-    #print fieldsAll
-    # do test
-    countPCN = 0;
 
-    perOld = 0;
-    for idx,x in enumerate(E):
-        if x == 0: continue;
-        if not x.multiplicative_order() == E.order()-1:
-            continue;
-        isCn = True;
-        #isCnBrute = True;
-        for d in divs[:len(divs)-1]:
-            if not isNormal(x,fieldsAll[d],facAll[d],[]):
-            #if trace(E,fieldsAll[d],x) == 0:
-                isCn = False;
-            #if not isNormal_bruteforce(x,fieldsAll[d]):
-                #isCnBrute = False;
-        #if isCn != isCnBrute:
-            #print "x = ",x
-        if isCn: 
-            print "PCN found for q = ",q, "n = ",n;
-            return True;
-            countPCN += 1;
-        #per = idx/E.order();
-        #if floor(100*per) > perOld: 
-            #print round(100*per),"% tested."
-        #perOld = floor(100*per);
-    #print "q = ",q,", n = ",n,", PCN = ",countPCN;
-    #print "\tTIME = ",time.clock()-TIME,"s";
-    print "NO PCN found for q = ",q," n = ", n;
-    return False;
+# returns the module characters of a decomposition
+# the module character of U_F,Phi_k(x^t) is k*t / nu(k)
+def get_module_characters(decomp):
+    return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
+
+
+# internal application of the Decomposition Theorem
+# for Phi_k(x^(t*pi)) over F_p^e
+def _decompose(p,e, k,t,pi):
+    if p.divides(k*t): print "ERROR p | kt"
+    #test all prime divisors, start with largest one
+    flag = False
+    for r,l in reversed(factor(t)):
+        if not (r**l).divides(ordn(squarefree(k*t),p**e)):
+            R = largestDiv(r,t)
+            return _decompose(p,e, k, t/r, pi) + _decompose(p,e, k*R, t/R, pi)
+    return [(k,t,pi)]
+
+
+
+# returns the largest power of p dividing n
+def largestDiv(p,n):
+    l = 0
+    while (p**l).divides(n):
+        l = l+1
+    return p**(l-1);

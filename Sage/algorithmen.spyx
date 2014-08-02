@@ -236,7 +236,7 @@ def countCNAndPCN_parallel(F,n):
     pool = Pool(num_processes)
     for cn, pcn,t in pool.imap(func=_isCompletelyNormal\
                 , iterable=([x,F,q,divs,fieldsAll,facAll,prodsAll] for x in E) \
-                , chunksize=1000):
+                , chunksize=100):
         countCN += cn
         countPCN += pcn
         TIME += t

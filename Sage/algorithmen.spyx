@@ -1,7 +1,8 @@
 from sage.all import *
 import re
 import time
-from multiprocessing import Pool
+from multiprocessing import Pool, Value
+import multiprocessing
 import itertools
 
 def isNormal(x, F):
@@ -210,42 +211,44 @@ def isCompletelyNormal_ggt(x,F):
 
 def countCNAndPCN_parallel(F,n):
     TIME = time.clock()
+    p = F.characteristic()
     q = F.order();
+    e = q.log(p)
     E = F.extension(Integer(n),'a');
     #generate factors
     facAll = dict();
     prodsAll = dict();
     fieldsAll = dict();
-    divs = divisors(n);
+    divs = get_module_characters(decompose(p,e,n))
     for d in divs:
-        G = F.extension(d, 'c');
+        G = F.extension(Integer(d), 'c');
         Gx = PolynomialRing(G,'x');
         fieldsAll[d] = G;
         facAll[d] = list((Gx.gen()**(n/d)-1).factor());
         prodsAll[d] = dict();
         for idx,(f,mult) in enumerate(facAll[d]):
-            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
-                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
-            pr = Gx.one();
-            for jidx, j in enumerate(ev):
-                pr *= facAll[d][jidx][0]**j;
-            prodsAll[d][str(ev)] = pr;
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
     #count all elements
-    pool = Pool()
-    results = pool.map(_isCompletelyNormal, \
-                itertools.izip(E\
-                , itertools.repeat(F)\
-                , itertools.repeat(q)\
-                , itertools.repeat(divs)\
-                , itertools.repeat(fieldsAll)\
-                , itertools.repeat(facAll)\
-                , itertools.repeat(prodsAll)))
-    countCN, countPCN = zip(*results)
-    return sum(countCN), sum(countPCN), (time.clock()-TIME)
+    countCN = 0
+    countPCN = 0
+    TIME = (time.clock() - TIME)
+    num_processes = multiprocessing.cpu_count()
+    pool = Pool(num_processes)
+    for cn, pcn,t in pool.imap(func=_isCompletelyNormal\
+                , iterable=([x,F,q,divs,fieldsAll,facAll,prodsAll] for x in E) \
+                , chunksize=1000):
+        countCN += cn
+        countPCN += pcn
+        TIME += t
+    pool.close()
+    pool.join()
+    return countCN, countPCN, TIME/num_processes
 
 
 def _isCompletelyNormal(data):
+    TIME = time.clock()
     x = data[0]
+    if x == 0: return 0,0,0
     E = x.parent()
     F = data[1]
     q = data[2]
@@ -253,20 +256,15 @@ def _isCompletelyNormal(data):
     fieldsAll = data[4]
     facAll = data[5]
     prodsAll = data[6]
-    countCN = 0
-    countPCN = 0
     isCn = True
     #test isNormal for each divisor
     #  ---------------------------
     pows = dict()
-    for d in divs[:len(divs)-1]:
+    for d in divs:
         if not isCn: break
         for idx,(f,mult) in enumerate(facAll[d]):
             if not isCn: break
-            # generate product key
-            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
-                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
-            g = prodsAll[d][str(ev)];
+            g = prodsAll[d][idx];
             ret = E.zero();
             iold = 0
             xiold = x
@@ -287,10 +285,11 @@ def _isCompletelyNormal(data):
                     ret += h(gi)*xi;
             if ret == 0: isCn = False;
     #  ---------------------------
-    if isCn: countCN += 1;
-    if isCn and x.multiplicative_order() == E.order()-1:
-        countPCN += 1;
-    return countCN, countPCN
+    if isCn:
+        if x.multiplicative_order() == E.order()-1:
+            return 1,1, (time.clock()-TIME)
+        else : return 1,0 , (time.clock()-TIME) 
+    return 0,0 , (time.clock()-TIME) 
 
 
 
@@ -314,13 +313,8 @@ def countCNAndPCN(F,n):
         fieldsAll[d] = G;
         facAll[d] = list((Gx.gen()**(n/d)-1).factor());
         prodsAll[d] = dict();
-        for idx,(f,mult) in enumerate(facAll[d]):
-            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
-                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
-            pr = Gx.one();
-            for jidx, j in enumerate(ev):
-                pr *= facAll[d][jidx][0]**j;
-            prodsAll[d][str(ev)] = pr;
+        for idx, (f,mult) in enumerate(facAll[d]):
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
     #count all elements
     countCN = 0;
     countPCN = 0;
@@ -335,10 +329,7 @@ def countCNAndPCN(F,n):
             if d == n: continue
             for idx,(f,mult) in enumerate(facAll[d]):
                 if not isCn: break
-                # generate product key
-                ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
-                        [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
-                g = prodsAll[d][str(ev)];
+                g = prodsAll[d][idx];
                 ret = E.zero();
                 iold = 0
                 xiold = x

@@ -126,7 +126,7 @@ def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
     n = E.order().log(q);
     p = F.characteristic();
     e = q.log(p)
-    divs = get_module_characters(decompose(p,e,n))
+    divs = get_proper_subfield_divisors(p,e,n)
     if facAll == []:
         facAll = dict();
         prodsAll = dict();
@@ -136,23 +136,16 @@ def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
             Gx = PolynomialRing(G,'x');
             fieldsAll[d] = G;
             facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
             prodsAll[d] = dict();
             for idx,(f,mult) in enumerate(facAll[d]):
-                ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
-                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
-                pr = Gx.one();
-                for jidx, j in enumerate(ev):
-                    pr *= facAll[d][jidx][0]**j;
-                prodsAll[d][str(ev)] = pr;
+                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
     #test isNormal for each divisor
     pows = dict()
     for d in divs:
         h = Hom(fieldsAll[d],E)[0];
         for idx,(f,mult) in enumerate(facAll[d]):
-            # generate product key
-            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
-                [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
-            g = prodsAll[d][str(ev)];
+            g = prodsAll[d][idx];
             ret = E.zero();
             iold = 0
             xiold = x
@@ -182,7 +175,7 @@ def isCompletelyNormal_ggt(x,F):
     Ex = PolynomialRing(E,'x');
     p = F.characteristic();
     e = q.log(p)
-    divs = get_module_characters(decompose(p,e,n))
+    divs = get_proper_subfield_divisors(p,e,n)
     if x == 0: return False
     #test isNormal for each divisor
     #  ---------------------------
@@ -194,7 +187,7 @@ def isCompletelyNormal_ggt(x,F):
         iold = 0
         xiold = x
         for i in xrange(e):
-            if pows.has_key(i):
+            if pows.has_key(i*d):
                 xi = pows[i*d];
                 iold = i*d
                 xiold = xi
@@ -219,7 +212,7 @@ def countCNAndPCN_parallel(F,n):
     facAll = dict();
     prodsAll = dict();
     fieldsAll = dict();
-    divs = get_module_characters(decompose(p,e,n))
+    divs = get_proper_subfield_divisors(p,e,n)
     for d in divs:
         G = F.extension(Integer(d), 'c');
         Gx = PolynomialRing(G,'x');
@@ -247,15 +240,9 @@ def countCNAndPCN_parallel(F,n):
 
 def _isCompletelyNormal(data):
     TIME = time.clock()
-    x = data[0]
+    x,F,q,divs,fieldsAll,facAll,prodsAll = data
     if x == 0: return 0,0,0
     E = x.parent()
-    F = data[1]
-    q = data[2]
-    divs = data[3]
-    fieldsAll = data[4]
-    facAll = data[5]
-    prodsAll = data[6]
     isCn = True
     #test isNormal for each divisor
     #  ---------------------------
@@ -305,7 +292,7 @@ def countCNAndPCN(F,n):
     prodsAll = dict();
     fieldsAll = dict();
     # only consider factors obtained by the Decomposition Theorem
-    divs = get_module_characters(decompose(p,e,n))
+    divs = get_proper_subfield_divisors(p,e,n)
     #divs = divisors(n)
     for d in divs:
         G = F.extension(Integer(d), 'c');
@@ -432,7 +419,7 @@ def countCNAndPCN_ggt(F,n):
     prodsAll = dict();
     fieldsAll = dict();
     # only consider factors obtained by the Decomposition Theorem
-    divs = get_module_characters(decompose(p,e,n))
+    divs = get_proper_subfield_divisors(p,e,n)
     #divs = divisors(n)
     #count all elements
     countCN = 0;
@@ -451,7 +438,7 @@ def countCNAndPCN_ggt(F,n):
             iold = 0
             xiold = x
             for i in xrange(e):
-                if pows.has_key(i):
+                if pows.has_key(i*d):
                     xi = pows[i*d];
                     iold = i*d
                     xiold = xi
@@ -696,6 +683,12 @@ def decompose(p,e, n):
 # the module character of U_F,Phi_k(x^t) is k*t / nu(k)
 def get_module_characters(decomp):
     return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
+
+# returns all divisors of the module characters of an extension
+# i.e. all intermediate fields that must be considered
+def get_proper_subfield_divisors(p,e, n):
+    return list(uniq(itertools.chain(*map(divisors,\
+            get_module_characters(decompose(p,e,n))))))
 
 
 # internal application of the Decomposition Theorem

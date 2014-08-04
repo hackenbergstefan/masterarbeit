@@ -368,15 +368,15 @@ def countCompleteSubmoduleGenerators(F,n):
     #count all elements
     generators = dict()
     for d in decomposition:
-        generators[d] = []
+        generators[d] = set()
     TIME = (time.clock() - TIME)
     num_processes = multiprocessing.cpu_count()
     pool = Pool(num_processes)
-    for countGens,t in pool.imap(func=_isCompleteSubmoduleGenerator\
+    for d,gen,t in pool.imap(func=_isCompleteSubmoduleGenerator\
                 , iterable=([x,F,q,decomposition,data] for x in E) \
                 , chunksize=100):
-        for d in decomposition:
-            generators[d] += countGens[d]
+        if d != -1:
+            generators[d].add(gen)
         TIME += t
     pool.close()
     pool.join()
@@ -401,7 +401,7 @@ def _isCompleteSubmoduleGenerator(input):
     countGens = dict()
     for decomp in decomposition:
         countGens[decomp] = []
-    if x == 0: return countGens,0
+    if x == 0: return -1,0,0
     # test complete generator for each cyclotomic module of the 
     # complete decomposition
     #  ---------------------------
@@ -458,9 +458,8 @@ def _isCompleteSubmoduleGenerator(input):
                 #print "\t->cycl(x)=",ret
                 if ret != 0: isCompleteGen = False
         if isCompleteGen: 
-            countGens[decomp] = [x]
-            return countGens,(time.clock()-TIME)
-    return countGens, (time.clock()-TIME)
+            return decomp, x,(time.clock()-TIME)
+    return -1, 0, (time.clock()-TIME)
 
 
 def findPCNElement(F,n):

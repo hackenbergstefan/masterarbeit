@@ -393,7 +393,7 @@ def countCompleteSubmoduleGenerators(F,n):
     pool.join()
 
     return prod(map(lambda c: c[1],countGens)), countPrims,\
-            countGens, round(TIME/num_processes + (clock.time()-TAFT))
+            countGens, round(TIME/num_processes + (time.clock()-TAFT))
 
 def _isPrimitive(y):
     x = sum(y)

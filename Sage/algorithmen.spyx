@@ -372,35 +372,41 @@ def countCompleteSubmoduleGenerators(F,n):
     TIME = (time.clock() - TIME)
     num_processes = multiprocessing.cpu_count()
     pool = Pool(num_processes)
-    for d,gen,t in pool.imap(func=_isCompleteSubmoduleGenerator\
+    for d,gen,t in pool.imap_unordered(func=_isCompleteSubmoduleGenerator\
                 , iterable=([x,F,q,decomposition,data] for x in E) \
-                , chunksize=100):
+                , chunksize=10):
         if d != -1:
             generators[d].add(gen)
         TIME += t
-    pool.close()
-    pool.join()
+    TAFT = time.clock()
     countGens = []
     # count generators
     for d in decomposition:
         countGens += [(d, len(generators[d]))]
     # calc primitive ones
     countPrims = 0
-    for y in itertools.product(*[generators[d] for d in decomposition]):
-        x = sum(y)
-        if x.multiplicative_order() == E.order()-1:
-            countPrims += 1
+    for cP in pool.imap_unordered(func=_isPrimitive\
+            , iterable=itertools.product(*[generators[d] for d in decomposition])
+            , chunksize=100):
+        countPrims += cP
+    pool.close()
+    pool.join()
 
     return prod(map(lambda c: c[1],countGens)), countPrims,\
-            countGens, round(TIME/num_processes)
+            countGens, round(TIME/num_processes + (clock.time()-TAFT))
+
+def _isPrimitive(y):
+    x = sum(y)
+    E = x.parent()
+    if x.multiplicative_order() == E.order()-1:
+        return 1
+    return 0
+
 
 def _isCompleteSubmoduleGenerator(input):
     TIME = time.clock()
     x,F,q,decomposition,data = input
     E = x.parent()
-    countGens = dict()
-    for decomp in decomposition:
-        countGens[decomp] = []
     if x == 0: return -1,0,0
     # test complete generator for each cyclotomic module of the 
     # complete decomposition

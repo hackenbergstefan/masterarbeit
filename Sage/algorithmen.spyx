@@ -342,6 +342,126 @@ def countCNAndPCN(F,n):
             countPCN += 1;
     return countCN, countPCN, (time.clock()-TIME)
 
+def countCompleteSubmoduleGenerators(F,n):
+    TIME = time.clock()
+    p = F.characteristic()
+    q = F.order();
+    e = q.log(p)
+    E = F.extension(Integer(n),'a');
+    #generate factors
+    data = dict();
+    decomposition = decompose(p,e,n)
+    for decomp in decomposition:
+        data[decomp] = dict()
+        k,t,pi = decomp
+        divs = divisors(get_module_character(*decomp))
+        data[decomp][-1] = divs
+        for d in divs:
+            G = F.extension(Integer(d), 'c');
+            Gx = PolynomialRing(G,'x'); 
+            cycl = Gx.cyclotomic_polynomial(squarefree(k))\
+                    (Gx.gen()**(k*t*pi/squarefree(k)/d))
+            factors = []
+            for f,mult in cycl.factor():
+                factors += [cycl.quo_rem(f)[0]]
+            data[decomp][d] = (G,cycl,factors)
+    #count all elements
+    generators = dict()
+    for d in decomposition:
+        generators[d] = []
+    TIME = (time.clock() - TIME)
+    num_processes = multiprocessing.cpu_count()
+    pool = Pool(num_processes)
+    for countGens,t in pool.imap(func=_isCompleteSubmoduleGenerator\
+                , iterable=([x,F,q,decomposition,data] for x in E) \
+                , chunksize=100):
+        for d in decomposition:
+            generators[d] += countGens[d]
+        TIME += t
+    pool.close()
+    pool.join()
+    countGens = []
+    # count generators
+    for d in decomposition:
+        countGens += [(d, len(generators[d]))]
+    # calc primitive ones
+    countPrims = 0
+    for y in itertools.product(*[generators[d] for d in decomposition]):
+        x = sum(y)
+        if x.multiplicative_order() == E.order()-1:
+            countPrims += 1
+
+    return prod(map(lambda c: c[1],countGens)), countPrims,\
+            countGens, Integer(TIME/num_processes)
+
+def _isCompleteSubmoduleGenerator(input):
+    TIME = time.clock()
+    x,F,q,decomposition,data = input
+    E = x.parent()
+    countGens = dict()
+    for decomp in decomposition:
+        countGens[decomp] = []
+    if x == 0: return countGens,0
+    # test complete generator for each cyclotomic module of the 
+    # complete decomposition
+    #  ---------------------------
+    pows = dict()
+    for decomp in decomposition:
+        #print "test compl gen for decomp=",decomp
+        isCompleteGen = True
+        for d in data[decomp][-1]:
+            #print "\ttest d=",d
+            if not isCompleteGen: break
+            G, cycl, factors = data[decomp][d]
+            h = Hom(G,E)[0];
+            # test submodules of cycl
+            for g in factors:
+                if not isCompleteGen: break
+                ret = E.zero();
+                iold = 0
+                xiold = x
+                for i,gi in enumerate(list(g)):
+                    if pows.has_key(i*d):
+                        xi = pows[i*d];
+                        iold = i*d
+                        xiold = xi
+                    else:
+                        xi = xiold**(q**(d*i-iold));
+                        pows[i*d] = xi;
+                        xiold = xi
+                        iold = i*d
+                    try:
+                        ret += gi*xi;
+                    except:
+                        ret += h(gi)*xi;
+                if ret == 0: isCompleteGen = False;
+            #print "\t->factor test: ",isCompleteGen
+            if isCompleteGen:
+                # test cyclotomic polynomial
+                ret = E.zero();
+                iold = 0
+                xiold = x
+                for i, gi in enumerate(list(cycl)):
+                    if pows.has_key(i*d):
+                        xi = pows[i*d];
+                        iold = i*d
+                        xiold = xi
+                    else:
+                        xi = xiold**(q**(d*i-iold));
+                        pows[i*d] = xi;
+                        xiold = xi
+                        iold = i*d
+                    try:
+                        ret += gi*xi;
+                    except:
+                        ret += h(gi)*xi;
+                #print "\t->cycl(x)=",ret
+                if ret != 0: isCompleteGen = False
+        if isCompleteGen: 
+            countGens[decomp] = [x]
+            return countGens,(time.clock()-TIME)
+    return countGens, (time.clock()-TIME)
+
 
 def findPCNElement(F,n):
     TIME = time.clock();
@@ -683,6 +803,11 @@ def decompose(p,e, n):
 # the module character of U_F,Phi_k(x^t) is k*t / nu(k)
 def get_module_characters(decomp):
     return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
+
+# returns the module characters of a cyclotomic module
+# the module character of U_F,Phi_k(x^t)^pi is k*t*pi / nu(k)
+def get_module_character(k,t,pi):
+    return Integer(k*t*pi/squarefree(k))
 
 # returns all divisors of the module characters of an extension
 # i.e. all intermediate fields that must be considered

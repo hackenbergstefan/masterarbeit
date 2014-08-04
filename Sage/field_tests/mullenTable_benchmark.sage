@@ -14,6 +14,13 @@ def process_parallel(qn):
     F = GF(Integer(q),'a');
     print "(q,n) = ",(q,n)," -> (cn,pcn,time) = ", countCNAndPCN_parallel(F,n)
 
+def process_submodules(qn):
+    q = qn[0]
+    n = qn[1]
+    F = GF(Integer(q),'a');
+    print "(q,n) = ",(q,n)," -> (submods,cn,time) = ", \
+            countCompleteSubmoduleGenerators(F,n)
+
 # test setup
 SETUP = \
 [[2, xrange(2,19)], \
@@ -35,7 +42,10 @@ for q, nlist in SETUP:
     #pool = Pool();
     #pool.map(process, GENLIST)
 
+#def main():
+    #for qn in GENLIST:
+        #process_parallel(qn)
+
 def main():
     for qn in GENLIST:
-        process_parallel(qn)
-
+        process_submodules(qn)

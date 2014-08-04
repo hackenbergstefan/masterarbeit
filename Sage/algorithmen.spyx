@@ -392,7 +392,7 @@ def countCompleteSubmoduleGenerators(F,n):
             countPrims += 1
 
     return prod(map(lambda c: c[1],countGens)), countPrims,\
-            countGens, Integer(TIME/num_processes)
+            countGens, round(TIME/num_processes)
 
 def _isCompleteSubmoduleGenerator(input):
     TIME = time.clock()

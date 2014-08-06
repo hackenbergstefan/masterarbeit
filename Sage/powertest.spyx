@@ -1,0 +1,94 @@
+from sage.all import *
+from ctypes import *
+import itertools
+
+mytest = CDLL('./powertest.so')
+mytest.matmul.restype = POINTER(c_int)
+mytest.moduloPoly.restype = POINTER(c_int)
+
+def matPowerC(matC,vec,m):
+    vecC = (c_int * m)(*vec)
+    retC = (c_int *m)()
+    mytest.matmul(matC, vecC, retC, int(m))
+    return retC[0:m]
+    #mytest.test(matC,int(m))
+
+def matPower(x,E,P,m,cols):
+    #vec = vector(P,m)
+    #vec[0:len(list(x.polynomial()))] = list(x.polynomial())
+    #return vec*mat
+    ret = []
+    for i in xrange(m):
+        for j in xrange(m):
+            r = cols[i][j]*x[i]
+        ret += [r]
+    return ret
+
+
+# returns c_int matrix
+def genMats(E, F, n):
+    q = F.order()
+    mipo = E.modulus()
+    P = E.prime_subfield()
+    Px = mipo.parent()
+    gen = Px.gen()
+    m = int(E.order().log(E.characteristic()))
+    mat = matrix(P, m,m)
+    for i in xrange(m):
+        for j, fi in enumerate(((gen**i)**q).mod(mipo)):
+            mat[i,j] = fi
+    matC = (c_int * m * m * n)()
+    for i in range(n):
+        matPow = (mat**i).transpose()
+        for j in range(m):
+            for k in range(m):
+                matC[i][j][k] = matPow[j][k]
+    return matC
+
+
+
+def doTest():
+    F = GF(Integer(4),'a')
+    E = F.extension(Integer(9),'b')
+    mipo = E.modulus()
+    m = int(mipo.degree())
+    p = int(E.characteristic())
+    mat = genMat(E,F,8)
+    for x in itertools.product(*itertools.repeat(xrange(p),m)):
+        matPowerC(mat,x,m)
+
+#p1 = (c_int * 6)(*[4,5,0,0,3,2])
+#mod = (c_int * 4)(*[1,1,0,1])
+#mytest.moduloPoly(p1, int(6), mod, int(4), int(7))
+#print p1[0:3]
+
+#p1 = (c_int * 6)(*[4,5,0,0,3,2])
+#p2 = (c_int * 4)(*[1,1,0,1])
+#ret = (c_int * (6+4))()
+#mytest.multiplyPoly(p1, int(6), p2, int(4), ret, int(6+4), int(7))
+#print ret[0:10]
+
+
+
+m = int(3)
+F = GF(2)
+E = F.extension(Integer(m),'a')
+Ex = PolynomialRing(E,'x')
+p = int(E.characteristic())
+x = [1,1,0]
+xmipo = list(E.modulus())
+print "test x = ", E(x), " xmipo=",xmipo
+g = [[0,0,0],[0,0,0],[1,0,0]]
+matsC = genMats(E,F,len(g))
+print "for g=", Ex(g)
+
+xC = (c_int * m)(*x)
+xmipoC = (c_int * (m+1))(*xmipo)
+gC = (c_int * m * len(g))()
+for i in range(len(g)):
+    for j in range(m):
+        gC[i][j] = g[i][j]
+retC = (c_int * m)()
+mytest.applyFrob(xC,xmipoC, gC, len(g), matsC, retC, m, p)
+print retC[0:m], " = ", E(retC[0:m]), " and should be ", E(x)**(2**2)
+

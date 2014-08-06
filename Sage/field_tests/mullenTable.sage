@@ -2,6 +2,8 @@ from sage.all import *
 from multiprocessing import Pool
 load("./algorithmen.spyx")
 
+filePath = "mullenTable.txt"
+
 def process(qn):
     q = qn[0]
     n = qn[1]
@@ -13,6 +15,18 @@ def process_parallel(qn):
     n = qn[1]
     F = GF(Integer(q),'a');
     print "(q,n) = ",(q,n)," -> (cn,pcn,time) = ", countCNAndPCN_parallel(F,n)
+
+def process_submodules(qn):
+    q = qn[0]
+    n = qn[1]
+    F = GF(Integer(q),'a');
+    ret = countCompleteSubmoduleGenerators(F,n)
+    print "(q,n) = ",(q,n)," -> (cn,pcn,submod_gens,time) = ", ret
+    with open(filePath,'a') as f:
+        f.write("(q,n) = "+str((q,n))+" -> (cn,pcn,submod_gens,time) = "+
+                str(ret)+"\n")
+    f.close();
+
 
 # test setup
 SETUP = \
@@ -28,14 +42,17 @@ SETUP = \
 
 GENLIST = []
 for q, nlist in SETUP:
-    for n in xrange(2,6):
+    for n in nlist:
         GENLIST += [[q,n]]
 
-def main():
-    pool = Pool();
-    pool.map(process, GENLIST)
+#def main():
+    #pool = Pool();
+    #pool.map(process, GENLIST)
 
 #def main():
     #for qn in GENLIST:
         #process_parallel(qn)
 
+def main():
+    for qn in GENLIST:
+        process_submodules(qn)

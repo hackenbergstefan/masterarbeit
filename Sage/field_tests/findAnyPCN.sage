@@ -40,10 +40,14 @@ def runTest(data):
 
 
 
+## Tests all q < n^4
+#def doTests(n):
+    #pool = Pool();
+    #pool.map(runTest, itertools.izip(primes(n**4), itertools.repeat(n)));
+
+
 # Tests all q < n^4
 def doTests(n):
-    pool = Pool();
-    pool.map(runTest, itertools.izip(primes(n**4), itertools.repeat(n)));
-
-
+    for p in primes(n**4):
+        runTest([p,n])
 

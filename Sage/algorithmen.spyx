@@ -4,6 +4,7 @@ import time
 from multiprocessing import Pool, Value
 import multiprocessing
 import itertools
+import datetime
 
 def isNormal(x, F):
     E = x.parent();
@@ -343,7 +344,7 @@ def countCNAndPCN(F,n):
     return countCN, countPCN, (time.clock()-TIME)
 
 def countCompleteSubmoduleGenerators(F,n):
-    TIME = time.clock()
+    TIME = time.time()
     p = F.characteristic()
     q = F.order();
     e = q.log(p)
@@ -365,20 +366,45 @@ def countCompleteSubmoduleGenerators(F,n):
             for f,mult in cycl.factor():
                 factors += [cycl.quo_rem(f)[0]]
             data[decomp][d] = (G,cycl,factors)
+    #generate Matrizes
+    mipo = E.modulus()
+    P = E.prime_subfield()
+    Px = mipo.parent()
+    gen = Px.gen()
+    m = E.order().log(E.characteristic())
+    mat = matrix(P, m,m)
+    for i in xrange(m):
+        for j, fi in enumerate(((gen**i)**q).mod(mipo)):
+            mat[i,j] = fi
+    maxpow = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
+    matrices = [mat**i for i in range(maxpow+1)]
+    
+
     #count all elements
     generators = dict()
     for d in decomposition:
         generators[d] = set()
-    TIME = (time.clock() - TIME)
     num_processes = multiprocessing.cpu_count()
     pool = Pool(num_processes)
-    for d,gen,t in pool.imap_unordered(func=_isCompleteSubmoduleGenerator\
-                , iterable=([x,F,q,decomposition,data] for x in E) \
-                , chunksize=10):
+    hoursOld = 0
+    counter = 0
+    for d,gen in pool.imap_unordered(func=_isCompleteSubmoduleGenerator\
+                , iterable=([x,E,F,q,decomposition,data,matrices,P,Px] \
+                    for x in itertools.chain(\
+                        *(Px.polynomials(i) for i in xrange(mipo.degree())))) \
+                , chunksize=10000):
         if d != -1:
             generators[d].add(gen)
-        TIME += t
-    TAFT = time.clock()
+        counter += 1
+        hoursNow = floor((time.time()-TIME)/3600)
+        if hoursNow > hoursOld:
+            print "\t",strfdelta(datetime.timedelta(seconds=(time.time()-TIME))),\
+                    "elapsed -> ", round(100*counter/E.order(),3),\
+                    "% processed"
+            hoursOld = hoursNow
+        if counter == 10000:
+            print "\teta", strfdelta(datetime.timedelta(\
+                    seconds=long(E.order()/counter*(time.time()-TIME))))
     countGens = []
     # count generators
     for d in decomposition:
@@ -387,13 +413,14 @@ def countCompleteSubmoduleGenerators(F,n):
     countPrims = 0
     for cP in pool.imap_unordered(func=_isPrimitive\
             , iterable=itertools.product(*[generators[d] for d in decomposition])
-            , chunksize=100):
+            , chunksize=10000):
         countPrims += cP
     pool.close()
     pool.join()
 
     return prod(map(lambda c: c[1],countGens)), countPrims,\
-            countGens, round(TIME/num_processes + (time.clock()-TAFT))
+            countGens, \
+            strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
 
 def _isPrimitive(y):
     x = sum(y)
@@ -404,14 +431,15 @@ def _isPrimitive(y):
 
 
 def _isCompleteSubmoduleGenerator(input):
-    TIME = time.clock()
-    x,F,q,decomposition,data = input
-    E = x.parent()
-    if x == 0: return -1,0,0
+    x,E,F,q,decomposition,data,matrices,P,Px = input
     # test complete generator for each cyclotomic module of the 
     # complete decomposition
     #  ---------------------------
-    pows = dict()
+    m = E.order().log(E.characteristic())
+    vec = vector(P,m)
+    vec[0:len(list(x))] = list(x)
+    
+
     for decomp in decomposition:
         #print "test compl gen for decomp=",decomp
         isCompleteGen = True
@@ -421,21 +449,12 @@ def _isCompleteSubmoduleGenerator(input):
             G, cycl, factors = data[decomp][d]
             h = Hom(G,E)[0];
             # test submodules of cycl
+            pows = dict()
             for g in factors:
                 if not isCompleteGen: break
                 ret = E.zero();
-                iold = 0
-                xiold = x
                 for i,gi in enumerate(list(g)):
-                    if pows.has_key(i*d):
-                        xi = pows[i*d];
-                        iold = i*d
-                        xiold = xi
-                    else:
-                        xi = xiold**(q**(d*i-iold));
-                        pows[i*d] = xi;
-                        xiold = xi
-                        iold = i*d
+                    xi = E(list(vec*matrices[i*d]))
                     try:
                         ret += gi*xi;
                     except:
@@ -445,18 +464,8 @@ def _isCompleteSubmoduleGenerator(input):
             if isCompleteGen:
                 # test cyclotomic polynomial
                 ret = E.zero();
-                iold = 0
-                xiold = x
                 for i, gi in enumerate(list(cycl)):
-                    if pows.has_key(i*d):
-                        xi = pows[i*d];
-                        iold = i*d
-                        xiold = xi
-                    else:
-                        xi = xiold**(q**(d*i-iold));
-                        pows[i*d] = xi;
-                        xiold = xi
-                        iold = i*d
+                    xi = E(list(vec*matrices[i*d]))
                     try:
                         ret += gi*xi;
                     except:
@@ -464,71 +473,49 @@ def _isCompleteSubmoduleGenerator(input):
                 #print "\t->cycl(x)=",ret
                 if ret != 0: isCompleteGen = False
         if isCompleteGen: 
-            return decomp, x,(time.clock()-TIME)
-    return -1, 0, (time.clock()-TIME)
+            return decomp, E(x)
+    return -1, 0
 
 
 def findPCNElement(F,n):
     TIME = time.clock();
+    p = F.characteristic()
     q = F.order();
+    e = q.log(p)
     E = F.extension(Integer(n),'a');
     #generate factors
     facAll = dict();
     prodsAll = dict();
     fieldsAll = dict();
-    divs = divisors(n);
+    # only consider factors obtained by the Decomposition Theorem
+    divs = get_proper_subfield_divisors(p,e,n)
+    #divs = divisors(n)
     for d in divs:
-        G = F.extension(d, 'c');
+        G = F.extension(Integer(d), 'c');
         Gx = PolynomialRing(G,'x');
         fieldsAll[d] = G;
         facAll[d] = list((Gx.gen()**(n/d)-1).factor());
         prodsAll[d] = dict();
-        for idx,(f,mult) in enumerate(facAll[d]):
-            ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
-                    [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
-            pr = Gx.one();
-            for jidx, j in enumerate(ev):
-                pr *= facAll[d][jidx][0]**j;
-            prodsAll[d][str(ev)] = pr;
+        for idx, (f,mult) in enumerate(facAll[d]):
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
     #count all elements
-    countCN = 0;
-    countPCN = 0;
-    for idx,x in enumerate(E):
-        isCn = True
-        #test isNormal for each divisor
-        #  ---------------------------
-        pows = dict()
-        for d in divs[:len(divs)-1]:
-            if not isCn: break
-            for idx,(f,mult) in enumerate(facAll[d]):
-                if not isCn: break
-                # generate product key
-                ev = map(lambda i: facAll[d][i][1], xrange(idx)) + \
-                        [facAll[d][idx][1]-1] + map(lambda i: i[1], facAll[d][idx+1:]); 
-                g = prodsAll[d][str(ev)];
-                ret = E.zero();
-                iold = 0
-                xiold = x
-                for i,gi in enumerate(list(g)):
-                    h = Hom(fieldsAll[d],E)[0];
-                    if pows.has_key(i*d):
-                        xi = pows[i*d];
-                        iold = i*d
-                        xiold = xi
-                    else:
-                        xi = xiold**(q**(d*i-iold));
-                        pows[i*d] = xi;
-                        xiold = xi
-                        iold = i*d
-                    try:
-                        ret += gi*xi;
-                    except:
-                        ret += h(gi)*xi;
-                if ret == 0: isCn = False;
-        #  ---------------------------
-        if isCn and x.multiplicative_order() == E.order()-1:
-            return x
-    return False
+    hasPCN = False
+    TIME = (time.clock() - TIME)
+    num_processes = multiprocessing.cpu_count()
+    pool = Pool(num_processes)
+    for cn, pcn,t in pool.imap_unordered(func=_isCompletelyNormal\
+                , iterable=([x,F,q,divs,fieldsAll,facAll,prodsAll] for x in E) \
+                , chunksize=100):
+        if pcn == 1: 
+            hasPCN = True
+            break
+        TIME += t
+    pool.close()
+    pool.join()
+    if hasPCN:
+        return True, TIME/num_processes
+    return False, TIME/num_processes
+
 
 
 def countCNAndPCN_ggt(F,n):
@@ -841,3 +828,12 @@ def largestDiv(p,n):
     while (p**l).divides(n):
         l = l+1
     return p**(l-1);
+
+
+# formats timedelta objects to nice string
+def strfdelta(tdelta):
+    d = {}
+    d["hours"], rem = divmod(tdelta.seconds, 3600)
+    d["hours"] += int(tdelta.days*24)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return "{hours}:{minutes}:{seconds}".format(**d)

@@ -1,10 +1,17 @@
 from sage.all import *
-from ctypes import *
 import itertools
+import numpy as np
+cimport numpy as np
 
-mytest = CDLL('./powertest.so')
-mytest.matmul.restype = POINTER(c_int)
-mytest.moduloPoly.restype = POINTER(c_int)
+cdef extern from "./powertest.c":
+   void applyFrob(int *x, int *x_mipo, int *g, int glen, int *mats, \
+           int frobPower, int *ret, int m, int charac, int *tmp, int *tmp2) 
+   void testPolys(int *x, int *x_mipo, \
+        int *polys, int *polysLen, int polysCount, char *evalToZero,\
+        int *mats, int *frobPowers, \
+        int *ret, int m, int charac, int *tmp, int *tmp2)
+
+
 
 def matPowerC(matC,vec,m):
     vecC = (c_int * m)(*vec)
@@ -37,7 +44,8 @@ def genMats(E, F, n):
     for i in xrange(m):
         for j, fi in enumerate(((gen**i)**q).mod(mipo)):
             mat[i,j] = fi
-    matC = (c_int * m * m * n)()
+    cdef np.ndarray[int,ndim=3,mode="c"] matC
+    matC = np.zeros((n,m,m), dtype=np.int32)
     for i in range(n):
         matPow = (mat**i).transpose()
         for j in range(m):
@@ -49,13 +57,148 @@ def genMats(E, F, n):
 
 def doTest():
     F = GF(Integer(4),'a')
-    E = F.extension(Integer(9),'b')
+    E = F.extension(Integer(3),'b')
+    Ex = PolynomialRing(E,'x')
+    Fx = PolynomialRing(F,'x')
+    q = F.order()
     mipo = E.modulus()
-    m = int(mipo.degree())
+    m = mipo.degree()
+    xmipo = list(mipo)
     p = int(E.characteristic())
-    mat = genMat(E,F,8)
+    #prepare polynomials
+    gPols = [Ex('x^3-1'), Ex('x^2+x+1'), \
+            Ex('x^2+(b^3+b^2+b)*x+b^3+b^2+b+1'), \
+            Ex('x^2+(b^3+b^2+b+1)*x+b^3+b^2+b')]
+    gPolsLen = map(lambda g: len(list(g)), gPols)
+    maxDeg = max(gPolsLen)
+    #Polys to C
+    cdef np.ndarray[int,ndim=2,mode="c"] gC
+    gC = np.zeros((sum(gPolsLen),m),dtype=np.int32)
+    curPos = 0
+    for idx, g in enumerate(list(gPols)):
+        g = map(lambda gi: list(gi.polynomial()),list(g))
+        for i in range(len(g)):
+            for j in range(len(g[i])):
+                gC[curPos+i][j] = g[i][j]
+        curPos += gPolsLen[idx]
+    #Poly Length to C
+    cdef np.ndarray[int,ndim=1,mode="c"] gPolysLenC \
+            = np.array(gPolsLen, dtype=np.int32)
+    #Poly eval to Zero Bool to C
+    cdef np.ndarray[char, cast=True, ndim=1,mode="c"] evalToZeroC \
+            = np.array([1,0,0,0], dtype=np.uint8)
+    #FrobPowers to C
+    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC \
+            = np.array([1,1,1,1], dtype=np.int32)
+    # matrices to C
+    cdef np.ndarray[int,ndim=3,mode="c"] matsC
+    matsC = genMats(E,F,maxDeg)
+    #mipo to C
+    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
+            = np.array(xmipo, dtype=np.int32)
+    print "test E=",E," over F=",F\
+       ,"\n\twith mipo=",xmipo," xmipoC=",xmipoC \
+       ,"\n\tgs = ", gPols, "\n\t gC=",gC\
+       ,"\n\tevalToZeroC=", evalToZeroC
+    print "mats=",matsC
+    # prepare Return value and tmp values
+    cdef np.ndarray[int,ndim=1,mode="c"] retC
+    retC = np.zeros(m, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] xC
+    xC = np.zeros(m, dtype=np.int32) 
+    cdef np.ndarray[int,ndim=1,mode="c"] tmpC
+    tmpC = np.zeros(m, dtype=np.int32) 
+    cdef np.ndarray[int,ndim=1,mode="c"] tmp2C
+    tmp2C = np.zeros(m*len(g), dtype=np.int32) 
+    counterC = 0
+    counterP = 0
     for x in itertools.product(*itertools.repeat(xrange(p),m)):
-        matPowerC(mat,x,m)
+        for i in range(m):
+            xC[i] = x[i]
+        ##frob eval
+        #applyFrob(<int*>xC.data , <int*>xmipoC.data\
+                #,<int*>gC.data, len(g)\
+                #,<int*>matsC.data\
+                #,int(1)\
+                #,<int*>retC.data\
+                #,m,p
+                #,<int*>tmpC.data
+                #,<int*>tmp2C.data)
+        #print "x = ", E(list(x))\
+           #,"\t g(sigma)(x) = ", retC," = ",E(list(retC))\
+            #," =? ", frobeval(x,gPol,E,Ex,4), " => ",(E(list(retC)) == frobeval(x,gPol,E,Ex,4))
+        testPolys(<int*>xC.data, <int*>xmipoC.data\
+                ,<int*>gC.data, <int*>gPolysLenC.data, len(gPolsLen)\
+                ,<char*>evalToZeroC.data\
+                ,<int*>matsC.data, <int*>frobPowersC.data\
+                ,<int*>retC.data\
+                ,m,p
+                ,<int*>tmpC.data
+                ,<int*>tmp2C.data)
+        print "ret=",retC, "Ord_q(x) = ",tau_order(E(list(x)),F)
+        if retC[0] == 0: counterC += 1
+        if tau_order(E(list(x)),F) == Fx('x^3-1'): counterP += 1
+    print "C: normals: ",counterC
+    print "P: normals: ",counterP
+        
+
+
+def frobeval(x,g,E,Ex,q):
+    g = Ex(list(g))
+    x = E(list(x))
+    ret = E.zero()
+    for i,gi in enumerate(g):
+        ret += gi*x**(q**i)
+    return ret
+
+
+def tau_order(x,F, factors=[], prods=[]):
+    Fx = PolynomialRing(F,'x');
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    if factors == []:
+        fac = (Fx.gen()**n-1).factor();
+    else:
+        fac = factors;
+    pows = dict();
+    pre = [];
+    for idx,(f,mult) in enumerate(fac):
+        for j in xrange(mult-1,-1,-1):
+            g = f.parent().one();
+            ev = pre + [j] + map(lambda i: i[1], fac[idx+1:]);
+            if prods == []:
+                #generate factor
+                for kidx, k in enumerate(ev):
+                    g *= fac[kidx][0]**k;
+            else:
+                g = prods[str(ev)];
+            ret = E.zero();
+            for i,g in enumerate(list(g)):
+                if pows != []:
+                    if pows.has_key(i):
+                        xi = pows[i];
+                    else:
+                        xi = x**(q**i);
+                        pows[i] = xi;
+                else: xi = x**(q**i);
+                try:
+                    ret += g*xi;
+                except:
+                    h = Hom(F,E)[0];
+                    ret += h(g)*xi;
+            if ret != 0:
+                pre += [j+1]; 
+                break;
+            elif j == 0: 
+                pre += [0];
+    if prods == []:
+        g = f.parent().one();
+        for jidx, j in enumerate(pre):
+            g *= fac[jidx][0]**j;
+        return g;
+    else:
+        return prods[str(pre)];
 
 #p1 = (c_int * 6)(*[4,5,0,0,3,2])
 #mod = (c_int * 4)(*[1,1,0,1])
@@ -70,25 +213,44 @@ def doTest():
 
 
 
-m = int(3)
-F = GF(2)
-E = F.extension(Integer(m),'a')
-Ex = PolynomialRing(E,'x')
-p = int(E.characteristic())
-x = [1,1,0]
-xmipo = list(E.modulus())
-print "test x = ", E(x), " xmipo=",xmipo
-g = [[0,0,0],[0,0,0],[1,0,0]]
-matsC = genMats(E,F,len(g))
-print "for g=", Ex(g)
+#m = int(3)
+#F = GF(2)
+#E = F.extension(Integer(m),'a')
+#Ex = PolynomialRing(E,'x')
+#p = int(E.characteristic())
+#x = [1,1,0]
+#xmipo = list(E.modulus())
+#print "test x = ", E(x), " xmipo=",xmipo
+#g = [[0,0,0],[0,0,0],[1,0,0]]
+#matsC = genMats(E,F,len(g))
+#print "for g=", Ex(g)
 
-xC = (c_int * m)(*x)
-xmipoC = (c_int * (m+1))(*xmipo)
-gC = (c_int * m * len(g))()
-for i in range(len(g)):
-    for j in range(m):
-        gC[i][j] = g[i][j]
-retC = (c_int * m)()
-mytest.applyFrob(xC,xmipoC, gC, len(g), matsC, retC, m, p)
-print retC[0:m], " = ", E(retC[0:m]), " and should be ", E(x)**(2**2)
+#xC = (c_int * m)(*x)
+#xmipoC = (c_int * (m+1))(*xmipo)
+#gC = (c_int * m * len(g))()
+#for i in range(len(g)):
+    #for j in range(m):
+        #gC[i][j] = g[i][j]
+#retC = (c_int * m)()
+#mytest.applyFrob(xC,xmipoC, gC, len(g), matsC, retC, m, p)
+#print retC[0:m], " = ", E(retC[0:m]), " and should be ", E(x)**(2**2)
 
+#cdef extern from "./mytest.c":
+    #void myCtest(int * arr, int n)
+
+
+#def mytestPy(np.ndarray[int,ndim=1,mode="c"] arr not None):
+    #cdef int n
+    #n = arrNp.shape[0]
+    #myCtest(<int*>arr.data, n)
+
+
+#def bla():
+    #cdef np.ndarray[int,ndim=1,mode="c"] arrNp 
+    #arrNp = np.array([1,2,3], dtype=np.int32)
+    #cdef int n
+    #n = arrNp.shape[0]
+    #myCtest(<int*>arrNp.data,n)
+    #return arrNp
+
+doTest()

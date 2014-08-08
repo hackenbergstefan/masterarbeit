@@ -5,33 +5,37 @@ from multiprocessing import Pool, Value
 import multiprocessing
 import itertools
 import datetime
-
-def isNormal(x, F):
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    m = matrix(E, n,n, lambda i, j: x**(q**(i+j)));
-    return m.is_invertible();
+import numpy as np
+cimport numpy as np
+from libc.stdlib cimport malloc, free
 
 
-def tau_order_old(x,F, factors=[]):
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    fac = factors;
-    if fac == []:
-        Fx = PolynomialRing(F,'x');
-        for (f,i) in (Fx.gen()**n-1).factor():
-            fac = fac + [f]*i
-    #print fac
-    for i in range(0,2**len(fac)):
-        f = combinePolys(fac, dec_to_bin(i));
-        #print "\tf = ", f, "\tfrob_eval(f,x) = ", frob_eval(f,x)
-        if frob_eval(f,x) == 0: 
-            return f;
-
-
-
+#def isNormal(x, F):
+#    E = x.parent();
+#    q = F.order();
+#    n = E.order().log(q);
+#    m = matrix(E, n,n, lambda i, j: x**(q**(i+j)));
+#    return m.is_invertible();
+#
+#
+#def tau_order_old(x,F, factors=[]):
+#    E = x.parent();
+#    q = F.order();
+#    n = E.order().log(q);
+#    fac = factors;
+#    if fac == []:
+#        Fx = PolynomialRing(F,'x');
+#        for (f,i) in (Fx.gen()**n-1).factor():
+#            fac = fac + [f]*i
+#    #print fac
+#    for i in range(0,2**len(fac)):
+#        f = combinePolys(fac, dec_to_bin(i));
+#        #print "\tf = ", f, "\tfrob_eval(f,x) = ", frob_eval(f,x)
+#        if frob_eval(f,x) == 0: 
+#            return f;
+#
+#
+#
 def tau_order(x,F, factors=[], prods=[]):
     Fx = PolynomialRing(F,'x');
     E = x.parent();
@@ -80,575 +84,793 @@ def tau_order(x,F, factors=[], prods=[]):
     else:
         return prods[str(pre)];
 
-def isNormal(x,F, factors=[], prods=[]):
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    Fx = PolynomialRing(F,'x');
-    if factors == []:
-        fac = (Fx.gen()**n-1).factor();
-    else: fac = factors;
-    pows = dict();
-    for idx,(f,mult) in enumerate(fac):
-        # generate product key
-        ev = map(lambda i: fac[i][1], xrange(idx)) + \
-                [0] + map(lambda i: i[1], fac[idx+1:]); 
-        if prods != [] and prods.has_key(str(ev)):
-            g = prods[str(ev)];
-        else: #generate factor manually
-            g = f.parent().one();
-            for jidx, j in enumerate(ev):
-                g *= fac[jidx][0]**j;
-        ret = E.zero();
-        iold = 0
-        xiold = x
-        for i,g in enumerate(list(g)):
-            if pows.has_key(i):
-                xi = pows[i];
-                iold = i
-                xiold = xi
-            else:
-                xi = xiold**(q**(i-iold));
-                pows[i] = xi;
-                xiold = xi
-                iold = i
-            try:
-                ret += g*xi;
-            except:
-                h = Hom(F,E)[0];
-                ret += h(g)*xi;
-        if ret == 0: return False;
-    return True;
+#def isNormal(x,F, factors=[], prods=[]):
+#    E = x.parent();
+#    q = F.order();
+#    n = E.order().log(q);
+#    Fx = PolynomialRing(F,'x');
+#    if factors == []:
+#        fac = (Fx.gen()**n-1).factor();
+#    else: fac = factors;
+#    pows = dict();
+#    for idx,(f,mult) in enumerate(fac):
+#        # generate product key
+#        ev = map(lambda i: fac[i][1], xrange(idx)) + \
+#                [0] + map(lambda i: i[1], fac[idx+1:]); 
+#        if prods != [] and prods.has_key(str(ev)):
+#            g = prods[str(ev)];
+#        else: #generate factor manually
+#            g = f.parent().one();
+#            for jidx, j in enumerate(ev):
+#                g *= fac[jidx][0]**j;
+#        ret = E.zero();
+#        iold = 0
+#        xiold = x
+#        for i,g in enumerate(list(g)):
+#            if pows.has_key(i):
+#                xi = pows[i];
+#                iold = i
+#                xiold = xi
+#            else:
+#                xi = xiold**(q**(i-iold));
+#                pows[i] = xi;
+#                xiold = xi
+#                iold = i
+#            try:
+#                ret += g*xi;
+#            except:
+#                h = Hom(F,E)[0];
+#                ret += h(g)*xi;
+#        if ret == 0: return False;
+#    return True;
+#
+#def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
+#    if x == 0: return False
+#    E = x.parent();
+#    q = F.order();
+#    n = E.order().log(q);
+#    p = F.characteristic();
+#    e = q.log(p)
+#    divs = get_proper_subfield_divisors(p,e,n)
+#    if facAll == []:
+#        facAll = dict();
+#        prodsAll = dict();
+#        fieldsAll = dict();
+#        for d in divs:
+#            G = F.extension(Integer(d), 'c');
+#            Gx = PolynomialRing(G,'x');
+#            fieldsAll[d] = G;
+#            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+#            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+#            prodsAll[d] = dict();
+#            for idx,(f,mult) in enumerate(facAll[d]):
+#                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+#    #test isNormal for each divisor
+#    pows = dict()
+#    for d in divs:
+#        h = Hom(fieldsAll[d],E)[0];
+#        for idx,(f,mult) in enumerate(facAll[d]):
+#            g = prodsAll[d][idx];
+#            ret = E.zero();
+#            iold = 0
+#            xiold = x
+#            for i,gi in enumerate(list(g)):
+#                if pows.has_key(i*d):
+#                    xi = pows[i*d];
+#                    iold = i*d
+#                    xiold = xi
+#                else:
+#                    xi = xiold**(q**(d*i-iold));
+#                    pows[i*d] = xi;
+#                    xiold = xi
+#                    iold = i*d
+#                try:
+#                    ret += gi*xi;
+#                except:
+#                    ret += h(gi)*xi;
+#            if ret == 0: return False;
+#    return True
+#
+#
+#def isCompletelyNormal_ggt(x,F):
+#    if x == 0: return False
+#    E = x.parent();
+#    q = F.order();
+#    n = E.order().log(q);
+#    Ex = PolynomialRing(E,'x');
+#    p = F.characteristic();
+#    e = q.log(p)
+#    divs = get_proper_subfield_divisors(p,e,n)
+#    if x == 0: return False
+#    #test isNormal for each divisor
+#    #  ---------------------------
+#    pows = dict()
+#    for d in divs:
+#        if d == n: continue
+#        e = n/d
+#        g = Ex.zero()
+#        iold = 0
+#        xiold = x
+#        for i in xrange(e):
+#            if pows.has_key(i*d):
+#                xi = pows[i*d];
+#                iold = i*d
+#                xiold = xi
+#            else:
+#                xi = xiold**(q**(d*i-iold));
+#                pows[i*d] = xi;
+#                xiold = xi
+#                iold = i*d
+#            g += xi*Ex.gen()**(e-1-i)
+#            #print g
+#        if g.gcd(Ex.gen()**e-1) != 1: return False
+#    return True
+#
+#
+#def countCNAndPCN_parallel(F,n):
+#    TIME = time.clock()
+#    p = F.characteristic()
+#    q = F.order();
+#    e = q.log(p)
+#    E = F.extension(Integer(n),'a');
+#    #generate factors
+#    facAll = dict();
+#    prodsAll = dict();
+#    fieldsAll = dict();
+#    divs = get_proper_subfield_divisors(p,e,n)
+#    for d in divs:
+#        G = F.extension(Integer(d), 'c');
+#        Gx = PolynomialRing(G,'x');
+#        fieldsAll[d] = G;
+#        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+#        prodsAll[d] = dict();
+#        for idx,(f,mult) in enumerate(facAll[d]):
+#            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+#    #count all elements
+#    countCN = 0
+#    countPCN = 0
+#    TIME = (time.clock() - TIME)
+#    num_processes = multiprocessing.cpu_count()
+#    pool = Pool(num_processes)
+#    for cn, pcn,t in pool.imap(func=_isCompletelyNormal\
+#                , iterable=([x,F,q,divs,fieldsAll,facAll,prodsAll] for x in E) \
+#                , chunksize=100):
+#        countCN += cn
+#        countPCN += pcn
+#        TIME += t
+#    pool.close()
+#    pool.join()
+#    return countCN, countPCN, TIME/num_processes
+#
+#
+#def _isCompletelyNormal(data):
+#    TIME = time.clock()
+#    x,F,q,divs,fieldsAll,facAll,prodsAll = data
+#    if x == 0: return 0,0,0
+#    E = x.parent()
+#    isCn = True
+#    #test isNormal for each divisor
+#    #  ---------------------------
+#    pows = dict()
+#    for d in divs:
+#        if not isCn: break
+#        for idx,(f,mult) in enumerate(facAll[d]):
+#            if not isCn: break
+#            g = prodsAll[d][idx];
+#            ret = E.zero();
+#            iold = 0
+#            xiold = x
+#            for i,gi in enumerate(list(g)):
+#                h = Hom(fieldsAll[d],E)[0];
+#                if pows.has_key(i*d):
+#                    xi = pows[i*d];
+#                    iold = i*d
+#                    xiold = xi
+#                else:
+#                    xi = xiold**(q**(d*i-iold));
+#                    pows[i*d] = xi;
+#                    xiold = xi
+#                    iold = i*d
+#                try:
+#                    ret += gi*xi;
+#                except:
+#                    ret += h(gi)*xi;
+#            if ret == 0: isCn = False;
+#    #  ---------------------------
+#    if isCn:
+#        if x.multiplicative_order() == E.order()-1:
+#            return 1,1, (time.clock()-TIME)
+#        else : return 1,0 , (time.clock()-TIME) 
+#    return 0,0 , (time.clock()-TIME) 
+#
+#
+#
+#def countCNAndPCN(F,n):
+#    TIME = time.clock();
+#    p = F.characteristic()
+#    q = F.order();
+#    e = q.log(p)
+#    E = F.extension(Integer(n),'a');
+#    qn = q**n
+#    #generate factors
+#    facAll = dict();
+#    prodsAll = dict();
+#    fieldsAll = dict();
+#    # only consider factors obtained by the Decomposition Theorem
+#    divs = get_proper_subfield_divisors(p,e,n)
+#    #divs = divisors(n)
+#    for d in divs:
+#        G = F.extension(Integer(d), 'c');
+#        Gx = PolynomialRing(G,'x');
+#        fieldsAll[d] = G;
+#        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+#        prodsAll[d] = dict();
+#        for idx, (f,mult) in enumerate(facAll[d]):
+#            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+#    #count all elements
+#    countCN = 0;
+#    countPCN = 0;
+#    for idx,x in enumerate(E):
+#        isCn = True
+#        if x == 0: isCn = False
+#        #test isNormal for each divisor
+#        #  ---------------------------
+#        pows = dict()
+#        for d in divs:
+#            if not isCn: break
+#            if d == n: continue
+#            for idx,(f,mult) in enumerate(facAll[d]):
+#                if not isCn: break
+#                g = prodsAll[d][idx];
+#                ret = E.zero();
+#                iold = 0
+#                xiold = x
+#                for i,gi in enumerate(list(g)):
+#                    h = Hom(fieldsAll[d],E)[0];
+#                    if pows.has_key(i*d):
+#                        xi = pows[i*d];
+#                        iold = i*d
+#                        xiold = xi
+#                    else:
+#                        xi = xiold**(q**(d*i-iold));
+#                        pows[i*d] = xi;
+#                        xiold = xi
+#                        iold = i*d
+#                    try:
+#                        ret += gi*xi;
+#                    except:
+#                        ret += h(gi)*xi;
+#                if ret == 0: isCn = False;
+#        #  ---------------------------
+#        if isCn: countCN += 1;
+#        if isCn and x.multiplicative_order() == qn-1:
+#            countPCN += 1;
+#    return countCN, countPCN, (time.clock()-TIME)
+#
+#def countCompleteSubmoduleGenerators(F,n):
+#    TIME = time.time()
+#    p = F.characteristic()
+#    q = F.order();
+#    e = q.log(p)
+#    E = F.extension(Integer(n),'a');
+#    #generate factors
+#    data = dict();
+#    decomposition = decompose(p,e,n)
+#    for decomp in decomposition:
+#        data[decomp] = dict()
+#        k,t,pi = decomp
+#        divs = divisors(get_module_character(*decomp))
+#        data[decomp][-1] = divs
+#        for d in divs:
+#            G = F.extension(Integer(d), 'c');
+#            Gx = PolynomialRing(G,'x'); 
+#            cycl = Gx.cyclotomic_polynomial(squarefree(k))\
+#                    (Gx.gen()**(k*t*pi/squarefree(k)/d))
+#            factors = []
+#            for f,mult in cycl.factor():
+#                factors += [cycl.quo_rem(f)[0]]
+#            data[decomp][d] = (G,cycl,factors)
+#    #count all elements
+#    generators = dict()
+#    for d in decomposition:
+#        generators[d] = set()
+#    num_processes = multiprocessing.cpu_count()
+#    pool = Pool(num_processes)
+#    hoursOld = 0
+#    counter = 0
+#    for d,gen in pool.imap_unordered(func=_isCompleteSubmoduleGenerator\
+#                , iterable=([x,F,q,decomposition,data] for x in E) \
+#                , chunksize=10):
+#        if d != -1:
+#            generators[d].add(gen)
+#        counter += 1
+#        hoursNow = floor((time.time()-TIME)/3600)
+#        if hoursNow > hoursOld:
+#            print "\t",strfdelta(datetime.timedelta(seconds=(time.time()-TIME))),\
+#                    "elapsed -> ", round(100*counter/E.order(),3),\
+#                    "% processed"
+#            hoursOld = hoursNow
+#        if counter == 10000:
+#            print "\teta", strfdelta(datetime.timedelta(\
+#                    seconds=long(E.order()/counter*(time.time()-TIME))))
+#    countGens = []
+#    # count generators
+#    for d in decomposition:
+#        countGens += [(d, len(generators[d]))]
+#    # calc primitive ones
+#    countPrims = 0
+#    for cP in pool.imap_unordered(func=_isPrimitive\
+#            , iterable=itertools.product(*[generators[d] for d in decomposition])
+#            , chunksize=100):
+#        countPrims += cP
+#    pool.close()
+#    pool.join()
+#    
+#    return prod(map(lambda c: c[1],countGens)), countPrims,\
+#            countGens, \
+#            strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
+#
+#
+#def _isPrimitive(y):
+#    x = sum(y)
+#    E = x.parent()
+#    if x.multiplicative_order() == E.order()-1:
+#        return 1
+#    return 0
+#
+#
+#def _isCompleteSubmoduleGenerator(input):
+#    x,F,q,decomposition,data = input
+#    E = x.parent()
+#    if x == 0: return -1,0
+#    # test complete generator for each cyclotomic module of the 
+#    # complete decomposition
+#    #  ---------------------------
+#    pows = dict()
+#    for decomp in decomposition:
+#        #print "test compl gen for decomp=",decomp
+#        isCompleteGen = True
+#        for d in data[decomp][-1]:
+#            #print "\ttest d=",d
+#            if not isCompleteGen: break
+#            G, cycl, factors = data[decomp][d]
+#            h = Hom(G,E)[0];
+#            # test submodules of cycl
+#            for g in factors:
+#                if not isCompleteGen: break
+#                ret = E.zero();
+#                iold = 0
+#                xiold = x
+#                for i,gi in enumerate(list(g)):
+#                    if pows.has_key(i*d):
+#                        xi = pows[i*d];
+#                        iold = i*d
+#                        xiold = xi
+#                    else:
+#                        xi = xiold**(q**(d*i-iold));
+#                        pows[i*d] = xi;
+#                        xiold = xi
+#                        iold = i*d
+#                    try:
+#                        ret += gi*xi;
+#                    except:
+#                        ret += h(gi)*xi;
+#                if ret == 0: isCompleteGen = False;
+#            #print "\t->factor test: ",isCompleteGen
+#            if isCompleteGen:
+#                # test cyclotomic polynomial
+#                ret = E.zero();
+#                iold = 0
+#                xiold = x
+#                for i, gi in enumerate(list(cycl)):
+#                    if pows.has_key(i*d):
+#                        xi = pows[i*d];
+#                        iold = i*d
+#                        xiold = xi
+#                    else:
+#                        xi = xiold**(q**(d*i-iold));
+#                        pows[i*d] = xi;
+#                        xiold = xi
+#                        iold = i*d
+#                    try:
+#                        ret += gi*xi;
+#                    except:
+#                        ret += h(gi)*xi;
+#                #print "\t->cycl(x)=",ret
+#                if ret != 0: isCompleteGen = False
+#        if isCompleteGen: 
+#            return decomp, x
+#    return -1, 0
 
-def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
-    if x == 0: return False
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    p = F.characteristic();
-    e = q.log(p)
-    divs = get_proper_subfield_divisors(p,e,n)
-    if facAll == []:
-        facAll = dict();
-        prodsAll = dict();
-        fieldsAll = dict();
-        for d in divs:
-            G = F.extension(Integer(d), 'c');
-            Gx = PolynomialRing(G,'x');
-            fieldsAll[d] = G;
-            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-            prodsAll[d] = dict();
-            for idx,(f,mult) in enumerate(facAll[d]):
-                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
-    #test isNormal for each divisor
-    pows = dict()
-    for d in divs:
-        h = Hom(fieldsAll[d],E)[0];
-        for idx,(f,mult) in enumerate(facAll[d]):
-            g = prodsAll[d][idx];
-            ret = E.zero();
-            iold = 0
-            xiold = x
-            for i,gi in enumerate(list(g)):
-                if pows.has_key(i*d):
-                    xi = pows[i*d];
-                    iold = i*d
-                    xiold = xi
-                else:
-                    xi = xiold**(q**(d*i-iold));
-                    pows[i*d] = xi;
-                    xiold = xi
-                    iold = i*d
-                try:
-                    ret += gi*xi;
-                except:
-                    ret += h(gi)*xi;
-            if ret == 0: return False;
-    return True
+cdef struct Node:
+    int * x
+    Node * next
+
+cdef extern from "./powertest.c":
+    void testPolys(int *x, int *x_mipo, int decompCount,\
+        int *polys, int *polysLen, int *polysCount, char *evalToZero,\
+        int *mats, int *frobPowers, \
+        int *ret, int m, int charac, int *tmp, int *tmp2)
+    Node ** processFFElements(int *x_mipo, int decompCount,\
+        int *polys, int *polysLen, int *polysCount, char *evalToZero,\
+        int *mats, int *frobPowers, \
+        int *ret, int m, int charac, int *tmp, int *tmp2)
 
 
-def isCompletelyNormal_ggt(x,F):
-    if x == 0: return False
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    Ex = PolynomialRing(E,'x');
-    p = F.characteristic();
-    e = q.log(p)
-    divs = get_proper_subfield_divisors(p,e,n)
-    if x == 0: return False
-    #test isNormal for each divisor
-    #  ---------------------------
-    pows = dict()
-    for d in divs:
-        if d == n: continue
-        e = n/d
-        g = Ex.zero()
-        iold = 0
-        xiold = x
-        for i in xrange(e):
-            if pows.has_key(i*d):
-                xi = pows[i*d];
-                iold = i*d
-                xiold = xi
-            else:
-                xi = xiold**(q**(d*i-iold));
-                pows[i*d] = xi;
-                xiold = xi
-                iold = i*d
-            g += xi*Ex.gen()**(e-1-i)
-            #print g
-        if g.gcd(Ex.gen()**e-1) != 1: return False
-    return True
-
-
-def countCNAndPCN_parallel(F,n):
-    TIME = time.clock()
-    p = F.characteristic()
-    q = F.order();
-    e = q.log(p)
-    E = F.extension(Integer(n),'a');
-    #generate factors
-    facAll = dict();
-    prodsAll = dict();
-    fieldsAll = dict();
-    divs = get_proper_subfield_divisors(p,e,n)
-    for d in divs:
-        G = F.extension(Integer(d), 'c');
-        Gx = PolynomialRing(G,'x');
-        fieldsAll[d] = G;
-        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-        prodsAll[d] = dict();
-        for idx,(f,mult) in enumerate(facAll[d]):
-            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
-    #count all elements
-    countCN = 0
-    countPCN = 0
-    TIME = (time.clock() - TIME)
-    num_processes = multiprocessing.cpu_count()
-    pool = Pool(num_processes)
-    for cn, pcn,t in pool.imap(func=_isCompletelyNormal\
-                , iterable=([x,F,q,divs,fieldsAll,facAll,prodsAll] for x in E) \
-                , chunksize=100):
-        countCN += cn
-        countPCN += pcn
-        TIME += t
-    pool.close()
-    pool.join()
-    return countCN, countPCN, TIME/num_processes
-
-
-def _isCompletelyNormal(data):
-    TIME = time.clock()
-    x,F,q,divs,fieldsAll,facAll,prodsAll = data
-    if x == 0: return 0,0,0
-    E = x.parent()
-    isCn = True
-    #test isNormal for each divisor
-    #  ---------------------------
-    pows = dict()
-    for d in divs:
-        if not isCn: break
-        for idx,(f,mult) in enumerate(facAll[d]):
-            if not isCn: break
-            g = prodsAll[d][idx];
-            ret = E.zero();
-            iold = 0
-            xiold = x
-            for i,gi in enumerate(list(g)):
-                h = Hom(fieldsAll[d],E)[0];
-                if pows.has_key(i*d):
-                    xi = pows[i*d];
-                    iold = i*d
-                    xiold = xi
-                else:
-                    xi = xiold**(q**(d*i-iold));
-                    pows[i*d] = xi;
-                    xiold = xi
-                    iold = i*d
-                try:
-                    ret += gi*xi;
-                except:
-                    ret += h(gi)*xi;
-            if ret == 0: isCn = False;
-    #  ---------------------------
-    if isCn:
-        if x.multiplicative_order() == E.order()-1:
-            return 1,1, (time.clock()-TIME)
-        else : return 1,0 , (time.clock()-TIME) 
-    return 0,0 , (time.clock()-TIME) 
-
-
-
-def countCNAndPCN(F,n):
-    TIME = time.clock();
-    p = F.characteristic()
-    q = F.order();
-    e = q.log(p)
-    E = F.extension(Integer(n),'a');
-    qn = q**n
-    #generate factors
-    facAll = dict();
-    prodsAll = dict();
-    fieldsAll = dict();
-    # only consider factors obtained by the Decomposition Theorem
-    divs = get_proper_subfield_divisors(p,e,n)
-    #divs = divisors(n)
-    for d in divs:
-        G = F.extension(Integer(d), 'c');
-        Gx = PolynomialRing(G,'x');
-        fieldsAll[d] = G;
-        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-        prodsAll[d] = dict();
-        for idx, (f,mult) in enumerate(facAll[d]):
-            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
-    #count all elements
-    countCN = 0;
-    countPCN = 0;
-    for idx,x in enumerate(E):
-        isCn = True
-        if x == 0: isCn = False
-        #test isNormal for each divisor
-        #  ---------------------------
-        pows = dict()
-        for d in divs:
-            if not isCn: break
-            if d == n: continue
-            for idx,(f,mult) in enumerate(facAll[d]):
-                if not isCn: break
-                g = prodsAll[d][idx];
-                ret = E.zero();
-                iold = 0
-                xiold = x
-                for i,gi in enumerate(list(g)):
-                    h = Hom(fieldsAll[d],E)[0];
-                    if pows.has_key(i*d):
-                        xi = pows[i*d];
-                        iold = i*d
-                        xiold = xi
-                    else:
-                        xi = xiold**(q**(d*i-iold));
-                        pows[i*d] = xi;
-                        xiold = xi
-                        iold = i*d
-                    try:
-                        ret += gi*xi;
-                    except:
-                        ret += h(gi)*xi;
-                if ret == 0: isCn = False;
-        #  ---------------------------
-        if isCn: countCN += 1;
-        if isCn and x.multiplicative_order() == qn-1:
-            countPCN += 1;
-    return countCN, countPCN, (time.clock()-TIME)
-
-def countCompleteSubmoduleGenerators(F,n):
+def countCompleteSubmoduleGenerators_internalC(F,n):
     TIME = time.time()
     p = F.characteristic()
     q = F.order();
     e = q.log(p)
     E = F.extension(Integer(n),'a');
     #generate factors
-    data = dict();
+    polys = []
+    polysLen = []
+    polysCount = []
+    evalToZero = []
+    frobPowers = []
     decomposition = decompose(p,e,n)
     for decomp in decomposition:
-        data[decomp] = dict()
         k,t,pi = decomp
         divs = divisors(get_module_character(*decomp))
-        data[decomp][-1] = divs
+        countPolysForThisDecomp = 0
+        #print "for decomp=",decomp, "consider divs=",divs
         for d in divs:
             G = F.extension(Integer(d), 'c');
             Gx = PolynomialRing(G,'x'); 
+            h = Hom(G,E)[0]
             cycl = Gx.cyclotomic_polynomial(squarefree(k))\
                     (Gx.gen()**(k*t*pi/squarefree(k)/d))
-            factors = []
+            polys += [cycl.map_coefficients(h)]
+            polysLen += [len(list(cycl))]
+            frobPowers += [d]
+            evalToZero += [1]
+            countPolysForThisDecomp += 1
+            #print "\ti.e. cycl=",cycl
+            # add Co-Factors
             for f,mult in cycl.factor():
-                factors += [cycl.quo_rem(f)[0]]
-            data[decomp][d] = (G,cycl,factors)
-    #generate Matrizes
+                g = cycl.quo_rem(f)[0]
+                #print "\tfac=",g
+                polys += [g.map_coefficients(h)]
+                polysLen += [len(list(g))]
+                frobPowers += [d]
+                evalToZero += [0]
+                countPolysForThisDecomp +=1
+        polysCount += [countPolysForThisDecomp]
+    #print "decomp = ",decomposition
+    #print "polys= ",polys, "len=",len(polys)
+    #print "polysLen=",polysLen, "len=",len(polysLen)
+    #print "evalToZero=",evalToZero, "len=",len(evalToZero)
+    #print "frobPowers=",frobPowers, "len=",len(frobPowers)
+    #print "polysCount=",polysCount, "len=",len(polysCount)
+    #--------------------
+    #setup C data
+    charac = int(E.characteristic())
+    mipo = E.modulus()
+    m = mipo.degree()
+    maxMatPower = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
+    #setup matrices
+    cdef np.ndarray[int,ndim=3,mode="c"] matsC
+    matsC = genMats(E,F,maxMatPower+1)
+    #setup mipo
+    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
+            = np.array(list(mipo), dtype=np.int32)
+    #setup polynomials, polyLength, frobPowers, evaltoZero
+    decompCount = int(len(polysCount))
+        #evalToZeroC
+    cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
+            = np.array(evalToZero, dtype=np.uint8)
+        #frobPowersC
+    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
+            = np.array(frobPowers, dtype=np.int32)
+        #polysCountC
+    cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
+            = np.array(polysCount, dtype=np.int32)
+        #polysLenC
+    cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
+            = np.array(polysLen, dtype=np.int32)
+        #polys
+    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
+            = np.zeros((sum(polysLen),m), dtype=np.int32)
+    curPos = 0
+    for idx,g in enumerate(polys):
+        g = map(lambda gi: list(gi.polynomial()),list(g))
+        for i in range(len(g)):
+            for j in range(len(g[i])):
+                polysC[curPos+i][j] = g[i][j]
+        curPos += polysLen[idx]
+    #end setup C data
+    #--------------------
+    #print "polysC= ",polysC, "len=",len(polysC)
+    #print "polysLenC=",polysLenC, "len=",len(polysLenC)
+    #print "evalToZeroC=",evalToZeroC, "len=",len(evalToZeroC)
+    #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
+    #print "polysCountC=",polysCountC, "len=",len(polysCountC)
+
+    #--------------------
+    #setup return and tmp values
+    cdef np.ndarray[int,ndim=1,mode="c"] genCountsC
+    genCountsC = np.zeros(decompCount, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] xC
+    xC = np.zeros(m, dtype=np.int32) 
+    cdef np.ndarray[int,ndim=1,mode="c"] tmpC
+    tmpC = np.zeros(m, dtype=np.int32) 
+    cdef np.ndarray[int,ndim=1,mode="c"] tmp2C
+    tmp2C = np.zeros(2*m, dtype=np.int32) 
+    #--------------------
+
+    cdef Node **genRoots 
+    genRoots = processFFElements(<int*>xmipoC.data \
+            ,decompCount \
+            ,<int*>polysC.data, <int*>polysLenC.data \
+            ,<int*>polysCountC.data \
+            ,<char*>evalToZeroC.data \
+            ,<int*>matsC.data, <int*>frobPowersC.data \
+            ,<int*>genCountsC.data \
+            ,m,p \
+            ,<int*>tmpC.data \
+            ,<int*>tmp2C.data)
+    #--------------------
+    # test primitivity
+    cdef Node **curEls = <Node**>malloc(decompCount*sizeof(Node))
+    for i in range(decompCount):
+        curEls[i] = genRoots[i]
+
+    curEl = [int(0)]*m
+    countPrims = 0
+    counter = 0
+    #### DEBUG
+    #print whole list
+    #cdef Node *a
+    #for i in range(decompCount):
+        #a = genRoots[i]
+        #print "i=",i
+        #while True:
+            #printf("n= ")
+            #printArr(a.x, m)
+            #if a.next:
+                #a = a.next
+            #else: break
+    #### GUBED
+    while True:
+        for i in range(m):
+            curEl[i] = curEls[0].x[i]
+        for i in range(1,decompCount):
+            for j in range(m):
+                curEl[j] += curEls[i].x[j]
+        #### DEBUG
+        #print "next:\n"
+        #for i in range(decompCount):
+            #printf("\t"); printArr(curEls[i].x,m);
+        #print "curEl=",curEl, " = ",E(list(curEl))
+        #### GUBED
+        if E(curEl).multiplicative_order() == E.order()-1:
+            countPrims += 1
+        #generate next element
+        counter += 1
+        if curEls[0].next:
+            curEls[0] = curEls[0].next
+        else: 
+            curEls[0] = NULL
+            for i in range(decompCount-1):
+                if curEls[i] != NULL :
+                    break
+                curEls[i] = genRoots[i]
+                if curEls[i+1].next:
+                    curEls[i+1] = curEls[i+1].next
+                else: curEls[i+1] = NULL
+            if curEls[decompCount-1] == NULL:
+                break
+
+    #--------------------
+    genCounts = dict()
+    for i,d in enumerate(decomposition):
+        genCounts[d] = genCountsC[i]
+    return prod(list(genCountsC)), countPrims, genCounts
+
+# helper to print C array
+cdef printArr(int *x, int m):
+    for i in range(m):
+        printf(" %i",x[i])
+    printf("\n")
+
+
+# generates Matrices for powers [0..n-1] of Frobenius
+# returns c_int matrix
+def genMats(E, F, n):
+    q = F.order()
     mipo = E.modulus()
     P = E.prime_subfield()
     Px = mipo.parent()
     gen = Px.gen()
-    m = E.order().log(E.characteristic())
+    m = int(E.order().log(E.characteristic()))
     mat = matrix(P, m,m)
     for i in xrange(m):
         for j, fi in enumerate(((gen**i)**q).mod(mipo)):
             mat[i,j] = fi
-    maxpow = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
-    matrices = [mat**i for i in range(maxpow+1)]
-    
-
-    #count all elements
-    generators = dict()
-    for d in decomposition:
-        generators[d] = set()
-    num_processes = multiprocessing.cpu_count()
-    pool = Pool(num_processes)
-    hoursOld = 0
-    counter = 0
-    for d,gen in pool.imap_unordered(func=_isCompleteSubmoduleGenerator\
-                , iterable=([x,E,F,q,decomposition,data,matrices,P,Px] \
-                    for x in itertools.chain(\
-                        *(Px.polynomials(i) for i in xrange(mipo.degree())))) \
-                , chunksize=10000):
-        if d != -1:
-            generators[d].add(gen)
-        counter += 1
-        hoursNow = floor((time.time()-TIME)/3600)
-        if hoursNow > hoursOld:
-            print "\t",strfdelta(datetime.timedelta(seconds=(time.time()-TIME))),\
-                    "elapsed -> ", round(100*counter/E.order(),3),\
-                    "% processed"
-            hoursOld = hoursNow
-        if counter == 10000:
-            print "\teta", strfdelta(datetime.timedelta(\
-                    seconds=long(E.order()/counter*(time.time()-TIME))))
-    countGens = []
-    # count generators
-    for d in decomposition:
-        countGens += [(d, len(generators[d]))]
-    # calc primitive ones
-    countPrims = 0
-    for cP in pool.imap_unordered(func=_isPrimitive\
-            , iterable=itertools.product(*[generators[d] for d in decomposition])
-            , chunksize=10000):
-        countPrims += cP
-    pool.close()
-    pool.join()
-
-    return prod(map(lambda c: c[1],countGens)), countPrims,\
-            countGens, \
-            strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
-
-def _isPrimitive(y):
-    x = sum(y)
-    E = x.parent()
-    if x.multiplicative_order() == E.order()-1:
-        return 1
-    return 0
-
-
-def _isCompleteSubmoduleGenerator(input):
-    x,E,F,q,decomposition,data,matrices,P,Px = input
-    # test complete generator for each cyclotomic module of the 
-    # complete decomposition
-    #  ---------------------------
-    m = E.order().log(E.characteristic())
-    vec = vector(P,m)
-    vec[0:len(list(x))] = list(x)
-    
-
-    for decomp in decomposition:
-        #print "test compl gen for decomp=",decomp
-        isCompleteGen = True
-        for d in data[decomp][-1]:
-            #print "\ttest d=",d
-            if not isCompleteGen: break
-            G, cycl, factors = data[decomp][d]
-            h = Hom(G,E)[0];
-            # test submodules of cycl
-            pows = dict()
-            for g in factors:
-                if not isCompleteGen: break
-                ret = E.zero();
-                for i,gi in enumerate(list(g)):
-                    xi = E(list(vec*matrices[i*d]))
-                    try:
-                        ret += gi*xi;
-                    except:
-                        ret += h(gi)*xi;
-                if ret == 0: isCompleteGen = False;
-            #print "\t->factor test: ",isCompleteGen
-            if isCompleteGen:
-                # test cyclotomic polynomial
-                ret = E.zero();
-                for i, gi in enumerate(list(cycl)):
-                    xi = E(list(vec*matrices[i*d]))
-                    try:
-                        ret += gi*xi;
-                    except:
-                        ret += h(gi)*xi;
-                #print "\t->cycl(x)=",ret
-                if ret != 0: isCompleteGen = False
-        if isCompleteGen: 
-            return decomp, E(x)
-    return -1, 0
-
-
-def findPCNElement(F,n):
-    TIME = time.clock();
-    p = F.characteristic()
-    q = F.order();
-    e = q.log(p)
-    E = F.extension(Integer(n),'a');
-    #generate factors
-    facAll = dict();
-    prodsAll = dict();
-    fieldsAll = dict();
-    # only consider factors obtained by the Decomposition Theorem
-    divs = get_proper_subfield_divisors(p,e,n)
-    #divs = divisors(n)
-    for d in divs:
-        G = F.extension(Integer(d), 'c');
-        Gx = PolynomialRing(G,'x');
-        fieldsAll[d] = G;
-        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-        prodsAll[d] = dict();
-        for idx, (f,mult) in enumerate(facAll[d]):
-            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
-    #count all elements
-    hasPCN = False
-    TIME = (time.clock() - TIME)
-    num_processes = multiprocessing.cpu_count()
-    pool = Pool(num_processes)
-    for cn, pcn,t in pool.imap_unordered(func=_isCompletelyNormal\
-                , iterable=([x,F,q,divs,fieldsAll,facAll,prodsAll] for x in E) \
-                , chunksize=100):
-        if pcn == 1: 
-            hasPCN = True
-            break
-        TIME += t
-    pool.close()
-    pool.join()
-    if hasPCN:
-        return True, TIME/num_processes
-    return False, TIME/num_processes
+    cdef np.ndarray[int,ndim=3,mode="c"] matC
+    matC = np.zeros((n,m,m), dtype=np.int32)
+    for i in range(n):
+        matPow = (mat**i).transpose()
+        for j in range(m):
+            for k in range(m):
+                matC[i][j][k] = matPow[j][k]
+    return matC
 
 
 
-def countCNAndPCN_ggt(F,n):
-    TIME = time.clock();
-    p = F.characteristic()
-    q = F.order();
-    e = q.log(p)
-    E = F.extension(Integer(n),'a');
-    Ex = PolynomialRing(E,'x')
-    qn = q**n
-    #generate factors
-    facAll = dict();
-    prodsAll = dict();
-    fieldsAll = dict();
-    # only consider factors obtained by the Decomposition Theorem
-    divs = get_proper_subfield_divisors(p,e,n)
-    #divs = divisors(n)
-    #count all elements
-    countCN = 0;
-    countPCN = 0;
-    for idx,x in enumerate(E):
-        isCn = True
-        if x == 0: isCn = False
-        #test isNormal for each divisor
-        #  ---------------------------
-        pows = dict()
-        for d in divs:
-            if not isCn: break
-            if d == n: continue
-            e = n/d
-            g = Ex.zero()
-            iold = 0
-            xiold = x
-            for i in xrange(e):
-                if pows.has_key(i*d):
-                    xi = pows[i*d];
-                    iold = i*d
-                    xiold = xi
-                else:
-                    xi = xiold**(q**(d*i-iold));
-                    pows[i*d] = xi;
-                    xiold = xi
-                    iold = i*d
-                g += xi*Ex.gen()**(e-1-i)
-            if g.gcd(Ex.gen()**e-1) != 1: isCn = False
-        #  ---------------------------
-        if isCn: countCN += 1;
-        if isCn and x.multiplicative_order() == qn-1:
-            countPCN += 1;
-    return countCN, countPCN, (time.clock()-TIME)
-
-# facs is list of polynoms 
-# bins a list of 0,1 
-# is bins is of shorter length then bins is headed by zeros
-# returns product of facs where i-th factor is used iff bins[i] = 1
-def combinePolys(facs, bins):
-    b = (len(facs)-len(bins))*[0] + bins
-    ret = facs[0].parent().one();
-    for i in range(0,len(b)):
-        if b[i] == 1: ret = ret * facs[i]
-    return ret
-
-
-def dec_to_bin(x):
-    return map(int,bin(x)[2:])
-
-
-
-# evaluate Frob of E|F in Polynom
-# where
-# f Polynom in Polynomialring over F
-# x Element in E
-# pows a list of powers of x, i.e. pows[i] = x^(q^i).
-def frob_eval(f, x, pows = []):
-    E = x.parent();
-    P = f.parent();
-    F = P.base_ring();
-    R = PolynomialRing(E, 'z');
-    q = F.order();
-    n = E.order().log(q);
-    #try:
-        #h = Hom(F,E)[0];
-        #f = f.map_coefficients(lambda i: h(i), E)
-    #except: pass
-    glist = f.list();
-    ret = E.zero();
-    for i,g in enumerate(glist):
-        print "frob: i=",i,"gi=",g
-        if pows != []:
-            if pows.has_key(i):
-                xi = pows[i];
-            else:
-                xi = x**(q**i);
-                pows[i] = xi;
-        else: xi = x**(q**i);
-        print "\t->x^(q^i)=",xi
-        try:
-            ret += g*xi;
-        except:
-            h = Hom(F,E)[0];
-            ret += h(g)*xi;
-        print "\t\t->ret=",ret
-
-    #print floor((time.clock()-curTime)*1000),"ms";
-    return ret;
-
-def _frob_eval(E, F, n, q, f, x, pows):
-    glist = f.list();
-    ret = E.zero();
-    for i,g in enumerate(glist):
-        if pows != []:
-            if pows.has_key(i):
-                xi = pows[i];
-            else:
-                xi = x**(q**i);
-                pows[i] = xi;
-        else: xi = x**(q**i);
-        try:
-            ret += g*xi;
-        except:
-            h = Hom(F,E)[0];
-            ret += h(g)*xi;
-
-    #print floor((time.clock()-curTime)*1000),"ms";
-    return ret;
-
-# calculate pi_m(q) = max{k: k | q, nu(k) | nu(m) }
-def pim(m,q):
-    num = squarefree(m);
-    for k in reversed(sage.all.divisors(q)):
-        if num%squarefree(k) == 0:
-            return k;
-
+#def findPCNElement(F,n):
+#    TIME = time.clock();
+#    p = F.characteristic()
+#    q = F.order();
+#    e = q.log(p)
+#    E = F.extension(Integer(n),'a');
+#    #generate factors
+#    facAll = dict();
+#    prodsAll = dict();
+#    fieldsAll = dict();
+#    # only consider factors obtained by the Decomposition Theorem
+#    divs = get_proper_subfield_divisors(p,e,n)
+#    #divs = divisors(n)
+#    for d in divs:
+#        G = F.extension(Integer(d), 'c');
+#        Gx = PolynomialRing(G,'x');
+#        fieldsAll[d] = G;
+#        facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+#        prodsAll[d] = dict();
+#        for idx, (f,mult) in enumerate(facAll[d]):
+#            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+#    #count all elements
+#    hasPCN = False
+#    TIME = (time.clock() - TIME)
+#    num_processes = multiprocessing.cpu_count()
+#    pool = Pool(num_processes)
+#    for cn, pcn,t in pool.imap_unordered(func=_isCompletelyNormal\
+#                , iterable=([x,F,q,divs,fieldsAll,facAll,prodsAll] for x in E) \
+#                , chunksize=100):
+#        if pcn == 1: 
+#            hasPCN = True
+#            break
+#        TIME += t
+#    pool.close()
+#    pool.join()
+#    if hasPCN:
+#        return True, TIME/num_processes
+#    return False, TIME/num_processes
+#
+#
+#
+#def countCNAndPCN_ggt(F,n):
+#    TIME = time.clock();
+#    p = F.characteristic()
+#    q = F.order();
+#    e = q.log(p)
+#    E = F.extension(Integer(n),'a');
+#    Ex = PolynomialRing(E,'x')
+#    qn = q**n
+#    #generate factors
+#    facAll = dict();
+#    prodsAll = dict();
+#    fieldsAll = dict();
+#    # only consider factors obtained by the Decomposition Theorem
+#    divs = get_proper_subfield_divisors(p,e,n)
+#    #divs = divisors(n)
+#    #count all elements
+#    countCN = 0;
+#    countPCN = 0;
+#    for idx,x in enumerate(E):
+#        isCn = True
+#        if x == 0: isCn = False
+#        #test isNormal for each divisor
+#        #  ---------------------------
+#        pows = dict()
+#        for d in divs:
+#            if not isCn: break
+#            if d == n: continue
+#            e = n/d
+#            g = Ex.zero()
+#            iold = 0
+#            xiold = x
+#            for i in xrange(e):
+#                if pows.has_key(i*d):
+#                    xi = pows[i*d];
+#                    iold = i*d
+#                    xiold = xi
+#                else:
+#                    xi = xiold**(q**(d*i-iold));
+#                    pows[i*d] = xi;
+#                    xiold = xi
+#                    iold = i*d
+#                g += xi*Ex.gen()**(e-1-i)
+#            if g.gcd(Ex.gen()**e-1) != 1: isCn = False
+#        #  ---------------------------
+#        if isCn: countCN += 1;
+#        if isCn and x.multiplicative_order() == qn-1:
+#            countPCN += 1;
+#    return countCN, countPCN, (time.clock()-TIME)
+#
+## facs is list of polynoms 
+## bins a list of 0,1 
+## is bins is of shorter length then bins is headed by zeros
+## returns product of facs where i-th factor is used iff bins[i] = 1
+#def combinePolys(facs, bins):
+#    b = (len(facs)-len(bins))*[0] + bins
+#    ret = facs[0].parent().one();
+#    for i in range(0,len(b)):
+#        if b[i] == 1: ret = ret * facs[i]
+#    return ret
+#
+#
+#def dec_to_bin(x):
+#    return map(int,bin(x)[2:])
+#
+#
+#
+## evaluate Frob of E|F in Polynom
+## where
+## f Polynom in Polynomialring over F
+## x Element in E
+## pows a list of powers of x, i.e. pows[i] = x^(q^i).
+#def frob_eval(f, x, pows = []):
+#    E = x.parent();
+#    P = f.parent();
+#    F = P.base_ring();
+#    R = PolynomialRing(E, 'z');
+#    q = F.order();
+#    n = E.order().log(q);
+#    #try:
+#        #h = Hom(F,E)[0];
+#        #f = f.map_coefficients(lambda i: h(i), E)
+#    #except: pass
+#    glist = f.list();
+#    ret = E.zero();
+#    for i,g in enumerate(glist):
+#        print "frob: i=",i,"gi=",g
+#        if pows != []:
+#            if pows.has_key(i):
+#                xi = pows[i];
+#            else:
+#                xi = x**(q**i);
+#                pows[i] = xi;
+#        else: xi = x**(q**i);
+#        print "\t->x^(q^i)=",xi
+#        try:
+#            ret += g*xi;
+#        except:
+#            h = Hom(F,E)[0];
+#            ret += h(g)*xi;
+#        print "\t\t->ret=",ret
+#
+#    #print floor((time.clock()-curTime)*1000),"ms";
+#    return ret;
+#
+#def _frob_eval(E, F, n, q, f, x, pows):
+#    glist = f.list();
+#    ret = E.zero();
+#    for i,g in enumerate(glist):
+#        if pows != []:
+#            if pows.has_key(i):
+#                xi = pows[i];
+#            else:
+#                xi = x**(q**i);
+#                pows[i] = xi;
+#        else: xi = x**(q**i);
+#        try:
+#            ret += g*xi;
+#        except:
+#            h = Hom(F,E)[0];
+#            ret += h(g)*xi;
+#
+#    #print floor((time.clock()-curTime)*1000),"ms";
+#    return ret;
+#
+## calculate pi_m(q) = max{k: k | q, nu(k) | nu(m) }
+#def pim(m,q):
+#    num = squarefree(m);
+#    for k in reversed(sage.all.divisors(q)):
+#        if num%squarefree(k) == 0:
+#            return k;
+#
 # computes the quadratic free part of an integer
 def squarefree(n):
     return sage.all.prod(map(lambda x: x[0], sage.all.factor(Integer(n))))
@@ -658,132 +880,132 @@ def ordn(m,q):
     for i in range(1,m+1):
         if (q ** i)%m == 1: return i;
 
-# returns the i-th Dickson-Polynom D_i(X,a) over the
-# Polynomialring P
-def dickson(i,a, P):
-    if i == 0: return 2 * P.base_ring().gen();
-    if i == 1: return P.gen();
-    else: return P.gen() * dickson(i-1,a,P) - a * dickson(i-2,a,P)
-
-
-def gen_irred_dickson(n,P):
-    F = P.base_ring();
-    for a in F:
-        for b in F:
-            if a == 0 or b == 0: continue;
-            f = dickson(n,a,P) - b;
-            if f.is_irreducible(): return a, b, f;
-
-
-# calcs V_g as subset of E where g is irreducible(!), monic divisor of 
-# a Phi_n(x) over F
-def calc_V_g(n,g):
-    Fx = g.parent();
-    F = Fx.base_ring();
-    q = F.order();
-    s = ordn(squarefree(n),q)
-    l = pim(n,q**s-1);
-    E = F.extension(Fx.cyclotomic_polynomial(n*l).factor()[0][0],'u');
-    u = E.gen();
-    print "---- Calc V_g for"
-    print "\tg =",g
-    print "\t F = GF("+str(q)+"); "+\
-            "E = GF(q^(n*l)) = GF(q^("+str(n)+"*"+str(l)+"))=",E
-    print "where u is primitive n*l="+str(n*l)+" root of unity,",\
-            multiplicative_order(u) == n*l;
-    print "Minpoly(u) =", u.minpoly();
-    for f in Fx.monics(g.degree()):
-        v = frob_eval(f,u);
-        print "f.u == (f mod g).u", v == frob_eval(f.mod(g),u);
-        #print "f=", f, "f.u=",v, \
-                #"\tOrd_q(v)=",tau_order(v,F),\
-                #" == ", tau_order(frob_eval(f.mod(g),u),F);
-        #print "f=",f, " f.u =",v, \
-                #"\tOrd_q(v) =", tau_order(v,F),\
-                #"\tMinpol(f.u) =", v.minpoly();
-        #print "\tord(v) =", multiplicative_order(v).factor();
-
-def multiplicative_order(x):
-    try:
-        return x.multiplicative_order();
-    except:
-        for i in range(1,1000):
-            if x**i == 1: return Integer(i);
-    return Integer(1);
-
-
-# finds minimal polynomial for BINOM f
-# i.e. if f = X^k - b it returns prod_(i=0)^(s-1) (X^k - b^(frobPower^i))
-def mipo(q,s,f):
-    P = f.parent();
-    ret = P.one();
-    b = f[0];
-    k = f.degree();
-    x = P.gen();
-    for i in range(0,s):
-        ret = ret * (x**k - (-b)**(q**i))
-    return ret;
-
-
-# computes Trace_(E | F) (x)
-def trace(E,F,x):
-    #E = x.parent();
-    ret = E.zero();
-    q = F.order();
-    n = E.order().log(q);
-    xi = x;
-    ret = x;
-    for i in range(1,n):
-        xi = xi**q;
-        ret = ret + xi;
-    Fx = PolynomialRing(F,'x');
-    return F(Fx.gen()-Fx(ret.minpoly('x')).factor()[0][0]);
-    #retSubs = re.sub(str(E.gen()), 'x', str(ret));
-    #for h in Hom(F,E):
-        #hSubs = re.sub(str(E.gen()), 'x', str(h(F.gen())));
-        #Fx = PolynomialRing(F,'x');
-        #f = Fx(hSubs+'-'+str(F.gen()));
-        #print "ret  = ", ret;
-        #print "f = ", f;
-        #print "ret.mod(f) = ", Fx(retSubs).mod(f);
-        #if Fx(retSubs).mod(f).is_constant():
-            #return F(Fx(retSubs).mod(f));
-
-def cosets(n,q):
-    L = []
-    Ls = []
-    l = ordn(n,q)
-    for k in range(0,n):
-        cs = coset_l(n,q,k);
-        if not cs in Ls: #and len(cs) == l:
-            Ls = Ls + [cs];
-            L = L + [(k,cs)];
-    return L
-
-def coset_l(n,q,l):
-    return sorted(list(set(map(lambda i: (l*q**i)%n, range(0,n)))));
-
-def print_cosets(n,q):
-    for (k,cs) in cosets(n,q):
-        print k, cs
-
-
-def isNormal_bruteforce(x,F):
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    l = ordn(n,q);
-    Fx = PolynomialRing(F,'x');
-    S = set();
-    for i in xrange(0,n):
-        for f in Fx.monics(i):
-            for e in F:
-                S.add(sum(map(lambda fi: fi[0]*x**(q**fi[1]) , zip(list(f+e*Fx.gen()), xrange(0,100)))))
-    if len(S) == E.order():
-        return True;
-    return False;
-
-
+## returns the i-th Dickson-Polynom D_i(X,a) over the
+## Polynomialring P
+#def dickson(i,a, P):
+#    if i == 0: return 2 * P.base_ring().gen();
+#    if i == 1: return P.gen();
+#    else: return P.gen() * dickson(i-1,a,P) - a * dickson(i-2,a,P)
+#
+#
+#def gen_irred_dickson(n,P):
+#    F = P.base_ring();
+#    for a in F:
+#        for b in F:
+#            if a == 0 or b == 0: continue;
+#            f = dickson(n,a,P) - b;
+#            if f.is_irreducible(): return a, b, f;
+#
+#
+## calcs V_g as subset of E where g is irreducible(!), monic divisor of 
+## a Phi_n(x) over F
+#def calc_V_g(n,g):
+#    Fx = g.parent();
+#    F = Fx.base_ring();
+#    q = F.order();
+#    s = ordn(squarefree(n),q)
+#    l = pim(n,q**s-1);
+#    E = F.extension(Fx.cyclotomic_polynomial(n*l).factor()[0][0],'u');
+#    u = E.gen();
+#    print "---- Calc V_g for"
+#    print "\tg =",g
+#    print "\t F = GF("+str(q)+"); "+\
+#            "E = GF(q^(n*l)) = GF(q^("+str(n)+"*"+str(l)+"))=",E
+#    print "where u is primitive n*l="+str(n*l)+" root of unity,",\
+#            multiplicative_order(u) == n*l;
+#    print "Minpoly(u) =", u.minpoly();
+#    for f in Fx.monics(g.degree()):
+#        v = frob_eval(f,u);
+#        print "f.u == (f mod g).u", v == frob_eval(f.mod(g),u);
+#        #print "f=", f, "f.u=",v, \
+#                #"\tOrd_q(v)=",tau_order(v,F),\
+#                #" == ", tau_order(frob_eval(f.mod(g),u),F);
+#        #print "f=",f, " f.u =",v, \
+#                #"\tOrd_q(v) =", tau_order(v,F),\
+#                #"\tMinpol(f.u) =", v.minpoly();
+#        #print "\tord(v) =", multiplicative_order(v).factor();
+#
+#def multiplicative_order(x):
+#    try:
+#        return x.multiplicative_order();
+#    except:
+#        for i in range(1,1000):
+#            if x**i == 1: return Integer(i);
+#    return Integer(1);
+#
+#
+## finds minimal polynomial for BINOM f
+## i.e. if f = X^k - b it returns prod_(i=0)^(s-1) (X^k - b^(frobPower^i))
+#def mipo(q,s,f):
+#    P = f.parent();
+#    ret = P.one();
+#    b = f[0];
+#    k = f.degree();
+#    x = P.gen();
+#    for i in range(0,s):
+#        ret = ret * (x**k - (-b)**(q**i))
+#    return ret;
+#
+#
+## computes Trace_(E | F) (x)
+#def trace(E,F,x):
+#    #E = x.parent();
+#    ret = E.zero();
+#    q = F.order();
+#    n = E.order().log(q);
+#    xi = x;
+#    ret = x;
+#    for i in range(1,n):
+#        xi = xi**q;
+#        ret = ret + xi;
+#    Fx = PolynomialRing(F,'x');
+#    return F(Fx.gen()-Fx(ret.minpoly('x')).factor()[0][0]);
+#    #retSubs = re.sub(str(E.gen()), 'x', str(ret));
+#    #for h in Hom(F,E):
+#        #hSubs = re.sub(str(E.gen()), 'x', str(h(F.gen())));
+#        #Fx = PolynomialRing(F,'x');
+#        #f = Fx(hSubs+'-'+str(F.gen()));
+#        #print "ret  = ", ret;
+#        #print "f = ", f;
+#        #print "ret.mod(f) = ", Fx(retSubs).mod(f);
+#        #if Fx(retSubs).mod(f).is_constant():
+#            #return F(Fx(retSubs).mod(f));
+#
+#def cosets(n,q):
+#    L = []
+#    Ls = []
+#    l = ordn(n,q)
+#    for k in range(0,n):
+#        cs = coset_l(n,q,k);
+#        if not cs in Ls: #and len(cs) == l:
+#            Ls = Ls + [cs];
+#            L = L + [(k,cs)];
+#    return L
+#
+#def coset_l(n,q,l):
+#    return sorted(list(set(map(lambda i: (l*q**i)%n, range(0,n)))));
+#
+#def print_cosets(n,q):
+#    for (k,cs) in cosets(n,q):
+#        print k, cs
+#
+#
+#def isNormal_bruteforce(x,F):
+#    E = x.parent();
+#    q = F.order();
+#    n = E.order().log(q);
+#    l = ordn(n,q);
+#    Fx = PolynomialRing(F,'x');
+#    S = set();
+#    for i in xrange(0,n):
+#        for f in Fx.monics(i):
+#            for e in F:
+#                S.add(sum(map(lambda fi: fi[0]*x**(q**fi[1]) , zip(list(f+e*Fx.gen()), xrange(0,100)))))
+#    if len(S) == E.order():
+#        return True;
+#    return False;
+#
+#
 # Application of the Decomposition Theorem (Section 19)
 # for x^n-1 over F_p^e
 def decompose(p,e, n):
@@ -791,21 +1013,21 @@ def decompose(p,e, n):
     return _decompose(p,e, 1, n/pi, pi)
 
 
-# returns the module characters of a decomposition
-# the module character of U_F,Phi_k(x^t) is k*t / nu(k)
-def get_module_characters(decomp):
-    return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
+## returns the module characters of a decomposition
+## the module character of U_F,Phi_k(x^t) is k*t / nu(k)
+#def get_module_characters(decomp):
+#    return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
 
 # returns the module characters of a cyclotomic module
 # the module character of U_F,Phi_k(x^t)^pi is k*t*pi / nu(k)
 def get_module_character(k,t,pi):
     return Integer(k*t*pi/squarefree(k))
 
-# returns all divisors of the module characters of an extension
-# i.e. all intermediate fields that must be considered
-def get_proper_subfield_divisors(p,e, n):
-    return list(uniq(itertools.chain(*map(divisors,\
-            get_module_characters(decompose(p,e,n))))))
+## returns all divisors of the module characters of an extension
+## i.e. all intermediate fields that must be considered
+#def get_proper_subfield_divisors(p,e, n):
+#    return list(uniq(itertools.chain(*map(divisors,\
+#            get_module_characters(decompose(p,e,n))))))
 
 
 # internal application of the Decomposition Theorem

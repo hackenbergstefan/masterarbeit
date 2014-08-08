@@ -611,14 +611,6 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
             ,<int*>tmpC.data \
             ,<int*>tmp2C.data)
     #--------------------
-    # test primitivity
-    cdef Node **curEls = <Node**>malloc(decompCount*sizeof(Node))
-    for i in range(decompCount):
-        curEls[i] = genRoots[i]
-
-    curEl = [int(0)]*m
-    countPrims = 0
-    counter = 0
     #### DEBUG
     #print whole list
     #cdef Node *a
@@ -632,19 +624,27 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
                 #a = a.next
             #else: break
     #### GUBED
+    # test primitivity
+    cdef Node **curEls = <Node**>malloc(decompCount*sizeof(Node))
+    for i in range(decompCount):
+        curEls[i] = genRoots[i]
+
+    curEl = [int(0)]*m
+    countPrims = 0
+    counter = 0
     while True:
-        for i in range(m):
-            curEl[i] = curEls[0].x[i]
-        for i in range(1,decompCount):
+        curElE = E.zero()
+        for i in range(0,decompCount):
             for j in range(m):
-                curEl[j] += curEls[i].x[j]
+                curEl[j] = curEls[i].x[j]
+            curElE += E(list(curEl))
+
         #### DEBUG
         #print "next:\n"
         #for i in range(decompCount):
             #printf("\t"); printArr(curEls[i].x,m);
-        #print "curEl=",curEl, " = ",E(list(curEl))
         #### GUBED
-        if E(curEl).multiplicative_order() == E.order()-1:
+        if curElE.multiplicative_order() == E.order()-1:
             countPrims += 1
         #generate next element
         counter += 1

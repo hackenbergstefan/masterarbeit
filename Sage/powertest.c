@@ -314,7 +314,7 @@ inline struct Node *appendNode(struct Node *curNode){
     return curNode;
 }
 
-struct Node* processFFElements( int *x_mipo, int decompCount,
+char *processFFElements( int *x_mipo, int decompCount,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
         int *genCounts, int m, int charac, int shiftSize){
@@ -374,10 +374,16 @@ struct Node* processFFElements( int *x_mipo, int decompCount,
     /*printf(" => CN = %i\n",prod);*/
 
     //combine elements
-    struct Node *combinedElements = malloc(sizeof(struct Node));
-    struct Node *curCombinedEnd = combinedElements;
-    combinedElements->x = 0;
-    combinedElements->next = 0;
+    /*struct Node *combinedElements = malloc(sizeof(struct Node));*/
+    /*struct Node *curCombinedEnd = combinedElements;*/
+    /*combinedElements->x = 0;*/
+    /*combinedElements->next = 0;*/
+
+    char *filepath = malloc(50*sizeof(char));
+    sprintf(filepath,"tmp_cnSearch_%i",time(NULL));
+    printf("filepath = %s",filepath);
+    FILE * fp = fopen(filepath,"a");
+
     for(i=0;i<decompCount;i++){
         curRoots[i] = roots[i];
     }
@@ -399,7 +405,11 @@ struct Node* processFFElements( int *x_mipo, int decompCount,
         /*printf("    x = ");printArr(x,m);*/
         moduloPoly(x,m,x_mipo,m+1,charac);
         /*printf("append to end x="); printArr(x,m);*/
-        curCombinedEnd = appendToEnd(curCombinedEnd,x,m,shiftSize);
+        /*curCombinedEnd = appendToEnd(curCombinedEnd,x,m,shiftSize);*/
+        for(i=0;i<m;i++)
+            fprintf(fp, "%i ", x[i]);
+        fprintf(fp,"\n");
+
 
         //nextElement
         curRoots[0] = curRoots[0]->next;
@@ -414,6 +424,7 @@ struct Node* processFFElements( int *x_mipo, int decompCount,
             break;
         }
     }
+    fclose(fp);
     // debug ---
     /*free(y);*/
     // --- debug
@@ -447,7 +458,7 @@ struct Node* processFFElements( int *x_mipo, int decompCount,
     /*printf("x freed!\n");*/
     
     printf("C time: %.2f\n", (double)(time(NULL)-TIME));
-    return combinedElements;
+    return filepath;
 }
 
 
@@ -589,11 +600,11 @@ int main(){
 
     int *genCounts = malloc(decompCount*sizeof(int));
 
-    struct Node* combinedElements
+    char * filepath
         = processFFElements(xmipo, decompCount,
             polys, polysLen, polysCount, evalToZero,
             mats, frobPowers,
             genCounts, m, charac, shiftSize);
-    freeNode(combinedElements);
     free(genCounts);
+    printf("filepath = %s",filepath);
 }

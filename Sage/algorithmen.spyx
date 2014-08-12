@@ -5,6 +5,7 @@ from multiprocessing import Pool, Value
 import multiprocessing
 import itertools
 import datetime
+import os
 import numpy as np
 cimport numpy as np
 from libc.stdlib cimport malloc, free
@@ -484,20 +485,14 @@ def tau_order(x,F, factors=[], prods=[]):
 #            return decomp, x
 #    return -1, 0
 
-cdef struct Node:
-    unsigned long long x
-    Node * next
-
 cdef extern from "./powertest.c":
-    Node * processFFElements(int *x_mipo, int decompCount,\
+    char * processFFElements(int *x_mipo, int decompCount,\
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize)
         #int *tmp, int *tmp2, int *x, int *ret, \
         #Node **roots, Node **curRoots, \
         #Node *combinedElements)
-    void freeNode(Node* head)
-    void decodeArr(unsigned long long enc, int *arr, int m, int shiftSize)
 
 
 
@@ -686,8 +681,8 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
         shiftSize +=1
         shifter <<= 1
 
-    cdef Node * combinedElements
-    combinedElements = processFFElements(<int*>xmipoC.data \
+    cdef char * filepath
+    filepath = processFFElements(<int*>xmipoC.data \
             ,<int>decompCount \
             ,<int*>polysC.data, <int*>polysLenC.data \
             ,<int*>polysCountC.data \
@@ -704,21 +699,13 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
     #test primitivity
     primOrder = E.order()-1
     countPrims = 0;
-    cdef np.ndarray[int,ndim=1,mode="c"] curEl \
-        = np.zeros(m, dtype=np.int32)
-    while combinedElements:
-        decodeArr(combinedElements.x,<int*>curEl.data,m, shiftSize)
+    for line in open(filepath,'r'):
+        #decodeArr(combinedElements.x,<int*>curEl.data,m, shiftSize)
+        curEl = map(int,line.split(' ')[0:m])
         #print "test curEl=",curEl
         if E(list(curEl)).multiplicative_order() == primOrder:
             countPrims += 1
-        #process next element
-        if combinedElements.next:
-            #print "\thasNext"
-            combinedElements = combinedElements.next
-        else: 
-            #print "has NO next"
-            combinedElements = NULL
-    freeNode(combinedElements)
+    os.remove(filepath)
 
     #--------------------
     genCounts = dict()

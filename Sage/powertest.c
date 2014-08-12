@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
 
 unsigned long long ipow(int base, int exp)
 {
@@ -532,10 +533,9 @@ long eta_processFFElements( int *x_mipo, int decompCount,
     /*printf("x freed!\n");*/
     
     gettimeofday(&TIME2,NULL);
-    long totalTime =  (long) 2*
-        (TIME2.tv_sec - TIME1.tv_sec +
-         ((double)(TIME2.tv_usec - TIME1.tv_usec))/1000000.0)
-        *ipow(charac,m)/counter;
+    double timediff = (TIME2.tv_sec - TIME1.tv_sec +
+         ((double)(TIME2.tv_usec - TIME1.tv_usec))/1000000.0);
+    long totalTime =  (long) 2*timediff *pow((double)charac,(double)m)/counter;
 
     return totalTime;
 }

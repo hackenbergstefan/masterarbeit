@@ -9,7 +9,7 @@ def process_submodules_internalC(pen):
     p,e,n = pen
     q = p**e
     F = GF(Integer(q),'a');
-    ret = countCompleteSubmoduleGenerators_internalC(F,n, maxEta=60*60)
+    ret = countCompleteSubmoduleGenerators_internalC(F,n, maxEta=60*5)
     if ret:
         print "(q,n) = ",(q,n)," -> (cn,pcn,submod_gens,time) = ", ret
         with open(filePath,'a') as f:
@@ -23,5 +23,5 @@ def process_submodules_internalC(pen):
 def main():
     pool = Pool();
     pool.imap_unordered(process_submodules_internalC, \
-            itertools.product(primes(1000),xrange(1,100),xrange(2,100)))
+            itertools.product(primes(1000),xrange(1,30),xrange(2,30)))
 

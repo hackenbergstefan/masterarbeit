@@ -490,7 +490,7 @@ cdef extern from "./powertest.c":
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize)
-    long eta_processFFElements(int *x_mipo, int decompCount,\
+    double eta_processFFElements(int *x_mipo, int decompCount,\
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize)

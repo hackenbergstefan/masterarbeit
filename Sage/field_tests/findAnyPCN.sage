@@ -7,8 +7,7 @@ load("./algorithmen.spyx")
 filePath = "pcnsC_"
 
 def runTest(data):
-    p = data[0]
-    n = data[1]
+    p,n,totalCount = data
     r = 1
     q = p**r
     while q < n**4:
@@ -33,17 +32,28 @@ def runTest(data):
                     f.write(str(p)+'\t'+str(r)+'\t'+str(x)+"\n"); 
                     print "\tfound"
             f.close();
+        counter = sum(1 for line in open(filePath+str(n),'r'))
+        print "\t", counter," / ", totalCount, " done -> "\
+                , round(counter/totalCount*100,2),"%"
 
         r = r+1;
         q = p**r;
-    return "";
 
 
 
 ## Tests all q < n^4
 def doTests(n):
+    totalCount = 0
+    for p in primes(n**4):
+        r = 1
+        q = p**r
+        while q < n**4:
+            totalCount += 1
+            r += 1
+            q = p**r
+
     pool = Pool();
-    pool.imap_unordered(runTest, ([p,n] for p in primes(n**4)))
+    pool.imap_unordered(runTest, ([p,n,totalCount] for p in primes(n**4)))
 
 
 ## Tests all q < n^4

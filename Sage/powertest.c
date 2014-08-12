@@ -466,7 +466,6 @@ long eta_processFFElements( int *x_mipo, int decompCount,
         int *mats, int *frobPowers, 
         int *genCounts, int m, int charac, int shiftSize){
     struct timeval TIME1, TIME2;
-    gettimeofday(&TIME1,NULL);
     int i,j;
     
     
@@ -488,6 +487,7 @@ long eta_processFFElements( int *x_mipo, int decompCount,
     }
 
     int counter = 0;
+    gettimeofday(&TIME1,NULL);
     
     while(1==1){
         testPolys(x,x_mipo,decompCount,
@@ -511,10 +511,12 @@ long eta_processFFElements( int *x_mipo, int decompCount,
             }
         }
         counter++;
-        if(counter == 10000)
+        if(counter == 1000)
             break;
     }
 
+    gettimeofday(&TIME2,NULL);
+    
     for(i=0;i<decompCount;i++){
         /*printf("free root %i\n",i);*/
         freeNode(roots[i]);
@@ -532,7 +534,6 @@ long eta_processFFElements( int *x_mipo, int decompCount,
     free(x);
     /*printf("x freed!\n");*/
     
-    gettimeofday(&TIME2,NULL);
     double timediff = (TIME2.tv_sec - TIME1.tv_sec +
          ((double)(TIME2.tv_usec - TIME1.tv_usec))/1000000.0);
     long totalTime =  (long) 2*timediff *pow((double)charac,(double)m)/counter;

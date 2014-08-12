@@ -696,7 +696,7 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
             ,<int*>matsC.data, <int*>frobPowersC.data \
             ,<int*>genCountsC.data \
             ,<int>m,<int>p, <int>shiftSize)
-    print "eta = ",eta,"s"
+    print "(p,e,n) = (",p,",",e,",",n,") eta = ",eta,"s"
     if maxEta != 0 and eta > maxEta:
         return
 

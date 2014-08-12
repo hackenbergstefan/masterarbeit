@@ -8,7 +8,7 @@ import datetime
 import numpy as np
 cimport numpy as np
 from libc.stdlib cimport malloc, free
-from libc.stdint cimport uint8_t
+from libc.stdint cimport int
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 
@@ -485,18 +485,19 @@ def tau_order(x,F, factors=[], prods=[]):
 #    return -1, 0
 
 cdef struct Node:
-    uint8_t * x
+    unsigned long long x
     Node * next
 
 cdef extern from "./powertest.c":
-    Node * processFFElements(uint8_t *x_mipo, uint8_t decompCount,\
-        uint8_t *polys, int *polysLen, int *polysCount, char *evalToZero,\
-        uint8_t *mats, uint8_t *frobPowers, \
-        int *genCounts, int m, uint8_t charac)
+    Node * processFFElements(int *x_mipo, int decompCount,\
+        int *polys, int *polysLen, int *polysCount, char *evalToZero,\
+        int *mats, int *frobPowers, \
+        int *genCounts, int m, int charac, int shiftSize)
         #int *tmp, int *tmp2, int *x, int *ret, \
         #Node **roots, Node **curRoots, \
         #Node *combinedElements)
     void freeNode(Node* head)
+    void decodeArr(unsigned long long enc, int *arr, int m, int shiftSize)
 
 
 
@@ -554,19 +555,19 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
     m = mipo.degree()
     maxMatPower = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
     #setup matrices
-    cdef np.ndarray[uint8_t,ndim=3,mode="c"] matsC
+    cdef np.ndarray[int,ndim=3,mode="c"] matsC
     matsC = genMats(E,F,maxMatPower+1)
     #setup mipo
-    cdef np.ndarray[uint8_t,ndim=1,mode="c"] xmipoC \
-            = np.array(list(mipo), dtype=np.uint8)
+    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
+            = np.array(list(mipo), dtype=np.int32)
     #setup polynomials, polyLength, frobPowers, evaltoZero
     decompCount = int(len(polysCount))
         #evalToZeroC
     cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
             = np.array(evalToZero, dtype=np.uint8)
         #frobPowersC
-    cdef np.ndarray[uint8_t,ndim=1,mode="c"] frobPowersC\
-            = np.array(frobPowers, dtype=np.uint8)
+    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
+            = np.array(frobPowers, dtype=np.int32)
         #polysCountC
     cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
             = np.array(polysCount, dtype=np.int32)
@@ -574,14 +575,14 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
     cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
             = np.array(polysLen, dtype=np.int32)
         #polys
-    cdef np.ndarray[uint8_t,ndim=2,mode="c"] polysC\
-            = np.zeros((sum(polysLen),m), dtype=np.uint8)
+    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
+            = np.zeros((sum(polysLen),m), dtype=np.int32)
     curPos = 0
     for idx,g in enumerate(polys):
         g = map(lambda gi: list(gi.polynomial()),list(g))
         for i in range(len(g)):
             for j in range(len(g[i])):
-                polysC[curPos+i][j] = <uint8_t>g[i][j]
+                polysC[curPos+i][j] = <int>g[i][j]
         curPos += polysLen[idx]
     #end setup C data
     #--------------------
@@ -678,15 +679,22 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
     #cdef Node * combinedElements = <Node*>malloc(sizeof(Node))
     #--------------------
 
+    # calc shiftsize
+    shifter = 1
+    shiftSize = 0
+    while shifter < charac:
+        shiftSize +=1
+        shifter <<= 1
+
     cdef Node * combinedElements
-    combinedElements = processFFElements(<uint8_t*>xmipoC.data \
-            ,<uint8_t>decompCount \
-            ,<uint8_t*>polysC.data, <int*>polysLenC.data \
+    combinedElements = processFFElements(<int*>xmipoC.data \
+            ,<int>decompCount \
+            ,<int*>polysC.data, <int*>polysLenC.data \
             ,<int*>polysCountC.data \
             ,<char*>evalToZeroC.data \
-            ,<uint8_t*>matsC.data, <uint8_t*>frobPowersC.data \
+            ,<int*>matsC.data, <int*>frobPowersC.data \
             ,<int*>genCountsC.data \
-            ,<int>m,<uint8_t>p)
+            ,<int>m,<int>p, <int>shiftSize)
             #,<int*>tmpC.data ,<int*>tmp2C.data \
             #,<int*>xC.data, <int*>retC.data \
             #, rootsC, curRootsC, combinedElements)
@@ -696,10 +704,10 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
     #test primitivity
     primOrder = E.order()-1
     countPrims = 0;
-    curEl = [0]*m
+    cdef np.ndarray[int,ndim=1,mode="c"] curEl \
+        = np.zeros(m, dtype=np.int32)
     while combinedElements:
-        for i in range(m):
-            curEl[i] = combinedElements.x[i]
+        decodeArr(combinedElements.x,<int*>curEl.data,m, shiftSize)
         #print "test curEl=",curEl
         if E(list(curEl)).multiplicative_order() == primOrder:
             countPrims += 1
@@ -721,7 +729,7 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
 
 
 # helper to print C array
-cdef printArr(uint8_t *x, int m):
+cdef printArr(int *x, int m):
     for i in range(m):
         printf(" %i",x[i])
     printf("\n")
@@ -740,8 +748,8 @@ def genMats(E, F, n):
     for i in xrange(m):
         for j, fi in enumerate(((gen**i)**q).mod(mipo)):
             mat[i,j] = fi
-    cdef np.ndarray[uint8_t,ndim=3,mode="c"] matC
-    matC = np.zeros((n,m,m), dtype=np.uint8)
+    cdef np.ndarray[int,ndim=3,mode="c"] matC
+    matC = np.zeros((n,m,m), dtype=np.int32)
     for i in range(n):
         matPow = (mat**i).transpose()
         for j in range(m):

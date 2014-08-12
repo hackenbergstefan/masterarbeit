@@ -490,14 +490,20 @@ cdef extern from "./powertest.c":
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize)
-        #int *tmp, int *tmp2, int *x, int *ret, \
-        #Node **roots, Node **curRoots, \
-        #Node *combinedElements)
+    long eta_processFFElements(int *x_mipo, int decompCount,\
+        int *polys, int *polysLen, int *polysCount, char *evalToZero,\
+        int *mats, int *frobPowers, \
+        int *genCounts, int m, int charac, int shiftSize)
+    void findNextCN(int *x, int *x_mipo, \
+        int *polys, int *polysLen, int *polysCount, char *evalToZero,\
+        int *mats, int *frobPowers, \
+        int m, int charac, \
+        int *ret, int *tmp, int *tmp2)
 
 
 
 
-def countCompleteSubmoduleGenerators_internalC(F,n):
+def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     TIME = time.time()
     p = F.characteristic()
     q = F.order();
@@ -681,6 +687,19 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
         shiftSize +=1
         shifter <<= 1
 
+    #get eta
+    eta = eta_processFFElements(<int*>xmipoC.data \
+            ,<int>decompCount \
+            ,<int*>polysC.data, <int*>polysLenC.data \
+            ,<int*>polysCountC.data \
+            ,<char*>evalToZeroC.data \
+            ,<int*>matsC.data, <int*>frobPowersC.data \
+            ,<int*>genCountsC.data \
+            ,<int>m,<int>p, <int>shiftSize)
+    print "eta = ",eta,"s"
+    if maxEta != 0 and eta > maxEta:
+        return
+
     cdef char * filepath
     filepath = processFFElements(<int*>xmipoC.data \
             ,<int>decompCount \
@@ -713,6 +732,121 @@ def countCompleteSubmoduleGenerators_internalC(F,n):
         genCounts[d] = genCountsC[i]
     return prod(list(genCountsC)), countPrims, genCounts,\
             strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
+
+def findAnyPCN_internalC(F,n):
+    TIME = time.time()
+    p = F.characteristic()
+    q = F.order();
+    e = q.log(p)
+    E = F.extension(Integer(n),'a');
+    #generate factors
+    polys = []
+    polysLen = []
+    polysCount = []
+    evalToZero = []
+    frobPowers = []
+    divs = get_proper_subfield_divisors(p,e,n)
+    countPolysForThisDecomp = 0
+    #print "for decomp=",decomp, "consider divs=",divs
+    for d in divs:
+        G = F.extension(Integer(d), 'c');
+        Gx = PolynomialRing(G,'x'); 
+        h = Hom(G,E)[0]
+        cycl = (Gx.gen()**(n/d)-1)
+        polys += [cycl.map_coefficients(h)]
+        polysLen += [len(list(cycl))]
+        frobPowers += [d]
+        evalToZero += [1]
+        countPolysForThisDecomp += 1
+        #print "\ti.e. cycl=",cycl
+        # add Co-Factors
+        for f,mult in cycl.factor():
+            g = cycl.quo_rem(f)[0]
+            #print "\tfac=",g
+            polys += [g.map_coefficients(h)]
+            polysLen += [len(list(g))]
+            frobPowers += [d]
+            evalToZero += [0]
+            countPolysForThisDecomp +=1
+    polysCount += [countPolysForThisDecomp]
+    #print "decomp = ",decomposition
+    #print "polys= ",polys, "len=",len(polys)
+    #print "polysLen=",polysLen, "len=",len(polysLen)
+    #print "evalToZero=",evalToZero, "len=",len(evalToZero)
+    #print "frobPowers=",frobPowers, "len=",len(frobPowers)
+    #print "polysCount=",polysCount, "len=",len(polysCount)
+    #--------------------
+    #setup C data
+    charac = int(E.characteristic())
+    mipo = E.modulus()
+    m = mipo.degree()
+    #setup matrices
+    cdef np.ndarray[int,ndim=3,mode="c"] matsC
+    matsC = genMats(E,F,n+1)
+    #setup mipo
+    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
+            = np.array(list(mipo), dtype=np.int32)
+    #setup polynomials, polyLength, frobPowers, evaltoZero
+    decompCount = int(len(polysCount))
+        #evalToZeroC
+    cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
+            = np.array(evalToZero, dtype=np.uint8)
+        #frobPowersC
+    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
+            = np.array(frobPowers, dtype=np.int32)
+        #polysCountC
+    cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
+            = np.array(polysCount, dtype=np.int32)
+        #polysLenC
+    cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
+            = np.array(polysLen, dtype=np.int32)
+        #polys
+    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
+            = np.zeros((sum(polysLen),m), dtype=np.int32)
+    curPos = 0
+    for idx,g in enumerate(polys):
+        g = map(lambda gi: list(gi.polynomial()),list(g))
+        for i in range(len(g)):
+            for j in range(len(g[i])):
+                polysC[curPos+i][j] = <int>g[i][j]
+        curPos += polysLen[idx]
+    #end setup C data
+    #--------------------
+    #print "matsC=", matsC
+    #print "polysC= ",polysC, "len=",len(polysC)
+    #print "polysLenC=",polysLenC, "len=",len(polysLenC)
+    #print "evalToZeroC=",evalToZeroC, "len=",len(evalToZeroC)
+    #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
+    #print "polysCountC=",polysCountC, "len=",len(polysCountC)
+    #print "xmipoC=",xmipoC
+
+
+    #--------------------
+    #setup return and tmp values
+    cdef np.ndarray[int,ndim=1,mode="c"] xC \
+        = np.zeros(m, dtype=np.int32) 
+    cdef np.ndarray[int,ndim=1,mode="c"] tmpC \
+        = np.zeros(m, dtype=np.int32) 
+    cdef np.ndarray[int,ndim=1,mode="c"] tmp2C \
+        = np.zeros(2*m, dtype=np.int32) 
+    cdef np.ndarray[int,ndim=1,mode="c"] retC \
+        = np.zeros(m, dtype=np.int32) 
+
+
+    primOrder = E.order()-1
+    while xC[0] != -1:
+        findNextCN(<int*>xC.data, <int*>xmipoC.data \
+            ,<int*>polysC.data, <int*>polysLenC.data \
+            ,<int*>polysCountC.data \
+            ,<char*>evalToZeroC.data \
+            ,<int*>matsC.data, <int*>frobPowersC.data \
+            ,<int>m,<int>p \
+            ,<int*>retC.data, <int*>tmpC.data, <int*>tmp2C.data)
+        #print "test x=",list(xC)
+        if E(list(xC)).multiplicative_order() == primOrder:
+            #print "PCN found: ", list(xC)
+            return list(xC)
+    return False
 
 
 # helper to print C array
@@ -1062,8 +1196,8 @@ def decompose(p,e, n):
 
 ## returns the module characters of a decomposition
 ## the module character of U_F,Phi_k(x^t) is k*t / nu(k)
-#def get_module_characters(decomp):
-#    return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
+def get_module_characters(decomp):
+   return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
 
 # returns the module characters of a cyclotomic module
 # the module character of U_F,Phi_k(x^t)^pi is k*t*pi / nu(k)
@@ -1072,9 +1206,9 @@ def get_module_character(k,t,pi):
 
 ## returns all divisors of the module characters of an extension
 ## i.e. all intermediate fields that must be considered
-#def get_proper_subfield_divisors(p,e, n):
-#    return list(uniq(itertools.chain(*map(divisors,\
-#            get_module_characters(decompose(p,e,n))))))
+def get_proper_subfield_divisors(p,e, n):
+   return list(uniq(itertools.chain(*map(divisors,\
+           get_module_characters(decompose(p,e,n))))))
 
 
 # internal application of the Decomposition Theorem

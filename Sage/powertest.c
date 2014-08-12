@@ -318,9 +318,6 @@ char *processFFElements( int *x_mipo, int decompCount,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
         int *genCounts, int m, int charac, int shiftSize){
-        /*int *tmp, int *tmp2, int *x, int *ret, */
-        /*struct Node **roots, struct Node **curRoots,*/
-        /*struct Node *combinedElements){*/
     time_t TIME = time(NULL);
     int i,j;
     
@@ -381,7 +378,7 @@ char *processFFElements( int *x_mipo, int decompCount,
 
     char *filepath = malloc(50*sizeof(char));
     sprintf(filepath,"tmp_cnSearch_%i",time(NULL));
-    printf("filepath = %s",filepath);
+    /*printf("filepath = %s",filepath);*/
     FILE * fp = fopen(filepath,"a");
 
     for(i=0;i<decompCount;i++){
@@ -459,6 +456,126 @@ char *processFFElements( int *x_mipo, int decompCount,
     
     printf("C time: %.2f\n", (double)(time(NULL)-TIME));
     return filepath;
+}
+
+
+long eta_processFFElements( int *x_mipo, int decompCount,
+        int *polys, int *polysLen, int *polysCount, bool *evalToZero,
+        int *mats, int *frobPowers, 
+        int *genCounts, int m, int charac, int shiftSize){
+    time_t TIME = time(NULL);
+    int i,j;
+    
+    
+    int * x = malloc( m*sizeof(int) );
+    int * ret = malloc( m*sizeof(int) );
+    int * tmp = malloc( m*sizeof(int) );
+    int * tmp2 = malloc( 2*m*sizeof(int) );
+
+    initPoly(x,m);
+    initPoly(genCounts,decompCount);
+
+    struct Node **roots = malloc( decompCount*sizeof(struct Node) );
+    struct Node **curRoots = malloc(decompCount*sizeof(struct Node));
+    for(i=0;i<decompCount;i++){
+        roots[i] = malloc( sizeof(struct Node) );
+        roots[i]->x = 0;
+        roots[i]->next = 0;
+        curRoots[i] = roots[i];
+    }
+
+    int counter = 0;
+    
+    while(1==1){
+        testPolys(x,x_mipo,decompCount,
+                polys,polysLen,polysCount,evalToZero,
+                mats, frobPowers,
+                ret, m, charac, tmp, tmp2);
+        if( ret[0] != -1){
+            genCounts[ret[0]] += 1;
+            curRoots[ret[0]] = appendToEnd(curRoots[ret[0]], x, m, shiftSize);
+            decodeArr(curRoots[ret[0]]->x,x,m,shiftSize);
+        }
+        //generate next element
+        x[0] += 1;
+        if( x[0] == charac ){
+            for(i=0;i<m-1 && x[i]==charac;i++){
+                x[i] = 0;
+                x[i+1] += 1;
+            }
+            if( x[m-1]==charac ){
+                break;
+            }
+        }
+        counter++;
+        if(counter == 10000)
+            break;
+    }
+
+    for(i=0;i<decompCount;i++){
+        /*printf("free root %i\n",i);*/
+        freeNode(roots[i]);
+    }
+    free(roots);
+    /*printf("roots freed!\n");*/
+    free(curRoots);
+    /*printf("curRoots freed!\n");*/
+    free(tmp2);
+    /*printf("tmp2 freed!\n");*/
+    free(tmp);
+    /*printf("tmp freed!\n");*/
+    free(ret);
+    /*printf("ret freed!\n");*/
+    free(x);
+    /*printf("x freed!\n");*/
+    
+
+    long totalTime =  (long) 2*(time(NULL)-TIME)*ipow(charac,m)/counter;
+
+    return totalTime;
+}
+
+
+/**
+ * returns the next CN element
+ */
+void findNextCN(int * x, int *x_mipo, 
+        int *polys, int *polysLen, int *polysCount, bool *evalToZero,
+        int *mats, int *frobPowers, 
+        int m, int charac,
+        int *ret, int *tmp, int * tmp2){
+    time_t TIME = time(NULL);
+    int i,j;
+    
+    
+    /*int * ret = malloc( m*sizeof(int) );*/
+    /*int * tmp = malloc( m*sizeof(int) );*/
+    /*int * tmp2 = malloc( 2*m*sizeof(int) );*/
+
+    
+    while(1==1){
+        //generate next element
+        x[0] += 1;
+        if( x[0] == charac ){
+            for(i=0;i<m-1 && x[i]==charac;i++){
+                x[i] = 0;
+                x[i+1] += 1;
+            }
+            if( x[m-1]==charac ){
+                x[0] = -1;
+                return;
+            }
+        }
+        testPolys(x,x_mipo,1,
+                polys,polysLen,polysCount,evalToZero,
+                mats, frobPowers,
+                ret, m, charac, tmp, tmp2);
+        if( ret[0] != -1){
+            return;
+        }
+    }
+
+    /*printf("C time: %.2f\n", (double)(time(NULL)-TIME));*/
 }
 
 

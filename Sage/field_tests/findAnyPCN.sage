@@ -4,7 +4,7 @@ from sage.all import *
 from multiprocessing import Pool
 load("./algorithmen.spyx")
 
-filePath = "pcns_"
+filePath = "pcnsC_"
 
 def runTest(data):
     p = data[0]
@@ -24,13 +24,13 @@ def runTest(data):
             f.close();
         if not isProcessed:
             print "(",p,",",r,") not processed"
-            x = findPCNElement(GF(q,'a'),n)
+            x = findAnyPCN_internalC(GF(q,'a'),n)
             with open(filePath+str(n),'a') as f:
                 if x == False:
                     f.write(str(p)+'\t'+str(r)+'\tFALSE\n')
                     print "\tFALSE"
                 else:
-                    f.write(str(p)+'\t'+str(r)+'\n'); #+'\t'+str(x.minpoly())+'\n')
+                    f.write(str(p)+'\t'+str(r)+'\t'+str(x)+"\n"); 
                     print "\tfound"
             f.close();
 
@@ -41,13 +41,13 @@ def runTest(data):
 
 
 ## Tests all q < n^4
-#def doTests(n):
-    #pool = Pool();
-    #pool.map(runTest, itertools.izip(primes(n**4), itertools.repeat(n)));
-
-
-# Tests all q < n^4
 def doTests(n):
-    for p in primes(n**4):
-        runTest([p,n])
+    pool = Pool();
+    pool.imap_unordered(runTest, ([p,n] for p in primes(n**4)))
+
+
+## Tests all q < n^4
+#def doTests(n):
+    #for p in primes(n**4):
+        #runTest([p,n])
 

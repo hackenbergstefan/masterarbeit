@@ -49,6 +49,8 @@ SETUP = \
  [9, xrange(2,6)], \
  ]
 
+SETUP = \
+[[3, xrange(18,21)]]
 
 GENLIST = []
 for q, nlist in SETUP:
@@ -64,5 +66,5 @@ for q, nlist in SETUP:
         #process_parallel(qn)
 
 def main():
-    for qn in GENLIST:
-        process_submodules_internalC(qn)
+    pool = Pool();
+    pool.imap_unordered(process_submodules_internalC, GENLIST)

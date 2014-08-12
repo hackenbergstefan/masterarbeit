@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 
 unsigned long long ipow(int base, int exp)
 {
@@ -463,7 +464,8 @@ long eta_processFFElements( int *x_mipo, int decompCount,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
         int *genCounts, int m, int charac, int shiftSize){
-    time_t TIME = time(NULL);
+    struct timeval TIME1, TIME2;
+    gettimeofday(&TIME1,NULL);
     int i,j;
     
     
@@ -529,8 +531,11 @@ long eta_processFFElements( int *x_mipo, int decompCount,
     free(x);
     /*printf("x freed!\n");*/
     
-
-    long totalTime =  (long) 2*(time(NULL)-TIME)*ipow(charac,m)/counter;
+    gettimeofday(&TIME2,NULL);
+    long totalTime =  (long) 2*
+        (TIME2.tv_sec - TIME1.tv_sec +
+         ((double)(TIME2.tv_usec - TIME1.tv_usec))/1000000.0)
+        *ipow(charac,m)/counter;
 
     return totalTime;
 }
@@ -717,11 +722,13 @@ int main(){
 
     int *genCounts = malloc(decompCount*sizeof(int));
 
-    char * filepath
-        = processFFElements(xmipo, decompCount,
-            polys, polysLen, polysCount, evalToZero,
-            mats, frobPowers,
-            genCounts, m, charac, shiftSize);
+    /*char * filepath*/
+        /*= processFFElements(xmipo, decompCount,*/
+            /*polys, polysLen, polysCount, evalToZero,*/
+            /*mats, frobPowers,*/
+            /*genCounts, m, charac, shiftSize);*/
     free(genCounts);
-    printf("filepath = %s",filepath);
+    /*printf("filepath = %s",filepath);*/
+
+
 }

@@ -39,7 +39,7 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 #
 #
 #
-def tau_order(x,F, factors=[], prods=[]):
+def tau_order(x,F, factors=[], prods=[], sigmaPower=1):
     Fx = PolynomialRing(F,'x');
     E = x.parent();
     q = F.order();
@@ -83,9 +83,13 @@ def tau_order(x,F, factors=[], prods=[]):
         g = f.parent().one();
         for jidx, j in enumerate(pre):
             g *= fac[jidx][0]**j;
-        return g;
     else:
-        return prods[str(pre)];
+        g = prods[str(pre)]
+    gshifted = [Fx.zero()]*len(list(g))
+    for i, gi in enumerate(g):
+        if gi == 0: continue
+        gshifted[int(i/sigmaPower)] = gi
+    return Fx(gshifted)
 
 #def isNormal(x,F, factors=[], prods=[]):
 #    E = x.parent();
@@ -127,52 +131,52 @@ def tau_order(x,F, factors=[], prods=[]):
 #        if ret == 0: return False;
 #    return True;
 #
-#def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
-#    if x == 0: return False
-#    E = x.parent();
-#    q = F.order();
-#    n = E.order().log(q);
-#    p = F.characteristic();
-#    e = q.log(p)
-#    divs = get_proper_subfield_divisors(p,e,n)
-#    if facAll == []:
-#        facAll = dict();
-#        prodsAll = dict();
-#        fieldsAll = dict();
-#        for d in divs:
-#            G = F.extension(Integer(d), 'c');
-#            Gx = PolynomialRing(G,'x');
-#            fieldsAll[d] = G;
-#            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-#            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-#            prodsAll[d] = dict();
-#            for idx,(f,mult) in enumerate(facAll[d]):
-#                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
-#    #test isNormal for each divisor
-#    pows = dict()
-#    for d in divs:
-#        h = Hom(fieldsAll[d],E)[0];
-#        for idx,(f,mult) in enumerate(facAll[d]):
-#            g = prodsAll[d][idx];
-#            ret = E.zero();
-#            iold = 0
-#            xiold = x
-#            for i,gi in enumerate(list(g)):
-#                if pows.has_key(i*d):
-#                    xi = pows[i*d];
-#                    iold = i*d
-#                    xiold = xi
-#                else:
-#                    xi = xiold**(q**(d*i-iold));
-#                    pows[i*d] = xi;
-#                    xiold = xi
-#                    iold = i*d
-#                try:
-#                    ret += gi*xi;
-#                except:
-#                    ret += h(gi)*xi;
-#            if ret == 0: return False;
-#    return True
+def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
+   if x == 0: return False
+   E = x.parent();
+   q = F.order();
+   n = E.order().log(q);
+   p = F.characteristic();
+   e = q.log(p)
+   divs = get_proper_subfield_divisors(p,e,n)
+   if facAll == []:
+       facAll = dict();
+       prodsAll = dict();
+       fieldsAll = dict();
+       for d in divs:
+           G = F.extension(Integer(d), 'c');
+           Gx = PolynomialRing(G,'x');
+           fieldsAll[d] = G;
+           facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+           facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+           prodsAll[d] = dict();
+           for idx,(f,mult) in enumerate(facAll[d]):
+               prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+   #test isNormal for each divisor
+   pows = dict()
+   for d in divs:
+       h = Hom(fieldsAll[d],E)[0];
+       for idx,(f,mult) in enumerate(facAll[d]):
+           g = prodsAll[d][idx];
+           ret = E.zero();
+           iold = 0
+           xiold = x
+           for i,gi in enumerate(list(g)):
+               if pows.has_key(i*d):
+                   xi = pows[i*d];
+                   iold = i*d
+                   xiold = xi
+               else:
+                   xi = xiold**(q**(d*i-iold));
+                   pows[i*d] = xi;
+                   xiold = xi
+                   iold = i*d
+               try:
+                   ret += gi*xi;
+               except:
+                   ret += h(gi)*xi;
+           if ret == 0: return False;
+   return True
 #
 #
 #def isCompletelyNormal_ggt(x,F):
@@ -486,19 +490,20 @@ def tau_order(x,F, factors=[], prods=[]):
 #    return -1, 0
 
 cdef extern from "./powertest.c":
-    char * processFFElements(int *x_mipo, int decompCount,\
+    unsigned long long processFFElements(int *x_mipo, int decompCount,\
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
-        int *genCounts, int m, int charac, int shiftSize)
+        int *genCounts, int m, int charac, int shiftSize,\
+        int *barFactors, int lenPrimFacs)
     double eta_processFFElements(int *x_mipo, int decompCount,\
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize)
-    void findNextCN(int *x, int *x_mipo, \
+    void findAnyPCN(int *x, int *x_mipo, \
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int m, int charac, \
-        int *ret, int *tmp, int *tmp2)
+        int *barFactors, int lenBarFactors)
 
 
 
@@ -549,6 +554,15 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     #print "evalToZero=",evalToZero, "len=",len(evalToZero)
     #print "frobPowers=",frobPowers, "len=",len(frobPowers)
     #print "polysCount=",polysCount, "len=",len(polysCount)
+
+    #calc prime factors of order
+    barFactors = []
+    primitiveOrder = E.order()-1
+    for r,k in factor(primitiveOrder):
+        for i in range(1,k+1):
+            barFactors += [primitiveOrder/(r**i)]
+    lenPrimFacs = int(len(barFactors))
+    
     #--------------------
     #setup C data
     charac = int(E.characteristic())
@@ -585,6 +599,9 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
             for j in range(len(g[i])):
                 polysC[curPos+i][j] = <int>g[i][j]
         curPos += polysLen[idx]
+    # prime Factors
+    cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
+        = np.array(barFactors, dtype=np.int32) 
     #end setup C data
     #--------------------
     #print "matsC=", matsC
@@ -594,6 +611,7 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
     #print "polysCountC=",polysCountC, "len=",len(polysCountC)
     #print "xmipoC=",xmipoC
+    #print "barFactorsC=",barFactorsC
 
     #--------------------
     # prepare C output
@@ -650,35 +668,36 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
                 #sys.stdout.write(", ")
     #print "};"
 
+    #sys.stdout.write("int primFactors[] = {")
+    #for i in range(lenPrimFacs):
+        #sys.stdout.write(str(primFactors[i]))
+        #if i< lenPrimFacs-1:
+                #sys.stdout.write(", ")
+    #print "};"
+    #sys.stdout.write("int coFactors[] = {")
+    #for i in range(lenPrimFacs):
+        #sys.stdout.write(str(coFactors[i]))
+        #if i< lenPrimFacs-1:
+                #sys.stdout.write(", ")
+    #print "};"
+    #sys.stdout.write("int barFactors[] = {")
+    #for i in range(lenPrimFacs):
+        #sys.stdout.write(str(barFactors[i]))
+        #if i< lenPrimFacs-1:
+                #sys.stdout.write(", ")
+    #print "};"
+
     #print "int decompCount = ", decompCount, ";"
     #print "int m = ", m, ";"
     #print "int charac = ",p,";"
+
     #return
 
     #--------------------
     #setup return and tmp values
     cdef np.ndarray[int,ndim=1,mode="c"] genCountsC
     genCountsC = np.zeros(decompCount, dtype=np.int32)
-    #cdef np.ndarray[int,ndim=1,mode="c"] xC
-    #xC = np.zeros(m, dtype=np.int32) 
-    #cdef np.ndarray[int,ndim=1,mode="c"] tmpC
-    #tmpC = np.zeros(m, dtype=np.int32) 
-    #cdef np.ndarray[int,ndim=1,mode="c"] tmp2C
-    #tmp2C = np.zeros(2*m, dtype=np.int32) 
-    #cdef np.ndarray[int,ndim=1,mode="c"] retC
-    #retC = np.zeros(m, dtype=np.int32) 
 
-    #cdef Node **rootsC = <Node**>malloc( decompCount * sizeof(Node))
-    #cdef Node **curRootsC = <Node**>malloc( decompCount * sizeof(Node))
-    #for i in range(decompCount):
-        #rootsC[i] = <Node*>malloc(sizeof(Node))
-        #rootsC[i].x = NULL
-        #rootsC[i].next = NULL
-        #curRootsC[i] = <Node*>malloc(sizeof(Node))
-        #curRootsC[i].x = NULL
-        #curRootsC[i].next = NULL
-    #cdef Node * combinedElements = <Node*>malloc(sizeof(Node))
-    #--------------------
 
     # calc shiftsize
     shifter = 1
@@ -700,15 +719,16 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     if maxEta != 0 and eta > maxEta:
         return
 
-    cdef char * filepath
-    filepath = processFFElements(<int*>xmipoC.data \
+    cdef unsigned long long pcn
+    pcn = processFFElements(<int*>xmipoC.data \
             ,<int>decompCount \
             ,<int*>polysC.data, <int*>polysLenC.data \
             ,<int*>polysCountC.data \
             ,<char*>evalToZeroC.data \
             ,<int*>matsC.data, <int*>frobPowersC.data \
             ,<int*>genCountsC.data \
-            ,<int>m,<int>p, <int>shiftSize)
+            ,<int>m,<int>p, <int>shiftSize\
+            , <int*>barFactorsC.data, <int>lenPrimFacs)
             #,<int*>tmpC.data ,<int*>tmp2C.data \
             #,<int*>xC.data, <int*>retC.data \
             #, rootsC, curRootsC, combinedElements)
@@ -716,21 +736,21 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     
     #--------------------
     #test primitivity
-    primOrder = E.order()-1
-    countPrims = 0;
-    for line in open(filepath,'r'):
-        #decodeArr(combinedElements.x,<int*>curEl.data,m, shiftSize)
-        curEl = map(int,line.split(' ')[0:m])
-        #print "test curEl=",curEl
-        if E(list(curEl)).multiplicative_order() == primOrder:
-            countPrims += 1
-    os.remove(filepath)
+    #primOrder = E.order()-1
+    #countPrims = 0;
+    #for line in open(filepath,'r'):
+        ##decodeArr(combinedElements.x,<int*>curEl.data,m, shiftSize)
+        #curEl = map(int,line.split(' ')[0:m])
+        ##print "test curEl=",curEl
+        #if E(list(curEl)).multiplicative_order() == primOrder:
+            #countPrims += 1
+    #os.remove(filepath)
 
     #--------------------
     genCounts = dict()
     for i,d in enumerate(decomposition):
         genCounts[d] = genCountsC[i]
-    return prod(list(genCountsC)), countPrims, genCounts,\
+    return prod(list(genCountsC)), Integer(pcn), genCounts,\
             strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
 
 def findAnyPCN_internalC(F,n):
@@ -769,6 +789,14 @@ def findAnyPCN_internalC(F,n):
             evalToZero += [0]
             countPolysForThisDecomp +=1
     polysCount += [countPolysForThisDecomp]
+    #calc prime factors of order
+    barFactors = []
+    primitiveOrder = E.order()-1
+    for r,k in factor(primitiveOrder):
+        for i in range(1,k+1):
+            barFactors += [primitiveOrder/(r**i)]
+    lenBarFactors = int(len(barFactors))
+    
     #print "decomp = ",decomposition
     #print "polys= ",polys, "len=",len(polys)
     #print "polysLen=",polysLen, "len=",len(polysLen)
@@ -810,8 +838,12 @@ def findAnyPCN_internalC(F,n):
             for j in range(len(g[i])):
                 polysC[curPos+i][j] = <int>g[i][j]
         curPos += polysLen[idx]
+    # prime Factors
+    cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
+        = np.array(barFactors, dtype=np.int32) 
     #end setup C data
     #--------------------
+    
     #print "matsC=", matsC
     #print "polysC= ",polysC, "len=",len(polysC)
     #print "polysLenC=",polysLenC, "len=",len(polysLenC)
@@ -827,25 +859,23 @@ def findAnyPCN_internalC(F,n):
         = np.zeros(m, dtype=np.int32) 
     cdef np.ndarray[int,ndim=1,mode="c"] tmpC \
         = np.zeros(m, dtype=np.int32) 
+    cdef np.ndarray[int,ndim=1,mode="c"] tmp_xC \
+        = np.zeros(m, dtype=np.int32) 
     cdef np.ndarray[int,ndim=1,mode="c"] tmp2C \
         = np.zeros(2*m, dtype=np.int32) 
     cdef np.ndarray[int,ndim=1,mode="c"] retC \
         = np.zeros(m, dtype=np.int32) 
 
-
-    primOrder = E.order()-1
-    while xC[0] != -1:
-        findNextCN(<int*>xC.data, <int*>xmipoC.data \
-            ,<int*>polysC.data, <int*>polysLenC.data \
-            ,<int*>polysCountC.data \
-            ,<char*>evalToZeroC.data \
-            ,<int*>matsC.data, <int*>frobPowersC.data \
-            ,<int>m,<int>p \
-            ,<int*>retC.data, <int*>tmpC.data, <int*>tmp2C.data)
+    findAnyPCN(<int*>xC.data, <int*>xmipoC.data \
+        ,<int*>polysC.data, <int*>polysLenC.data \
+        ,<int*>polysCountC.data \
+        ,<char*>evalToZeroC.data \
+        ,<int*>matsC.data, <int*>frobPowersC.data \
+        ,<int>m,<int>p \
+        ,<int*>barFactorsC.data, <int>lenBarFactors)
         #print "test x=",list(xC)
-        if E(list(xC)).multiplicative_order() == primOrder:
-            #print "PCN found: ", list(xC)
-            return list(xC)
+    if xC[0] != -1:
+        return list(xC)
     return False
 
 
@@ -987,44 +1017,44 @@ def genMats(E, F, n):
 #
 #
 #
-## evaluate Frob of E|F in Polynom
-## where
-## f Polynom in Polynomialring over F
-## x Element in E
-## pows a list of powers of x, i.e. pows[i] = x^(q^i).
+# evaluate Frob of E|F in Polynom
+# where
+# f Polynom in Polynomialring over F
+# x Element in E
+# pows a list of powers of x, i.e. pows[i] = x^(q^i).
 #def frob_eval(f, x, pows = []):
-#    E = x.parent();
-#    P = f.parent();
-#    F = P.base_ring();
-#    R = PolynomialRing(E, 'z');
-#    q = F.order();
-#    n = E.order().log(q);
-#    #try:
-#        #h = Hom(F,E)[0];
-#        #f = f.map_coefficients(lambda i: h(i), E)
-#    #except: pass
-#    glist = f.list();
-#    ret = E.zero();
-#    for i,g in enumerate(glist):
-#        print "frob: i=",i,"gi=",g
-#        if pows != []:
-#            if pows.has_key(i):
-#                xi = pows[i];
-#            else:
-#                xi = x**(q**i);
-#                pows[i] = xi;
-#        else: xi = x**(q**i);
-#        print "\t->x^(q^i)=",xi
-#        try:
-#            ret += g*xi;
-#        except:
-#            h = Hom(F,E)[0];
-#            ret += h(g)*xi;
-#        print "\t\t->ret=",ret
+#   E = x.parent();
+#   P = f.parent();
+#   F = P.base_ring();
+#   R = PolynomialRing(E, 'z');
+#   q = F.order();
+#   n = E.order().log(q);
+#   #try:
+#       #h = Hom(F,E)[0];
+#       #f = f.map_coefficients(lambda i: h(i), E)
+#   #except: pass
+#   glist = f.list();
+#   ret = E.zero();
+#   for i,g in enumerate(glist):
+#       #print "frob: i=",i,"gi=",g
+#       if pows != []:
+#           if pows.has_key(i):
+#               xi = pows[i];
+#           else:
+#               xi = x**(q**i);
+#               pows[i] = xi;
+#       else: xi = x**(q**i);
+#       #print "\t->x^(q^i)=",xi
+#       try:
+#           ret += g*xi;
+#       except:
+#           h = Hom(F,E)[0];
+#           ret += h(g)*xi;
+#       #print "\t\t->ret=",ret
 #
-#    #print floor((time.clock()-curTime)*1000),"ms";
-#    return ret;
-#
+#   #print floor((time.clock()-curTime)*1000),"ms";
+#   return ret;
+
 #def _frob_eval(E, F, n, q, f, x, pows):
 #    glist = f.list();
 #    ret = E.zero();
@@ -1044,6 +1074,104 @@ def genMats(E, F, n):
 #
 #    #print floor((time.clock()-curTime)*1000),"ms";
 #    return ret;
+#
+
+#def geometricTest(p,e,n):
+#    p = Integer(p)
+#    e = Integer(e)
+#    n = Integer(n)
+#    q = p**e
+#    subfield_divs = get_proper_subfield_divisors(p,e,n)
+#    decomposition = decompose(p,e,n)
+#
+#    print "p = ",p," e = ",e, " n = ",n, " -> divs = ", subfield_divs
+#    print "\twith decomposition    ", decomposition
+#    print "\tand module characters ", \
+#            map(lambda d: get_module_character(*d), decomposition)
+#
+#    decomp = decomposition[-1]
+#    modChar = get_module_character(*decomp)
+#    #print "consider decomp = ",decomp, "with modChar = ",modChar
+#
+#    F = GF(Integer(p**e),'a')
+#    E = F.extension(Integer(n), 'b')
+#
+#    Fx = PolynomialRing(F,'x')
+#    Ex = PolynomialRing(E,'x')
+#
+#    for decomp in decomposition:
+#        k,t,pi = decomp
+#        modChar = get_module_character(*decomp)
+#        print "---------------------------"
+#        print "consider decomp = ",decomp, "with modChar = ",modChar
+#
+#        if modChar == 1:
+#            print "NOT GOOOD"
+#            continue
+#        K = F.extension(Integer(modChar),'b')
+#        Kx = PolynomialRing(K,'x')
+#        hK = Hom(K,E)[0]
+#        print "find element with (K,sigma_K) = q^"+str(modChar)+" order "\
+#                , (squarefree(k), k*t*pi/squarefree(k)/modChar)
+#
+#        print "splitting extension of ", (k,1), " is ", ordn(k,q)
+#        if ordn(k,q**modChar) != 1:
+#            print "\t=> BAD EXTENSION"
+#            continue
+#        
+#        cycl = Kx.cyclotomic_polynomial(squarefree(k))\
+#                (Kx.gen()**(k*t*pi/squarefree(k)/modChar))
+#
+#        print "cycl decompose in factors of deg = "\
+#                ,euler_phi(squarefree(k))/ordn(squarefree(k),q**modChar)
+#        print "first factor of cycl = ", cycl.factor()[0]
+#        l = (-cycl.factor()[0][0][0]).multiplicative_order()
+#        print "\twith multiplicative_order l = ", l
+#        m = l*((q**modChar)-1)
+#        print "look for l*(q^[K:F]-1) = "+str(m)+" th root of unity"
+#        u = - Ex.cyclotomic_polynomial(m).factor()[0][0][0]
+#        print "\t=>u has multiplicative_order = ", u.multiplicative_order()
+#        lenCyclF = ordn(k,q)
+#        print "split according factor scheme over F into factors of deg "\
+#                ,lenCyclF
+#        facsF = Fx.cyclotomic_polynomial(squarefree(k)).factor()
+#        print "complete generator must have orders"\
+#                , [(squarefree(k),k*t*pi/squarefree(k)/d) for d in divisors(modChar)]
+#        totalGens = 1
+#        for cos in cosets(k,q):
+#            if cos[0] == 0: continue
+#            cos = cos[1]
+#            if not len(cos) == lenCyclF: continue
+#            print "gens for cos ", cos, ":"
+#            print "gens = u^",[i for i in cos]
+#            print "test:"
+#            gens = [u**i for i in cos]
+#            g = Fx.one()
+#            for f,i in facsF:
+#                if tau_order(gens[0],F) == f.subs(x=Fx.gen()**(k*t*pi/squarefree(k))):
+#                    g = f
+#                    break
+#            print "right factor is ("+str(g)+")(x^"+str(k*t*pi/squarefree(k))+")"
+#            counter = 0
+#            for x in itertools.product(K,repeat=len(gens)):
+#                if any((i==0 for i in x)):
+#                    continue
+#                y = sum([hK(a)*b for (a,b) in zip(x,gens)])
+#                #print tau_order(y,F)
+#                isComplGen = True
+#                for d in divisors(modChar)[:-1]:
+#                    G = F.extension(d,'c')
+#                    Gx = PolynomialRing(G,'x')
+#                    hG = Hom(F,G)[0]
+#                    #print tau_order(y,G), "  <=>  ", g.map_coefficients(hG).subs(x=Gx.gen()**(k*t*pi/squarefree(k)/d))
+#                    if tau_order(y,G) != g.map_coefficients(hG).subs(x=Gx.gen()**(k*t*pi/squarefree(k)/d)):
+#                        isComplGen = False
+#                if isComplGen:
+#                    counter += 1
+#            print "==> compl gens: ", counter
+#            totalGens *= counter
+#        print "===> Num of Complete Generators for ",decomp,": ", totalGens
+#
 #
 ## calculate pi_m(q) = max{k: k | q, nu(k) | nu(m) }
 #def pim(m,q):
@@ -1152,24 +1280,24 @@ def ordn(m,q):
 #        #if Fx(retSubs).mod(f).is_constant():
 #            #return F(Fx(retSubs).mod(f));
 #
-#def cosets(n,q):
-#    L = []
-#    Ls = []
-#    l = ordn(n,q)
-#    for k in range(0,n):
-#        cs = coset_l(n,q,k);
-#        if not cs in Ls: #and len(cs) == l:
-#            Ls = Ls + [cs];
-#            L = L + [(k,cs)];
-#    return L
-#
-#def coset_l(n,q,l):
-#    return sorted(list(set(map(lambda i: (l*q**i)%n, range(0,n)))));
-#
-#def print_cosets(n,q):
-#    for (k,cs) in cosets(n,q):
-#        print k, cs
-#
+def cosets(n,q):
+   L = []
+   Ls = []
+   l = ordn(n,q)
+   for k in range(0,n):
+       cs = coset_l(n,q,k);
+       if not cs in Ls: #and len(cs) == l:
+           Ls = Ls + [cs];
+           L = L + [(k,cs)];
+   return L
+
+def coset_l(n,q,l):
+   return sorted(list(set(map(lambda i: (l*q**i)%n, range(0,n)))));
+
+def print_cosets(n,q):
+   for (k,cs) in cosets(n,q):
+       print k, cs
+
 #
 #def isNormal_bruteforce(x,F):
 #    E = x.parent();
@@ -1191,7 +1319,7 @@ def ordn(m,q):
 # for x^n-1 over F_p^e
 def decompose(p,e, n):
     pi = largestDiv(p,n)
-    return _decompose(p,e, 1, n/pi, pi)
+    return decompose_cycl_module(p,e, 1, n/pi, pi)
 
 
 ## returns the module characters of a decomposition
@@ -1213,14 +1341,14 @@ def get_proper_subfield_divisors(p,e, n):
 
 # internal application of the Decomposition Theorem
 # for Phi_k(x^(t*pi)) over F_p^e
-def _decompose(p,e, k,t,pi):
+def decompose_cycl_module(p,e, k,t,pi):
     if p.divides(k*t): print "ERROR p | kt"
     #test all prime divisors, start with largest one
     flag = False
     for r,l in reversed(factor(t)):
         if not (r**l).divides(ordn(squarefree(k*t),p**e)):
             R = largestDiv(r,t)
-            return _decompose(p,e, k, t/r, pi) + _decompose(p,e, k*R, t/R, pi)
+            return decompose_cycl_module(p,e, k, t/r, pi) + decompose_cycl_module(p,e, k*R, t/R, pi)
     return [(k,t,pi)]
 
 

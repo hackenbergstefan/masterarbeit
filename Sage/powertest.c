@@ -126,6 +126,77 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
 }
 
 
+/**
+ * Square and multiply
+ * x is modified!
+ */
+inline void powerPoly(int *x, int *x_mipo, int *ret, int m, int power, 
+        int charac, int *tmp2){
+    int i;
+    initPoly(ret,m);
+    ret[0] = 1;
+    while(power > 0){
+        if(power%2 == 1){
+            multiplyPoly(ret,m, x,m, tmp2,2*m, charac);
+            moduloPoly(tmp2,2*m,x_mipo,m+1,charac);
+            for(i=0;i<m;i++)
+                ret[i] = tmp2[i];
+        }
+        multiplyPoly(x,m, x,m, tmp2,2*m, charac);
+        moduloPoly(tmp2,2*m,x_mipo,m+1,charac);
+        for(i=0;i<m;i++)
+            x[i] = tmp2[i];
+        power /= 2;
+    }
+}
+
+inline bool isOne(int *x, int m, int charac){
+    int i=0;
+    bool allZ = true;
+    if(!(x[0] == 1 || x[0] == -charac+1))
+        return false;
+    for(i=1;i<m;i++){
+        if(x[i] != 0){
+            allZ = false;
+            break;
+        }
+    }
+    return allZ;
+}
+
+/**
+ * Calc order of element
+ * x is NOT modified!
+ */
+inline bool isPrimitive(int *x, int *x_mipo, int m, 
+        int *barFactors, int lenPrimFacs, 
+        int charac,
+        int *tmp_x, int *tmp, int *tmp2){
+    int i,j, tmpPrim;
+    /*printf(" test for primitivity x=");printArr(x,m);*/
+    for(i=0;i<lenPrimFacs;i++){
+        tmpPrim = 1;
+        for(j=0;j<m;j++)
+            tmp_x[j] = x[j];
+        powerPoly(tmp_x,x_mipo,tmp,m, barFactors[i], charac, tmp2);
+        /*printf("\t x**%i = ",barFactors[i]); printArr(tmp,m);*/
+        /*while( isOne(tmp,m) != true ){*/
+            /*printf("\tnot 1 -> go on");*/
+            /*powerPoly(tmp, x_mipo, tmp_x, m, primFactors[i], charac, tmp2);*/
+            /*for(j=0;j<m;j++)*/
+                /*tmp[j] = tmp_x[j];*/
+            /*tmpPrim *= primFactors[i];*/
+            /*printf("\t\t x^%i = ",primFactors[i]); printArr(tmp,m);*/
+        /*}*/
+        /*if(tmpPrim != coFactors[i])*/
+            /*return false;*/
+        if( isOne(tmp,m, charac) == true)
+            return false;
+    }
+    return true;
+}
+
+
 inline bool allZero(int *x, int m){
     int i=0;
     bool allZ = true;
@@ -137,6 +208,7 @@ inline bool allZero(int *x, int m){
     }
     return allZ;
 }
+
 
 
 /*
@@ -316,10 +388,11 @@ inline struct Node *appendNode(struct Node *curNode){
     return curNode;
 }
 
-char *processFFElements( int *x_mipo, int decompCount,
+unsigned long long processFFElements( int *x_mipo, int decompCount,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
-        int *genCounts, int m, int charac, int shiftSize){
+        int *genCounts, int m, int charac, int shiftSize,
+        int *barFactors, int lenPrimFacs){
     time_t TIME = time(NULL);
     int i,j;
     
@@ -327,6 +400,7 @@ char *processFFElements( int *x_mipo, int decompCount,
     int * x = malloc( m*sizeof(int) );
     int * ret = malloc( m*sizeof(int) );
     int * tmp = malloc( m*sizeof(int) );
+    int * tmp_x = malloc( m*sizeof(int) );
     int * tmp2 = malloc( 2*m*sizeof(int) );
 
     initPoly(x,m);
@@ -378,10 +452,11 @@ char *processFFElements( int *x_mipo, int decompCount,
     /*combinedElements->x = 0;*/
     /*combinedElements->next = 0;*/
 
-    char *filepath = malloc(50*sizeof(char));
-    sprintf(filepath,"tmp_cnSearch_%i",time(NULL));
+    /*char *filepath = malloc(50*sizeof(char));*/
+    /*sprintf(filepath,"tmp_cnSearch_%i",time(NULL));*/
     /*printf("filepath = %s",filepath);*/
-    FILE * fp = fopen(filepath,"a");
+    /*FILE * fp = fopen(filepath,"a");*/
+    printf("CN time: %.2f\n", (double)(time(NULL)-TIME));
 
     for(i=0;i<decompCount;i++){
         curRoots[i] = roots[i];
@@ -389,6 +464,7 @@ char *processFFElements( int *x_mipo, int decompCount,
     // debug ---
     /*int * y = malloc(m*sizeof(int));*/
     // --- debug
+    unsigned long long pcn = 0;
     while(1==1){
         /*printf("combine Element of:\n\t");*/
         decodeArr(curRoots[0]->x, x, m, shiftSize);
@@ -405,9 +481,18 @@ char *processFFElements( int *x_mipo, int decompCount,
         moduloPoly(x,m,x_mipo,m+1,charac);
         /*printf("append to end x="); printArr(x,m);*/
         /*curCombinedEnd = appendToEnd(curCombinedEnd,x,m,shiftSize);*/
-        for(i=0;i<m;i++)
-            fprintf(fp, "%i ", x[i]);
-        fprintf(fp,"\n");
+        /*// write to file*/
+        /*for(i=0;i<m;i++)*/
+            /*fprintf(fp, "%i ", x[i]);*/
+        /*fprintf(fp,"\n");*/
+
+        //test primitivity
+        /*printf("test x=");printArr(x,m);*/
+        if(isPrimitive(x,x_mipo,m,barFactors,lenPrimFacs,
+                    charac,tmp_x,tmp,tmp2) == true){
+            pcn ++;
+            /*printf("\tis Primitive\n");*/
+        }
 
 
         //nextElement
@@ -423,7 +508,7 @@ char *processFFElements( int *x_mipo, int decompCount,
             break;
         }
     }
-    fclose(fp);
+    /*fclose(fp);*/
     // debug ---
     /*free(y);*/
     // --- debug
@@ -450,14 +535,15 @@ char *processFFElements( int *x_mipo, int decompCount,
     free(tmp2);
     /*printf("tmp2 freed!\n");*/
     free(tmp);
+    free(tmp_x);
     /*printf("tmp freed!\n");*/
     free(ret);
     /*printf("ret freed!\n");*/
     free(x);
     /*printf("x freed!\n");*/
     
-    printf("C time: %.2f\n", (double)(time(NULL)-TIME));
-    return filepath;
+    printf("total time: %.2f\n", (double)(time(NULL)-TIME));
+    return pcn;
 }
 
 
@@ -536,26 +622,29 @@ double eta_processFFElements( int *x_mipo, int decompCount,
     
     double timediff = (TIME2.tv_sec - TIME1.tv_sec +
          ((double)(TIME2.tv_usec - TIME1.tv_usec))/1000000.0);
-    return 2*timediff *pow((double)charac,(double)m)/counter;
+    return 4*timediff *pow((double)charac,(double)m)/counter;
 }
 
 
 /**
  * returns the next CN element
  */
-void findNextCN(int * x, int *x_mipo, 
+void findAnyPCN(int * x, int *x_mipo, 
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
-        int m, int charac,
-        int *ret, int *tmp, int * tmp2){
+        int m, int charac, 
+        int *barFactors, int lenBarFactors){
+        /*int *ret, int *tmp, int * tmp2){*/
     time_t TIME = time(NULL);
     int i,j;
     
     
-    /*int * ret = malloc( m*sizeof(int) );*/
-    /*int * tmp = malloc( m*sizeof(int) );*/
-    /*int * tmp2 = malloc( 2*m*sizeof(int) );*/
+    int * ret = malloc( m*sizeof(int) );
+    int * tmp = malloc( m*sizeof(int) );
+    int * tmp_x = malloc( m*sizeof(int) );
+    int * tmp2 = malloc( 2*m*sizeof(int) );
 
+    bool pcnFound = false;
     
     while(1==1){
         //generate next element
@@ -575,11 +664,23 @@ void findNextCN(int * x, int *x_mipo,
                 mats, frobPowers,
                 ret, m, charac, tmp, tmp2);
         if( ret[0] != -1){
-            return;
+            if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors,charac,
+                        tmp_x,tmp,tmp2) == true){
+                pcnFound = true;
+                break;
+            }
         }
     }
+    free(ret);
+    free(tmp);
+    free(tmp_x);
+    free(tmp2);
 
-    /*printf("C time: %.2f\n", (double)(time(NULL)-TIME));*/
+    if(pcnFound == false){
+        x[0] = -1;
+    }
+
+    printf("C time: %.2f\n", (double)(time(NULL)-TIME));
 }
 
 
@@ -718,16 +819,17 @@ int main(){
     int m = 10;
     int charac = 2;
     int shiftSize = 1;
+    int barFactors[] = {341, 93, 33};
+    int lenPrimFacs = 3;
 
     int *genCounts = malloc(decompCount*sizeof(int));
 
-    /*char * filepath*/
-        /*= processFFElements(xmipo, decompCount,*/
-            /*polys, polysLen, polysCount, evalToZero,*/
-            /*mats, frobPowers,*/
-            /*genCounts, m, charac, shiftSize);*/
+    unsigned long long pcn
+        = processFFElements(xmipo, decompCount,
+            polys, polysLen, polysCount, evalToZero,
+            mats, frobPowers,
+            genCounts, m, charac, shiftSize,
+            barFactors,lenPrimFacs);
     free(genCounts);
-    /*printf("filepath = %s",filepath);*/
-
-
+    printf("pcn=%i",pcn);
 }

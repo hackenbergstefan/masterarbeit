@@ -31,12 +31,23 @@ def process_submodules_internalC(qn):
     q = qn[0]
     n = qn[1]
     F = GF(Integer(q),'a');
-    ret = countCompleteSubmoduleGenerators_internalC(F,n)
-    print "(q,n) = ",(q,n)," -> (cn,pcn,submod_gens,time) = ", ret
-    with open(filePath,'a') as f:
-        f.write("(q,n) = "+str((q,n))+" -> (cn,pcn,submod_gens,time) = "+
-                str(ret)+"\n")
-    f.close();
+    isProcessed = False;
+    if os.path.exists(filePath):
+        f = open(filePath,'r');
+        for l in f.readlines():
+            if re.search('('+str(q)+", "+str(n)+")",l) != None:
+                isProcessed = True;
+                print "(",q,",",n,") processed"
+                return
+        f.close();
+    if not isProcessed:
+        print "(",q,",",n,") not processed"
+        ret = countCompleteSubmoduleGenerators_internalC(F,n)
+        print "(q,n) = ",(q,n)," -> (cn,pcn,submod_gens,time) = ", ret
+        with open(filePath,'a') as f:
+            f.write("(q,n) = "+str((q,n))+" -> (cn,pcn,submod_gens,time) = "+
+                    str(ret)+"\n")
+        f.close();
 
 # test setup
 SETUP = \
@@ -52,10 +63,23 @@ SETUP = \
 SETUP = \
 [[3, xrange(18,21)]]
 
+
 GENLIST = []
 for q, nlist in SETUP:
     for n in nlist:
         GENLIST += [[q,n]]
+
+# test n = 6, q = 2, 3, 4, ..., 32, ...
+# ----
+filePath = "mullenTableC_n=6.txt"
+GENLIST = []
+n = 6
+for p in primes(100):
+    for e in range(1,10):
+        GENLIST += [[p**e,n]]
+
+GENLIST = sorted(GENLIST)
+# ----
 
 #def main():
     #pool = Pool();

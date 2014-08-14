@@ -494,7 +494,7 @@ cdef extern from "./powertest.c":
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize,\
-        int *barFactors, int lenPrimFacs)
+        unsigned long long *barFactors, int lenPrimFacs)
     double eta_processFFElements(int *x_mipo, int decompCount,\
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
@@ -503,7 +503,7 @@ cdef extern from "./powertest.c":
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int m, int charac, \
-        int *barFactors, int lenBarFactors)
+        unsigned long long *barFactors, int lenBarFactors)
 
 
 
@@ -600,8 +600,8 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
                 polysC[curPos+i][j] = <int>g[i][j]
         curPos += polysLen[idx]
     # prime Factors
-    cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
-        = np.array(barFactors, dtype=np.int32) 
+    cdef np.ndarray[unsigned long long,ndim=1,mode="c"] barFactorsC \
+        = np.array(barFactors, dtype=np.ulonglong) 
     #end setup C data
     #--------------------
     #print "matsC=", matsC
@@ -728,7 +728,7 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
             ,<int*>matsC.data, <int*>frobPowersC.data \
             ,<int*>genCountsC.data \
             ,<int>m,<int>p, <int>shiftSize\
-            , <int*>barFactorsC.data, <int>lenPrimFacs)
+            , <unsigned long long*>barFactorsC.data, <int>lenPrimFacs)
             #,<int*>tmpC.data ,<int*>tmp2C.data \
             #,<int*>xC.data, <int*>retC.data \
             #, rootsC, curRootsC, combinedElements)
@@ -839,8 +839,8 @@ def findAnyPCN_internalC(F,n):
                 polysC[curPos+i][j] = <int>g[i][j]
         curPos += polysLen[idx]
     # prime Factors
-    cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
-        = np.array(barFactors, dtype=np.int32) 
+    cdef np.ndarray[unsigned long long,ndim=1,mode="c"] barFactorsC \
+        = np.array(barFactors, dtype=np.ulonglong) 
     #end setup C data
     #--------------------
     
@@ -851,6 +851,7 @@ def findAnyPCN_internalC(F,n):
     #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
     #print "polysCountC=",polysCountC, "len=",len(polysCountC)
     #print "xmipoC=",xmipoC
+    #print "barFactorsC=",barFactorsC
 
 
     #--------------------
@@ -872,7 +873,7 @@ def findAnyPCN_internalC(F,n):
         ,<char*>evalToZeroC.data \
         ,<int*>matsC.data, <int*>frobPowersC.data \
         ,<int>m,<int>p \
-        ,<int*>barFactorsC.data, <int>lenBarFactors)
+        ,<unsigned long long*>barFactorsC.data, <int>lenBarFactors)
         #print "test x=",list(xC)
     if xC[0] != -1:
         return list(xC)

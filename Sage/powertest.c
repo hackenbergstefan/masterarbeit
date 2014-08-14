@@ -130,7 +130,8 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
  * Square and multiply
  * x is modified!
  */
-inline void powerPoly(int *x, int *x_mipo, int *ret, int m, int power, 
+inline void powerPoly(int *x, int *x_mipo, int *ret, int m, 
+        unsigned long long power, 
         int charac, int *tmp2){
     int i;
     initPoly(ret,m);
@@ -169,7 +170,7 @@ inline bool isOne(int *x, int m, int charac){
  * x is NOT modified!
  */
 inline bool isPrimitive(int *x, int *x_mipo, int m, 
-        int *barFactors, int lenPrimFacs, 
+        unsigned long long *barFactors, int lenPrimFacs, 
         int charac,
         int *tmp_x, int *tmp, int *tmp2){
     int i,j, tmpPrim;
@@ -392,7 +393,7 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
         int *genCounts, int m, int charac, int shiftSize,
-        int *barFactors, int lenPrimFacs){
+        unsigned long long *barFactors, int lenPrimFacs){
     time_t TIME = time(NULL);
     int i,j;
     
@@ -633,7 +634,7 @@ void findAnyPCN(int * x, int *x_mipo,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
         int m, int charac, 
-        int *barFactors, int lenBarFactors){
+        unsigned long long *barFactors, int lenBarFactors){
         /*int *ret, int *tmp, int * tmp2){*/
     time_t TIME = time(NULL);
     int i,j;

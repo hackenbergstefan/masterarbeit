@@ -125,15 +125,13 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
     }
 }
 
-
 /**
  * Square and multiply
  * x is modified!
  */
-inline void powerPoly(int *x, int *x_mipo, int *ret, int m, 
-        unsigned long long power, 
-        int charac, int *tmp2){
-    int i;
+inline void powerPolyInt(int *x, int *x_mipo, int *ret, int m, 
+        int power, int charac, int *tmp2){
+    int i,j;
     initPoly(ret,m);
     ret[0] = 1;
     while(power > 0){
@@ -148,6 +146,30 @@ inline void powerPoly(int *x, int *x_mipo, int *ret, int m,
         for(i=0;i<m;i++)
             x[i] = tmp2[i];
         power /= 2;
+    }
+}
+
+/**
+ * Square and multiply
+ * x is modified!
+ */
+inline void powerPoly(int *x, int *x_mipo, int *ret, int m, 
+        char *power, int powerLen,
+        int charac, int *tmp2){
+    int i,j;
+    initPoly(ret,m);
+    ret[0] = 1;
+    for(j=powerLen-1;j>=0;j--){
+        if(power[j] == 1){
+            multiplyPoly(ret,m, x,m, tmp2,2*m, charac);
+            moduloPoly(tmp2,2*m,x_mipo,m+1,charac);
+            for(i=0;i<m;i++)
+                ret[i] = tmp2[i];
+        }
+        multiplyPoly(x,m, x,m, tmp2,2*m, charac);
+        moduloPoly(tmp2,2*m,x_mipo,m+1,charac);
+        for(i=0;i<m;i++)
+            x[i] = tmp2[i];
     }
 }
 
@@ -170,16 +192,18 @@ inline bool isOne(int *x, int m, int charac){
  * x is NOT modified!
  */
 inline bool isPrimitive(int *x, int *x_mipo, int m, 
-        unsigned long long *barFactors, int lenPrimFacs, 
+        char *barFactors, int* lenBarFactors, int countBarFactors, 
         int charac,
         int *tmp_x, int *tmp, int *tmp2){
-    int i,j, tmpPrim;
+    int i,j, tmpPrim, curPos;
     /*printf(" test for primitivity x=");printArr(x,m);*/
-    for(i=0;i<lenPrimFacs;i++){
+    curPos = 0;
+    for(i=0;i<countBarFactors;i++){
         tmpPrim = 1;
         for(j=0;j<m;j++)
             tmp_x[j] = x[j];
-        powerPoly(tmp_x,x_mipo,tmp,m, barFactors[i], charac, tmp2);
+        powerPoly(tmp_x,x_mipo,tmp,m, 
+                barFactors+curPos, lenBarFactors[i], charac, tmp2);
         /*printf("\t x**%i = ",barFactors[i]); printArr(tmp,m);*/
         /*while( isOne(tmp,m) != true ){*/
             /*printf("\tnot 1 -> go on");*/
@@ -191,6 +215,7 @@ inline bool isPrimitive(int *x, int *x_mipo, int m,
         /*}*/
         /*if(tmpPrim != coFactors[i])*/
             /*return false;*/
+        curPos += lenBarFactors[i];
         if( isOne(tmp,m, charac) == true)
             return false;
     }
@@ -393,7 +418,7 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
         int *genCounts, int m, int charac, int shiftSize,
-        unsigned long long *barFactors, int lenPrimFacs){
+        char *barFactors, int *lenBarFactors, int countBarFactors){
     time_t TIME = time(NULL);
     int i,j;
     
@@ -489,7 +514,7 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
 
         //test primitivity
         /*printf("test x=");printArr(x,m);*/
-        if(isPrimitive(x,x_mipo,m,barFactors,lenPrimFacs,
+        if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors, countBarFactors,
                     charac,tmp_x,tmp,tmp2) == true){
             pcn ++;
             /*printf("\tis Primitive\n");*/
@@ -634,7 +659,7 @@ void findAnyPCN(int * x, int *x_mipo,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
         int *mats, int *frobPowers, 
         int m, int charac, 
-        unsigned long long *barFactors, int lenBarFactors){
+        char *barFactors, int *lenBarFactors, int countBarFactors){
         /*int *ret, int *tmp, int * tmp2){*/
     time_t TIME = time(NULL);
     int i,j;
@@ -665,8 +690,8 @@ void findAnyPCN(int * x, int *x_mipo,
                 mats, frobPowers,
                 ret, m, charac, tmp, tmp2);
         if( ret[0] != -1){
-            if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors,charac,
-                        tmp_x,tmp,tmp2) == true){
+            if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors,countBarFactors,
+                        charac, tmp_x,tmp,tmp2) == true){
                 pcnFound = true;
                 break;
             }
@@ -685,6 +710,55 @@ void findAnyPCN(int * x, int *x_mipo,
 }
 
 
+bool findAnyPCN_useGen(int * x, int * generator, int *x_mipo, 
+        int *polys, int *polysLen, int *polysCount, bool *evalToZero,
+        int *mats, int *frobPowers, 
+        int m, int charac, 
+        int *powerTable, int lenPowerTable){
+    time_t TIME = time(NULL);
+    int i,j;
+    
+    
+    int * ret = malloc( m*sizeof(int) );
+    int * tmp = malloc( m*sizeof(int) );
+    int * tmp_x = malloc( m*sizeof(int) );
+    int * tmp2 = malloc( 2*m*sizeof(int) );
+
+    bool pcnFound = false;
+
+    // the generator
+    for(j=0;j<m;j++) x[j] = generator[j];
+    
+    for(i=0;i<lenPowerTable;i++){
+        if(powerTable[i] != 0){
+            for(j=0;j<m;j++) tmp_x[j] = generator[j];
+            powerPolyInt(tmp_x, x_mipo, ret, m, powerTable[i], charac, tmp2);
+
+            multiplyPoly(x,m, ret,m, tmp2, 2*m, charac);
+            moduloPoly(tmp2, 2*m, x_mipo, m+1, charac);
+            for(j=0;j<m;j++) x[j] = tmp2[j];
+        }
+
+        testPolys(x,x_mipo,1,
+                polys,polysLen,polysCount,evalToZero,
+                mats, frobPowers,
+                ret, m, charac, tmp, tmp2);
+        if( ret[0] != -1){
+            for(j=0;j<m;j++){
+                if( x[j]<0 ) x[j] += charac;
+            }
+            pcnFound = true;
+            break;
+        }
+    }
+    free(ret);
+    free(tmp);
+    free(tmp_x);
+    free(tmp2);
+
+    printf("C time: %.2f\n", (double)(time(NULL)-TIME));
+    return pcnFound;
+}
 int main(){
     int mats[] = 
         {1,0,0,0,0,0,0,0,0,0,
@@ -820,8 +894,11 @@ int main(){
     int m = 10;
     int charac = 2;
     int shiftSize = 1;
-    int barFactors[] = {341, 93, 33};
-    int lenPrimFacs = 3;
+    char barFactors[] = {1, 0, 1, 0, 1, 0, 1, 0, 1, 
+                         1, 0, 1, 1, 1, 0, 1,
+                         1, 0, 0, 0, 0, 1}; //{341, 93, 33};
+    int lenBarFactors[] = {9,7,6};
+    int countBarFactors = 3;
 
     int *genCounts = malloc(decompCount*sizeof(int));
 
@@ -830,7 +907,7 @@ int main(){
             polys, polysLen, polysCount, evalToZero,
             mats, frobPowers,
             genCounts, m, charac, shiftSize,
-            barFactors,lenPrimFacs);
+            barFactors,lenBarFactors,countBarFactors);
     free(genCounts);
     printf("pcn=%i",pcn);
 }

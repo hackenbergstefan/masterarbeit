@@ -4,7 +4,7 @@ from sage.all import *
 from multiprocessing import Pool
 load("./algorithmen.spyx")
 
-filePath = "pcnsC_"
+filePath = "pcns_useGen_"
 
 def runTest(data):
     p,n,totalCount = data
@@ -23,7 +23,7 @@ def runTest(data):
             f.close();
         if not isProcessed:
             print "(",p,",",r,") not processed"
-            x = findAnyPCN_internalC(GF(q,'a'),n)
+            x = findAnyPCN_useGen_internalC(GF(q,'a'),n)
             with open(filePath+str(n),'a') as f:
                 if x == False:
                     f.write(str(p)+'\t'+str(r)+'\tFALSE\n')

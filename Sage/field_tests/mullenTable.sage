@@ -35,7 +35,7 @@ def process_submodules_internalC(qn):
     if os.path.exists(filePath):
         f = open(filePath,'r');
         for l in f.readlines():
-            if re.search('('+str(q)+", "+str(n)+")",l) != None:
+            if re.search('^\(q,n\) = \('+str(q)+', '+str(n)+'\)',l) != None:
                 isProcessed = True;
                 print "(",q,",",n,") processed"
                 return
@@ -49,7 +49,9 @@ def process_submodules_internalC(qn):
                     str(ret)+"\n")
         f.close();
 
-# test setup
+#------------------------------------------------------------------------------
+# mullen setup
+filePath = "mullenTableC_new.txt"
 SETUP = \
 [[2, xrange(2,19)], \
  [3, xrange(2,13)], \
@@ -59,9 +61,12 @@ SETUP = \
  [8, xrange(2,6)], \
  [9, xrange(2,6)], \
  ]
+#------------------------------------------------------------------------------
 
-SETUP = \
-[[3, xrange(18,21)]]
+#------------------------------------------------------------------------------
+#SETUP = \
+#[[3, xrange(18,21)]]
+#------------------------------------------------------------------------------
 
 
 GENLIST = []
@@ -69,17 +74,17 @@ for q, nlist in SETUP:
     for n in nlist:
         GENLIST += [[q,n]]
 
-# test n = 6, q = 2, 3, 4, ..., 32, ...
-# ----
-filePath = "mullenTableC_n=6.txt"
-GENLIST = []
-n = 6
-for p in primes(100):
-    for e in range(1,10):
-        GENLIST += [[p**e,n]]
+##------------------------------------------------------------------------------
+## test n = 6, q = 2, 3, 4, ..., 32, ...
+#filePath = "mullenTableC_n=6.txt"
+#GENLIST = []
+#n = 6
+#for p in primes(100):
+    #for e in range(1,10):
+        #GENLIST += [[p**e,n]]
 
-GENLIST = sorted(GENLIST)
-# ----
+#GENLIST = sorted(GENLIST)
+##------------------------------------------------------------------------------
 
 #def main():
     #pool = Pool();

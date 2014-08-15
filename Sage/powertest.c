@@ -66,6 +66,10 @@ inline void multiplyPoly(int *p1, int m1, int *p2, int m2, int *p3, int m3, int 
     for(i=0;i<m1;i++)
         for(j=0;j<m2;j++)
             p3[i+j] = p3[i+j]+p1[i]*p2[j];
+    for(i=0;i<m3;i++){
+        p3[i] %= charac;
+        if(p3[i] < 0) p3[i] += charac;
+    }
 }
 
 
@@ -106,22 +110,26 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
             break;
         }
     }
-    //printf("degMod=%i, degP1=%i\n", degmod,deg1);
+    /*printf("poly = ");printArr(p1,m1);*/
+    /*printf("mod = ");printArr(mod,m);*/
+    /*printf("degMod=%i, degP1=%i\n", degmod,deg1);*/
     
-    //printArr(p1,m1);
+    /*printArr(p1,m1);*/
 
     //make polynomial division
+    int degmodInv = modInv(mod[degmod],charac);
     for(i=deg1-degmod; i>=0; i--){
-        quo = p1[i+degmod]*modInv(mod[degmod],charac);
-        //printf("i=%i p1[i+degmod]=%i mod[degmod]=%i mod[degmod]^(-1)=%i ",i,p1[i+degmod],mod[degmod],modInv(mod[degmod],charac));
-        //printf("quo=%i\n", quo);
+        quo = p1[i+degmod]*degmodInv;
+        /*printf("i=%i p1[i+degmod]=%i mod[degmod]=%i mod[degmod]^(-1)=%i ",i,p1[i+degmod],mod[degmod],modInv(mod[degmod],charac));*/
+        /*printf("quo=%i\n", quo);*/
         for(j=degmod;j>=0;j--){
-            p1[i+j] = p1[i+j] - mod[j]*quo;
+            p1[i+j] = (p1[i+j] - mod[j]*quo)%charac;
         }
-        //printArr(p1,m1);
+        /*printf("=> p1=");printArr(p1,m1);*/
+        /*printArr(p1,m1);*/
     }
     for(i=0;i<m1;i++){
-        p1[i] %= charac;
+        if(p1[i] < 0) p1[i] += charac;
     }
 }
 
@@ -286,17 +294,19 @@ inline void testPolys(int *x, int *x_mipo, int decompCount,
     int curPolyPosition = 0;
     int lastZeroPoly = 0;
     int goodCounter = 0;
+    /*printf("testPolys for x="), printArr(x,m);*/
     /*printf("polysCount="); printArr(polysCount,decompCount);*/
 
     for(i=0;i<decompCount;i++){
         /*printf("decomp: i=%i\n",i);*/
         goodCounter = 0;
         for(j=0;j<polysCount[i];j++){
-            /*printf("\ttest poly j=%i",j);*/
+            /*printf("\ttest poly j=%i",j); */
             applyFrob(x, x_mipo, 
                     polys+curPolyPosition, polysLen[curDecompPosition+j],
                     mats, frobPowers[curDecompPosition+j], 
                     ret, m, charac, tmp, tmp2);
+            /*printf("\t=>ret=");printArr(ret,m);*/
             if( allZero(ret,m) == evalToZero[curDecompPosition+j] ){
                 /*printf(" good\n");*/
                 goodCounter += 1;

@@ -939,7 +939,6 @@ def findAnyPCN_useGen_internalC(F,n):
     #print "evalToZero=",evalToZero, "len=",len(evalToZero)
     #print "frobPowers=",frobPowers, "len=",len(frobPowers)
     #print "polysCount=",polysCount, "len=",len(polysCount)
-    #print "powerTable", powerTable, "len=",len(powerTable)
     #--------------------
     #setup C data
     charac = int(E.characteristic())
@@ -1046,6 +1045,7 @@ def findAnyPCN_useGen_internalC(F,n):
                 print "FATAL ERROR F=",F," E=",E
                 print "el=",el, "isCn: ", isCompletelyNormal(el,F)\
                         , " isPrimitive: ",(el.multiplicative_order()==orderE)
+                return False
             return list(xC)
     return False
 
@@ -1192,38 +1192,38 @@ def genMats(E, F, n):
 # f Polynom in Polynomialring over F
 # x Element in E
 # pows a list of powers of x, i.e. pows[i] = x^(q^i).
-#def frob_eval(f, x, pows = []):
-#   E = x.parent();
-#   P = f.parent();
-#   F = P.base_ring();
-#   R = PolynomialRing(E, 'z');
-#   q = F.order();
-#   n = E.order().log(q);
-#   #try:
-#       #h = Hom(F,E)[0];
-#       #f = f.map_coefficients(lambda i: h(i), E)
-#   #except: pass
-#   glist = f.list();
-#   ret = E.zero();
-#   for i,g in enumerate(glist):
-#       #print "frob: i=",i,"gi=",g
-#       if pows != []:
-#           if pows.has_key(i):
-#               xi = pows[i];
-#           else:
-#               xi = x**(q**i);
-#               pows[i] = xi;
-#       else: xi = x**(q**i);
-#       #print "\t->x^(q^i)=",xi
-#       try:
-#           ret += g*xi;
-#       except:
-#           h = Hom(F,E)[0];
-#           ret += h(g)*xi;
-#       #print "\t\t->ret=",ret
-#
-#   #print floor((time.clock()-curTime)*1000),"ms";
-#   return ret;
+def frob_eval(f, x, pows = []):
+  E = x.parent();
+  P = f.parent();
+  F = P.base_ring();
+  R = PolynomialRing(E, 'z');
+  q = F.order();
+  n = E.order().log(q);
+  #try:
+      #h = Hom(F,E)[0];
+      #f = f.map_coefficients(lambda i: h(i), E)
+  #except: pass
+  glist = f.list();
+  ret = E.zero();
+  for i,g in enumerate(glist):
+      #print "frob: i=",i,"gi=",g
+      if pows != []:
+          if pows.has_key(i):
+              xi = pows[i];
+          else:
+              xi = x**(q**i);
+              pows[i] = xi;
+      else: xi = x**(q**i);
+      #print "\t->x^(q^i)=",xi
+      try:
+          ret += g*xi;
+      except:
+          h = Hom(F,E)[0];
+          ret += h(g)*xi;
+      #print "\t\t->ret=",ret
+
+  #print floor((time.clock()-curTime)*1000),"ms";
+  return ret;
 
 #def _frob_eval(E, F, n, q, f, x, pows):
 #    glist = f.list();

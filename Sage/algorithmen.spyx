@@ -509,6 +509,8 @@ cdef extern from "./powertest.c":
         int *mats, int *frobPowers, \
         int m, int charac, \
         int *powerTable, int lenPowerTable)
+    void genMats(int *mipo, int m, int *mats, int maxPower, int charac, int q)
+
 
 
 
@@ -577,7 +579,7 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     maxMatPower = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
     #setup matrices
     cdef np.ndarray[int,ndim=3,mode="c"] matsC
-    matsC = genMats(E,F,maxMatPower+1)
+    matsC = genMatsPy(E,F,maxMatPower+1)
     #setup mipo
     cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
             = np.array(list(mipo), dtype=np.int32)
@@ -819,7 +821,7 @@ def findAnyPCN_internalC(F,n):
     m = mipo.degree()
     #setup matrices
     cdef np.ndarray[int,ndim=3,mode="c"] matsC
-    matsC = genMats(E,F,n+1)
+    matsC = genMatsPy(E,F,n+1)
     #setup mipo
     cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
             = np.array(list(mipo), dtype=np.int32)
@@ -944,9 +946,6 @@ def findAnyPCN_useGen_internalC(F,n):
     charac = int(E.characteristic())
     mipo = E.modulus()
     m = mipo.degree()
-    #setup matrices
-    cdef np.ndarray[int,ndim=3,mode="c"] matsC
-    matsC = genMats(E,F,n+1)
     #setup mipo
     cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
             = np.array(list(mipo), dtype=np.int32)
@@ -980,6 +979,12 @@ def findAnyPCN_useGen_internalC(F,n):
             = np.zeros(m, dtype=np.int32)
     for i, xi in enumerate(E.primitive_element().polynomial()):
         generatorC[i] = xi
+        #setup matrices
+    cdef np.ndarray[int,ndim=3,mode="c"] matsC\
+            = np.zeros((n+1,m,m),dtype=np.int32)
+    genMats(<int*>xmipoC.data, m, <int*>matsC.data, n,charac,q)
+    #cdef np.ndarray[int,ndim=3,mode="c"] matsC\
+            #= genMatsPy(E,F,n+1)
     
     #end setup C data
     #--------------------
@@ -1058,7 +1063,7 @@ cdef printArr(int *x, int m):
 
 # generates Matrices for powers [0..n-1] of Frobenius
 # returns c_int matrix
-def genMats(E, F, n):
+def genMatsPy(E, F, n):
     q = F.order()
     mipo = E.modulus()
     P = E.prime_subfield()

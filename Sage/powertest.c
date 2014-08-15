@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
+#include <limits.h>
+#include <stdint.h>
+
+#define ulong unsigned long
 
 unsigned long long ipow(int base, int exp)
 {
@@ -21,12 +25,13 @@ unsigned long long ipow(int base, int exp)
 
 inline void matmul(int *mat, int *vec, int *ret, int m, int charac){
     int i,j;
+    ulong tmp;
     for(i=0;i<m;i++){
         ret[i] = 0;
         for(j=0;j<m;j++){
-            ret[i] += mat[i*m + j]*vec[j];
+            tmp = mat[i*m + j]*(ulong)vec[j];
+            ret[i] += (int)(tmp%charac);
         }
-        ret[i] %= charac;
     }
 }
 
@@ -62,10 +67,14 @@ void subtrPoly(int *p1, int *p2, int *p3, int m, int charac) {
 
 inline void multiplyPoly(int *p1, int m1, int *p2, int m2, int *p3, int m3, int charac) {
     int i,j;
+    ulong tmp;
     initPoly(p3,m3);
-    for(i=0;i<m1;i++)
-        for(j=0;j<m2;j++)
-            p3[i+j] = p3[i+j]+p1[i]*p2[j];
+    for(i=0;i<m1;i++){
+        for(j=0;j<m2;j++){
+            tmp = ((ulong)p1[i]*p2[j])%charac;
+            p3[i+j] = (p3[i+j]+(int)tmp)%charac;
+        }
+    }
     for(i=0;i<m3;i++){
         p3[i] %= charac;
         if(p3[i] < 0) p3[i] += charac;
@@ -96,7 +105,7 @@ inline int modInv(int a, int p){
 inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
     int deg1=0, degmod=0;
     int i=0,j=0;
-    int quo=0;
+    long quo=0;
     //get degrees
     for(i=m1-1;i>=0;i--){
         if( p1[i] != 0){
@@ -115,22 +124,28 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
     /*printf("degMod=%i, degP1=%i\n", degmod,deg1);*/
     
     /*printArr(p1,m1);*/
+    /*int *tmpArr = malloc(m1*sizeof(int));*/
 
     //make polynomial division
     int degmodInv = modInv(mod[degmod],charac);
     for(i=deg1-degmod; i>=0; i--){
-        quo = p1[i+degmod]*degmodInv;
+        quo = (p1[i+degmod]*(long)degmodInv)%charac;
         /*printf("i=%i p1[i+degmod]=%i mod[degmod]=%i mod[degmod]^(-1)=%i ",i,p1[i+degmod],mod[degmod],modInv(mod[degmod],charac));*/
-        /*printf("quo=%i\n", quo);*/
+        /*printf("quo=%lu\n", quo);*/
         for(j=degmod;j>=0;j--){
-            p1[i+j] = (p1[i+j] - mod[j]*quo)%charac;
+            p1[i+j] = (int)(p1[i+j] - mod[j]*quo)%charac;
         }
-        /*printf("=> p1=");printArr(p1,m1);*/
-        /*printArr(p1,m1);*/
+        /*for(j=0;j<m1;j++){*/
+            /*tmpArr[j] = p1[j];*/
+            /*if(tmpArr[j] < 0) tmpArr[j] += charac;*/
+        /*}*/
+
+        /*printf("=> p1=");printArr(tmpArr,m1);*/
     }
     for(i=0;i<m1;i++){
         if(p1[i] < 0) p1[i] += charac;
     }
+    /*free(tmpArr);*/
 }
 
 /**
@@ -150,10 +165,11 @@ inline void powerPolyInt(int *x, int *x_mipo, int *ret, int m,
                 ret[i] = tmp2[i];
         }
         multiplyPoly(x,m, x,m, tmp2,2*m, charac);
+        /*printf("powerPolyInt tmp2=");printArr(tmp2,2*m);*/
         moduloPoly(tmp2,2*m,x_mipo,m+1,charac);
         for(i=0;i<m;i++)
             x[i] = tmp2[i];
-        power /= 2;
+        power >>= 1;
     }
 }
 
@@ -984,8 +1000,8 @@ int main(){
     ////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////
-    int n = 10;
-    int *mats2 = malloc((n+1)*m*m*sizeof(int));
-    genMats(xmipo,m,mats2,n,charac,charac);
-    free(mats2);
+    /*int n = 10;*/
+    /*int *mats2 = malloc((n+1)*m*m*sizeof(int));*/
+    /*genMats(xmipo,m,mats2,n,charac,charac);*/
+    /*free(mats2);*/
 }

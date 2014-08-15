@@ -196,6 +196,66 @@ inline bool isOne(int *x, int m, int charac){
 }
 
 /**
+ * multiplies 2 quadratic m x m matrices 
+ */
+void multMatrices(int *mat1, int *mat2, int *ret, int m, int charac){
+    int i,j,k;
+    for(i=0;i<m;i++){
+        for(j=0;j<m;j++){
+            ret[i*m + j] = 0;
+            for(k=0;k<m;k++){
+                ret[i*m + j] = (ret[i*m + j] + 
+                        mat1[i*m + k]*mat2[k*m + j])%charac;
+            }
+        }
+    }
+}
+
+
+void genMats(int *mipo, int m, int *mats, int maxPower, int charac, int q){
+    int *tmp = malloc(m*sizeof(int));
+    int *tmp2 = malloc(2*m*sizeof(int));
+    int *x = malloc(m*sizeof(int));
+
+    int i,j,k;
+    int mSize = m*m;
+    /*//put identity matrix at position 0*/
+    for(i=0;i<m;i++)
+        for(j=0;j<m;j++)
+            if(j==i)
+                /*matsInt[0][i][j] = 1;*/
+                mats[0*mSize + i*m + j] = 1;
+            else
+                /*matsInt[0][i][j] = 0;*/
+                mats[0*mSize + i*m + j] = 0;
+
+    for(i=0;i<m;i++){
+        initPoly(x,m);
+        x[i] = 1;
+        powerPolyInt(x, mipo, tmp, m, q, charac, tmp2);
+        for(j=0;j<m;j++)
+            /*matsInt[1][j][i] = tmp[j];*/
+            mats[1*mSize + j*m + i] = tmp[j];
+    }
+    for(i=2;i<=maxPower;i++){
+        /*multMatrices(matsInt[1],matsInt[i-1],matsInt[i], m, charac);*/
+        multMatrices(mats+1*mSize, mats+(i-1)*mSize, mats+i*mSize, m, charac);
+    }
+
+    /*for(i=0;i<=maxPower;i++){*/
+        /*printf("m^%i\n",i);*/
+        /*for(j=0;j<m;j++)*/
+            /*printArr(mats+mSize*i+j*m,m);*/
+    /*}*/
+
+    free(x);
+    free(tmp2);
+    free(tmp);
+}
+
+
+
+/**
  * Calc order of element
  * x is NOT modified!
  */
@@ -910,14 +970,22 @@ int main(){
     int lenBarFactors[] = {9,7,6};
     int countBarFactors = 3;
 
-    int *genCounts = malloc(decompCount*sizeof(int));
+    ////////////////////////////////////////////////////////////
+    /*int *genCounts = malloc(decompCount*sizeof(int));*/
 
-    unsigned long long pcn
-        = processFFElements(xmipo, decompCount,
-            polys, polysLen, polysCount, evalToZero,
-            mats, frobPowers,
-            genCounts, m, charac, shiftSize,
-            barFactors,lenBarFactors,countBarFactors);
-    free(genCounts);
-    printf("pcn=%i",pcn);
+    /*unsigned long long pcn*/
+        /*= processFFElements(xmipo, decompCount,*/
+            /*polys, polysLen, polysCount, evalToZero,*/
+            /*mats, frobPowers,*/
+            /*genCounts, m, charac, shiftSize,*/
+            /*barFactors,lenBarFactors,countBarFactors);*/
+    /*free(genCounts);*/
+    /*printf("pcn=%i",pcn);*/
+    ////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+    int n = 10;
+    int *mats2 = malloc((n+1)*m*m*sizeof(int));
+    genMats(xmipo,m,mats2,n,charac,charac);
+    free(mats2);
 }

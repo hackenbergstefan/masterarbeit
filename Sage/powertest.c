@@ -133,7 +133,7 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
         /*printf("i=%i p1[i+degmod]=%i mod[degmod]=%i mod[degmod]^(-1)=%i ",i,p1[i+degmod],mod[degmod],modInv(mod[degmod],charac));*/
         /*printf("quo=%lu\n", quo);*/
         for(j=degmod;j>=0;j--){
-            p1[i+j] = (int)(p1[i+j] - mod[j]*quo)%charac;
+            p1[i+j] = (int)((p1[i+j] - mod[j]*quo)%charac);
         }
         /*for(j=0;j<m1;j++){*/
             /*tmpArr[j] = p1[j];*/
@@ -216,12 +216,13 @@ inline bool isOne(int *x, int m, int charac){
  */
 void multMatrices(int *mat1, int *mat2, int *ret, int m, int charac){
     int i,j,k;
+    long tmp;
     for(i=0;i<m;i++){
         for(j=0;j<m;j++){
             ret[i*m + j] = 0;
             for(k=0;k<m;k++){
-                ret[i*m + j] = (ret[i*m + j] + 
-                        mat1[i*m + k]*mat2[k*m + j])%charac;
+                tmp = (long)mat1[i*m+k]*(long)mat2[k*m+j];
+                ret[i*m + j] = (int)((ret[i*m + j] + tmp)%charac);
             }
         }
     }

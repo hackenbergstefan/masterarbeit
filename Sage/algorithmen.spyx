@@ -491,13 +491,13 @@ def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
 
 cdef extern from "./powertest.c":
     unsigned long long processFFElements(int *x_mipo, int decompCount,\
-        int *polys, int *polysLen, int *polysCount, char *evalToZero,\
-        int *mats, int *frobPowers, \
+        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, \
+        char *evalToZero, int *mats, int matLen, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize,\
         char *barFactors, int *lenBarFactors, int countBarFactors)
     double eta_processFFElements(int *x_mipo, int decompCount,\
-        int *polys, int *polysLen, int *polysCount, char *evalToZero,\
-        int *mats, int *frobPowers, \
+        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, \
+        char *evalToZero, int *mats, int matLen, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize)
     void findAnyPCN(int *x, int *x_mipo, \
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
@@ -525,6 +525,7 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     polys = []
     polysLen = []
     polysCount = []
+    polysCoeffDegs = []
     evalToZero = []
     frobPowers = []
     decomposition = decompose(p,e,n)
@@ -541,6 +542,10 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
                     (Gx.gen()**(k*t*pi/squarefree(k)/d))
             polys += [cycl.map_coefficients(h)]
             polysLen += [len(list(cycl))]
+            polysCoeffDegs += map(lambda gi: gi.polynomial().degree(), \
+                    cycl.map_coefficients(h))
+            #print "\tcylcE=",cycl.map_coefficients(h)
+            #print "\tcoeffDegs=", map(lambda gi: gi.polynomial().degree(), cycl.map_coefficients(h)) 
             frobPowers += [d]
             evalToZero += [1]
             countPolysForThisDecomp += 1
@@ -548,9 +553,12 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
             # add Co-Factors
             for f,mult in cycl.factor():
                 g = cycl.quo_rem(f)[0]
-                #print "\tfac=",g
-                polys += [g.map_coefficients(h)]
+                gE = g.map_coefficients(h)
+                #print "\tgE=",gE
+                polys += [gE]
                 polysLen += [len(list(g))]
+                polysCoeffDegs += map(lambda gi: gi.polynomial().degree(), gE)
+                #print "\tcoeffDegs=", map(lambda gi: gi.polynomial().degree(), gE) 
                 frobPowers += [d]
                 evalToZero += [0]
                 countPolysForThisDecomp +=1
@@ -558,6 +566,7 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     #print "decomp = ",decomposition
     #print "polys= ",polys, "len=",len(polys)
     #print "polysLen=",polysLen, "len=",len(polysLen)
+    #print "polysCoeffDegs=", polysCoeffDegs
     #print "evalToZero=",evalToZero, "len=",len(evalToZero)
     #print "frobPowers=",frobPowers, "len=",len(frobPowers)
     #print "polysCount=",polysCount, "len=",len(polysCount)
@@ -594,6 +603,9 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
         #polysCountC
     cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
             = np.array(polysCount, dtype=np.int32)
+        #polysCoeffDegsC
+    cdef np.ndarray[int,ndim=1,mode="c"] polysCoeffDegsC\
+            = np.array(polysCoeffDegs, dtype=np.int32)
         #polysLenC
     cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
             = np.array(polysLen, dtype=np.int32)
@@ -720,9 +732,10 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     eta = eta_processFFElements(<int*>xmipoC.data \
             ,<int>decompCount \
             ,<int*>polysC.data, <int*>polysLenC.data \
+            ,<int*>polysCoeffDegsC.data \
             ,<int*>polysCountC.data \
             ,<char*>evalToZeroC.data \
-            ,<int*>matsC.data, <int*>frobPowersC.data \
+            ,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
             ,<int*>genCountsC.data \
             ,<int>m,<int>p, <int>shiftSize)
     print "(p,e,n) = (",p,",",e,",",n,") eta = ",eta,"s"
@@ -733,9 +746,10 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     pcn = processFFElements(<int*>xmipoC.data \
             ,<int>decompCount \
             ,<int*>polysC.data, <int*>polysLenC.data \
+            ,<int*>polysCoeffDegsC.data \
             ,<int*>polysCountC.data \
             ,<char*>evalToZeroC.data \
-            ,<int*>matsC.data, <int*>frobPowersC.data \
+            ,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
             ,<int*>genCountsC.data \
             ,<int>m,<int>p, <int>shiftSize\
             ,<char*>barFactorsC.data, <int*>lenBarFactorsC.data\
@@ -910,6 +924,7 @@ def findAnyPCN_useGen_internalC(F,n):
     polysCount = []
     evalToZero = []
     frobPowers = []
+    polysCoeffDegs = []
     divs = get_proper_subfield_divisors(p,e,n)
     countPolysForThisDecomp = 0
     #print "for decomp=",decomp, "consider divs=",divs

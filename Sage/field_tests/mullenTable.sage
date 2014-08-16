@@ -51,16 +51,16 @@ def process_submodules_internalC(qn):
 
 #------------------------------------------------------------------------------
 # mullen setup
-filePath = "mullenTableC_new.txt"
-SETUP = \
-[[2, xrange(2,19)], \
- [3, xrange(2,13)], \
- [4, xrange(2,10)], \
- [5, xrange(2,9)], \
- [7, xrange(2,7)], \
- [8, xrange(2,6)], \
- [9, xrange(2,6)], \
- ]
+#filePath = "mullenTableC_new.txt"
+#SETUP = \
+#[[2, xrange(2,19)], \
+ #[3, xrange(2,13)], \
+ #[4, xrange(2,10)], \
+ #[5, xrange(2,9)], \
+ #[7, xrange(2,7)], \
+ #[8, xrange(2,6)], \
+ #[9, xrange(2,6)], \
+ #]
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -69,21 +69,21 @@ SETUP = \
 #------------------------------------------------------------------------------
 
 
-GENLIST = []
-for q, nlist in SETUP:
-    for n in nlist:
-        GENLIST += [[q,n]]
+#GENLIST = []
+#for q, nlist in SETUP:
+    #for n in nlist:
+        #GENLIST += [[q,n]]
 
 ##------------------------------------------------------------------------------
-## test n = 6, q = 2, 3, 4, ..., 32, ...
-#filePath = "mullenTableC_n=6.txt"
-#GENLIST = []
-#n = 6
-#for p in primes(100):
-    #for e in range(1,10):
-        #GENLIST += [[p**e,n]]
+# test n = 6, q = 2, 3, 4, ..., 32, ...
+filePath = "mullenTableC_n=6.txt"
+GENLIST = []
+n = 6
+for p in primes(100):
+    for e in range(1,10):
+        GENLIST += [[p**e,n]]
 
-#GENLIST = sorted(GENLIST)
+GENLIST = sorted(GENLIST)
 ##------------------------------------------------------------------------------
 
 #def main():

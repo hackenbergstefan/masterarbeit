@@ -6,7 +6,6 @@
 #include <limits.h>
 #include <stdint.h>
 
-#define ulong unsigned long
 
 unsigned long long ipow(int base, int exp)
 {
@@ -25,11 +24,11 @@ unsigned long long ipow(int base, int exp)
 
 inline void matmul(int *mat, int *vec, int *ret, int m, int charac){
     int i,j;
-    ulong tmp;
+    long tmp;
     for(i=0;i<m;i++){
         ret[i] = 0;
         for(j=0;j<m;j++){
-            tmp = mat[i*m + j]*(ulong)vec[j];
+            tmp = mat[i*m + j]*vec[j];
             ret[i] += (int)(tmp%charac);
         }
     }
@@ -67,18 +66,18 @@ void subtrPoly(int *p1, int *p2, int *p3, int m, int charac) {
 
 inline void multiplyPoly(int *p1, int m1, int *p2, int m2, int *p3, int m3, int charac) {
     int i,j;
-    ulong tmp;
+    long tmp;
     initPoly(p3,m3);
     for(i=0;i<m1;i++){
         for(j=0;j<m2;j++){
-            tmp = ((ulong)p1[i]*p2[j])%charac;
-            p3[i+j] = (p3[i+j]+(int)tmp)%charac;
+            tmp = ((long)p1[i]*p2[j])%charac;
+            p3[i+j] = (int)((p3[i+j]+tmp)%charac);
         }
     }
-    for(i=0;i<m3;i++){
-        p3[i] %= charac;
-        if(p3[i] < 0) p3[i] += charac;
-    }
+    /*for(i=0;i<m3;i++){*/
+        /*p3[i] %= charac;*/
+        /*if(p3[i] < 0) p3[i] += charac;*/
+    /*}*/
 }
 
 
@@ -142,9 +141,9 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
 
         /*printf("=> p1=");printArr(tmpArr,m1);*/
     }
-    for(i=0;i<m1;i++){
-        if(p1[i] < 0) p1[i] += charac;
-    }
+    /*for(i=0;i<m1;i++){*/
+        /*if(p1[i] < 0) p1[i] += charac;*/
+    /*}*/
     /*free(tmpArr);*/
 }
 

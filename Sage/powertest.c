@@ -414,22 +414,40 @@ void genMats(int *mipo, int m, int *mats, int maxPower, int charac, int q){
 inline bool isPrimitive(int *x, int *x_mipo, int m, 
         char *barFactors, int* lenBarFactors, int countBarFactors, 
         int charac,
-        int *tmp_x, int *tmp, int *tmp2){
-    int i,j, tmpPrim, curPos;
+        int *tmp_x, int *tmp, int *firstPow, int *tmpRes, int *tmp2){
+    int i,j, curPos;
     /*printf(" test for primitivity x=");printArr(x,m);*/
-    curPos = 0;
-    for(i=0;i<countBarFactors;i++){
-        tmpPrim = 1;
+    //init firstPow
+    for(j=0;j<m;j++) tmp_x[j] = x[j];
+    powerPolyShort(tmp_x,x_mipo,tmp,m, 
+            barFactors,
+            lenBarFactors[0], charac, tmp2);
+    if( isOne(tmp,m, charac) == true)
+        return false;
+    
+    for(j=0;j<m;j++) firstPow[j] = tmp[j];
+    curPos = lenBarFactors[0];
+
+    for(i=1;i<countBarFactors;i++){
+        // calc x^...
         for(j=0;j<m;j++)
             tmp_x[j] = x[j];
-        /*powerPolyShort(tmp_x,x_mipo,tmp,m, */
-                /*barFactors+curPos, lenBarFactors[i], charac, tmp2);*/
-        /*printf("power Short = ");printArr(tmp,m);*/
         powerPolyShort(tmp_x,x_mipo,tmp,m, 
-                barFactors+curPos, lenBarFactors[i], charac, tmp2);
-        curPos += lenBarFactors[i];
-        if( isOne(tmp,m, charac) == true)
+                barFactors+curPos+lenBarFactors[2*i-1],
+                lenBarFactors[2*i], charac, tmp2);
+        // calc firstPow^...
+        for(j=0;j<m;j++) tmp_x[j] = firstPow[j];
+        powerPolyShort(tmp_x,x_mipo,tmpRes,m, 
+                barFactors+curPos,
+                lenBarFactors[2*i-1], charac, tmp2);
+
+        multiplyPolyShort(tmpRes,m, tmp,m, tmp2, 2*m, charac);
+        moduloMonomShort(tmp2,2*m, x_mipo,m+1,charac);
+        for(j=0;j<m;j++) tmp2[j] %= charac;
+        if( isOne(tmp2,m, charac) == true)
             return false;
+
+        curPos += lenBarFactors[2*i-1]+lenBarFactors[2*i];
     }
     return true;
 }
@@ -717,6 +735,8 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
     int * ret = malloc( m*sizeof(int) );
     int * tmp = malloc( m*sizeof(int) );
     int * tmp_x = malloc( m*sizeof(int) );
+    int * firstPow = malloc( m*sizeof(int) );
+    int * tmpRes = malloc( m*sizeof(int) );
     int * tmp2 = malloc( 2*m*sizeof(int) );
     int * matmulCache = malloc(matLen*m*sizeof(int));
     bool * matmulCacheCalced = malloc(matLen*sizeof(bool));
@@ -780,7 +800,7 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
 
         //test primitivity
         if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors, countBarFactors,
-                    charac,tmp_x,tmp,tmp2) == true){
+                    charac,tmp_x,tmp,firstPow,tmpRes,tmp2) == true){
             pcn ++;
         }
 
@@ -804,6 +824,8 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
     free(curRoots);
     free(tmp2);
     free(tmp);
+    free(tmpRes);
+    free(firstPow);
     free(tmp_x);
     free(ret);
     free(matmulCache);
@@ -915,6 +937,8 @@ void findAnyPCN(int * x, int *x_mipo,
     int * ret = malloc( m*sizeof(int) );
     int * tmp = malloc( m*sizeof(int) );
     int * tmp_x = malloc( m*sizeof(int) );
+    int * tmpRes = malloc( m*sizeof(int) );
+    int * firstPow = malloc( m*sizeof(int) );
     int * tmp2 = malloc( 2*m*sizeof(int) );
 
     bool pcnFound = false;
@@ -938,7 +962,7 @@ void findAnyPCN(int * x, int *x_mipo,
                 ret, m, charac, tmp, tmp2);
         if( ret[0] != -1){
             if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors,countBarFactors,
-                        charac, tmp_x,tmp,tmp2) == true){
+                        charac, tmp_x,tmp,firstPow,tmpRes,tmp2) == true){
                 pcnFound = true;
                 break;
             }
@@ -946,6 +970,8 @@ void findAnyPCN(int * x, int *x_mipo,
     }
     free(ret);
     free(tmp);
+    free(tmpRes);
+    free(firstPow);
     free(tmp_x);
     free(tmp2);
 

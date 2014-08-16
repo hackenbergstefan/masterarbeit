@@ -578,7 +578,18 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
         for i in range(1,k+1):
             barFactors += [primitiveOrder/(r**i)]
     countBarFactors = int(len(barFactors))
-    barFactors = map(lambda f: [int(i) for i in bin(f)[2:]],barFactors)
+    barFactors = sorted(barFactors)
+    bf = barFactors[0]
+    barFactors_tmp = [bf]
+    for i in range(1,len(barFactors)):
+        qr =  Integer(barFactors[i]).quo_rem(Integer(bf))
+        barFactors_tmp += [qr[0],qr[1]]
+        #bf = barFactors[i]
+    #print "barFactors=", barFactors
+    #print "barFactors_tmp=", barFactors_tmp
+    barFactors = map(lambda f: [int(i) for i in bin(f)[2:]], barFactors_tmp)
+
+    #print "barFactors=",barFactors
     
     #--------------------
     #setup C data

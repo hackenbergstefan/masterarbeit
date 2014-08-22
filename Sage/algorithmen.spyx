@@ -494,7 +494,17 @@ cdef extern from "./powertest.c":
         int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, \
         char *evalToZero, int *mats, int matLen, int *frobPowers, \
         int *genCounts, int m, int charac, int shiftSize,\
-        char *barFactors, int *lenBarFactors, int countBarFactors)
+        int *barFactors, int *lenBarFactors, int countBarFactors, \
+        int *matCharac)
+    unsigned long long processFFElements_useGens(int *x_mipo, int decompCount,\
+        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, \
+        char *evalToZero, int *mats, int matLen, int *frobPowers, \
+        int *genCounts, int m, int charac, int q, \
+        int *barFactors, int *lenBarFactors, int countBarFactors, \
+        int *biggestPrimeFactor, int lenBiggestPrimeFactor, \
+        int *matCharac, int *elementsF, int *elementsFDegs, \
+        int *multTable, int initialMultShift, 
+        int *addTable, int initialAddShift)
     double eta_processFFElements(int *x_mipo, int decompCount,\
         int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, \
         char *evalToZero, int *mats, int matLen, int *frobPowers, \
@@ -503,7 +513,8 @@ cdef extern from "./powertest.c":
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
         int m, int charac, \
-        char *barFactors, int *lenBarFactors, int countBarFactors)
+        int *barFactors, int *lenBarFactors, int countBarFactors,\
+        int *matCharac)
     char findAnyPCN_useGen(int *x, int *generator, int *x_mipo, \
         int *polys, int *polysLen, int *polysCount, char *evalToZero,\
         int *mats, int *frobPowers, \
@@ -512,15 +523,13 @@ cdef extern from "./powertest.c":
     void genMats(int *mipo, int m, int *mats, int maxPower, int charac, int q)
 
 
-
-
-
-def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
+def countCompleteSubmoduleGenerators_internalC_useGens(F,n, maxEta=0):
     TIME = time.time()
     p = F.characteristic()
     q = F.order();
     e = q.log(p)
     E = F.extension(Integer(n),'a');
+    P = E.prime_subfield()
     #generate factors
     polys = []
     polysLen = []
@@ -528,12 +537,15 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     polysCoeffDegs = []
     evalToZero = []
     frobPowers = []
+    notComplBasicDivisors = get_completely_basic_divisors(F,n)
     decomposition = decompose(p,e,n)
     for decomp in decomposition:
         k,t,pi = decomp
         divs = divisors(get_module_character(*decomp))
-        countPolysForThisDecomp = 0
         #print "for decomp=",decomp, "consider divs=",divs
+        divs = filter(lambda x: x in notComplBasicDivisors, divs)
+        #print "\tnow only", divs
+        countPolysForThisDecomp = 0
         for d in divs:
             G = F.extension(Integer(d), 'c');
             Gx = PolynomialRing(G,'x'); 
@@ -574,22 +586,64 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     #calc prime factors of order
     barFactors = []
     primitiveOrder = E.order()-1
+    #for r,k in factor(primitiveOrder):
+        #for i in range(1,k+1):
+            #barFactors += [primitiveOrder/(r**i)]
+    biggestPrimeFactor = factor(primitiveOrder)[-1][0]
     for r,k in factor(primitiveOrder):
-        for i in range(1,k+1):
-            barFactors += [primitiveOrder/(r**i)]
-    countBarFactors = int(len(barFactors))
-    barFactors = sorted(barFactors)
-    bf = barFactors[0]
-    barFactors_tmp = [bf]
-    for i in range(1,len(barFactors)):
-        qr =  Integer(barFactors[i]).quo_rem(Integer(bf))
-        barFactors_tmp += [qr[0],qr[1]]
-        #bf = barFactors[i]
+        barFactors += [primitiveOrder/r]
+    countBarFactors = len(barFactors)
     #print "barFactors=", barFactors
-    #print "barFactors_tmp=", barFactors_tmp
-    barFactors = map(lambda f: [int(i) for i in bin(f)[2:]], barFactors_tmp)
-
+    curF = 0
+    barFactors_tmp = [barFactors[-1]]
+    for b in reversed(barFactors[:-1]):
+        barFactors_tmp += [ b/biggestPrimeFactor - curF]
+        curF = b/biggestPrimeFactor
+    barFactors = barFactors_tmp
+    #print "barFactors=", barFactors
+    #print "biggestPrimeFactor=", biggestPrimeFactor
+    barFactors = map(\
+            lambda b: get_padic_representation(Integer(b),Integer(p))\
+            ,barFactors)
+    biggestPrimeFactor = get_padic_representation(biggestPrimeFactor,Integer(p))
+    lenBiggestPrimeFactor = len(biggestPrimeFactor)
+    #find biggest gap (i.e. zero-interval)
+    lenBiggestZeroGap = 0
+    lenCurGap = 0
+    for b in barFactors+[biggestPrimeFactor]:
+        i = 0
+        while i < len(b):
+            lenCurGap = 0
+            while i<len(b) and b[i] == 0:
+                lenCurGap+= 1
+                i += 1
+            lenBiggestZeroGap = max(lenBiggestZeroGap, lenCurGap)
+            i += 1
     #print "barFactors=",barFactors
+    #print "biggestPrimeFactor=", biggestPrimeFactor
+    #print "lenBiggestZeroGap=",lenBiggestZeroGap
+
+        #generate F elements in E
+    h = Hom(F,E)[0]
+    elementsF = []
+    elementsFDegs = []
+    if p != q:
+        elementsF = []
+        for e in itertools.product(xrange(p),repeat=e):
+            elementsF += [list( h( F(list(reversed(e))) ).polynomial() )]
+        elementsFDegs = map(lambda e: len(e)-1, elementsF)
+
+        # multiplication and addition table for prime field
+    multTable = [0]*(2*(p-1)**2+1)
+    addTable = [0]*(2*2*(p-1)+1)
+    for i in range(-p+1,p):
+        for j in range(-p+1,p):
+            #print i,"*",j, " = ", (i*j+p**2)%p
+            multTable[(p-1)**2 + i*j] = (i*j+p**2)%p
+            addTable[2*(p-1) + i+j] = (i+j + 2*p)%p
+    #print "multTable=",multTable, " len=", len(multTable)
+    #print "addTable=", addTable, " len=", len(addTable)
+
     
     #--------------------
     #setup C data
@@ -630,11 +684,43 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
             for j in range(len(g[i])):
                 polysC[curPos+i][j] = <int>g[i][j]
         curPos += polysLen[idx]
-    # prime Factors
-    cdef np.ndarray[char,ndim=1,mode="c"] barFactorsC \
-        = np.array(list(itertools.chain(*barFactors)), dtype=np.uint8)
+        # prime Factors
+    cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
+        = np.array(list(itertools.chain(*barFactors)), dtype=np.int32)
     cdef np.ndarray[int,ndim=1,mode="c"] lenBarFactorsC \
         = np.array(map(len,barFactors), dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] biggestPrimeFactorC \
+        = np.array(biggestPrimeFactor, dtype=np.int32)
+        # mat charac
+    P = E.prime_subfield()
+    gen = mipo.parent().gen()
+    matCharac = matrix(P, m,m)
+    for i in xrange(m):
+        for j, fi in enumerate(((gen**i)**p).mod(mipo)):
+            matCharac[i,j] = fi
+    matCharac = matCharac.transpose()
+    cdef np.ndarray[int,ndim=3,mode="c"] matCharacC\
+        = np.zeros((lenBiggestZeroGap+1,m,m), dtype=np.int32)
+    tmpMat = matCharac
+    for i in range(lenBiggestZeroGap+1):
+        tmpMat = matCharac**(i+1)
+        for j in range(m):
+            for k in range(m):
+                matCharacC[i][j][k] = tmpMat[j][k]
+        # F elements in E
+    cdef np.ndarray[int,ndim=1,mode="c"] elementsFDegsC\
+        = np.array(elementsFDegs, dtype=np.int32)
+    cdef np.ndarray[int,ndim=2,mode="c"] elementsFC\
+        = np.zeros((q,m), dtype=np.int32)
+    for i,e in enumerate(elementsF):
+        for j in range(len(e)):
+            elementsFC[i][j] = e[j]
+        # multiplication and addition table
+    cdef np.ndarray[int,ndim=1,mode="c"] multTableC\
+        = np.array(multTable, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] addTableC\
+        = np.array(addTable, dtype=np.int32)
+
     #end setup C data
     #--------------------
     #print "matsC=", matsC
@@ -645,6 +731,12 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     #print "polysCountC=",polysCountC, "len=",len(polysCountC)
     #print "xmipoC=",xmipoC
     #print "barFactorsC=",barFactorsC
+    #print "lenBarFactorsC=",lenBarFactorsC
+    #print "matCharacC=", matCharacC
+    #print "elementsFC=", elementsFC
+    #print "elementsFDegsC=",elementsFDegsC
+    #print "multTableC=",multTableC
+    #print "addTableC=",addTableC
 
     #--------------------
     # prepare C output
@@ -666,10 +758,28 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
             #printf("\n")
     #print "};"
 
+    #print "int matLen = ",maxMatPower+1,";"
+    
+    #print "int matsCharac[] = {"
+    #for j in range(m):
+        #for k in range(m):
+            #sys.stdout.write(str(matCharacC[j][k]))
+            #if j<m-1 or k<m-1:
+                #sys.stdout.write(", ")
+        #printf("\n")
+    #print "};"
+
     #sys.stdout.write("int polysLen[] = {")
     #for i in range(len(polysLen)):
         #sys.stdout.write(str(polysLenC[i]))
         #if i< len(polysLen)-1:
+                #sys.stdout.write(", ")
+    #print "};"
+    
+    #sys.stdout.write("int polysCoeffDegs[] = {")
+    #for i in range(len(polysCoeffDegs)):
+        #sys.stdout.write(str(polysCoeffDegsC[i]))
+        #if i< len(polysCoeffDegs)-1:
                 #sys.stdout.write(", ")
     #print "};"
 
@@ -701,28 +811,53 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
                 #sys.stdout.write(", ")
     #print "};"
 
-    #sys.stdout.write("int primFactors[] = {")
-    #for i in range(lenPrimFacs):
-        #sys.stdout.write(str(primFactors[i]))
-        #if i< lenPrimFacs-1:
-                #sys.stdout.write(", ")
-    #print "};"
-    #sys.stdout.write("int coFactors[] = {")
-    #for i in range(lenPrimFacs):
-        #sys.stdout.write(str(coFactors[i]))
-        #if i< lenPrimFacs-1:
-                #sys.stdout.write(", ")
-    #print "};"
     #sys.stdout.write("int barFactors[] = {")
-    #for i in range(lenPrimFacs):
-        #sys.stdout.write(str(barFactors[i]))
-        #if i< lenPrimFacs-1:
+    #for i in range(barFactorsC.shape[0]):
+        #sys.stdout.write(str(barFactorsC[i]))
+        #if i< barFactorsC.shape[0]-1:
+                #sys.stdout.write(", ")
+    #print "};"
+    
+    #sys.stdout.write("int lenBarFactors[] = {")
+    #for i in range(lenBarFactorsC.shape[0]):
+        #sys.stdout.write(str(barFactorsC[i]))
+        #if i< lenBarFactorsC.shape[0]-1:
+                #sys.stdout.write(", ")
+    #print "};"
+    #print "int countBarFactors = ", len(barFactors),";"
+    
+    #sys.stdout.write("int elementsF[] = {")
+    #for i in range(elementsFC.shape[0]):
+        #for j in range(elementsFC.shape[1])
+            #sys.stdout.write(str(elementsFC[i][j]))
+            #if i< elementsFC.shape[0]-1 and j < elementsFC.shape[1]-1:
+                    #sys.stdout.write(", ")
+    #print "};"
+    
+    #sys.stdout.write("int elementsFDegs[] = {")
+    #for i in range(elementsFDegsC.shape[0]):
+        #sys.stdout.write(str(elementsFDegsC[i]))
+        #if i< elementsFDegsC.shape[0]-1:
+                #sys.stdout.write(", ")
+    #print "};"
+    
+    #sys.stdout.write("int multTable[] = {")
+    #for i in range(multTableC.shape[0]):
+        #sys.stdout.write(str(multTableC[i]))
+        #if i< multTableC.shape[0]-1:
+                #sys.stdout.write(", ")
+    #print "};"
+    #sys.stdout.write("int addTable[] = {")
+    #for i in range(addTableC.shape[0]):
+        #sys.stdout.write(str(addTableC[i]))
+        #if i< addTableC.shape[0]-1:
                 #sys.stdout.write(", ")
     #print "};"
 
     #print "int decompCount = ", decompCount, ";"
     #print "int m = ", m, ";"
     #print "int charac = ",p,";"
+    #print "int q = ",q,";"
 
     #return
 
@@ -732,29 +867,29 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     genCountsC = np.zeros(decompCount, dtype=np.int32)
 
 
-    # calc shiftsize
-    shifter = 1
-    shiftSize = 0
-    while shifter < charac:
-        shiftSize +=1
-        shifter <<= 1
+    ## calc shiftsize
+    #shifter = 1
+    #shiftSize = 0
+    #while shifter < charac:
+        #shiftSize +=1
+        #shifter <<= 1
 
     #get eta
-    eta = eta_processFFElements(<int*>xmipoC.data \
-            ,<int>decompCount \
-            ,<int*>polysC.data, <int*>polysLenC.data \
-            ,<int*>polysCoeffDegsC.data \
-            ,<int*>polysCountC.data \
-            ,<char*>evalToZeroC.data \
-            ,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
-            ,<int*>genCountsC.data \
-            ,<int>m,<int>p, <int>shiftSize)
-    print "(p,e,n) = (",p,",",e,",",n,") eta = ",eta,"s"
-    if maxEta != 0 and eta > maxEta:
-        return
+    #eta = eta_processFFElements(<int*>xmipoC.data \
+            #,<int>decompCount \
+            #,<int*>polysC.data, <int*>polysLenC.data \
+            #,<int*>polysCoeffDegsC.data \
+            #,<int*>polysCountC.data \
+            #,<char*>evalToZeroC.data \
+            #,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
+            #,<int*>genCountsC.data \
+            #,<int>m,<int>p)
+    #print "(p,e,n) = (",p,",",e,",",n,") eta = ",eta,"s"
+    #if maxEta != 0 and eta > maxEta:
+        #return
 
     cdef unsigned long long pcn
-    pcn = processFFElements(<int*>xmipoC.data \
+    pcn = processFFElements_useGens(<int*>xmipoC.data \
             ,<int>decompCount \
             ,<int*>polysC.data, <int*>polysLenC.data \
             ,<int*>polysCoeffDegsC.data \
@@ -762,9 +897,15 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
             ,<char*>evalToZeroC.data \
             ,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
             ,<int*>genCountsC.data \
-            ,<int>m,<int>p, <int>shiftSize\
-            ,<char*>barFactorsC.data, <int*>lenBarFactorsC.data\
-            ,<int>countBarFactors)
+            ,<int>m,<int>p, <int>q \
+            ,<int*>barFactorsC.data, <int*>lenBarFactorsC.data\
+            ,<int>countBarFactors \
+            ,<int*>biggestPrimeFactorC.data, <int>lenBiggestPrimeFactor
+            ,<int*>matCharacC.data \
+            ,<int*>elementsFC.data, <int*>elementsFDegsC.data \
+            #,<int*>&(multTableC[(p-1)**2]), <int*>&(addTable[2*(p-1)]))
+            ,<int*>multTableC.data, <int>(p-1)**2\
+            ,<int*>addTableC.data, <int>2*(p-1))
             #,<int*>tmpC.data ,<int*>tmp2C.data \
             #,<int*>xC.data, <int*>retC.data \
             #, rootsC, curRootsC, combinedElements)
@@ -789,302 +930,591 @@ def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
     return prod(list(genCountsC)), Integer(pcn), genCounts,\
             strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
 
-def findAnyPCN_internalC(F,n):
-    TIME = time.time()
-    p = F.characteristic()
-    q = F.order();
-    e = q.log(p)
-    E = F.extension(Integer(n),'a');
-    #generate factors
-    polys = []
-    polysLen = []
-    polysCount = []
-    evalToZero = []
-    frobPowers = []
-    divs = get_proper_subfield_divisors(p,e,n)
-    countPolysForThisDecomp = 0
-    #print "for decomp=",decomp, "consider divs=",divs
-    for d in divs:
-        G = F.extension(Integer(d), 'c');
-        Gx = PolynomialRing(G,'x'); 
-        h = Hom(G,E)[0]
-        cycl = (Gx.gen()**(n/d)-1)
-        polys += [cycl.map_coefficients(h)]
-        polysLen += [len(list(cycl))]
-        frobPowers += [d]
-        evalToZero += [1]
-        countPolysForThisDecomp += 1
-        #print "\ti.e. cycl=",cycl
-        # add Co-Factors
-        for f,mult in cycl.factor():
-            g = cycl.quo_rem(f)[0]
-            #print "\tfac=",g
-            polys += [g.map_coefficients(h)]
-            polysLen += [len(list(g))]
-            frobPowers += [d]
-            evalToZero += [0]
-            countPolysForThisDecomp +=1
-    polysCount += [countPolysForThisDecomp]
-    #calc prime factors of order
-    barFactors = []
-    primitiveOrder = E.order()-1
-    for r,k in factor(primitiveOrder):
-        for i in range(1,k+1):
-            barFactors += [primitiveOrder/(r**i)]
-    countBarFactors = int(len(barFactors))
-    
-    #print "decomp = ",decomposition
-    #print "polys= ",polys, "len=",len(polys)
-    #print "polysLen=",polysLen, "len=",len(polysLen)
-    #print "evalToZero=",evalToZero, "len=",len(evalToZero)
-    #print "frobPowers=",frobPowers, "len=",len(frobPowers)
-    #print "polysCount=",polysCount, "len=",len(polysCount)
-    #--------------------
-    #setup C data
-    charac = int(E.characteristic())
-    mipo = E.modulus()
-    m = mipo.degree()
-    #setup matrices
-    cdef np.ndarray[int,ndim=3,mode="c"] matsC
-    matsC = genMatsPy(E,F,n+1)
-    #setup mipo
-    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
-            = np.array(list(mipo), dtype=np.int32)
-    #setup polynomials, polyLength, frobPowers, evaltoZero
-    decompCount = int(len(polysCount))
-        #evalToZeroC
-    cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
-            = np.array(evalToZero, dtype=np.uint8)
-        #frobPowersC
-    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
-            = np.array(frobPowers, dtype=np.int32)
-        #polysCountC
-    cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
-            = np.array(polysCount, dtype=np.int32)
-        #polysLenC
-    cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
-            = np.array(polysLen, dtype=np.int32)
-        #polys
-    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
-            = np.zeros((sum(polysLen),m), dtype=np.int32)
-    curPos = 0
-    for idx,g in enumerate(polys):
-        g = map(lambda gi: list(gi.polynomial()),list(g))
-        for i in range(len(g)):
-            for j in range(len(g[i])):
-                polysC[curPos+i][j] = <int>g[i][j]
-        curPos += polysLen[idx]
-    # prime Factors
-    print barFactors
-    return
-    cdef np.ndarray[char,ndim=2,mode="c"] barFactorsC \
-        = np.array(map(lambda f: [int(i) for i in bin(f)[2:]],barFactors), dtype=np.uint8) 
-    cdef np.ndarray[int,ndim=1,mode="c"] lenBarFactorsC \
-        = np.array(map(len,barFactorsC), dtype=np.int32)
-    #end setup C data
-    #--------------------
-    
-    print "matsC=", matsC
-    print "polysC= ",polysC, "len=",len(polysC)
-    print "polysLenC=",polysLenC, "len=",len(polysLenC)
-    print "evalToZeroC=",evalToZeroC, "len=",len(evalToZeroC)
-    print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
-    print "polysCountC=",polysCountC, "len=",len(polysCountC)
-    print "xmipoC=",xmipoC
-    print "barFactorsC=",barFactorsC
-    print "lenBarFactorsC=",lenBarFactorsC
-    print "countBarFactors=",countBarFactors
-    return
 
 
-    #--------------------
-    #setup return and tmp values
-    cdef np.ndarray[int,ndim=1,mode="c"] xC \
-        = np.zeros(m, dtype=np.int32) 
-    cdef np.ndarray[int,ndim=1,mode="c"] tmpC \
-        = np.zeros(m, dtype=np.int32) 
-    cdef np.ndarray[int,ndim=1,mode="c"] tmp_xC \
-        = np.zeros(m, dtype=np.int32) 
-    cdef np.ndarray[int,ndim=1,mode="c"] tmp2C \
-        = np.zeros(2*m, dtype=np.int32) 
-    cdef np.ndarray[int,ndim=1,mode="c"] retC \
-        = np.zeros(m, dtype=np.int32) 
+#def countCompleteSubmoduleGenerators_internalC(F,n, maxEta=0):
+#    TIME = time.time()
+#    p = F.characteristic()
+#    q = F.order();
+#    e = q.log(p)
+#    E = F.extension(Integer(n),'a');
+#    #generate factors
+#    polys = []
+#    polysLen = []
+#    polysCount = []
+#    polysCoeffDegs = []
+#    evalToZero = []
+#    frobPowers = []
+#    notComplBasicDivisors = get_completely_basic_divisors(F,n)
+#    decomposition = decompose(p,e,n)
+#    for decomp in decomposition:
+#        k,t,pi = decomp
+#        divs = divisors(get_module_character(*decomp))
+#        #print "for decomp=",decomp, "consider divs=",divs
+#        divs = filter(lambda x: x in notComplBasicDivisors, divs)
+#        #print "\tnow only", divs
+#        countPolysForThisDecomp = 0
+#        for d in divs:
+#            G = F.extension(Integer(d), 'c');
+#            Gx = PolynomialRing(G,'x'); 
+#            h = Hom(G,E)[0]
+#            cycl = Gx.cyclotomic_polynomial(squarefree(k))\
+#                    (Gx.gen()**(k*t*pi/squarefree(k)/d))
+#            polys += [cycl.map_coefficients(h)]
+#            polysLen += [len(list(cycl))]
+#            polysCoeffDegs += map(lambda gi: gi.polynomial().degree(), \
+#                    cycl.map_coefficients(h))
+#            #print "\tcylcE=",cycl.map_coefficients(h)
+#            #print "\tcoeffDegs=", map(lambda gi: gi.polynomial().degree(), cycl.map_coefficients(h)) 
+#            frobPowers += [d]
+#            evalToZero += [1]
+#            countPolysForThisDecomp += 1
+#            #print "\ti.e. cycl=",cycl
+#            # add Co-Factors
+#            for f,mult in cycl.factor():
+#                g = cycl.quo_rem(f)[0]
+#                gE = g.map_coefficients(h)
+#                #print "\tgE=",gE
+#                polys += [gE]
+#                polysLen += [len(list(g))]
+#                polysCoeffDegs += map(lambda gi: gi.polynomial().degree(), gE)
+#                #print "\tcoeffDegs=", map(lambda gi: gi.polynomial().degree(), gE) 
+#                frobPowers += [d]
+#                evalToZero += [0]
+#                countPolysForThisDecomp +=1
+#        polysCount += [countPolysForThisDecomp]
+#    #print "decomp = ",decomposition
+#    #print "polys= ",polys, "len=",len(polys)
+#    #print "polysLen=",polysLen, "len=",len(polysLen)
+#    #print "polysCoeffDegs=", polysCoeffDegs
+#    #print "evalToZero=",evalToZero, "len=",len(evalToZero)
+#    #print "frobPowers=",frobPowers, "len=",len(frobPowers)
+#    #print "polysCount=",polysCount, "len=",len(polysCount)
+#
+#    #calc prime factors of order
+#    barFactors = []
+#    primitiveOrder = E.order()-1
+#    for r,k in factor(primitiveOrder):
+#        for i in range(1,k+1):
+#            barFactors += [primitiveOrder/(r**i)]
+#    countBarFactors = len(barFactors)
+#    #print "barFactors=", barFactors
+#    barFactors = map(\
+#            lambda b: get_padic_representation(Integer(b),Integer(p))\
+#            ,barFactors)
+#    #print "barFactors=",barFactors
+#    
+#    #--------------------
+#    #setup C data
+#    charac = int(E.characteristic())
+#    mipo = E.modulus()
+#    m = mipo.degree()
+#    maxMatPower = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
+#    #setup matrices
+#    cdef np.ndarray[int,ndim=3,mode="c"] matsC
+#    matsC = genMatsPy(E,F,maxMatPower+1)
+#    #setup mipo
+#    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
+#            = np.array(list(mipo), dtype=np.int32)
+#    #setup polynomials, polyLength, frobPowers, evaltoZero
+#    decompCount = int(len(polysCount))
+#        #evalToZeroC
+#    cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
+#            = np.array(evalToZero, dtype=np.uint8)
+#        #frobPowersC
+#    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
+#            = np.array(frobPowers, dtype=np.int32)
+#        #polysCountC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
+#            = np.array(polysCount, dtype=np.int32)
+#        #polysCoeffDegsC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysCoeffDegsC\
+#            = np.array(polysCoeffDegs, dtype=np.int32)
+#        #polysLenC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
+#            = np.array(polysLen, dtype=np.int32)
+#        #polys
+#    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
+#            = np.zeros((sum(polysLen),m), dtype=np.int32)
+#    curPos = 0
+#    for idx,g in enumerate(polys):
+#        g = map(lambda gi: list(gi.polynomial()),list(g))
+#        for i in range(len(g)):
+#            for j in range(len(g[i])):
+#                polysC[curPos+i][j] = <int>g[i][j]
+#        curPos += polysLen[idx]
+#        # prime Factors
+#    cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
+#        = np.array(list(itertools.chain(*barFactors)), dtype=np.int32)
+#    cdef np.ndarray[int,ndim=1,mode="c"] lenBarFactorsC \
+#        = np.array(map(len,barFactors), dtype=np.int32)
+#        # mat charac
+#    P = E.prime_subfield()
+#    gen = mipo.parent().gen()
+#    matCharac = matrix(P, m,m)
+#    for i in xrange(m):
+#        for j, fi in enumerate(((gen**i)**p).mod(mipo)):
+#            matCharac[i,j] = fi
+#    matCharac = matCharac.transpose()
+#    cdef np.ndarray[int,ndim=2,mode="c"] matCharacC\
+#        = np.zeros((m,m), dtype=np.int32)
+#    for j in range(m):
+#        for k in range(m):
+#            matCharacC[j][k] = matCharac[j][k]
+#
+#    #end setup C data
+#    #--------------------
+#    #print "matsC=", matsC
+#    #print "polysC= ",polysC, "len=",len(polysC)
+#    #print "polysLenC=",polysLenC, "len=",len(polysLenC)
+#    #print "evalToZeroC=",evalToZeroC, "len=",len(evalToZeroC)
+#    #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
+#    #print "polysCountC=",polysCountC, "len=",len(polysCountC)
+#    #print "xmipoC=",xmipoC
+#    #print "barFactorsC=",barFactorsC
+#    #print "lenBarFactorsC=",lenBarFactorsC
+#    #print "matCharacC=", matCharacC
+#
+#    #--------------------
+#    # prepare C output
+#    #print "int polys[] = {"
+#    #for i in range(sum(polysLen)):
+#        #for j in range(m):
+#            #sys.stdout.write(str(polysC[i][j]))
+#            #if j < m-1 or i < sum(polysLen)-1:
+#                #sys.stdout.write(", ")
+#        #printf("\n")
+#    #print "};"
+#    #print "int mats[] = {"
+#    #for i in range(maxMatPower+1):
+#        #for j in range(m):
+#            #for k in range(m):
+#                #sys.stdout.write(str(matsC[i][j][k]))
+#                #if i < maxMatPower or j<m-1 or k<m-1:
+#                    #sys.stdout.write(", ")
+#            #printf("\n")
+#    #print "};"
+#
+#    #sys.stdout.write("int polysLen[] = {")
+#    #for i in range(len(polysLen)):
+#        #sys.stdout.write(str(polysLenC[i]))
+#        #if i< len(polysLen)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#
+#    #sys.stdout.write("bool evalToZero[] = {")
+#    #for i in range(len(evalToZero)):
+#        #sys.stdout.write(str(evalToZeroC[i]))
+#        #if i< len(evalToZero)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    
+#    #sys.stdout.write("int frobPowers[] = {")
+#    #for i in range(len(frobPowers)):
+#        #sys.stdout.write(str(frobPowersC[i]))
+#        #if i< len(frobPowers)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#  
+#    #sys.stdout.write("int polysCount[] = {")
+#    #for i in range(len(polysCount)):
+#        #sys.stdout.write(str(polysCountC[i]))
+#        #if i< len(polysCount)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    
+#    #sys.stdout.write("int xmipo[] = {")
+#    #for i in range(len(list(mipo))):
+#        #sys.stdout.write(str(xmipoC[i]))
+#        #if i< len(list(mipo))-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#
+#    #sys.stdout.write("int primFactors[] = {")
+#    #for i in range(lenPrimFacs):
+#        #sys.stdout.write(str(primFactors[i]))
+#        #if i< lenPrimFacs-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    #sys.stdout.write("int coFactors[] = {")
+#    #for i in range(lenPrimFacs):
+#        #sys.stdout.write(str(coFactors[i]))
+#        #if i< lenPrimFacs-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    #sys.stdout.write("int barFactors[] = {")
+#    #for i in range(lenPrimFacs):
+#        #sys.stdout.write(str(barFactors[i]))
+#        #if i< lenPrimFacs-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#
+#    #print "int decompCount = ", decompCount, ";"
+#    #print "int m = ", m, ";"
+#    #print "int charac = ",p,";"
+#
+#    #return
+#
+#    #--------------------
+#    #setup return and tmp values
+#    cdef np.ndarray[int,ndim=1,mode="c"] genCountsC
+#    genCountsC = np.zeros(decompCount, dtype=np.int32)
+#
+#
+#    # calc shiftsize
+#    shifter = 1
+#    shiftSize = 0
+#    while shifter < charac:
+#        shiftSize +=1
+#        shifter <<= 1
+#
+#    #get eta
+#    eta = eta_processFFElements(<int*>xmipoC.data \
+#            ,<int>decompCount \
+#            ,<int*>polysC.data, <int*>polysLenC.data \
+#            ,<int*>polysCoeffDegsC.data \
+#            ,<int*>polysCountC.data \
+#            ,<char*>evalToZeroC.data \
+#            ,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
+#            ,<int*>genCountsC.data \
+#            ,<int>m,<int>p, <int>shiftSize)
+#    print "(p,e,n) = (",p,",",e,",",n,") eta = ",eta,"s"
+#    if maxEta != 0 and eta > maxEta:
+#        return
+#
+#    cdef unsigned long long pcn
+#    pcn = processFFElements(<int*>xmipoC.data \
+#            ,<int>decompCount \
+#            ,<int*>polysC.data, <int*>polysLenC.data \
+#            ,<int*>polysCoeffDegsC.data \
+#            ,<int*>polysCountC.data \
+#            ,<char*>evalToZeroC.data \
+#            ,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
+#            ,<int*>genCountsC.data \
+#            ,<int>m,<int>p, <int>shiftSize\
+#            ,<int*>barFactorsC.data, <int*>lenBarFactorsC.data\
+#            ,<int>countBarFactors \
+#            ,<int*>matCharacC.data)
+#            #,<int*>tmpC.data ,<int*>tmp2C.data \
+#            #,<int*>xC.data, <int*>retC.data \
+#            #, rootsC, curRootsC, combinedElements)
+#
+#    
+#    #--------------------
+#    #test primitivity
+#    #primOrder = E.order()-1
+#    #countPrims = 0;
+#    #for line in open(filepath,'r'):
+#        ##decodeArr(combinedElements.x,<int*>curEl.data,m, shiftSize)
+#        #curEl = map(int,line.split(' ')[0:m])
+#        ##print "test curEl=",curEl
+#        #if E(list(curEl)).multiplicative_order() == primOrder:
+#            #countPrims += 1
+#    #os.remove(filepath)
+#
+#    #--------------------
+#    genCounts = dict()
+#    for i,d in enumerate(decomposition):
+#        genCounts[d] = genCountsC[i]
+#    return prod(list(genCountsC)), Integer(pcn), genCounts,\
+#            strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
 
-    findAnyPCN(<int*>xC.data, <int*>xmipoC.data \
-        ,<int*>polysC.data, <int*>polysLenC.data \
-        ,<int*>polysCountC.data \
-        ,<char*>evalToZeroC.data \
-        ,<int*>matsC.data, <int*>frobPowersC.data \
-        ,<int>m,<int>p \
-        ,<char*>barFactorsC.data, <int*>lenBarFactorsC.data\
-        ,<int>countBarFactors)
-        #print "test x=",list(xC)
-    if xC[0] != -1:
-        return list(xC)
-    return False
-
-def findAnyPCN_useGen_internalC(F,n):
-    TIME = time.time()
-    p = F.characteristic()
-    q = F.order();
-    e = q.log(p)
-    E = F.extension(Integer(n),'a');
-    #generate factors
-    polys = []
-    polysLen = []
-    polysCount = []
-    evalToZero = []
-    frobPowers = []
-    polysCoeffDegs = []
-    divs = get_proper_subfield_divisors(p,e,n)
-    countPolysForThisDecomp = 0
-    #print "for decomp=",decomp, "consider divs=",divs
-    for d in divs:
-        G = F.extension(Integer(d), 'c');
-        Gx = PolynomialRing(G,'x'); 
-        h = Hom(G,E)[0]
-        cycl = (Gx.gen()**(n/d)-1)
-        polys += [cycl.map_coefficients(h)]
-        polysLen += [len(list(cycl))]
-        frobPowers += [d]
-        evalToZero += [1]
-        countPolysForThisDecomp += 1
-        #print "\ti.e. cycl=",cycl
-        # add Co-Factors
-        for f,mult in cycl.factor():
-            g = cycl.quo_rem(f)[0]
-            #print "\tfac=",g
-            polys += [g.map_coefficients(h)]
-            polysLen += [len(list(g))]
-            frobPowers += [d]
-            evalToZero += [0]
-            countPolysForThisDecomp +=1
-    polysCount += [countPolysForThisDecomp]
-
-    #print "decomp = ",decomposition
-    #print "polys= ",polys, "len=",len(polys)
-    #print "polysLen=",polysLen, "len=",len(polysLen)
-    #print "evalToZero=",evalToZero, "len=",len(evalToZero)
-    #print "frobPowers=",frobPowers, "len=",len(frobPowers)
-    #print "polysCount=",polysCount, "len=",len(polysCount)
-    #--------------------
-    #setup C data
-    charac = int(E.characteristic())
-    mipo = E.modulus()
-    m = mipo.degree()
-    #setup mipo
-    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
-            = np.array(list(mipo), dtype=np.int32)
-    #setup polynomials, polyLength, frobPowers, evaltoZero
-    decompCount = int(len(polysCount))
-        #evalToZeroC
-    cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
-            = np.array(evalToZero, dtype=np.uint8)
-        #frobPowersC
-    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
-            = np.array(frobPowers, dtype=np.int32)
-        #polysCountC
-    cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
-            = np.array(polysCount, dtype=np.int32)
-        #polysLenC
-    cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
-            = np.array(polysLen, dtype=np.int32)
-        #polys
-    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
-            = np.zeros((sum(polysLen),m), dtype=np.int32)
-    curPos = 0
-    for idx,g in enumerate(polys):
-        g = map(lambda gi: list(gi.polynomial()),list(g))
-        for i in range(len(g)):
-            for j in range(len(g[i])):
-                polysC[curPos+i][j] = <int>g[i][j]
-        curPos += polysLen[idx]
-
-        # primitive element
-    cdef np.ndarray[int,ndim=1,mode="c"] generatorC\
-            = np.zeros(m, dtype=np.int32)
-    for i, xi in enumerate(E.primitive_element().polynomial()):
-        generatorC[i] = xi
-        #setup matrices
-    cdef np.ndarray[int,ndim=3,mode="c"] matsC\
-            = np.zeros((n+1,m,m),dtype=np.int32)
-    genMats(<int*>xmipoC.data, m, <int*>matsC.data, n,charac,q)
-    #cdef np.ndarray[int,ndim=3,mode="c"] matsC\
-            #= genMatsPy(E,F,n+1)
-    
-    #end setup C data
-    #--------------------
-    
-    #print "matsC=", matsC
-    #print "polysC= ",polysC, "len=",len(polysC)
-    #print "polysLenC=",polysLenC, "len=",len(polysLenC)
-    #print "evalToZeroC=",evalToZeroC, "len=",len(evalToZeroC)
-    #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
-    #print "polysCountC=",polysCountC, "len=",len(polysCountC)
-    #print "xmipoC=",xmipoC
-
-
-    #--------------------
-    #setup return and tmp values
-    cdef np.ndarray[int,ndim=1,mode="c"] xC \
-        = np.zeros(m, dtype=np.int32) 
-    cdef np.ndarray[int,ndim=1,mode="c"] tmpC \
-        = np.zeros(m, dtype=np.int32) 
-    cdef np.ndarray[int,ndim=1,mode="c"] tmp_xC \
-        = np.zeros(m, dtype=np.int32) 
-    cdef np.ndarray[int,ndim=1,mode="c"] tmp2C \
-        = np.zeros(2*m, dtype=np.int32) 
-    cdef np.ndarray[int,ndim=1,mode="c"] retC \
-        = np.zeros(m, dtype=np.int32) 
-
-    
-    #setup powers of generator
-    cdef np.ndarray[int,ndim=1,mode="c"] powerTableC
-    powerTable = [0]
-    orderE = E.order()-1
-    lastPower = 1
-    curPower = 1
-    
-    #do tests
-    pcnFound = False
-    while not pcnFound and curPower < orderE:
-        for i in xrange(10000):
-            curPower += 1
-            if curPower >= orderE: 
-                break
-            if gcd(curPower, orderE) == 1:
-                powerTable += [curPower-lastPower]
-                lastPower = curPower
-
-        powerTableC = np.array(powerTable, dtype=np.int32)
-        lenPowerTable = len(powerTable)
-
-        #print "test till curPower=",curPower, " of orderE=",orderE
-        pcnFound = findAnyPCN_useGen(<int*>xC.data \
-                ,<int*>generatorC.data, <int*>xmipoC.data \
-                ,<int*>polysC.data, <int*>polysLenC.data \
-                ,<int*>polysCountC.data \
-                ,<char*>evalToZeroC.data \
-                ,<int*>matsC.data, <int*>frobPowersC.data \
-                ,<int>m,<int>p \
-                ,<int*>powerTableC.data, <int>lenPowerTable)
-        if pcnFound:
-            # test result
-            el = E(list(xC))
-            if not isCompletelyNormal(el,F) \
-                    or not el.multiplicative_order() == orderE:
-                print "FATAL ERROR F=",F," E=",E
-                print "el=",el, "isCn: ", isCompletelyNormal(el,F)\
-                        , " isPrimitive: ",(el.multiplicative_order()==orderE)
-                return False
-            return list(xC)
-    return False
-
-# helper to print C array
-cdef printArr(int *x, int m):
-    for i in range(m):
-        printf(" %i",x[i])
-    printf("\n")
+#def findAnyPCN_internalC(F,n):
+#    TIME = time.time()
+#    p = F.characteristic()
+#    q = F.order();
+#    e = q.log(p)
+#    E = F.extension(Integer(n),'a');
+#    #generate factors
+#    polys = []
+#    polysLen = []
+#    polysCount = []
+#    evalToZero = []
+#    frobPowers = []
+#    divs = get_proper_subfield_divisors(p,e,n)
+#    countPolysForThisDecomp = 0
+#    #print "for decomp=",decomp, "consider divs=",divs
+#    for d in divs:
+#        G = F.extension(Integer(d), 'c');
+#        Gx = PolynomialRing(G,'x'); 
+#        h = Hom(G,E)[0]
+#        cycl = (Gx.gen()**(n/d)-1)
+#        polys += [cycl.map_coefficients(h)]
+#        polysLen += [len(list(cycl))]
+#        frobPowers += [d]
+#        evalToZero += [1]
+#        countPolysForThisDecomp += 1
+#        #print "\ti.e. cycl=",cycl
+#        # add Co-Factors
+#        for f,mult in cycl.factor():
+#            g = cycl.quo_rem(f)[0]
+#            #print "\tfac=",g
+#            polys += [g.map_coefficients(h)]
+#            polysLen += [len(list(g))]
+#            frobPowers += [d]
+#            evalToZero += [0]
+#            countPolysForThisDecomp +=1
+#    polysCount += [countPolysForThisDecomp]
+#    #calc prime factors of order
+#    barFactors = []
+#    primitiveOrder = E.order()-1
+#    for r,k in factor(primitiveOrder):
+#        for i in range(1,k+1):
+#            barFactors += [primitiveOrder/(r**i)]
+#    countBarFactors = int(len(barFactors))
+#    
+#    #print "decomp = ",decomposition
+#    #print "polys= ",polys, "len=",len(polys)
+#    #print "polysLen=",polysLen, "len=",len(polysLen)
+#    #print "evalToZero=",evalToZero, "len=",len(evalToZero)
+#    #print "frobPowers=",frobPowers, "len=",len(frobPowers)
+#    #print "polysCount=",polysCount, "len=",len(polysCount)
+#    #--------------------
+#    #setup C data
+#    charac = int(E.characteristic())
+#    mipo = E.modulus()
+#    m = mipo.degree()
+#    #setup matrices
+#    cdef np.ndarray[int,ndim=3,mode="c"] matsC
+#    matsC = genMatsPy(E,F,n+1)
+#    #setup mipo
+#    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
+#            = np.array(list(mipo), dtype=np.int32)
+#    #setup polynomials, polyLength, frobPowers, evaltoZero
+#    decompCount = int(len(polysCount))
+#        #evalToZeroC
+#    cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
+#            = np.array(evalToZero, dtype=np.uint8)
+#        #frobPowersC
+#    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
+#            = np.array(frobPowers, dtype=np.int32)
+#        #polysCountC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
+#            = np.array(polysCount, dtype=np.int32)
+#        #polysLenC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
+#            = np.array(polysLen, dtype=np.int32)
+#        #polys
+#    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
+#            = np.zeros((sum(polysLen),m), dtype=np.int32)
+#    curPos = 0
+#    for idx,g in enumerate(polys):
+#        g = map(lambda gi: list(gi.polynomial()),list(g))
+#        for i in range(len(g)):
+#            for j in range(len(g[i])):
+#                polysC[curPos+i][j] = <int>g[i][j]
+#        curPos += polysLen[idx]
+#    # prime Factors
+#    print barFactors
+#    return
+#    cdef np.ndarray[char,ndim=2,mode="c"] barFactorsC \
+#        = np.array(map(lambda f: [int(i) for i in bin(f)[2:]],barFactors), dtype=np.uint8) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] lenBarFactorsC \
+#        = np.array(map(len,barFactorsC), dtype=np.int32)
+#    #end setup C data
+#    #--------------------
+#    
+#    print "matsC=", matsC
+#    print "polysC= ",polysC, "len=",len(polysC)
+#    print "polysLenC=",polysLenC, "len=",len(polysLenC)
+#    print "evalToZeroC=",evalToZeroC, "len=",len(evalToZeroC)
+#    print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
+#    print "polysCountC=",polysCountC, "len=",len(polysCountC)
+#    print "xmipoC=",xmipoC
+#    print "barFactorsC=",barFactorsC
+#    print "lenBarFactorsC=",lenBarFactorsC
+#    print "countBarFactors=",countBarFactors
+#    return
+#
+#
+#    #--------------------
+#    #setup return and tmp values
+#    cdef np.ndarray[int,ndim=1,mode="c"] xC \
+#        = np.zeros(m, dtype=np.int32) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] tmpC \
+#        = np.zeros(m, dtype=np.int32) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] tmp_xC \
+#        = np.zeros(m, dtype=np.int32) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] tmp2C \
+#        = np.zeros(2*m, dtype=np.int32) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] retC \
+#        = np.zeros(m, dtype=np.int32) 
+#
+#    findAnyPCN(<int*>xC.data, <int*>xmipoC.data \
+#        ,<int*>polysC.data, <int*>polysLenC.data \
+#        ,<int*>polysCountC.data \
+#        ,<char*>evalToZeroC.data \
+#        ,<int*>matsC.data, <int*>frobPowersC.data \
+#        ,<int>m,<int>p \
+#        ,<char*>barFactorsC.data, <int*>lenBarFactorsC.data\
+#        ,<int>countBarFactors)
+#        #print "test x=",list(xC)
+#    if xC[0] != -1:
+#        return list(xC)
+#    return False
+#
+#def findAnyPCN_useGen_internalC(F,n):
+#    TIME = time.time()
+#    p = F.characteristic()
+#    q = F.order();
+#    e = q.log(p)
+#    E = F.extension(Integer(n),'a');
+#    #generate factors
+#    polys = []
+#    polysLen = []
+#    polysCount = []
+#    evalToZero = []
+#    frobPowers = []
+#    polysCoeffDegs = []
+#    divs = get_proper_subfield_divisors(p,e,n)
+#    countPolysForThisDecomp = 0
+#    #print "for decomp=",decomp, "consider divs=",divs
+#    for d in divs:
+#        G = F.extension(Integer(d), 'c');
+#        Gx = PolynomialRing(G,'x'); 
+#        h = Hom(G,E)[0]
+#        cycl = (Gx.gen()**(n/d)-1)
+#        polys += [cycl.map_coefficients(h)]
+#        polysLen += [len(list(cycl))]
+#        frobPowers += [d]
+#        evalToZero += [1]
+#        countPolysForThisDecomp += 1
+#        #print "\ti.e. cycl=",cycl
+#        # add Co-Factors
+#        for f,mult in cycl.factor():
+#            g = cycl.quo_rem(f)[0]
+#            #print "\tfac=",g
+#            polys += [g.map_coefficients(h)]
+#            polysLen += [len(list(g))]
+#            frobPowers += [d]
+#            evalToZero += [0]
+#            countPolysForThisDecomp +=1
+#    polysCount += [countPolysForThisDecomp]
+#
+#    #print "decomp = ",decomposition
+#    #print "polys= ",polys, "len=",len(polys)
+#    #print "polysLen=",polysLen, "len=",len(polysLen)
+#    #print "evalToZero=",evalToZero, "len=",len(evalToZero)
+#    #print "frobPowers=",frobPowers, "len=",len(frobPowers)
+#    #print "polysCount=",polysCount, "len=",len(polysCount)
+#    #--------------------
+#    #setup C data
+#    charac = int(E.characteristic())
+#    mipo = E.modulus()
+#    m = mipo.degree()
+#    #setup mipo
+#    cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
+#            = np.array(list(mipo), dtype=np.int32)
+#    #setup polynomials, polyLength, frobPowers, evaltoZero
+#    decompCount = int(len(polysCount))
+#        #evalToZeroC
+#    cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
+#            = np.array(evalToZero, dtype=np.uint8)
+#        #frobPowersC
+#    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
+#            = np.array(frobPowers, dtype=np.int32)
+#        #polysCountC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
+#            = np.array(polysCount, dtype=np.int32)
+#        #polysLenC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
+#            = np.array(polysLen, dtype=np.int32)
+#        #polys
+#    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
+#            = np.zeros((sum(polysLen),m), dtype=np.int32)
+#    curPos = 0
+#    for idx,g in enumerate(polys):
+#        g = map(lambda gi: list(gi.polynomial()),list(g))
+#        for i in range(len(g)):
+#            for j in range(len(g[i])):
+#                polysC[curPos+i][j] = <int>g[i][j]
+#        curPos += polysLen[idx]
+#
+#        # primitive element
+#    cdef np.ndarray[int,ndim=1,mode="c"] generatorC\
+#            = np.zeros(m, dtype=np.int32)
+#    for i, xi in enumerate(E.primitive_element().polynomial()):
+#        generatorC[i] = xi
+#        #setup matrices
+#    cdef np.ndarray[int,ndim=3,mode="c"] matsC\
+#            = np.zeros((n+1,m,m),dtype=np.int32)
+#    genMats(<int*>xmipoC.data, m, <int*>matsC.data, n,charac,q)
+#    #cdef np.ndarray[int,ndim=3,mode="c"] matsC\
+#            #= genMatsPy(E,F,n+1)
+#    
+#    #end setup C data
+#    #--------------------
+#    
+#    #print "matsC=", matsC
+#    #print "polysC= ",polysC, "len=",len(polysC)
+#    #print "polysLenC=",polysLenC, "len=",len(polysLenC)
+#    #print "evalToZeroC=",evalToZeroC, "len=",len(evalToZeroC)
+#    #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
+#    #print "polysCountC=",polysCountC, "len=",len(polysCountC)
+#    #print "xmipoC=",xmipoC
+#
+#
+#    #--------------------
+#    #setup return and tmp values
+#    cdef np.ndarray[int,ndim=1,mode="c"] xC \
+#        = np.zeros(m, dtype=np.int32) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] tmpC \
+#        = np.zeros(m, dtype=np.int32) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] tmp_xC \
+#        = np.zeros(m, dtype=np.int32) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] tmp2C \
+#        = np.zeros(2*m, dtype=np.int32) 
+#    cdef np.ndarray[int,ndim=1,mode="c"] retC \
+#        = np.zeros(m, dtype=np.int32) 
+#
+#    
+#    #setup powers of generator
+#    cdef np.ndarray[int,ndim=1,mode="c"] powerTableC
+#    powerTable = [0]
+#    orderE = E.order()-1
+#    lastPower = 1
+#    curPower = 1
+#    
+#    #do tests
+#    pcnFound = False
+#    while not pcnFound and curPower < orderE:
+#        for i in xrange(10000):
+#            curPower += 1
+#            if curPower >= orderE: 
+#                break
+#            if gcd(curPower, orderE) == 1:
+#                powerTable += [curPower-lastPower]
+#                lastPower = curPower
+#
+#        powerTableC = np.array(powerTable, dtype=np.int32)
+#        lenPowerTable = len(powerTable)
+#
+#        #print "test till curPower=",curPower, " of orderE=",orderE
+#        pcnFound = findAnyPCN_useGen(<int*>xC.data \
+#                ,<int*>generatorC.data, <int*>xmipoC.data \
+#                ,<int*>polysC.data, <int*>polysLenC.data \
+#                ,<int*>polysCountC.data \
+#                ,<char*>evalToZeroC.data \
+#                ,<int*>matsC.data, <int*>frobPowersC.data \
+#                ,<int>m,<int>p \
+#                ,<int*>powerTableC.data, <int>lenPowerTable)
+#        if pcnFound:
+#            # test result
+#            el = E(list(xC))
+#            if not isCompletelyNormal(el,F) \
+#                    or not el.multiplicative_order() == orderE:
+#                print "FATAL ERROR F=",F," E=",E
+#                print "el=",el, "isCn: ", isCompletelyNormal(el,F)\
+#                        , " isPrimitive: ",(el.multiplicative_order()==orderE)
+#                return False
+#            return list(xC)
+#    return False
+#
+## helper to print C array
+#cdef printArr(int *x, int m):
+#    for i in range(m):
+#        printf(" %i",x[i])
+#    printf("\n")
 
 
 # generates Matrices for powers [0..n-1] of Frobenius
@@ -1109,6 +1539,13 @@ def genMatsPy(E, F, n):
                 matC[i][j][k] = matPow[j][k]
     return matC
 
+def get_padic_representation(number, p):
+    ret = []
+    q = number
+    while q > 0:
+        q,r = q.quo_rem(Integer(p));
+        ret += [r]
+    return list(reversed(ret))
 
 
 #def findPCNElement(F,n):
@@ -1387,6 +1824,7 @@ def squarefree(n):
 
 # computes ordn m(q) = min{ k: q ** k = 1 mod m }
 def ordn(m,q):
+    if m == 1: return 1
     for i in range(1,m+1):
         if (q ** i)%m == 1: return i;
 
@@ -1560,6 +1998,32 @@ def largestDiv(p,n):
     while (p**l).divides(n):
         l = l+1
     return p**(l-1);
+
+
+def get_completely_basic_divisors(F,n):
+    n = Integer(n)
+    q = F.order()
+    p = F.characteristic()
+    divs = []
+    for d in divisors(n):
+        isComplBasic = True
+        for r in prime_divisors(n/d):
+            if r.divides(ordn(p_free_part(n/d/r,p),q**d)):
+                isComplBasic = False
+                break
+        divs += [d]
+        if isComplBasic: return divs
+    return divs
+
+
+
+# p-free part of t
+def p_free_part(t,p):
+    while p.divides(t):
+        t /= p
+    return t
+
+
 
 
 # formats timedelta objects to nice string

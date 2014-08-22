@@ -6,6 +6,13 @@
 #include <limits.h>
 #include <stdint.h>
 
+/**
+ * copies arr1 into arr2
+ */
+inline void copyArray(int *arr1, int *arr2, int m){
+    int i;
+    for(i=0;i<m;i++) arr2[i] = arr1[i];
+}
 
 unsigned long long ipow(int base, int exp)
 {
@@ -34,12 +41,22 @@ inline void matmul(int *mat, int *vec, int *ret, int m, int charac){
     }
 }
 
-inline void matmulShort(int *mat, int *vec, int *ret, int m, int charac){
-    int i,j;
+inline void matmulShort(int *mat, int *vec, int *ret, int m, int charac,
+        int *multTable, int *addTable){
+    int i,j,tmp,tmp2;
     for(i=0;i<m;i++){
         ret[i] = 0;
         for(j=0;j<m;j++){
-            ret[i] += mat[i*m + j]*vec[j];
+            /*tmp = (mat[i*m+j]*vec[j]+charac*charac)%charac;*/
+            /*if(tmp != multTable[ mat[i*m+j]*vec[j]] )*/
+                /*printf("error matmulShort %i*%i = %i != %i",*/
+                        /*mat[i*m+j],vec[j],tmp, multTable[mat[i*m+j]*vec[j]]);*/
+            /*tmp2 = ret[i];*/
+            ret[i] = addTable[ ret[i] + multTable[ mat[i*m+j]*vec[j] ] ];
+            /*tmp = addTable[ tmp2 + multTable[ mat[i*m + j]*vec[j] ] ];*/
+            /*if( (ret[i] + charac)%charac != tmp )*/
+                /*printf("error matmulShort ret[i]=%i, mat=%i, vec=%i",*/
+                        /*ret[i],mat[i*m+j],vec[j]);*/
         }
     }
 }
@@ -60,10 +77,11 @@ void printArr(int *arr, int l){
 
 /* adds 2 polynomials, where p3 is the result
  * MUST have same length */
-inline void addPoly(int *p1, int *p2, int *p3, int m, int charac) {
+inline void addPoly(int *p1, int *p2, int *p3, int m, int charac,
+        int *multTable, int *addTable) {
     int i;
     for(i=0;i<m;i++)
-        p3[i] = p1[i]+p2[i];
+        p3[i] = addTable[ p1[i]+p2[i] ];
 }
 
 /* p1 - p2 , where p3 is the result
@@ -92,9 +110,10 @@ inline void multiplyPoly(int *p1, int m1, int *p2, int m2,
 }
 
 inline void multiplyPolyShort(int *p1, int m1, int *p2, int m2, 
-        int *p3, int m3, int charac) {
+        int *p3, int m3, int charac, int *multTable, int *addTable) {
     int i,j;
     int deg1, deg2;
+    int tmp, tmp2;
     for(i=m1-1;i>=0;i--){
         if(p1[i] != 0){
             deg1 = i;
@@ -110,13 +129,18 @@ inline void multiplyPolyShort(int *p1, int m1, int *p2, int m2,
     initPoly(p3,m3);
     for(i=0;i<=deg1;i++){
         for(j=0;j<=deg2;j++){
-            p3[i+j] += p1[i]*p2[j];
+            /*tmp2 = p1[i]*p2[j];*/
+            /*if( (tmp2+charac*charac)%charac != multTable[tmp2] )*/
+                /*printf("error multiplyPolyShort %i*%i=%i != %i",*/
+                        /*p1[i],p2[j],(tmp2+charac*charac)%charac, multTable[tmp2]);*/
+            p3[i+j] = addTable[ p3[i+j] + multTable[ p1[i]*p2[j] ] ];
+            /*p3[i+j] = addTable[ p1[i+j] + multTable[ p1[i]*p2[j] ] ];*/
         }
     }
 }
 
 inline void multiplyPolyShortKnownDeg(int *p1, int m1, int *p2, int m2, int deg2,
-        int *p3, int m3, int charac) {
+        int *p3, int m3, int charac, int *multTable, int *addTable) {
     int i,j;
     int deg1, deg2Tmp;
     for(i=m1-1;i>=0;i--){
@@ -137,7 +161,8 @@ inline void multiplyPolyShortKnownDeg(int *p1, int m1, int *p2, int m2, int deg2
 
     for(i=0;i<=deg1;i++){
         for(j=0;j<=deg2;j++){
-            p3[i+j] += p1[i]*p2[j];
+            /*p3[i+j] += p1[i]*p2[j];*/
+            p3[i+j] = addTable[ p3[i+j] + multTable[ p1[i]*p2[j] ] ];
         }
     }
 }
@@ -230,7 +255,8 @@ inline void moduloMonom(int *p1, int m1, int *mod, int m, int charac){
     }
 }
 
-inline void moduloMonomShort(int *p1, int m1, int *mod, int m, int charac){
+inline void moduloMonomShort(int *p1, int m1, int *mod, int m, int charac,
+        int *multTable, int *addTable){
     int deg1=0, degmod=m-1;
     int i=0,j=0;
     int quo=0;
@@ -252,7 +278,9 @@ inline void moduloMonomShort(int *p1, int m1, int *mod, int m, int charac){
     for(i=deg1-degmod; i>=0; i--){
         quo = p1[i+degmod];
         for(j=degmod;j>=0;j--){
-            p1[i+j] -= mod[j]*quo;
+            /*p1[i+j] -= mod[j]*quo;*/
+            /*p1[i+j] = multTable[ mod[j]*quo ];*/
+            p1[i+j] = addTable[ p1[i+j] - multTable[mod[j]*quo] ];
         }
     }
 }
@@ -306,31 +334,92 @@ inline void powerPoly(int *x, int *x_mipo, int *ret, int m,
             x[i] = tmp2[i];
     }
 }
-
+///**
+// * Square and multiply
+// * x is modified!
+// */
+//inline void powerPolyShortInt(int *x, int *x_mipo, int *ret, int m, 
+//        int power, int charac, int *tmp2){
+//    int i,j;
+//    initPoly(ret,m);
+//    ret[0] = 1;
+//    while(power > 0){
+//        if(power%2 == 1){
+//            multiplyPolyShort(ret,m, x,m, tmp2,2*m, charac);
+//            moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac);
+//            for(i=0;i<m;i++)
+//                ret[i] = tmp2[i]%charac;
+//        }
+//        multiplyPolyShort(x,m, x,m, tmp2,2*m, charac);
+//        moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac);
+//        for(i=0;i<m;i++)
+//            x[i] = tmp2[i]%charac;
+//        power >>= 1;
+//    }
+//}
 
 /**
- * Square and multiply
+ * Square and multiply in charac
+ * mat is powering by charac
  * x is modified!
  */
-inline void powerPolyShort(int *x, int *x_mipo, int *ret, int m, 
-        char *power, int powerLen,
-        int charac, int *tmp2){
-    int i,j;
+inline void powerPolyShortCharac(int *x, int *x_mipo, int *ret, int m, 
+        int *power, int powerLen, int *matCharac,
+        int charac, int *tmp2, int *multTable, int *addTable){
+    int i,j,k, lenCurGap = 0, mSize = m*m;
     initPoly(ret,m);
     ret[0] = 1;
+    /*printf("powerPolyShortCharac x=");printArr(x,m);*/
     for(j=powerLen-1;j>=0;j--){
-        if(power[j] == 1){
-            multiplyPolyShort(ret,m, x,m, tmp2,2*m, charac);
-            moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac);
+        /*printf("j=%i power[j]=%i\n",j,power[j]);*/
+        for(k=0; k<power[j]; k++){
+            multiplyPolyShort(ret,m, x,m, tmp2,2*m, charac, multTable,addTable);
+            moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac,multTable,addTable);
             for(i=0;i<m;i++)
-                ret[i] = tmp2[i]%charac;
+                ret[i] = tmp2[i];
+                /*ret[i] = tmp2[i]%charac;*/
         }
-        multiplyPolyShort(x,m, x,m, tmp2,2*m, charac);
-        moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac);
+        /*printf("\tret=");printArr(ret,m);*/
+        
+        if(j==0 || power[j-1] == 0){
+            lenCurGap++;
+            continue;
+        }
+        /*printf("matmul lenCurGap=%i\n",lenCurGap);*/
+        matmulShort(matCharac+lenCurGap*mSize,x,tmp2,m,charac,multTable,addTable);
         for(i=0;i<m;i++)
-            x[i] = tmp2[i]%charac;
+            x[i] = tmp2[i];
+            /*x[i] = tmp2[i]%charac;*/
+        lenCurGap = 0;
+        /*printf("\t  x=");printArr(x,m);*/
     }
+    /*printf("\tret=");printArr(ret,m);*/
 }
+
+
+///**
+// * Square and multiply
+// * x is modified!
+// */
+//inline void powerPolyShort(int *x, int *x_mipo, int *ret, int m, 
+//        char *power, int powerLen,
+//        int charac, int *tmp2){
+//    int i,j;
+//    initPoly(ret,m);
+//    ret[0] = 1;
+//    for(j=powerLen-1;j>=0;j--){
+//        if(power[j] == 1){
+//            multiplyPolyShort(ret,m, x,m, tmp2,2*m, charac);
+//            moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac);
+//            for(i=0;i<m;i++)
+//                ret[i] = tmp2[i]%charac;
+//        }
+//        multiplyPolyShort(x,m, x,m, tmp2,2*m, charac);
+//        moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac);
+//        for(i=0;i<m;i++)
+//            x[i] = tmp2[i]%charac;
+//    }
+//}
 
 inline bool isOne(int *x, int m, int charac){
     int i=0;
@@ -412,42 +501,46 @@ void genMats(int *mipo, int m, int *mats, int maxPower, int charac, int q){
  * x is NOT modified!
  */
 inline bool isPrimitive(int *x, int *x_mipo, int m, 
-        char *barFactors, int* lenBarFactors, int countBarFactors, 
-        int charac,
-        int *tmp_x, int *tmp, int *firstPow, int *tmpRes, int *tmp2){
-    int i,j, curPos;
-    /*printf(" test for primitivity x=");printArr(x,m);*/
-    //init firstPow
+        int *barFactors, int *lenBarFactors, int countBarFactors, 
+        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+        int *matCharac, int charac,
+        int *tmp_x, int *tmp, int *tmpRet, int *tmpRet2, int *tmp2,
+        int *multTable, int *addTable){
+    int i,j, curPos=0;
+    //test first barFactor
     for(j=0;j<m;j++) tmp_x[j] = x[j];
-    powerPolyShort(tmp_x,x_mipo,tmp,m, 
-            barFactors,
-            lenBarFactors[0], charac, tmp2);
+    powerPolyShortCharac(tmp_x, x_mipo, tmp, m, barFactors,
+            lenBarFactors[0], matCharac, charac, tmp2,
+            multTable,addTable);
     if( isOne(tmp,m, charac) == true)
         return false;
-    
-    for(j=0;j<m;j++) firstPow[j] = tmp[j];
-    curPos = lenBarFactors[0];
-
+    curPos += lenBarFactors[0];
+    // test further factors which are powers of biggesPrimeFactor
+    for(j=0;j<m;j++) tmp_x[j] = x[j];
+    powerPolyShortCharac(tmp_x, x_mipo, tmpRet, m, biggestPrimeFactor,
+            lenBiggestPrimeFactor, matCharac, charac, tmp2,
+            multTable,addTable);
+    /*printf("isPrimitive x=");printArr(x,m);*/
+    /*printf("            y=");printArr(tmpRet,m);*/
     for(i=1;i<countBarFactors;i++){
-        // calc x^...
-        for(j=0;j<m;j++)
-            tmp_x[j] = x[j];
-        powerPolyShort(tmp_x,x_mipo,tmp,m, 
-                barFactors+curPos+lenBarFactors[2*i-1],
-                lenBarFactors[2*i], charac, tmp2);
-        // calc firstPow^...
-        for(j=0;j<m;j++) tmp_x[j] = firstPow[j];
-        powerPolyShort(tmp_x,x_mipo,tmpRes,m, 
-                barFactors+curPos,
-                lenBarFactors[2*i-1], charac, tmp2);
-
-        multiplyPolyShort(tmpRes,m, tmp,m, tmp2, 2*m, charac);
-        moduloMonomShort(tmp2,2*m, x_mipo,m+1,charac);
-        for(j=0;j<m;j++) tmp2[j] %= charac;
-        if( isOne(tmp2,m, charac) == true)
+        /*printf("calc y^ ");printArr(barFactors+curPos,lenBarFactors[i]);*/
+        for(j=0;j<m;j++) tmp_x[j] = tmpRet[j];
+        powerPolyShortCharac(tmp_x, x_mipo, tmp, m, barFactors+curPos,
+                lenBarFactors[i], matCharac, charac, tmp2, multTable,addTable);
+        /*printf("      =>");printArr(tmp,m);*/
+        if(i>1){
+            /*printf("   *");printArr(tmpRet2,m);*/
+            multiplyPolyShort(tmp,m,tmpRet2,m,tmp2,2*m,charac,multTable,addTable);
+            moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac,multTable,addTable);
+            copyArray(tmp2,tmpRet2,m);
+            for(j=0;j<m;j++) tmpRet2[j] %= charac;
+            /*printf("      =>");printArr(tmpRet2,m);*/
+        }else{
+            copyArray(tmp,tmpRet2,m);
+        }
+        if( isOne(tmpRet2,m, charac) == true)
             return false;
-
-        curPos += lenBarFactors[2*i-1]+lenBarFactors[2*i];
+        curPos += lenBarFactors[i];
     }
     return true;
 }
@@ -517,36 +610,75 @@ inline void applyFrobShort(int *x, int *x_mipo,
         int *g, int glen, int *gCoeffDegs,
         int *mats, int frobpower,
         int *ret, int m, int charac, int *tmp, int *tmp2,
-        int *matmulCache, bool *matmulCacheCalced){
+        int *matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
     int mSize = m*m;
     int i,j,k,l;
     initPoly(ret,m);
+    /*printf("applyFrobShort glen=%i x=",glen);printArr(x,m);*/
     for(i=0;i<glen;i++){
+        /*printf("   gi=");printArr(g+i*m,m);*/
         if(allZero(g+i*m,m) == true){
+            /*printf("   is zero -> skip\n");*/
             continue;
         }
         if(matmulCacheCalced[i*frobpower] == 1){
             multiplyPolyShort(matmulCache+m*(i*frobpower),m,
-                    g+i*m, m, tmp2, 2*m, charac);
+                    g+i*m, m, tmp2, 2*m, charac, multTable,addTable);
         }else{
-            matmulShort(mats+i*frobpower*mSize, x, tmp, m, charac);
+            matmulShort(mats+i*frobpower*mSize, x, tmp, m, charac,
+                    multTable,addTable);
             for(j=0;j<m;j++)
                 matmulCache[m*(i*frobpower)+j] = tmp[j];
             matmulCacheCalced[i*frobpower] = 1;
             multiplyPolyShortKnownDeg(tmp,m, g+i*m, m, gCoeffDegs[i],
-                    tmp2, 2*m, charac);
+                    tmp2, 2*m, charac,multTable,addTable);
             /*multiplyPolyShort(tmp,m, g+i*m, m, */
                     /*tmp2, 2*m, charac);*/
         }
-        moduloMonomShort(tmp2, 2*m, x_mipo, m+1, charac);
+        moduloMonomShort(tmp2, 2*m, x_mipo, m+1, charac,multTable,addTable);
         for(j=0;j<m;j++){
-            ret[j] += tmp2[j];
+            ret[j] = addTable[ ret[j] + tmp2[j] ];
         }
     }
-    for(i=0;i<m;i++){
-        ret[i] %= charac;
-    }
+    /*for(i=0;i<m;i++){*/
+        /*ret[i] %= charac;*/
+    /*}*/
 }
+inline void applyFrobShort_noCache(int *x, int *x_mipo, 
+        int *g, int glen, int *gCoeffDegs,
+        int *mats, int frobpower,
+        int *ret, int m, int charac, int *tmp, int *tmp2,
+        int *multTable, int *addTable){
+    int mSize = m*m;
+    int i,j,k,l;
+    initPoly(ret,m);
+    /*printf("applyFrobShort glen=%i x=",glen);printArr(x,m);*/
+    for(i=0;i<glen;i++){
+        /*printf("  i=%i   giDeg=%i gi=",i,gCoeffDegs[i]);printArr(g+i*m,m);*/
+        if(allZero(g+i*m,m) == true){
+            /*printf("   is zero -> skip\n");*/
+            continue;
+        }
+        matmulShort(mats+i*frobpower*mSize, x, tmp, m, charac,
+                multTable,addTable);
+        /*printf("           x^q^i="); printArr(tmp,m);*/
+        multiplyPolyShortKnownDeg(tmp,m, g+i*m, m, gCoeffDegs[i],
+                tmp2, 2*m, charac, multTable,addTable);
+        /*printf("        gi*x^q^i="); printArr(tmp2,2*m);*/
+        moduloMonomShort(tmp2, 2*m, x_mipo, m+1, charac, multTable, addTable);
+        /*printf("    gi*x^q^i mod="); printArr(tmp2,m);*/
+        for(j=0;j<m;j++){
+            ret[j] = addTable[ ret[j] + tmp2[j] ];
+        }
+    }
+    /*printf("      -> ret=");printArr(ret,m);*/
+    /*for(i=0;i<m;i++){*/
+        /*ret[i] %= charac;*/
+    /*}*/
+}
+
+
 
 inline void testPolys(int *x, int *x_mipo, int decompCount,
         int *polys, int *polysLen, int *polysCount, bool *evalToZero,
@@ -591,25 +723,43 @@ inline void testPolys(int *x, int *x_mipo, int decompCount,
 
 inline void testPolysShort(int *x, int *x_mipo, int decompCount,
         int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, 
-        bool *evalToZero, int *mats, int *frobPowers, 
+        bool *evalToZero, int *mats, int *frobPowers, bool *toTestIndicator,
         int *ret, int m, int charac, int *tmp, int *tmp2,
-        int *matmulCache, bool *matmulCacheCalced){
+        int *matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
     int i,j;
     int curDecompPosition = 0;
     int curPolyPosition = 0;
     int curPolyCoeffPosition = 0;
     int lastZeroPoly = 0;
     int goodCounter = 0;
+    /*if(toTestIndicator != 0){*/
+        /*printf("testPolysShort toTestIndicator=");*/
+        /*for(i=0;i<decompCount;i++) printf("%u ",toTestIndicator[i]);*/
+    /*}*/
+    /*printf("testPolysShort x=");printArr(x,m);*/
 
     for(i=0;i<decompCount;i++){
+        if(toTestIndicator != 0 && toTestIndicator[i] == false){
+            /*printf("i=%i -> continue\n",i);*/
+            for(j=0;j<polysCount[i];j++){
+                curPolyPosition += m*polysLen[curDecompPosition+j];
+                curPolyCoeffPosition += polysLen[curDecompPosition+j];
+            }
+            curDecompPosition += polysCount[i];
+            continue;
+        }
         goodCounter = 0;
         for(j=0;j<polysCount[i];j++){
+            /*printf("    apply poly=");printArr(polys+curPolyPosition,m*polysLen[curDecompPosition+j]);*/
             applyFrobShort(x, x_mipo, 
                     polys+curPolyPosition, polysLen[curDecompPosition+j],
                     polysCoeffDegs+curPolyCoeffPosition,
                     mats, frobPowers[curDecompPosition+j],
                     ret, m, charac, tmp, tmp2,
-                    matmulCache, matmulCacheCalced);
+                    matmulCache, matmulCacheCalced,
+                    multTable, addTable);
+            /*printf("             =>"); printArr(ret,m);*/
             if( allZero(ret,m) == evalToZero[curDecompPosition+j] ){
                 goodCounter += 1;
             }
@@ -618,63 +768,27 @@ inline void testPolysShort(int *x, int *x_mipo, int decompCount,
         }
         if(goodCounter == polysCount[i]){
             ret[0] = i;
+            /*printf("\tret[0]=%i\n",ret[0]);*/
             return;
         }
         curDecompPosition += polysCount[i];
     }
     
     ret[0] = -1;
+    /*printf("\tret[0]=%i\n",ret[0]);*/
 }
 
-unsigned long long encodeArr(int *x, int m, int shiftSize){
-    int i;
-    unsigned long long ret = x[m-1];
-    for(i=m-2;i>=0;i--){
-        ret <<= shiftSize;
-        ret += x[i];
-    }
-    return ret;
-}
-
-
-void decodeArr(unsigned long long enc, int *arr, int m, int shiftSize){
-    int i;
-    unsigned long long andOp = 1;
-    for(i=1;i<shiftSize;i++){
-        andOp <<= 1;
-        andOp += 1;
-    }
-    /*printf("decodeArr: andOp=%i\n",andOp);*/
-    for(i=0;i<m;i++){
-        arr[i] = enc & andOp;
-        enc >>= shiftSize;
-    }
-}
-
-void decodeArrAdd(unsigned long long enc, int *arr, int m, int shiftSize){
-    int i;
-    unsigned long long andOp = 1;
-    for(i=1;i<shiftSize;i++){
-        andOp <<= 1;
-        andOp += 1;
-    }
-    for(i=0;i<m;i++){
-        arr[i] += (enc & andOp);
-        enc >>= shiftSize;
-    }
-}
 
 //make a linked list
 struct Node {
-    unsigned long long  x;
+    int *x;
     struct Node * next;
 };
 
 /**
  * appends element to end of root, where element is copied to new array
  */
-inline struct Node *appendToEnd(struct Node *root, int * element, int elLen, \
-        int shiftSize){
+inline struct Node *appendToEnd(struct Node *root, int * element, int elLen){
     struct Node *nextNode = root;
     if( nextNode != 0){
         while(nextNode->next != 0){
@@ -686,12 +800,8 @@ inline struct Node *appendToEnd(struct Node *root, int * element, int elLen, \
         }
         if( nextNode != 0){
             nextNode->next = 0;
-            /*nextNode->x = malloc(elLen*sizeof(int));*/
-            /*int i;*/
-            /*for(i=0;i<elLen;i++){*/
-                /*nextNode->x[i] = element[i];*/
-            /*} */
-            nextNode->x = encodeArr(element,elLen,shiftSize);
+            nextNode->x = malloc(elLen*sizeof(int));
+            copyArray(element,nextNode->x,elLen);
             return nextNode;
         }
     }
@@ -705,7 +815,7 @@ inline void freeNode(struct Node* head){
     for(tmp_n=head; tmp_n !=NULL; ){
         next_n = tmp_n->next;
         /*printf("free node: %i ",n);*/
-        /*free(tmp_n->x);*/
+        free(tmp_n->x);
         /*printf(" data freed");*/
         free(tmp_n);
         /*printf(" tmp freed ");*/
@@ -723,23 +833,479 @@ inline struct Node *appendNode(struct Node *curNode){
     return curNode;
 }
 
-unsigned long long processFFElements( int *x_mipo, int decompCount,
-        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, 
+inline void calcSubmoduleElements_FisNotPrime(struct Node *root, int *x, 
+        int *x_mipo, 
+        int maxLenPoly,
+        int *genCounts, int curGen,
+        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount,
         bool *evalToZero, int *mats, int matLen, int *frobPowers, 
-        int *genCounts, int m, int charac, int shiftSize,
-        char *barFactors, int *lenBarFactors, int countBarFactors){
-    time_t TIME = time(NULL);
+        int *elementsF, int *elementsFDegs,
+        int m, int charac, int q, 
+        int *tmp_x, int *ret, int *tmp, int *tmp2, 
+        int *matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
+    int i,j;
+    int lenSize = maxLenPoly*m;
+    int *curPoly = malloc( maxLenPoly*sizeof(int) );
+    int *curFPoly = malloc( lenSize*sizeof(int) );
+    int *polyCoeffDegs = malloc( maxLenPoly*sizeof(int) );
+    struct Node *curRoot = root;
+    copyArray(root->x,x,m);
+    
+    initPoly(curPoly, maxLenPoly);
+    initPoly(curFPoly, lenSize);
+    initPoly(polyCoeffDegs, maxLenPoly);
+    curPoly[0] = 1;
+    /*printf("calcSubmoduleElements_FisPrime: curGen=%i maxLenPoly=%i x=",curGen,maxLenPoly);printArr(x,m);*/
+    int curLenPoly = 1;
+    curPoly[0] = 2;
+    if(q == 2 && maxLenPoly > 1){
+        curLenPoly = 2;
+        curPoly[0] = 0;
+        curPoly[1] = 1;
+    }
+    if(q != 2 || maxLenPoly > 1){
+        while(1==1){
+            /*printf("  curLenPoly=%i curPoly=",curLenPoly);printArr(curPoly,maxLenPoly);*/
+            // generate curElement
+            for(i=0;i<curLenPoly;i++){
+                copyArray(elementsF + m*curPoly[i], curFPoly+i*m, m);
+                polyCoeffDegs[i] = elementsFDegs[curPoly[i]];
+            }
+            /*printf("  => curFPoly=");printArr(curFPoly,lenSize);*/
+            /*printf("     polyCoeffDegs=");printArr(polyCoeffDegs,maxLenPoly);*/
+            //apply Frobenius
+            applyFrobShort_noCache(x, x_mipo,
+                    curFPoly, curLenPoly, polyCoeffDegs,
+                    mats, 1,
+                    tmp_x, m, charac, tmp,tmp2, multTable, addTable);
+            /*printf("          f(x)="); printArr(tmp_x,m);*/
+            
+            for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
+            testPolysShort(tmp_x,x_mipo,1,
+                    polys,polysLen,polysCoeffDegs, polysCount, evalToZero,
+                    mats, frobPowers, 0,
+                    ret, m, charac, tmp, tmp2,
+                    matmulCache,matmulCacheCalced,
+                    multTable, addTable);
+            /*printf("\tret[0] = %i\n",ret[0]);*/
+            if( ret[0] != -1){
+                /*printf("append tmp_x=");printArr(tmp_x,m);*/
+                curRoot = appendToEnd(curRoot, tmp_x,m);
+                genCounts[curGen] += 1;
+            }
+
+            //generate next element
+            curPoly[0] += 1;
+            if( curPoly[0] == q){
+                for(i=0;i<maxLenPoly-1 && curPoly[i]==q;i++){
+                    curPoly[i] = 0;
+                    curPoly[i+1] += 1;
+                }
+                if(i+1>curLenPoly)
+                    curLenPoly = i+1;
+                if( curPoly[maxLenPoly-1]==q){
+                    break;
+                }
+            }
+        }
+    }
+    /*printf("genCounts[curGen] = %i",genCounts[curGen]);*/
+    free(curPoly);
+    free(curFPoly);
+    free(polyCoeffDegs);
+}
+
+inline unsigned long long processLastSubmoduleAndTestPrimitivity_FisNotPrime(
+        struct Node **roots, int *x,
+        int *x_mipo, int decompCount,
+        int maxLenPoly,
+        int *genCounts, int curGen,
+        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount,
+        bool *evalToZero, int *mats, int matLen, int *frobPowers, 
+        int *elementsF, int *elementsFDegs,
+        int m, int charac, int q, 
+        int *barFactors, int *lenBarFactors, int countBarFactors,
+        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+        int *matCharac,
+        int *tmp_x, int *ret, int *tmp, int *tmp2, 
+        int *matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
+   
+    int lenSize = maxLenPoly*m;
+    int *curPoly = malloc( maxLenPoly*sizeof(int) );
+    int *curFPoly = malloc( lenSize*sizeof(int) );
+    int *polyCoeffDegs = malloc( maxLenPoly*sizeof(int) );
+    int *tmp_x2 = malloc( m*sizeof(int) );
+    int *tmp_x3 = malloc( m*sizeof(int) );
+    int * tmpRes = malloc( m*sizeof(int) );
+    int * tmpRes2 = malloc( m*sizeof(int) );
+    struct Node **curRoots = malloc(decompCount*sizeof(struct Node));
+    
     int i,j;
     
+    copyArray(roots[curGen]->x,x,m);
+    initPoly(curPoly, maxLenPoly);
+    initPoly(curFPoly, lenSize);
+    curPoly[0] = 1;
+    for(i=0;i<maxLenPoly;i++) polyCoeffDegs[i] = 0;
+    int curLenPoly = 1;
+    unsigned long long pcn = 0;
+    while(1==1){
+        // generate curElement
+        for(i=0;i<curLenPoly;i++){
+            copyArray(elementsF + m*curPoly[i], curFPoly+i*m, m);
+            polyCoeffDegs[i] = elementsFDegs[curPoly[i]];
+        }
+        /*printf("  curLenPoly=%i curPoly=",curLenPoly);printArr(curPoly,maxLenPoly);*/
+        /*printf("               curFPoly=");printArr(curFPoly,lenSize);*/
+        //apply Frobenius
+        applyFrobShort_noCache(x, x_mipo, curFPoly, curLenPoly, polyCoeffDegs,
+                mats, 1, 
+                tmp_x, m, charac, tmp,tmp2,multTable, addTable);
+        /*printf("  f(x)="); printArr(tmp_x,m);*/
+        
+        for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
+        testPolysShort(tmp_x,x_mipo,1,
+                polys,polysLen,polysCoeffDegs, polysCount, evalToZero,
+                mats, frobPowers, 0,
+                ret, m, charac, tmp, tmp2,
+                matmulCache,matmulCacheCalced,
+                multTable, addTable);
+        /*printf(" ret[0]=%i\n",ret[0]);*/
+        if( ret[0] != -1 ){
+            /*printf("[");*/
+            /*for(i=0;i<m-1;i++) printf("%i, ",tmp_x[i]);*/
+            /*printf("%i],\n",tmp_x[m-1]);*/
+            genCounts[curGen] += 1;
+            //--------------------
+            //test for primitivity
+            for(i=0;i<decompCount;i++){
+                curRoots[i] = roots[i];
+            }
+            if(decompCount > 1){
+                while(1==1){
+                    /*printf("\ttest primitivity: \n");*/
+                    copyArray(curRoots[0]->x,tmp_x2,m);
+                    /*printf("\t\tcurRoots[%i] = ",0); printArr(curRoots[0]->x,m);*/
+                    for(i=1;i<decompCount-1;i++){
+                        addPoly(curRoots[i]->x, tmp_x2, tmp_x2, m, charac,
+                                multTable, addTable);
+                        /*printf("\t\tcurRoots[%i] = ",i); printArr(curRoots[i]->x,m);*/
+                    }
+                    addPoly(tmp_x,tmp_x2,tmp_x2,m,charac, multTable,addTable);
+                    /*printf("\t\ttmp_x = "); printArr(tmp_x,m);*/
+                    /*for(i=0;i<m;i++)*/
+                       /*tmp_x2[i] %= charac;*/
+                    /*moduloPoly(tmp_x2,m,x_mipo,m+1,charac);*/
+                    /*printf("\t\t=> tmp_x2=");printArr(tmp_x2,m);*/
+
+
+                    //test primitivity
+                    if(isPrimitive(tmp_x2,x_mipo,m,
+                                barFactors,lenBarFactors,countBarFactors,
+                                biggestPrimeFactor, lenBiggestPrimeFactor,
+                                matCharac, charac,tmp_x3,
+                                tmp,tmpRes,tmpRes2,tmp2,
+                                multTable, addTable) == true){
+                        /*printf("\t=> is primitive!\n");*/
+                        pcn ++;
+                    }else{
+                    }
+
+                    //nextElement
+                    curRoots[0] = curRoots[0]->next;
+                    if( curRoots[0] == 0 ){
+                       for(i=0;i<decompCount-1 && curRoots[i]==0;i++){
+                           curRoots[i] = roots[i];
+                           curRoots[i+1] = curRoots[i+1]->next;
+                       }
+                    }
+                    if( curRoots[decompCount-1] == 0){
+                       break;
+                    }
+                }
+            }else{
+                if(isPrimitive(tmp_x,x_mipo,m,
+                            barFactors,lenBarFactors,countBarFactors,
+                            biggestPrimeFactor, lenBiggestPrimeFactor,
+                            matCharac, charac,
+                            tmp_x3,tmp,tmpRes,tmpRes2,tmp2,
+                            multTable, addTable) == true){
+                    /*printf("\t=> is primitive!\n");*/
+                    pcn ++;
+                }
+            }
+            //-------------------
+        }
+
+        //generate next element
+        curPoly[0] += 1;
+        if( curPoly[0] == q){
+            for(i=0;i<maxLenPoly-1 && curPoly[i]==q;i++){
+                curPoly[i] = 0;
+                curPoly[i+1] += 1;
+            }
+            if(i+1>curLenPoly)
+                curLenPoly = i+1;
+            if( curPoly[maxLenPoly-1]==q){
+                break;
+            }
+        }
+    }
+    free(curRoots);
+    free(curPoly);
+    free(curFPoly);
+    free(polyCoeffDegs);
+    free(tmp_x2);
+    free(tmp_x3);
+    free(tmpRes);
+    free(tmpRes2);
+    genCounts[curGen]--;
+    return pcn;
+}
+
+
+inline void calcSubmoduleElements_FisPrime(struct Node *root, int *x, 
+        int *x_mipo, 
+        int maxLenPoly,
+        int *genCounts, int curGen,
+        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount,
+        bool *evalToZero, int *mats, int matLen, int *frobPowers, 
+        int m, int charac, int q, 
+        int *tmp_x, int *ret, int *tmp, int *tmp2, 
+        int *matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
+    int i,j;
+    int lenSize = maxLenPoly*m;
+    int *curPoly = malloc( maxLenPoly*m*sizeof(int) );
+    int *polyCoeffDegs = malloc( maxLenPoly*sizeof(int) );
+    struct Node *curRoot = root;
+    copyArray(root->x,x,m);
+    
+    initPoly(curPoly, lenSize);
+    curPoly[0] = 1;
+    for(i=0;i<maxLenPoly;i++) polyCoeffDegs[i] = 0;
+    /*printf("calcSubmoduleElements_FisPrime: curGen=%i maxLenPoly=%i x=",curGen,maxLenPoly);printArr(x,m);*/
+    int curLenPoly = 1;
+    curPoly[0] = 2;
+    if(charac == 2 && maxLenPoly > 1){
+        curLenPoly = 2;
+        curPoly[0] = 0;
+        curPoly[m] = 1;
+    }
+    if(charac != 2 || maxLenPoly > 1){
+        while(1==1){
+            /*printf("  curLenPoly=%i curPoly=",curLenPoly);printArr(curPoly,lenSize);*/
+            // generate curElement
+            applyFrobShort_noCache(x, x_mipo, curPoly, curLenPoly, polyCoeffDegs,
+                    mats, 1,
+                    tmp_x, m, charac, tmp,tmp2, multTable, addTable);
+            /*printf("          f(x)="); printArr(tmp_x,m);*/
+            
+            for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
+            testPolysShort(tmp_x,x_mipo,1,
+                    polys,polysLen,polysCoeffDegs, polysCount, evalToZero,
+                    mats, frobPowers, 0,
+                    ret, m, charac, tmp, tmp2,
+                    matmulCache,matmulCacheCalced,
+                    multTable, addTable);
+            /*printf("\tret[0] = %i\n",ret[0]);*/
+            if( ret[0] != -1){
+                curRoot = appendToEnd(curRoot, tmp_x,m);
+                genCounts[curGen] += 1;
+           }
+
+            //generate next element
+            curPoly[0] += 1;
+            if( curPoly[0] == charac ){
+                for(i=0;i<lenSize-m && curPoly[i]==charac;i+=m){
+                    curPoly[i] = 0;
+                    curPoly[i+m] += 1;
+                }
+                j = i/m+1;
+                if(j>curLenPoly)
+                    curLenPoly = j;
+                if( curPoly[lenSize-m]==charac ){
+                    break;
+                }
+            }
+        }
+    }
+    /*printf("genCounts[curGen] = %i",genCounts[curGen]);*/
+    free(curPoly);
+    free(polyCoeffDegs);
+}
+
+inline unsigned long long processLastSubmoduleAndTestPrimitivity_FisPrime(
+        struct Node **roots, int *x,
+        int *x_mipo, int decompCount,
+        int maxLenPoly,
+        int *genCounts, int curGen,
+        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount,
+        bool *evalToZero, int *mats, int matLen, int *frobPowers, 
+        int m, int charac, int q, 
+        int *barFactors, int *lenBarFactors, int countBarFactors,
+        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+        int *matCharac,
+        int *tmp_x, int *ret, int *tmp, int *tmp2, 
+        int *matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
+   
+    int *curPoly = malloc( maxLenPoly*m*sizeof(int) );
+    int *polyCoeffDegs = malloc( maxLenPoly*sizeof(int) );
+    int *tmp_x2 = malloc( m*sizeof(int) );
+    int *tmp_x3 = malloc( m*sizeof(int) );
+    int * tmpRes = malloc( m*sizeof(int) );
+    int * tmpRes2 = malloc( m*sizeof(int) );
+    struct Node **curRoots = malloc(decompCount*sizeof(struct Node));
+    
+    int i,j;
+    int lenSize = maxLenPoly*m;
+    
+    copyArray(roots[curGen]->x,x,m);
+    initPoly(curPoly, lenSize);
+    curPoly[0] = 1;
+    for(i=0;i<maxLenPoly;i++) polyCoeffDegs[i] = 0;
+    int curLenPoly = 1;
+    unsigned long long pcn = 0;
+    /*printf("processLastSubmoduleAndTestPrimitivity curGen = %i, x=",curGen);*/
+    /*printArr(x,m);*/
+    /*printf("roots: \n");*/
+    /*for(i=0;i<decompCount;i++){*/
+        /*curRoots[i] = roots[i];*/
+        /*printf("\ti=%i\n",i);*/
+        /*while(curRoots[i] != 0){*/
+            /*printf("\t\t");printArr(curRoots[i]->x,m);*/
+            /*curRoots[i] = curRoots[i]->next;*/
+        /*}*/
+    /*}*/
+    while(1==1){
+        /*printf("  curLenPoly=%i curPoly=",curLenPoly);printArr(curPoly,lenSize);*/
+        // generate curElement
+        applyFrobShort_noCache(x, x_mipo, curPoly, curLenPoly, polyCoeffDegs,
+                mats, 1, 
+                tmp_x, m, charac, tmp,tmp2, multTable, addTable);
+        /*printf("  f(x)="); printArr(tmp_x,m);*/
+        
+        for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
+        testPolysShort(tmp_x,x_mipo,1,
+                polys,polysLen,polysCoeffDegs, polysCount, evalToZero,
+                mats, frobPowers, 0,
+                ret, m, charac, tmp, tmp2,
+                matmulCache,matmulCacheCalced,
+                multTable, addTable);
+        if( ret[0] != -1 ){
+            genCounts[curGen] += 1;
+            //--------------------
+            //test for primitivity
+            for(i=0;i<decompCount;i++){
+                curRoots[i] = roots[i];
+            }
+            if(decompCount > 1){
+                while(1==1){
+                    /*printf("\ttest primitivity: \n");*/
+                    copyArray(curRoots[0]->x,tmp_x2,m);
+                    /*printf("\t\tcurRoots[%i] = ",0); printArr(curRoots[0]->x,m);*/
+                    for(i=1;i<decompCount-1;i++){
+                        addPoly(curRoots[i]->x, tmp_x2, tmp_x2, m, charac,
+                                multTable,addTable);
+                        /*printf("\t\tcurRoots[%i] = ",i); printArr(curRoots[i]->x,m);*/
+                    }
+                    addPoly(tmp_x,tmp_x2,tmp_x2,m,charac, multTable,addTable);
+                    /*printf("\t\ttmp_x = "); printArr(tmp_x,m);*/
+                    /*for(i=0;i<m;i++)*/
+                       /*tmp_x2[i] %= charac;*/
+                    /*moduloPoly(tmp_x2,m,x_mipo,m+1,charac);*/
+                    /*printf("\t\t=> tmp_x2=");printArr(tmp_x2,m);*/
+
+                    //test primitivity
+                    if(isPrimitive(tmp_x2,x_mipo,m,
+                                barFactors,lenBarFactors,countBarFactors,
+                                biggestPrimeFactor, lenBiggestPrimeFactor,
+                                matCharac, charac,tmp_x3,
+                                tmp,tmpRes,tmpRes2,tmp2,
+                                multTable, addTable) == true){
+                        /*printf("\t=> is primitive!\n");*/
+                        pcn ++;
+                    }
+
+                    //nextElement
+                    curRoots[0] = curRoots[0]->next;
+                    if( curRoots[0] == 0 ){
+                       for(i=0;i<decompCount-1 && curRoots[i]==0;i++){
+                           curRoots[i] = roots[i];
+                           curRoots[i+1] = curRoots[i+1]->next;
+                       }
+                    }
+                    if( curRoots[decompCount-1] == 0){
+                       break;
+                    }
+                }
+            }else{
+                if(isPrimitive(tmp_x,x_mipo,m,
+                            barFactors,lenBarFactors,countBarFactors,
+                            biggestPrimeFactor, lenBiggestPrimeFactor,
+                            matCharac, charac,
+                            tmp_x3,tmp,tmpRes,tmpRes2,tmp2,
+                            multTable, addTable) == true){
+                    /*printf("\t=> is primitive!\n");*/
+                    pcn ++;
+                }
+            }
+            //-------------------
+        }
+
+        //generate next element
+        curPoly[0] += 1;
+        if( curPoly[0] == charac ){
+            for(i=0;i<lenSize-m && curPoly[i]==charac;i+=m){
+                curPoly[i] = 0;
+                curPoly[i+m] += 1;
+            }
+            j = i/m+1;
+            if(j>curLenPoly)
+                curLenPoly = j;
+            if( curPoly[lenSize-m]==charac ){
+                break;
+            }
+        }
+    }
+    free(curRoots);
+    free(curPoly);
+    free(polyCoeffDegs);
+    free(tmp_x2);
+    free(tmp_x3);
+    free(tmpRes);
+    free(tmpRes2);
+    genCounts[curGen]--;
+    return pcn;
+}
+
+unsigned long long processFFElements_useGens( int *x_mipo, int decompCount,
+        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, 
+        bool *evalToZero, int *mats, int matLen, int *frobPowers, 
+        int *genCounts, int m, int charac, int q, 
+        int *barFactors, int *lenBarFactors, int countBarFactors,
+        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+        int *matCharac, int *elementsF, int *elementsFDegs,
+        int *multTable, int initialMultShift, 
+        int *addTable, int initialAddShift){
+    time_t TIME = time(NULL);
+    int i,j;
+
+    multTable += initialMultShift;
+    addTable += initialAddShift;
+
     int * x = malloc( m*sizeof(int) );
     int * ret = malloc( m*sizeof(int) );
     int * tmp = malloc( m*sizeof(int) );
     int * tmp_x = malloc( m*sizeof(int) );
-    int * firstPow = malloc( m*sizeof(int) );
-    int * tmpRes = malloc( m*sizeof(int) );
     int * tmp2 = malloc( 2*m*sizeof(int) );
     int * matmulCache = malloc(matLen*m*sizeof(int));
     bool * matmulCacheCalced = malloc(matLen*sizeof(bool));
+    bool * toTestIndicator = malloc (decompCount*sizeof(bool));
+    int foundCounter = 0;
 
 
     unsigned long long pcn = 0;
@@ -754,6 +1320,7 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
         roots[i]->x = 0;
         roots[i]->next = 0;
         curRoots[i] = roots[i];
+        toTestIndicator[i] = true;
     }
 
     
@@ -761,16 +1328,22 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
         for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
         testPolysShort(x,x_mipo,decompCount,
                 polys,polysLen,polysCoeffDegs, polysCount,evalToZero,
-                mats, frobPowers,
+                mats, frobPowers, toTestIndicator,
                 ret, m, charac, tmp, tmp2,
-                matmulCache,matmulCacheCalced);
-        /*for(i=0;i<matLen;i++)*/
-            /*printf("%i ",matmulCacheCalced[i]);*/
-        /*printf("\n");*/
+                matmulCache,matmulCacheCalced,
+                multTable, addTable);
         if( ret[0] != -1){
-            genCounts[ret[0]] += 1;
-            curRoots[ret[0]] = appendToEnd(curRoots[ret[0]], x, m, shiftSize);
-            decodeArr(curRoots[ret[0]]->x,x,m,shiftSize);
+            /*printf("ret[0] = %i\n",ret[0]);*/
+            if(toTestIndicator[ret[0]] == true){
+                /*printf("found gen: %i -> x=",ret[0]); printArr(x,m);*/
+                genCounts[ret[0]] += 1;
+                appendToEnd(roots[ret[0]], x, m);
+                /*decodeArr(curRoots[ret[0]]->x,x,m,shiftSize);*/
+                foundCounter ++;
+                toTestIndicator[ret[0]] = false;
+            }
+            if(foundCounter == decompCount)
+                break;
         }
         //generate next element
         x[0] += 1;
@@ -784,203 +1357,369 @@ unsigned long long processFFElements( int *x_mipo, int decompCount,
             }
         }
     }
-    printf("CN time: %.2f\n", (double)(time(NULL)-TIME));
+    printf("finding time: %.2f\n", (double)(time(NULL)-TIME));
+    
+    // process found elements
+    int curDecompPosition = 0;
+    int curPolyPosition = 0;
+    int curPolyCoeffPosition = 0;
 
-    for(i=0;i<decompCount;i++){
-        curRoots[i] = roots[i];
+   for(i=0;i<decompCount-1;i++){
+       if(charac == q){
+           calcSubmoduleElements_FisPrime(roots[i],
+                   x, x_mipo, polysLen[curDecompPosition]-1,
+                   genCounts, i,
+                   polys+curPolyPosition, polysLen+curDecompPosition,
+                   polysCoeffDegs+curPolyCoeffPosition,
+                   polysCount+i, evalToZero+curDecompPosition,
+                   mats, matLen, frobPowers+curDecompPosition,
+                   m, charac, q,
+                   tmp_x, ret, tmp, tmp2,
+                   matmulCache, matmulCacheCalced,
+                   multTable, addTable);
+       }else{
+           calcSubmoduleElements_FisNotPrime(roots[i],
+                   x, x_mipo, polysLen[curDecompPosition]-1,
+                   genCounts, i,
+                   polys+curPolyPosition, polysLen+curDecompPosition,
+                   polysCoeffDegs+curPolyCoeffPosition,
+                   polysCount+i, evalToZero+curDecompPosition,
+                   mats, matLen, frobPowers+curDecompPosition,
+                   elementsF, elementsFDegs,
+                   m, charac, q,
+                   tmp_x, ret, tmp, tmp2,
+                   matmulCache, matmulCacheCalced,
+                   multTable, addTable);
+       }
+
+       for(j=0;j<polysCount[i];j++){
+           curPolyPosition += m*polysLen[curDecompPosition+j];
+           curPolyCoeffPosition += polysLen[curDecompPosition+j];
+       }
+       curDecompPosition += polysCount[i];
+   }
+   printf("all not last time: %.2f\n", (double)(time(NULL)-TIME));
+
+    // calc last dynamically and test for primitivity
+    if(charac == q){
+        pcn = processLastSubmoduleAndTestPrimitivity_FisPrime(
+                roots, x,
+                x_mipo, decompCount,
+                polysLen[curDecompPosition]-1,
+                genCounts, decompCount-1,
+                polys+curPolyPosition, polysLen+curDecompPosition,
+                polysCoeffDegs+curPolyCoeffPosition,
+                polysCount+i, evalToZero+curDecompPosition,
+                mats, matLen, frobPowers+curDecompPosition,
+                m, charac, q,
+                barFactors, lenBarFactors, countBarFactors,
+                biggestPrimeFactor, lenBiggestPrimeFactor,
+                matCharac,
+                tmp_x, ret, tmp, tmp2,
+                matmulCache, matmulCacheCalced,
+                multTable, addTable);
+    }else{
+        pcn = processLastSubmoduleAndTestPrimitivity_FisNotPrime(
+                roots, x,
+                x_mipo, decompCount,
+                polysLen[curDecompPosition]-1,
+                genCounts, decompCount-1,
+                polys+curPolyPosition, polysLen+curDecompPosition,
+                polysCoeffDegs+curPolyCoeffPosition,
+                polysCount+i, evalToZero+curDecompPosition,
+                mats, matLen, frobPowers+curDecompPosition,
+                elementsF, elementsFDegs,
+                m, charac, q,
+                barFactors, lenBarFactors, countBarFactors,
+                biggestPrimeFactor, lenBiggestPrimeFactor,
+                matCharac,
+                tmp_x, ret, tmp, tmp2,
+                matmulCache, matmulCacheCalced,
+                multTable, addTable);
     }
-    while(1==1){
-        decodeArr(curRoots[0]->x, x, m, shiftSize);
-        for(i=1;i<decompCount;i++){
-            decodeArrAdd(curRoots[i]->x, x, m, shiftSize);
-        }
-        for(i=0;i<m;i++)
-            x[i] %= charac;
-        moduloPoly(x,m,x_mipo,m+1,charac);
 
-        //test primitivity
-        if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors, countBarFactors,
-                    charac,tmp_x,tmp,firstPow,tmpRes,tmp2) == true){
-            pcn ++;
-        }
-
-        //nextElement
-        curRoots[0] = curRoots[0]->next;
-        if( curRoots[0] == 0 ){
-            for(i=0;i<decompCount-1 && curRoots[i]==0;i++){
-                curRoots[i] = roots[i];
-                curRoots[i+1] = curRoots[i+1]->next;
-            }
-        }
-        if( curRoots[decompCount-1] == 0){
-            break;
-        }
-    }
 
     for(i=0;i<decompCount;i++){
         freeNode(roots[i]);
     }
     free(roots);
     free(curRoots);
-    free(tmp2);
+    free(x);
     free(tmp);
-    free(tmpRes);
-    free(firstPow);
+    free(tmp2);
     free(tmp_x);
     free(ret);
     free(matmulCache);
     free(matmulCacheCalced);
+    free(toTestIndicator);
     
     printf("total time: %.2f\n", (double)(time(NULL)-TIME));
     return pcn;
 }
 
 
-double eta_processFFElements( int *x_mipo, int decompCount,
-        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, bool *evalToZero,
-        int *mats, int matLen, int *frobPowers, 
-        int *genCounts, int m, int charac, int shiftSize){
-    struct timeval TIME1, TIME2;
-    int i,j;
-    
-    
-    int * x = malloc( m*sizeof(int) );
-    int * ret = malloc( m*sizeof(int) );
-    int * tmp = malloc( m*sizeof(int) );
-    int * tmp2 = malloc( 2*m*sizeof(int) );
-    int * matmulCache = malloc(matLen*m*sizeof(int));
-    bool * matmulCacheCalced = malloc(matLen*sizeof(bool));
+//unsigned long long processFFElements( int *x_mipo, int decompCount,
+//        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, 
+//        bool *evalToZero, int *mats, int matLen, int *frobPowers, 
+//        int *genCounts, int m, int charac, int shiftSize,
+//        int *barFactors, int *lenBarFactors, int countBarFactors,
+//        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+//        int *matCharac){
+//    time_t TIME = time(NULL);
+//    int i,j;
+//    
+//    int * x = malloc( m*sizeof(int) );
+//    int * ret = malloc( m*sizeof(int) );
+//    int * tmp = malloc( m*sizeof(int) );
+//    int * tmp_x = malloc( m*sizeof(int) );
+//    int * tmpRes = malloc( m*sizeof(int) );
+//    int * tmpRes2 = malloc( m*sizeof(int) );
+//    int * tmp2 = malloc( 2*m*sizeof(int) );
+//    int * matmulCache = malloc(matLen*m*sizeof(int));
+//    bool * matmulCacheCalced = malloc(matLen*sizeof(bool));
+//
+//
+//    unsigned long long pcn = 0;
+//
+//    initPoly(x,m);
+//    initPoly(genCounts,decompCount);
+//
+//    struct Node **roots = malloc( decompCount*sizeof(struct Node) );
+//    struct Node **curRoots = malloc(decompCount*sizeof(struct Node));
+//    for(i=0;i<decompCount;i++){
+//        roots[i] = malloc( sizeof(struct Node) );
+//        roots[i]->x = 0;
+//        roots[i]->next = 0;
+//        curRoots[i] = roots[i];
+//    }
+//
+//    
+//    while(1==1){
+//        for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
+//        testPolysShort(x,x_mipo,decompCount,
+//                polys,polysLen,polysCoeffDegs, polysCount,evalToZero,
+//                mats, frobPowers, 0,
+//                ret, m, charac, tmp, tmp2,
+//                matmulCache,matmulCacheCalced);
+//        /*for(i=0;i<matLen;i++)*/
+//            /*printf("%i ",matmulCacheCalced[i]);*/
+//        /*printf("\n");*/
+//        if( ret[0] != -1){
+//            genCounts[ret[0]] += 1;
+//            curRoots[ret[0]] = appendToEnd(curRoots[ret[0]], x, m);
+//        }
+//        //generate next element
+//        x[0] += 1;
+//        if( x[0] == charac ){
+//            for(i=0;i<m-1 && x[i]==charac;i++){
+//                x[i] = 0;
+//                x[i+1] += 1;
+//            }
+//            if( x[m-1]==charac ){
+//                break;
+//            }
+//        }
+//    }
+//    printf("CN time: %.2f\n", (double)(time(NULL)-TIME));
+//
+//    for(i=0;i<decompCount;i++){
+//        curRoots[i] = roots[i];
+//    }
+//    while(1==1){
+//        copyArray(curRoots[0]->x, x, m);
+//        for(i=1;i<decompCount;i++){
+//            addPoly(curRoots[i]->x, x, x, m, charac);
+//        }
+//        for(i=0;i<m;i++)
+//            x[i] %= charac;
+//        moduloPoly(x,m,x_mipo,m+1,charac);
+//
+//        //test primitivity
+//        if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors,countBarFactors,
+//                    biggestPrimeFactor, lenBiggestPrimeFactor,
+//                    matCharac, charac,tmp_x,tmp,tmpRes,tmpRes2,tmp2) == true){
+//            pcn ++;
+//        }
+//
+//        //nextElement
+//        curRoots[0] = curRoots[0]->next;
+//        if( curRoots[0] == 0 ){
+//            for(i=0;i<decompCount-1 && curRoots[i]==0;i++){
+//                curRoots[i] = roots[i];
+//                curRoots[i+1] = curRoots[i+1]->next;
+//            }
+//        }
+//        if( curRoots[decompCount-1] == 0){
+//            break;
+//        }
+//    }
+//
+//    for(i=0;i<decompCount;i++){
+//        freeNode(roots[i]);
+//    }
+//    free(roots);
+//    free(curRoots);
+//    free(tmp2);
+//    free(tmp);
+//    free(tmpRes);
+//    free(tmpRes2);
+//    free(tmp_x);
+//    free(ret);
+//    free(matmulCache);
+//    free(matmulCacheCalced);
+//    
+//    printf("total time: %.2f\n", (double)(time(NULL)-TIME));
+//    return pcn;
+//}
+//
+//
+//double eta_processFFElements( int *x_mipo, int decompCount,
+//        int *polys, int *polysLen, int *polysCoeffDegs, int *polysCount, bool *evalToZero,
+//        int *mats, int matLen, int *frobPowers, 
+//        int *genCounts, int m, int charac, int shiftSize){
+//    struct timeval TIME1, TIME2;
+//    int i,j;
+//    
+//    
+//    int * x = malloc( m*sizeof(int) );
+//    int * ret = malloc( m*sizeof(int) );
+//    int * tmp = malloc( m*sizeof(int) );
+//    int * tmp2 = malloc( 2*m*sizeof(int) );
+//    int * matmulCache = malloc(matLen*m*sizeof(int));
+//    bool * matmulCacheCalced = malloc(matLen*sizeof(bool));
+//
+//    initPoly(x,m);
+//    initPoly(genCounts,decompCount);
+//
+//    struct Node **roots = malloc( decompCount*sizeof(struct Node) );
+//    struct Node **curRoots = malloc(decompCount*sizeof(struct Node));
+//    for(i=0;i<decompCount;i++){
+//        roots[i] = malloc( sizeof(struct Node) );
+//        roots[i]->x = 0;
+//        roots[i]->next = 0;
+//        curRoots[i] = roots[i];
+//    }
+//
+//    int counter = 0;
+//    gettimeofday(&TIME1,NULL);
+//    
+//    while(1==1){
+//        for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
+//        testPolysShort(x,x_mipo,decompCount,
+//                polys,polysLen,polysCoeffDegs, polysCount,evalToZero,
+//                mats, frobPowers, 0,
+//                ret, m, charac, tmp, tmp2,
+//                matmulCache, matmulCacheCalced);
+//        if( ret[0] != -1){
+//            genCounts[ret[0]] += 1;
+//            curRoots[ret[0]] = appendToEnd(curRoots[ret[0]], x, m);
+//        }
+//        //generate next element
+//        x[0] += 1;
+//        if( x[0] == charac ){
+//            for(i=0;i<m-1 && x[i]==charac;i++){
+//                x[i] = 0;
+//                x[i+1] += 1;
+//            }
+//            if( x[m-1]==charac ){
+//                break;
+//            }
+//        }
+//        counter++;
+//        if(counter == 1000)
+//            break;
+//    }
+//
+//    gettimeofday(&TIME2,NULL);
+//    
+//    for(i=0;i<decompCount;i++){
+//        /*printf("free root %i\n",i);*/
+//        freeNode(roots[i]);
+//    }
+//    free(roots);
+//    /*printf("roots freed!\n");*/
+//    free(curRoots);
+//    /*printf("curRoots freed!\n");*/
+//    free(tmp2);
+//    /*printf("tmp2 freed!\n");*/
+//    free(tmp);
+//    /*printf("tmp freed!\n");*/
+//    free(ret);
+//    /*printf("ret freed!\n");*/
+//    free(x);
+//    /*printf("x freed!\n");*/
+//    free(matmulCache);
+//    free(matmulCacheCalced);
+//    
+//    double timediff = (TIME2.tv_sec - TIME1.tv_sec +
+//         ((double)(TIME2.tv_usec - TIME1.tv_usec))/1000000.0);
+//    return 4*timediff *pow((double)charac,(double)m)/counter;
+//}
 
-    initPoly(x,m);
-    initPoly(genCounts,decompCount);
 
-    struct Node **roots = malloc( decompCount*sizeof(struct Node) );
-    struct Node **curRoots = malloc(decompCount*sizeof(struct Node));
-    for(i=0;i<decompCount;i++){
-        roots[i] = malloc( sizeof(struct Node) );
-        roots[i]->x = 0;
-        roots[i]->next = 0;
-        curRoots[i] = roots[i];
-    }
-
-    int counter = 0;
-    gettimeofday(&TIME1,NULL);
-    
-    while(1==1){
-        for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
-        testPolysShort(x,x_mipo,decompCount,
-                polys,polysLen,polysCoeffDegs, polysCount,evalToZero,
-                mats, frobPowers,
-                ret, m, charac, tmp, tmp2,
-                matmulCache, matmulCacheCalced);
-        if( ret[0] != -1){
-            genCounts[ret[0]] += 1;
-            curRoots[ret[0]] = appendToEnd(curRoots[ret[0]], x, m, shiftSize);
-            decodeArr(curRoots[ret[0]]->x,x,m,shiftSize);
-        }
-        //generate next element
-        x[0] += 1;
-        if( x[0] == charac ){
-            for(i=0;i<m-1 && x[i]==charac;i++){
-                x[i] = 0;
-                x[i+1] += 1;
-            }
-            if( x[m-1]==charac ){
-                break;
-            }
-        }
-        counter++;
-        if(counter == 1000)
-            break;
-    }
-
-    gettimeofday(&TIME2,NULL);
-    
-    for(i=0;i<decompCount;i++){
-        /*printf("free root %i\n",i);*/
-        freeNode(roots[i]);
-    }
-    free(roots);
-    /*printf("roots freed!\n");*/
-    free(curRoots);
-    /*printf("curRoots freed!\n");*/
-    free(tmp2);
-    /*printf("tmp2 freed!\n");*/
-    free(tmp);
-    /*printf("tmp freed!\n");*/
-    free(ret);
-    /*printf("ret freed!\n");*/
-    free(x);
-    /*printf("x freed!\n");*/
-    free(matmulCache);
-    free(matmulCacheCalced);
-    
-    double timediff = (TIME2.tv_sec - TIME1.tv_sec +
-         ((double)(TIME2.tv_usec - TIME1.tv_usec))/1000000.0);
-    return 4*timediff *pow((double)charac,(double)m)/counter;
-}
-
-
-/**
- * returns the next CN element
- */
-void findAnyPCN(int * x, int *x_mipo, 
-        int *polys, int *polysLen, int *polysCount, bool *evalToZero,
-        int *mats, int *frobPowers, 
-        int m, int charac, 
-        char *barFactors, int *lenBarFactors, int countBarFactors){
-        /*int *ret, int *tmp, int * tmp2){*/
-    time_t TIME = time(NULL);
-    int i,j;
-    
-    
-    int * ret = malloc( m*sizeof(int) );
-    int * tmp = malloc( m*sizeof(int) );
-    int * tmp_x = malloc( m*sizeof(int) );
-    int * tmpRes = malloc( m*sizeof(int) );
-    int * firstPow = malloc( m*sizeof(int) );
-    int * tmp2 = malloc( 2*m*sizeof(int) );
-
-    bool pcnFound = false;
-    
-    while(1==1){
-        //generate next element
-        x[0] += 1;
-        if( x[0] == charac ){
-            for(i=0;i<m-1 && x[i]==charac;i++){
-                x[i] = 0;
-                x[i+1] += 1;
-            }
-            if( x[m-1]==charac ){
-                x[0] = -1;
-                return;
-            }
-        }
-        testPolys(x,x_mipo,1,
-                polys,polysLen,polysCount,evalToZero,
-                mats, frobPowers,
-                ret, m, charac, tmp, tmp2);
-        if( ret[0] != -1){
-            if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors,countBarFactors,
-                        charac, tmp_x,tmp,firstPow,tmpRes,tmp2) == true){
-                pcnFound = true;
-                break;
-            }
-        }
-    }
-    free(ret);
-    free(tmp);
-    free(tmpRes);
-    free(firstPow);
-    free(tmp_x);
-    free(tmp2);
-
-    if(pcnFound == false){
-        x[0] = -1;
-    }
-
-    printf("C time: %.2f\n", (double)(time(NULL)-TIME));
-}
+///**
+// * returns the next CN element
+// */
+//void findAnyPCN(int * x, int *x_mipo, 
+//        int *polys, int *polysLen, int *polysCount, bool *evalToZero,
+//        int *mats, int *frobPowers, 
+//        int m, int charac, 
+//        int *barFactors, int *lenBarFactors, int countBarFactors,
+//        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+//        int *matCharac){
+//        /*int *ret, int *tmp, int * tmp2){*/
+//    time_t TIME = time(NULL);
+//    int i,j;
+//    
+//    
+//    int * ret = malloc( m*sizeof(int) );
+//    int * tmp = malloc( m*sizeof(int) );
+//    int * tmp_x = malloc( m*sizeof(int) );
+//    int * tmpRes = malloc( m*sizeof(int) );
+//    int * tmpRes2 = malloc( m*sizeof(int) );
+//    int * tmp2 = malloc( 2*m*sizeof(int) );
+//
+//    bool pcnFound = false;
+//    
+//    while(1==1){
+//        //generate next element
+//        x[0] += 1;
+//        if( x[0] == charac ){
+//            for(i=0;i<m-1 && x[i]==charac;i++){
+//                x[i] = 0;
+//                x[i+1] += 1;
+//            }
+//            if( x[m-1]==charac ){
+//                x[0] = -1;
+//                return;
+//            }
+//        }
+//        testPolys(x,x_mipo,1,
+//                polys,polysLen,polysCount,evalToZero,
+//                mats, frobPowers,
+//                ret, m, charac, tmp, tmp2);
+//        if( ret[0] != -1){
+//            if(isPrimitive(x,x_mipo,m,barFactors,lenBarFactors,countBarFactors,
+//                        biggestPrimeFactor, lenBiggestPrimeFactor,
+//                        matCharac,charac, tmp_x,tmp,tmpRes,tmpRes2,tmp2) == true){
+//                pcnFound = true;
+//                break;
+//            }
+//        }
+//    }
+//    free(ret);
+//    free(tmp);
+//    free(tmpRes);
+//    free(tmpRes2);
+//    free(tmp_x);
+//    free(tmp2);
+//
+//    if(pcnFound == false){
+//        x[0] = -1;
+//    }
+//
+//    printf("C time: %.2f\n", (double)(time(NULL)-TIME));
+//}
 
 
 bool findAnyPCN_useGen(int * x, int * generator, int *x_mipo, 
@@ -1033,157 +1772,218 @@ bool findAnyPCN_useGen(int * x, int * generator, int *x_mipo,
     return pcnFound;
 }
 int main(){
-    int mats[] = 
-        {1,0,0,0,0,0,0,0,0,0,
-        0,1,0,0,0,0,0,0,0,0,
-        0,0,1,0,0,0,0,0,0,0,
-        0,0,0,1,0,0,0,0,0,0,
-        0,0,0,0,1,0,0,0,0,0,
-        0,0,0,0,0,1,0,0,0,0,
-        0,0,0,0,0,0,1,0,0,0,
-        0,0,0,0,0,0,0,1,0,0,
-        0,0,0,0,0,0,0,0,1,0,
-        0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,1,0,1,0,0,
-        0,0,0,0,0,1,0,1,1,1,
-        0,1,0,0,0,1,1,1,0,1,
-        0,0,0,0,0,1,1,1,0,0,
-        0,0,1,0,0,0,1,1,0,1,
-        0,0,0,0,0,1,1,0,1,0,
-        0,0,0,1,0,1,0,0,0,1,
-        0,0,0,0,0,0,1,1,1,0,
-        0,0,0,0,1,0,1,0,0,0,
-        0,0,0,0,0,0,0,1,1,1,
-        1,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,1,1,1,0,1,1,
-        0,0,0,1,0,1,0,1,0,1,
-        0,0,0,1,0,0,0,1,0,1,
-        0,1,0,1,0,0,0,1,0,1,
-        0,0,0,1,1,0,0,0,1,1,
-        0,0,0,0,0,0,0,0,0,1,
-        0,0,0,1,1,1,0,1,1,1,
-        0,0,1,1,0,1,1,1,0,0,
-        0,0,0,0,1,0,0,0,0,1,
-        1,0,0,0,0,1,0,1,0,0,
-        0,0,1,1,1,0,1,0,0,1,
-        0,0,0,0,0,0,1,1,1,1,
-        0,0,0,0,0,1,0,1,0,1,
-        0,0,0,0,0,0,0,0,1,0,
-        0,0,1,0,1,1,1,1,1,0,
-        0,0,0,0,0,0,0,1,1,1,
-        0,0,1,0,1,0,1,0,1,0,
-        0,1,0,1,0,0,0,1,0,0,
-        0,0,1,0,0,0,1,0,1,0,
-        1,0,0,0,0,0,0,0,0,0,
-        0,1,1,1,0,1,1,0,1,0,
-        0,0,0,1,1,1,0,0,0,0,
-        0,0,0,0,0,1,0,0,1,1,
-        0,0,0,0,1,0,1,0,0,0,
-        0,1,1,1,1,1,1,1,0,1,
-        0,0,0,0,1,0,0,0,0,1,
-        0,1,1,1,1,0,1,0,0,1,
-        0,0,0,0,0,0,0,1,0,1,
-        0,1,0,1,1,0,0,1,0,0,
-        1,0,0,0,0,1,0,1,0,0,
-        0,1,0,1,1,1,0,1,0,1,
-        0,0,1,0,0,0,1,0,1,1,
-        0,0,0,0,1,1,0,1,0,1,
-        0,0,1,1,0,1,1,1,0,0,
-        0,1,1,1,0,1,1,0,0,1,
-        0,0,1,0,0,0,1,0,1,0,
-        0,1,1,1,0,0,1,1,0,1,
-        0,0,0,0,0,0,1,0,0,1,
-        0,0,1,0,0,0,1,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        0,0,1,0,0,1,0,1,0,1,
-        0,1,0,1,1,0,0,0,1,1,
-        0,0,1,0,0,1,1,1,1,0,
-        0,1,0,1,0,0,0,1,0,0,
-        0,1,0,1,0,1,1,0,1,0,
-        0,1,0,1,1,0,0,1,0,0,
-        0,1,0,1,0,0,1,1,1,0,
-        0,0,0,1,0,1,0,1,1,0,
-        0,1,0,1,0,0,1,1,0,0,
-        1,0,0,0,0,1,0,1,0,0,
-        0,1,0,0,0,0,1,1,1,0,
-        0,0,1,0,1,0,1,0,0,1,
-        0,1,0,1,1,1,0,0,0,0,
-        0,0,0,0,0,0,0,1,0,1,
-        0,0,0,1,1,0,1,0,0,0,
-        0,0,1,0,0,0,1,0,0,0,
-        0,0,0,1,1,1,1,1,0,0,
-        0,0,0,0,1,0,0,0,0,0,
-        0,0,0,1,0,1,0,1,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        0,0,0,1,1,0,0,0,0,0,
-        0,1,1,1,0,0,0,1,1,0,
-        0,0,1,0,0,1,1,1,0,0,
-        0,0,0,0,0,0,1,0,0,1,
-        0,0,1,1,0,0,0,0,0,0,
-        0,1,0,1,0,0,1,1,0,0,
-        0,0,1,1,0,1,0,1,0,0,
-        0,0,1,0,0,0,1,1,0,1,
-        0,0,0,0,0,0,1,0,0,0};
-    int polys[] =  
-        {1,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,1,0,1,0,1,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0,
-        0,1,0,1,0,1,0,0,0,0,
-        1,0,0,0,0,0,0,0,0,0};
-    int polysLen[] = {3, 2, 2, 1, 9, 5, 5, 3, 3};
-    bool evalToZero[] = {1, 0, 1, 0, 1, 0, 1, 0, 0};
-    int frobPowers[] = {1, 1, 2, 2, 1, 1, 2, 2, 2};
-    int polysCount[] = {4, 5};
-    int xmipo[] = {1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1};
-    int decompCount = 2;
-    int m = 10;
-    int charac = 2;
-    int shiftSize = 1;
-    char barFactors[] = {1, 0, 1, 0, 1, 0, 1, 0, 1, 
-                         1, 0, 1, 1, 1, 0, 1,
-                         1, 0, 0, 0, 0, 1}; //{341, 93, 33};
-    int lenBarFactors[] = {9,7,6};
-    int countBarFactors = 3;
-
+    /*int mats[] = */
+        /*{1,0,0,0,0,0,0,0,0,0,*/
+        /*0,1,0,0,0,0,0,0,0,0,*/
+        /*0,0,1,0,0,0,0,0,0,0,*/
+        /*0,0,0,1,0,0,0,0,0,0,*/
+        /*0,0,0,0,1,0,0,0,0,0,*/
+        /*0,0,0,0,0,1,0,0,0,0,*/
+        /*0,0,0,0,0,0,1,0,0,0,*/
+        /*0,0,0,0,0,0,0,1,0,0,*/
+        /*0,0,0,0,0,0,0,0,1,0,*/
+        /*0,0,0,0,0,0,0,0,0,1,*/
+        /*1,0,0,0,0,1,0,1,0,0,*/
+        /*0,0,0,0,0,1,0,1,1,1,*/
+        /*0,1,0,0,0,1,1,1,0,1,*/
+        /*0,0,0,0,0,1,1,1,0,0,*/
+        /*0,0,1,0,0,0,1,1,0,1,*/
+        /*0,0,0,0,0,1,1,0,1,0,*/
+        /*0,0,0,1,0,1,0,0,0,1,*/
+        /*0,0,0,0,0,0,1,1,1,0,*/
+        /*0,0,0,0,1,0,1,0,0,0,*/
+        /*0,0,0,0,0,0,0,1,1,1,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,0,0,0,1,1,1,0,1,1,*/
+        /*0,0,0,1,0,1,0,1,0,1,*/
+        /*0,0,0,1,0,0,0,1,0,1,*/
+        /*0,1,0,1,0,0,0,1,0,1,*/
+        /*0,0,0,1,1,0,0,0,1,1,*/
+        /*0,0,0,0,0,0,0,0,0,1,*/
+        /*0,0,0,1,1,1,0,1,1,1,*/
+        /*0,0,1,1,0,1,1,1,0,0,*/
+        /*0,0,0,0,1,0,0,0,0,1,*/
+        /*1,0,0,0,0,1,0,1,0,0,*/
+        /*0,0,1,1,1,0,1,0,0,1,*/
+        /*0,0,0,0,0,0,1,1,1,1,*/
+        /*0,0,0,0,0,1,0,1,0,1,*/
+        /*0,0,0,0,0,0,0,0,1,0,*/
+        /*0,0,1,0,1,1,1,1,1,0,*/
+        /*0,0,0,0,0,0,0,1,1,1,*/
+        /*0,0,1,0,1,0,1,0,1,0,*/
+        /*0,1,0,1,0,0,0,1,0,0,*/
+        /*0,0,1,0,0,0,1,0,1,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,1,1,1,0,1,1,0,1,0,*/
+        /*0,0,0,1,1,1,0,0,0,0,*/
+        /*0,0,0,0,0,1,0,0,1,1,*/
+        /*0,0,0,0,1,0,1,0,0,0,*/
+        /*0,1,1,1,1,1,1,1,0,1,*/
+        /*0,0,0,0,1,0,0,0,0,1,*/
+        /*0,1,1,1,1,0,1,0,0,1,*/
+        /*0,0,0,0,0,0,0,1,0,1,*/
+        /*0,1,0,1,1,0,0,1,0,0,*/
+        /*1,0,0,0,0,1,0,1,0,0,*/
+        /*0,1,0,1,1,1,0,1,0,1,*/
+        /*0,0,1,0,0,0,1,0,1,1,*/
+        /*0,0,0,0,1,1,0,1,0,1,*/
+        /*0,0,1,1,0,1,1,1,0,0,*/
+        /*0,1,1,1,0,1,1,0,0,1,*/
+        /*0,0,1,0,0,0,1,0,1,0,*/
+        /*0,1,1,1,0,0,1,1,0,1,*/
+        /*0,0,0,0,0,0,1,0,0,1,*/
+        /*0,0,1,0,0,0,1,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,0,1,0,0,1,0,1,0,1,*/
+        /*0,1,0,1,1,0,0,0,1,1,*/
+        /*0,0,1,0,0,1,1,1,1,0,*/
+        /*0,1,0,1,0,0,0,1,0,0,*/
+        /*0,1,0,1,0,1,1,0,1,0,*/
+        /*0,1,0,1,1,0,0,1,0,0,*/
+        /*0,1,0,1,0,0,1,1,1,0,*/
+        /*0,0,0,1,0,1,0,1,1,0,*/
+        /*0,1,0,1,0,0,1,1,0,0,*/
+        /*1,0,0,0,0,1,0,1,0,0,*/
+        /*0,1,0,0,0,0,1,1,1,0,*/
+        /*0,0,1,0,1,0,1,0,0,1,*/
+        /*0,1,0,1,1,1,0,0,0,0,*/
+        /*0,0,0,0,0,0,0,1,0,1,*/
+        /*0,0,0,1,1,0,1,0,0,0,*/
+        /*0,0,1,0,0,0,1,0,0,0,*/
+        /*0,0,0,1,1,1,1,1,0,0,*/
+        /*0,0,0,0,1,0,0,0,0,0,*/
+        /*0,0,0,1,0,1,0,1,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,0,0,1,1,0,0,0,0,0,*/
+        /*0,1,1,1,0,0,0,1,1,0,*/
+        /*0,0,1,0,0,1,1,1,0,0,*/
+        /*0,0,0,0,0,0,1,0,0,1,*/
+        /*0,0,1,1,0,0,0,0,0,0,*/
+        /*0,1,0,1,0,0,1,1,0,0,*/
+        /*0,0,1,1,0,1,0,1,0,0,*/
+        /*0,0,1,0,0,0,1,1,0,1,*/
+        /*0,0,0,0,0,0,1,0,0,0};*/
+    /*int polys[] =  */
+        /*{1,0,0,0,0,0,0,0,0,0,*/
+        /*0,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,1,0,1,0,1,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0,*/
+        /*0,1,0,1,0,1,0,0,0,0,*/
+        /*1,0,0,0,0,0,0,0,0,0};*/
+    /*int polysCoeffDegs[] = {0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 5, 0};*/
+    /*int matLen = 10;*/
+    /*int polysLen[] = {3, 2, 2, 1, 9, 5, 5, 3, 3};*/
+    /*bool evalToZero[] = {1, 0, 1, 0, 1, 0, 1, 0, 0};*/
+    /*int frobPowers[] = {1, 1, 2, 2, 1, 1, 2, 2, 2};*/
+    /*int polysCount[] = {4, 5};*/
+    /*int xmipo[] = {1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1};*/
+    /*int decompCount = 2;*/
+    /*int m = 10;*/
+    /*int charac = 2;*/
+    /*int q = 2;*/
+    /*int shiftSize = 1;*/
+    /*int barFactors[] = {1, 0, 1, 0, 1, 0, 1, 0, 1, */
+                         /*1, 0, 1, 1, 1, 0, 1,*/
+                         /*1, 0, 0, 0, 0, 1}; //{341, 93, 33};*/
+    /*int lenBarFactors[] = {9,7,6};*/
+    /*int countBarFactors = 3;*/
     ////////////////////////////////////////////////////////////
-    /*int *genCounts = malloc(decompCount*sizeof(int));*/
+    
+    ////////////////////////////////////////////////////////////
+    // q = 2, n = 3
+int polys[] = {
+1, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+1, 0, 0
+};
+int mats[] = {
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 1, 
+1, 0, 0, 
+0, 0, 1, 
+0, 1, 1, 
+1, 0, 0, 
+0, 1, 1, 
+0, 1, 0
+};
+int matLen =  3 ;
+int matCharac[] = {
+1, 0, 0, 
+0, 0, 1, 
+0, 1, 1
+};
+int polysLen[] = {2, 1, 3, 1};
+int polysCoeffDegs[] = {0, 0, 0, 0, 0, 0, 0};
+bool evalToZero[] = {1, 0, 1, 0};
+int frobPowers[] = {1, 1, 1, 1};
+int polysCount[] = {2, 2};
+int xmipo[] = {1, 1, 0, 1};
+int barFactors[] = {1};
+int lenBarFactors[] = {1};
+int countBarFactors =  1 ;
+int biggestPrimeFactor[] = {};
+int lenBiggestPrimeFactor = 0;
 
-    /*unsigned long long pcn*/
-        /*= processFFElements(xmipo, decompCount,*/
-            /*polys, polysLen, polysCount, evalToZero,*/
-            /*mats, frobPowers,*/
-            /*genCounts, m, charac, shiftSize,*/
-            /*barFactors,lenBarFactors,countBarFactors);*/
-    /*free(genCounts);*/
-    /*printf("pcn=%i",pcn);*/
+int multTable[] = {1, 0, 1};
+int initialMultShift = 1;
+int addTable[] = {0, 1, 0, 1, 0};
+int initialAddShift = 2;
+
+int decompCount =  2 ;
+int m =  3 ;
+int charac =  2 ;
+int q =  2 ;
+    
+    
+    ////////////////////////////////////////////////////////////
+
+    int *genCounts = malloc(decompCount*sizeof(int));
+
+    unsigned long long pcn
+        = processFFElements_useGens(xmipo, decompCount,
+            polys, polysLen, polysCoeffDegs, polysCount, 
+            evalToZero, mats, matLen, frobPowers,
+            genCounts, m, charac, q,
+            barFactors,lenBarFactors,countBarFactors,
+            biggestPrimeFactor, lenBiggestPrimeFactor,
+            matCharac, 
+            0, 0, 
+            multTable, initialMultShift, 
+            addTable, initialAddShift);
+    free(genCounts);
+    printf("pcn=%i",pcn);
     ////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////

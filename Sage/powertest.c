@@ -6,6 +6,24 @@
 #include <limits.h>
 #include <stdint.h>
 
+
+int mul_mod(int a, int b, int m)
+{
+   int d = 0, mp2 = m >> 1;
+   int i;
+   if (a >= m) a %= m;
+   if (b >= m) b %= m;
+   for (i = 0; i < 64; ++i)
+   {
+       d = (d > mp2) ? (d << 1) - m : d << 1;
+       if (a & 0x8000000000000000)
+           d += b;
+       if (d > m) d -= m;
+       a <<= 1;
+   }
+   return d;
+}
+
 /**
  * copies arr1 into arr2
  */
@@ -31,12 +49,13 @@ unsigned long long ipow(int base, int exp)
 
 inline void matmul(int *mat, int *vec, int *ret, int m, int charac){
     int i,j;
-    long tmp;
+    int tmp;
     for(i=0;i<m;i++){
         ret[i] = 0;
         for(j=0;j<m;j++){
-            tmp = mat[i*m + j]*vec[j];
-            ret[i] += (int)(tmp%charac);
+            tmp = ( mat[i*m + j]*vec[j] )%charac;
+            while(tmp<0) tmp += charac;
+            ret[i] += tmp;
         }
     }
 }
@@ -95,12 +114,27 @@ void subtrPoly(int *p1, int *p2, int *p3, int m, int charac) {
 inline void multiplyPoly(int *p1, int m1, int *p2, int m2, 
         int *p3, int m3, int charac) {
     int i,j;
-    long tmp;
+    int tmp;
+    int deg1, deg2;
+    
+    for(i=m1-1;i>=0;i--){
+        if(p1[i] != 0){
+            deg1 = i;
+            break;
+        }
+    }
+    for(i=m2-1;i>=0;i--){
+        if(p2[i] != 0){
+            deg2 = i;
+            break;
+        }
+    }
+
     initPoly(p3,m3);
-    for(i=0;i<m1;i++){
-        for(j=0;j<m2;j++){
-            tmp = ((long)p1[i]*p2[j])%charac;
-            p3[i+j] = (int)((p3[i+j]+tmp)%charac);
+    for(i=0;i<=deg1;i++){
+        for(j=0;j<=deg2;j++){
+            tmp = ((p1[i]*p2[j])%charac+charac)%charac;
+            p3[i+j] = (( p3[i+j]+tmp )%charac+charac)%charac;
         }
     }
     /*for(i=0;i<m3;i++){*/
@@ -108,6 +142,28 @@ inline void multiplyPoly(int *p1, int m1, int *p2, int m2,
         /*if(p3[i] < 0) p3[i] += charac;*/
     /*}*/
 }
+
+inline void multiplyPolyKnownDeg(int *p1, int m1, int *p2, int m2, int deg2,
+        int *p3, int m3, int charac) {
+    int i,j;
+    int tmp;
+    int deg1;
+    
+    for(i=m1-1;i>=0;i--){
+        if(p1[i] != 0){
+            deg1 = i;
+            break;
+        }
+    }
+
+    initPoly(p3,m3);
+    for(i=0;i<=deg1;i++){
+        for(j=0;j<=deg2;j++){
+            p3[i+j] = ((p3[i+j] + p1[i]*p2[j])%charac+charac)%charac;
+        }
+    }
+}
+
 
 inline void multiplyPolyShort(int *p1, int m1, int *p2, int m2, 
         int *p3, int m3, int charac, int *multTable, int *addTable) {
@@ -134,7 +190,6 @@ inline void multiplyPolyShort(int *p1, int m1, int *p2, int m2,
                 /*printf("error multiplyPolyShort %i*%i=%i != %i",*/
                         /*p1[i],p2[j],(tmp2+charac*charac)%charac, multTable[tmp2]);*/
             p3[i+j] = addTable[ p3[i+j] + multTable[ p1[i]*p2[j] ] ];
-            /*p3[i+j] = addTable[ p1[i+j] + multTable[ p1[i]*p2[j] ] ];*/
         }
     }
 }
@@ -149,19 +204,24 @@ inline void multiplyPolyShortKnownDeg(int *p1, int m1, int *p2, int m2, int deg2
             break;
         }
     }
-    for(i=m1-1;i>=0;i--){
-        if(p2[i] != 0){
-            deg2Tmp = i;
-            break;
-        }
-    }
+    /*for(i=m1-1;i>=0;i--){*/
+        /*if(p2[i] != 0){*/
+            /*deg2Tmp = i;*/
+            /*break;*/
+        /*}*/
+    /*}*/
     initPoly(p3,m3);
     
     if(deg2 == -1) return;
+    /*printf("multiplyPolyShortKnownDeg p1=");printArr(p1,m1);*/
+    /*printf("                          p2=");printArr(p2,m2);*/
+    /*printf("                     deg1=%i deg2=%i\n",deg1,deg2);*/
 
     for(i=0;i<=deg1;i++){
         for(j=0;j<=deg2;j++){
             /*p3[i+j] += p1[i]*p2[j];*/
+            /*printf("              p1[%i]*p2[%i]=%i <-> %i\n",*/
+                    /*i,j,p1[i]*p2[j],multTable[p1[i]*p2[j]]);*/
             p3[i+j] = addTable[ p3[i+j] + multTable[ p1[i]*p2[j] ] ];
         }
     }
@@ -227,8 +287,8 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
             /*if(tmpArr[j] < 0) tmpArr[j] += charac;*/
         /*}*/
 
-        /*printf("=> p1=");printArr(tmpArr,m1);*/
-    }
+    /*printf("=> p1=");printArr(tmpArr,m1);*/
+}
     /*for(i=0;i<m1;i++){*/
         /*if(p1[i] < 0) p1[i] += charac;*/
     /*}*/
@@ -237,7 +297,7 @@ inline void moduloPoly(int *p1, int m1, int *mod, int m, int charac){
 
 inline void moduloMonom(int *p1, int m1, int *mod, int m, int charac){
     int deg1, degmod=m-1;
-    int quo;
+    int quo, tmp;
     int i,j;
     //get degrees
     for(i=m1-1;i>=0;i--){
@@ -250,7 +310,7 @@ inline void moduloMonom(int *p1, int m1, int *mod, int m, int charac){
     for(i=deg1-degmod; i>=0; i--){
         quo = p1[i+degmod]%charac;
         for(j=degmod;j>=0;j--){
-            p1[i+j] = (p1[i+j] - mod[j]*quo)%charac;
+            p1[i+j] =  (( p1[i+j] - mod[j]*quo )%charac+charac)%charac;
         }
     }
 }
@@ -297,17 +357,15 @@ inline void powerPolyInt(int *x, int *x_mipo, int *ret, int m,
     initPoly(ret,m);
     ret[0] = 1;
     while(power > 0){
-        if(power%2 == 1){
+        if(power & 1 == 1){
             multiplyPoly(ret,m, x,m, tmp2,2*m, charac);
             moduloPoly(tmp2,2*m,x_mipo,m+1,charac);
-            for(i=0;i<m;i++)
-                ret[i] = tmp2[i];
+            copyArray(tmp2,ret,m);
         }
         multiplyPoly(x,m, x,m, tmp2,2*m, charac);
         /*printf("powerPolyInt tmp2=");printArr(tmp2,2*m);*/
         moduloPoly(tmp2,2*m,x_mipo,m+1,charac);
-        for(i=0;i<m;i++)
-            x[i] = tmp2[i];
+        copyArray(tmp2,x,m);
         power >>= 1;
     }
 }
@@ -334,29 +392,32 @@ inline void powerPoly(int *x, int *x_mipo, int *ret, int m,
             x[i] = tmp2[i];
     }
 }
-///**
-// * Square and multiply
-// * x is modified!
-// */
-//inline void powerPolyShortInt(int *x, int *x_mipo, int *ret, int m, 
-//        int power, int charac, int *tmp2){
-//    int i,j;
-//    initPoly(ret,m);
-//    ret[0] = 1;
-//    while(power > 0){
-//        if(power%2 == 1){
-//            multiplyPolyShort(ret,m, x,m, tmp2,2*m, charac);
-//            moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac);
-//            for(i=0;i<m;i++)
-//                ret[i] = tmp2[i]%charac;
-//        }
-//        multiplyPolyShort(x,m, x,m, tmp2,2*m, charac);
-//        moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac);
-//        for(i=0;i<m;i++)
-//            x[i] = tmp2[i]%charac;
-//        power >>= 1;
-//    }
-//}
+/**
+ * Square and multiply
+ * x is modified!
+ */
+inline void powerPolyShortInt(int *x, int *x_mipo, int *ret, int m, 
+        int power, int charac, int *tmp2, 
+        int *multTable, int *addTable){
+    int i,j;
+    initPoly(ret,m);
+    ret[0] = 1;
+    while(power > 0){
+        if(power & 1 == 1){
+            multiplyPolyShort(ret,m, x,m, tmp2,2*m, charac,multTable,addTable);
+            moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac,multTable,addTable);
+            /*for(i=0;i<m;i++)*/
+                /*ret[i] = tmp2[i]%charac;*/
+            copyArray(tmp2,ret,m);
+        }
+        multiplyPolyShort(x,m, x,m, tmp2,2*m, charac,multTable,addTable);
+        moduloMonomShort(tmp2,2*m,x_mipo,m+1,charac,multTable,addTable);
+        /*for(i=0;i<m;i++)*/
+            /*x[i] = tmp2[i]%charac;*/
+        copyArray(tmp2,x,m);
+        power >>= 1;
+    }
+}
 
 /**
  * Square and multiply in charac
@@ -440,13 +501,32 @@ inline bool isOne(int *x, int m, int charac){
  */
 void multMatrices(int *mat1, int *mat2, int *ret, int m, int charac){
     int i,j,k;
-    long tmp;
+    int tmp;
     for(i=0;i<m;i++){
         for(j=0;j<m;j++){
             ret[i*m + j] = 0;
             for(k=0;k<m;k++){
-                tmp = (long)mat1[i*m+k]*(long)mat2[k*m+j];
-                ret[i*m + j] = (int)((ret[i*m + j] + tmp)%charac);
+                tmp = ( mat1[i*m+k]*mat2[k*m+j] )%charac;
+                while(tmp<0) tmp += charac;
+                tmp = ( ret[i*m+j] + tmp )%charac;
+                while(tmp<0) tmp += charac;
+                ret[i*m + j] = tmp;
+            }
+        }
+    }
+}
+void multMatricesShort(int *mat1, int *mat2, int *ret, int m, int charac,
+        int *multTable,int *addTable){
+    int i,j,k;
+    /*long tmp;*/
+    for(i=0;i<m;i++){
+        for(j=0;j<m;j++){
+            ret[i*m + j] = 0;
+            for(k=0;k<m;k++){
+                ret[i*m+j] = addTable[ ret[i*m+j] + 
+                            multTable[ mat1[i*m+k]*mat2[k*m+j] ] ];
+                /*tmp = (long)mat1[i*m+k]*(long)mat2[k*m+j];*/
+                /*ret[i*m + j] = (int)((ret[i*m + j] + tmp)%charac);*/
             }
         }
     }
@@ -460,15 +540,15 @@ void genMats(int *mipo, int m, int *mats, int maxPower, int charac, int q){
 
     int i,j,k;
     int mSize = m*m;
-    /*//put identity matrix at position 0*/
-    for(i=0;i<m;i++)
-        for(j=0;j<m;j++)
-            if(j==i)
-                /*matsInt[0][i][j] = 1;*/
-                mats[0*mSize + i*m + j] = 1;
-            else
-                /*matsInt[0][i][j] = 0;*/
-                mats[0*mSize + i*m + j] = 0;
+    /*[>//put identity matrix at position 0<]*/
+    /*for(i=0;i<m;i++)*/
+        /*for(j=0;j<m;j++)*/
+            /*if(j==i)*/
+                /*[>matsInt[0][i][j] = 1;<]*/
+                /*mats[0*mSize + i*m + j] = 1;*/
+            /*else*/
+                /*[>matsInt[0][i][j] = 0;<]*/
+                /*mats[0*mSize + i*m + j] = 0;*/
 
     for(i=0;i<m;i++){
         initPoly(x,m);
@@ -476,11 +556,12 @@ void genMats(int *mipo, int m, int *mats, int maxPower, int charac, int q){
         powerPolyInt(x, mipo, tmp, m, q, charac, tmp2);
         for(j=0;j<m;j++)
             /*matsInt[1][j][i] = tmp[j];*/
-            mats[1*mSize + j*m + i] = tmp[j];
+            mats[j*m + i] = tmp[j];
     }
-    for(i=2;i<=maxPower;i++){
+    for(i=1;i<=maxPower;i++){
         /*multMatrices(matsInt[1],matsInt[i-1],matsInt[i], m, charac);*/
-        multMatrices(mats+1*mSize, mats+(i-1)*mSize, mats+i*mSize, m, charac);
+        multMatrices(mats, mats+(i-1)*mSize, mats+i*mSize, m, 
+                charac);
     }
 
     /*for(i=0;i<=maxPower;i++){*/
@@ -563,40 +644,56 @@ inline bool allZero(int *x, int m){
 /*
  * calculates g(sigma)(x) where g is a polynomial and sigma the frobenius
  * application of frobenius is given by mats, i.e.
- * mats is array of m x m matrices, x an array of m ints
+ * mats is array of m x m matrices starting with ^q matrix, 
+ * x an array of m ints
  * g is an array of glen arrays of length m
  */
-inline void applyFrob(int *x, int *x_mipo, int *g, int glen, int *mats, int frobpower,
-        int *ret, int m, int charac, int *tmp, int *tmp2){
-    //printf("x="); printArr(x,m);
-    //printf("x_mipo="); printArr(x_mipo,m+1);
-    //printf("g="); printArr(g,m*glen);
+inline void applyFrob(int *x, int *x_mipo, 
+        int *g, int glen, int *gCoeffDegs,
+        int *mats, int frobpower,
+        int *ret, int m, int charac, int *tmp, int *tmp2, int *tmp_x,
+        int *matmulCache, bool *matmulCacheCalced){
     int mSize = m*m;
-    int i,j;
+    int i,j,k,l;
+    int curMatPower = 0;
     initPoly(ret,m);
+    /*printf("applyFrobShort glen=%i x=",glen);printArr(x,m);*/
     for(i=0;i<glen;i++){
+        copyArray(x,tmp_x,m);
+        /*printf("   gi=");printArr(g+i*m,m);*/
         if(allZero(g+i*m,m) == true){
-            //printf("i=%i allZero = gi=",i); 
-            //printArr(g+i*m,m);
+            /*printf("   is zero -> skip\n((E.gen()**j)**(q**i)");*/
+            curMatPower++;
             continue;
         }
-        //printf("i=%i",i);
-        matmul(mats+i*frobpower*mSize, x, tmp, m, charac);
-        //printf(" mat*x = "); printArr(tmp, m);
-        //printf("tmp*gi for \n\ttmp="); printArr(tmp,m);
-        //printf("\tgi="); printArr(g+i*glen, m);
-        multiplyPoly(tmp,m, g+i*m, m, tmp2, 2*m, charac);
-        //printf("\t=>tmp*gi = "); printArr(tmp2,2*m);
-        //printf("tmp2 mod mipo for \n\ttmp2="); printArr(tmp2,2*m); 
-        //printf("\tmipo="); printArr(x_mipo,m+1);
-        moduloPoly(tmp2, 2*m, x_mipo, m+1, charac);
-        //printf("\t=>tmp2 mod mipo = "); printArr(tmp2,m);
-        for(j=0;j<m;j++){
-            ret[j] += tmp2[j];
+        if(matmulCacheCalced[i*frobpower] == 1){
+            /*printf("   x^%i cached=",i*frobpower);*/
+                                    /*printArr(matmulCache+m*(i*frobpower),m);*/
+            multiplyPoly(matmulCache+m*(i*frobpower),m,
+                    g+i*m, m, tmp2, 2*m, charac);
+            copyArray(matmulCache+m*(i*frobpower), tmp_x, m);
+            curMatPower = 0;
+        }else{
+            matmul(mats+mSize*curMatPower, tmp_x, tmp, m, charac);
+            curMatPower = 0;
+            /*printf("   x^%i=",i*frobpower);printArr(tmp,m);*/
+            for(j=0;j<m;j++)
+                matmulCache[m*(i*frobpower)+j] = tmp[j];
+            copyArray(matmulCache+m*(i*frobpower), tmp_x, m);
+            matmulCacheCalced[i*frobpower] = 1;
+            multiplyPolyKnownDeg(tmp,m, g+i*m, m, gCoeffDegs[i],
+                    tmp2, 2*m, charac);
+            /*printf("   gi*x^i=");printArr(tmp2,2*m);*/
+            /*multiplyPolyShort(tmp,m, g+i*m, m, */
+                    /*tmp2, 2*m, charac);*/
         }
-    }
-    for(i=0;i<m;i++){
-        ret[i] %= charac;
+        moduloMonom(tmp2, 2*m, x_mipo, m+1, charac);
+        /*printf("   gi*x^i mod=");printArr(tmp2,2*m);*/
+        for(j=0;j<m;j++){
+            ret[j] += tmp2[j]; 
+            while( ret[j]<0 ) ret[j] += charac;
+        }
+        /*printf("      => ret=");printArr(ret,m);*/
     }
 }
 
@@ -623,23 +720,29 @@ inline void applyFrobShort(int *x, int *x_mipo,
             continue;
         }
         if(matmulCacheCalced[i*frobpower] == 1){
+            /*printf("   x^%i cached=",i*frobpower);*/
+                                    /*printArr(matmulCache+m*(i*frobpower),m);*/
             multiplyPolyShort(matmulCache+m*(i*frobpower),m,
                     g+i*m, m, tmp2, 2*m, charac, multTable,addTable);
         }else{
             matmulShort(mats+i*frobpower*mSize, x, tmp, m, charac,
                     multTable,addTable);
+            /*printf("   x^%i=",i*frobpower);printArr(tmp,m);*/
             for(j=0;j<m;j++)
                 matmulCache[m*(i*frobpower)+j] = tmp[j];
             matmulCacheCalced[i*frobpower] = 1;
             multiplyPolyShortKnownDeg(tmp,m, g+i*m, m, gCoeffDegs[i],
                     tmp2, 2*m, charac,multTable,addTable);
+            /*printf("   gi*x^i=");printArr(tmp2,2*m);*/
             /*multiplyPolyShort(tmp,m, g+i*m, m, */
                     /*tmp2, 2*m, charac);*/
         }
         moduloMonomShort(tmp2, 2*m, x_mipo, m+1, charac,multTable,addTable);
+        /*printf("   gi*x^i mod=");printArr(tmp2,2*m);*/
         for(j=0;j<m;j++){
             ret[j] = addTable[ ret[j] + tmp2[j] ];
         }
+        /*printf("      => ret=");printArr(ret,m);*/
     }
     /*for(i=0;i<m;i++){*/
         /*ret[i] %= charac;*/
@@ -680,45 +783,84 @@ inline void applyFrobShort_noCache(int *x, int *x_mipo,
 
 
 
-inline void testPolys(int *x, int *x_mipo, int decompCount,
-        int *polys, int *polysLen, int *polysCount, bool *evalToZero,
-        int *mats, int *frobPowers, 
-        int *ret, int m, int charac, int *tmp, int *tmp2){
-    int i,j;
-    int curDecompPosition = 0;
-    int curPolyPosition = 0;
-    int lastZeroPoly = 0;
-    int goodCounter = 0;
-    /*printf("testPolys for x="), printArr(x,m);*/
-    /*printf("polysCount="); printArr(polysCount,decompCount);*/
+//inline void testPolys(int *x, int *x_mipo, int decompCount,
+//        int *polys, int *polysLen, int *polysCount, bool *evalToZero,
+//        int *mats, int *frobPowers, 
+//        int *ret, int m, int charac, int *tmp, int *tmp2){
+//    int i,j;
+//    int curDecompPosition = 0;
+//    int curPolyPosition = 0;
+//    int lastZeroPoly = 0;
+//    int goodCounter = 0;
+//    /*printf("testPolys for x="), printArr(x,m);*/
+//    /*printf("polysCount="); printArr(polysCount,decompCount);*/
+//
+//    for(i=0;i<decompCount;i++){
+//        /*printf("decomp: i=%i\n",i);*/
+//        goodCounter = 0;
+//        for(j=0;j<polysCount[i];j++){
+//            /*printf("\ttest poly j=%i",j); */
+//            applyFrob(x, x_mipo, 
+//                    polys+curPolyPosition, polysLen[curDecompPosition+j],
+//                    mats, frobPowers[curDecompPosition+j], 
+//                    ret, m, charac, tmp, tmp2);
+//            /*printf("\t=>ret=");printArr(ret,m);*/
+//            if( allZero(ret,m) == evalToZero[curDecompPosition+j] ){
+//                /*printf(" good\n");*/
+//                goodCounter += 1;
+//            }else{
+//                /*printf(" not good\n");*/
+//            }
+//            curPolyPosition += m*polysLen[curDecompPosition+j];
+//        }
+//        /*printf("\t all %i tested => goodCounter=%i\n", polysCount[i],goodCounter);*/
+//        if(goodCounter == polysCount[i]){
+//            ret[0] = i;
+//            return;
+//        }
+//        curDecompPosition += polysCount[i];
+//    }
+//    
+//    ret[0] = -1;
+//}
 
-    for(i=0;i<decompCount;i++){
-        /*printf("decomp: i=%i\n",i);*/
-        goodCounter = 0;
-        for(j=0;j<polysCount[i];j++){
-            /*printf("\ttest poly j=%i",j); */
-            applyFrob(x, x_mipo, 
-                    polys+curPolyPosition, polysLen[curDecompPosition+j],
-                    mats, frobPowers[curDecompPosition+j], 
-                    ret, m, charac, tmp, tmp2);
-            /*printf("\t=>ret=");printArr(ret,m);*/
-            if( allZero(ret,m) == evalToZero[curDecompPosition+j] ){
-                /*printf(" good\n");*/
-                goodCounter += 1;
-            }else{
-                /*printf(" not good\n");*/
-            }
-            curPolyPosition += m*polysLen[curDecompPosition+j];
-        }
-        /*printf("\t all %i tested => goodCounter=%i\n", polysCount[i],goodCounter);*/
-        if(goodCounter == polysCount[i]){
-            ret[0] = i;
+
+/**
+ * test if x is completely normal.
+ * polys are only cofactors of cyclotomic polynomial, so all must eval
+ * to non zero
+ */
+inline void testCN(int *x, int *x_mipo, 
+        int *polys, int *polysLen, int *polysCoeffDegs, int polysCount, 
+        int *mats, int *frobPowers, 
+        int *ret, int m, int charac, int *tmp, int *tmp2, int *tmp_x,
+        int *matmulCache, bool *matmulCacheCalced){
+    int i,j;
+    int curPolyPosition = 0;
+    int curPolyCoeffPosition = 0;
+    
+    /*printf("testCN x=");printArr(x,m);*/
+    for(j=0;j<polysCount;j++){
+        /*printf("    apply poly=");printArr(polys+curPolyPosition,m*polysLen[j]);*/
+        /*printf("           degs=");*/
+            /*printArr(polysCoeffDegs+curPolyCoeffPosition,polysLen[j]);*/
+        applyFrob(x, x_mipo, 
+                polys+curPolyPosition, polysLen[j],
+                polysCoeffDegs+curPolyCoeffPosition,
+                mats, frobPowers[j],
+                ret, m, charac, tmp, tmp2, tmp_x,
+                matmulCache, matmulCacheCalced);
+        /*printf("             =>"); printArr(ret,m);*/
+        if( allZero(ret,m) == true ){
+            ret[0] = -1;
             return;
         }
-        curDecompPosition += polysCount[i];
+        curPolyPosition += m*polysLen[j];
+        curPolyCoeffPosition += polysLen[j];
     }
     
-    ret[0] = -1;
+    ret[0] = 0;
+    /*printf("\tret[0]=%i\n",ret[0]);*/
 }
 
 inline void testPolysShort(int *x, int *x_mipo, int decompCount,
@@ -1723,38 +1865,59 @@ unsigned long long processFFElements_useGens( int *x_mipo, int decompCount,
 
 
 bool findAnyPCN_useGen(int * x, int * generator, int *x_mipo, 
-        int *polys, int *polysLen, int *polysCount, bool *evalToZero,
-        int *mats, int *frobPowers, 
+        int *polys, int *polysLen, int *polysCoeffDegs, 
+        int polysCount, 
+        int *mats, int matLen, int *frobPowers, 
         int m, int charac, 
+        int *multTable, int initialMultShift, 
+        int *addTable, int initialAddShift,
         int *powerTable, int lenPowerTable){
     time_t TIME = time(NULL);
     int i,j;
     
+    multTable += initialMultShift;
+    addTable += initialAddShift;
     
     int * ret = malloc( m*sizeof(int) );
     int * tmp = malloc( m*sizeof(int) );
     int * tmp_x = malloc( m*sizeof(int) );
     int * tmp2 = malloc( 2*m*sizeof(int) );
+    int * matmulCache = malloc(matLen*m*sizeof(int));
+    bool * matmulCacheCalced = malloc(matLen*sizeof(bool));
 
     bool pcnFound = false;
 
     // the generator
     for(j=0;j<m;j++) x[j] = generator[j];
+    /*printf("gen=");printArr(x,m);*/
     
     for(i=0;i<lenPowerTable;i++){
         if(powerTable[i] != 0){
             for(j=0;j<m;j++) tmp_x[j] = generator[j];
-            powerPolyInt(tmp_x, x_mipo, ret, m, powerTable[i], charac, tmp2);
+            /*powerPolyInt(tmp_x, x_mipo, ret, m, powerTable[i], charac, tmp2);*/
+            powerPolyInt(tmp_x, x_mipo, ret, m, 
+                    powerTable[i], charac, tmp2);
+            /*printf("gen^%i=",powerTable[i]);printArr(ret,m);*/
 
-            multiplyPoly(x,m, ret,m, tmp2, 2*m, charac);
-            moduloPoly(tmp2, 2*m, x_mipo, m+1, charac);
-            for(j=0;j<m;j++) x[j] = tmp2[j];
+            multiplyPoly(x,m,ret,m,tmp2,2*m,charac);
+            moduloMonom(tmp2,2*m, x_mipo,m+1,charac);
+            /*multiplyPoly(x,m, ret,m, tmp2, 2*m, charac);*/
+            /*moduloPoly(tmp2, 2*m, x_mipo, m+1, charac);*/
+            copyArray(tmp2,x,m);
         }
+        for(j=0;j<matLen;j++) matmulCacheCalced[j] = false;
 
-        testPolys(x,x_mipo,1,
-                polys,polysLen,polysCount,evalToZero,
-                mats, frobPowers,
-                ret, m, charac, tmp, tmp2);
+        /*printf("test x=");printArr(x,m);*/
+        testCN(x,x_mipo, polys,polysLen,polysCoeffDegs,polysCount,
+                mats,frobPowers,
+                ret,m,charac,tmp,tmp2, tmp_x,
+                matmulCache,matmulCacheCalced);
+        /*printf("    =>ret[0]=%i",ret[0]);*/
+
+        /*testPolys(x,x_mipo,1,*/
+                /*polys,polysLen,polysCount,evalToZero,*/
+                /*mats, frobPowers,*/
+                /*ret, m, charac, tmp, tmp2);*/
         if( ret[0] != -1){
             for(j=0;j<m;j++){
                 if( x[j]<0 ) x[j] += charac;
@@ -1763,14 +1926,19 @@ bool findAnyPCN_useGen(int * x, int * generator, int *x_mipo,
             break;
         }
     }
+    free(matmulCacheCalced);
+    free(matmulCache);
     free(ret);
     free(tmp);
     free(tmp_x);
     free(tmp2);
 
-    printf("C time: %.2f\n", (double)(time(NULL)-TIME));
+    /*printf("C time: %.2f\n", (double)(time(NULL)-TIME));*/
     return pcnFound;
 }
+
+
+
 int main(){
     /*int mats[] = */
         /*{1,0,0,0,0,0,0,0,0,0,*/
@@ -1991,4 +2159,96 @@ int q =  2 ;
     /*int *mats2 = malloc((n+1)*m*m*sizeof(int));*/
     /*genMats(xmipo,m,mats2,n,charac,charac);*/
     /*free(mats2);*/
+}
+
+
+void matmulTest(int *mipo, 
+        int *polys, int *polysLen, int *polysCoeffDegs,
+        int polysCount,
+        int *mats, int matLen, int *frobPowers,
+        int m, int charac,
+        int *multTable, int initialMultShift,
+        int *addTable, int initialAddShift){
+    
+    multTable += initialMultShift;
+    addTable += initialAddShift;
+    
+    int * x = malloc( m*sizeof(int) );
+    int * ret = malloc( m*sizeof(int) );
+    int * tmp = malloc( m*sizeof(int) );
+    int * tmp2 = malloc( 2*m*sizeof(int) );
+    int * matmulCache = malloc(matLen*m*sizeof(int));
+    bool * matmulCacheCalced = malloc(matLen*sizeof(bool));
+    int i,j;
+
+    initPoly(x,m);
+    x[1] = 1;
+
+    for(i=0;i<1000;i++){
+        int curPolyPosition = 0;
+        int curPolyCoeffPosition = 0;
+        for(j=0;j<matLen;j++)
+            matmulCacheCalced[j] = false;
+        
+        /*printf("testCN x=");printArr(x,m);*/
+        for(j=0;j<polysCount;j++){
+            /*printf("    apply poly=");printArr(polys+curPolyPosition,m*polysLen[j]);*/
+            /*printf("           degs=");*/
+                /*printArr(polysCoeffDegs+curPolyCoeffPosition,polysLen[j]);*/
+            applyFrobShort(x, mipo, 
+                    polys+curPolyPosition, polysLen[j],
+                    polysCoeffDegs+curPolyCoeffPosition,
+                    mats, frobPowers[j],
+                    ret, m, charac, tmp, tmp2,
+                    matmulCache, matmulCacheCalced,
+                    multTable, addTable);
+            
+            curPolyPosition += m*polysLen[j];
+            curPolyCoeffPosition += polysLen[j];
+        }
+    }
+    free(x);
+    free(ret);
+    free(tmp);
+    free(tmp2);
+    free(matmulCache);
+    free(matmulCacheCalced);
+}
+
+void primitiveTest(int *mipo, 
+        int m, int charac,
+        int *barFactors, int *lenBarFactors, int countBarFactors, 
+        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+        int *matCharac, 
+        int *multTable, int initialMultShift,
+        int *addTable, int initialAddShift){
+    
+    multTable += initialMultShift;
+    addTable += initialAddShift;
+    
+    int * x = malloc( m*sizeof(int) );
+    int * tmp = malloc( m*sizeof(int) );
+    int * tmp_x = malloc( m*sizeof(int) );
+    int * tmpRet = malloc( m*sizeof(int) );
+    int * tmpRet2 = malloc( m*sizeof(int) );
+    int * tmp2 = malloc( 2*m*sizeof(int) );
+    int i,j;
+
+    initPoly(x,m);
+    x[1] = 1;
+    for(i=0;i<10000;i++){
+        isPrimitive(x,mipo,m,
+                barFactors,lenBarFactors,countBarFactors,
+                biggestPrimeFactor,lenBiggestPrimeFactor,
+                matCharac,charac,
+                tmp_x,tmp,tmpRet,tmpRet2,tmp2,
+                multTable,addTable);
+    }
+
+    free(x);
+    free(tmp);
+    free(tmp_x);
+    free(tmpRet);
+    free(tmpRet2);
+    free(tmp2);
 }

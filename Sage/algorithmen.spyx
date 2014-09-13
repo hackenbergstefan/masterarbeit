@@ -582,6 +582,18 @@ def countCompleteSubmoduleGenerators_internalC_useGens(F,n, maxEta=0):
     #print "frobPowers=",frobPowers, "len=",len(frobPowers)
     #print "polysCount=",polysCount, "len=",len(polysCount)
 
+    charac = int(E.characteristic())
+        #mipo, idcsMipo
+    mipo = E.modulus()
+    m = mipo.degree()
+    idcsMipo = []
+    listMipo = list(mipo)
+    for i in range(m,-1,-1):
+        if listMipo[i] != 0:
+            idcsMipo += [i]
+    lenMipo = len(idcsMipo)
+
+
     #calc prime factors of order
     barFactors = []
     primitiveOrder = E.order()-1
@@ -646,9 +658,6 @@ def countCompleteSubmoduleGenerators_internalC_useGens(F,n, maxEta=0):
     
     #--------------------
     #setup C data
-    charac = int(E.characteristic())
-    mipo = E.modulus()
-    m = mipo.degree()
     maxMatPower = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
     #setup matrices
     cdef np.ndarray[int,ndim=3,mode="c"] matsC
@@ -656,6 +665,8 @@ def countCompleteSubmoduleGenerators_internalC_useGens(F,n, maxEta=0):
     #setup mipo
     cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
             = np.array(list(mipo), dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] idcsMipoC\
+            = np.array(idcsMipo, dtype=np.int32)
     #setup polynomials, polyLength, frobPowers, evaltoZero
     decompCount = int(len(polysCount))
         #evalToZeroC
@@ -706,6 +717,21 @@ def countCompleteSubmoduleGenerators_internalC_useGens(F,n, maxEta=0):
         for j in range(m):
             for k in range(m):
                 matCharacC[i][j][k] = tmpMat[j][k]
+    idcsMatCharac = []
+    lenMatCharac = []
+    for i in range(lenBiggestZeroGap+1):
+        for j in range(m):
+            countCurRow = 0
+            for k in range(m-1,-1,-1):
+                if matCharacC[i][j][k] != 0:
+                    idcsMatCharac += [k]
+                    countCurRow += 1
+            lenMatCharac += [countCurRow]
+    cdef np.ndarray[int,ndim=1,mode="c"] idcsMatCharacC \
+        = np.array(idcsMatCharac, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] lenMatCharacC \
+        = np.array(lenMatCharac, dtype=np.int32)
+
         # F elements in E
     cdef np.ndarray[int,ndim=1,mode="c"] elementsFDegsC\
         = np.array(elementsFDegs, dtype=np.int32)
@@ -1431,7 +1457,7 @@ def findAnyPCN_useGen_internalC(F,n):
     #print "evalToZero=",evalToZero, "len=",len(evalToZero)
     #print "frobPowers=",frobPowers, "len=",len(frobPowers)
     #print "polysCount=",polysCount, "len=",len(polysCount)
-    print "biggestZeroGap=",biggestZeroGap
+    #print "biggestZeroGap=",biggestZeroGap
     #--------------------
     #setup C data
     charac = int(E.characteristic())
@@ -2299,10 +2325,19 @@ cdef extern from "./powertest.c":
             int *matCharac, \
             int *multTable, int initialMultShift,\
             int *addTable, int initialAddShift) 
+    void primitiveTest_2(int *mipo, int *idcsMipo, int lenMipo, \
+        int m, int charac, \
+        int *barFactors, int *lenBarFactors, int countBarFactors,  \
+        int *biggestPrimeFactor, int lenBiggestPrimeFactor, \
+        int *matCharac, int *idcsMatCharac, int *lenMatCharac, \
+        int *multTable, int initialMultShift, \
+        int *addTable, int initialAddShift)
+
+
 
 def primitiveTest_wrapper():
     #F = GF(next_prime(6000))
-    F = GF(5)
+    F = GF(3)
     P = F.prime_subfield()
     Fx = PolynomialRing(F,'x')
     n = Integer(20)
@@ -2312,6 +2347,16 @@ def primitiveTest_wrapper():
     E = F.extension(Integer(n),'a');
     P = E.prime_subfield()
     
+    charac = int(E.characteristic())
+        #mipo, idcsMipo
+    mipo = E.modulus()
+    m = mipo.degree()
+    idcsMipo = []
+    listMipo = list(mipo)
+    for i in range(m,-1,-1):
+        if listMipo[i] != 0:
+            idcsMipo += [i]
+    lenMipo = len(idcsMipo)
         #calc prime factors of order
     barFactors = []
     primitiveOrder = E.order()-1
@@ -2366,12 +2411,11 @@ def primitiveTest_wrapper():
     
     #--------------------
     #setup C data
-    charac = int(E.characteristic())
-    mipo = E.modulus()
-    m = mipo.degree()
     #setup mipo
     cdef np.ndarray[int,ndim=1,mode="c"] xmipoC \
-            = np.array(list(mipo), dtype=np.int32)
+            = np.array(listMipo, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] idcsMipoC\
+            = np.array(idcsMipo, dtype=np.int32)
     #setup polynomials, polyLength, frobPowers, evaltoZero
         # multiplication and addition table
     cdef np.ndarray[int,ndim=1,mode="c"] multTableC\
@@ -2402,15 +2446,48 @@ def primitiveTest_wrapper():
         for j in range(m):
             for k in range(m):
                 matCharacC[i][j][k] = tmpMat[j][k]
+    idcsMatCharac = []
+    lenMatCharac = []
+    for i in range(lenBiggestZeroGap+1):
+        for j in range(m):
+            countCurRow = 0
+            for k in range(m):
+                if matCharacC[i][j][k] != 0:
+                    idcsMatCharac += [k]
+                    countCurRow += 1
+            lenMatCharac += [countCurRow]
+    cdef np.ndarray[int,ndim=1,mode="c"] idcsMatCharacC \
+        = np.array(idcsMatCharac, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] lenMatCharacC \
+        = np.array(lenMatCharac, dtype=np.int32)
 
+
+
+    #print "matCharac = ",matCharacC
+    #print "multTable=",multTable
+    #print "addTable=",addTable
+    #print "lenBarFactors=", lenBarFactorsC
+    #print "lenBiggestPrimeFactor=", lenBiggestPrimeFactor
     #end setup C data
     #--------------------
 
+    print "------------------ primitive test"
     primitiveTest(<int*>xmipoC.data \
             ,<int>m,<int>p \
             ,<int*>barFactorsC.data, <int*>lenBarFactorsC.data \
             ,<int>countBarFactors \
             ,<int*>biggestPrimeFactorC.data, <int>lenBiggestPrimeFactor \
             ,<int*>matCharacC.data \
+            ,<int*>multTableC.data, <int>(p-1)**2\
+            ,<int*>addTableC.data, <int>2*(p-1))
+    
+    print "------------------ primitive test 2"
+    primitiveTest_2(<int*>xmipoC.data, <int*>idcsMipoC.data, <int>lenMipo \
+            ,<int>m,<int>p \
+            ,<int*>barFactorsC.data, <int*>lenBarFactorsC.data \
+            ,<int>countBarFactors \
+            ,<int*>biggestPrimeFactorC.data, <int>lenBiggestPrimeFactor \
+            ,<int*>matCharacC.data, <int*>idcsMatCharacC.data \
+            ,<int*>lenMatCharacC.data \
             ,<int*>multTableC.data, <int>(p-1)**2\
             ,<int*>addTableC.data, <int>2*(p-1))

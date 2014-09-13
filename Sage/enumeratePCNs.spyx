@@ -1,0 +1,568 @@
+from sage.all import *
+import re
+import time
+from multiprocessing import Pool, Value
+import multiprocessing
+import itertools
+import datetime
+import os
+import numpy as np
+cimport numpy as np
+from libc.stdlib cimport malloc, free
+from libc.stdint cimport int
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
+
+
+cdef extern from "./algs-base.c":
+    void initPoly(int *p, int m)
+    void printArr(int *arr, int l)
+    void copyArray(int *arr1, int *arr2, int m)
+    
+
+cdef extern from "./enumeratePCNs.c":
+    struct FFElem:
+        int *el
+        int *idcs
+        int len
+    struct FFPoly:
+        pass
+    FFElem *mallocFFElem(int m)
+    void printFFElem(char *preName, FFElem *ff)
+    void updateFFElem(FFElem *ff,int m)
+
+    FFElem **genFrobMats(FFElem *mipo,int m,int maxPower,int q, \
+        int *multTable, int *addTable)
+    unsigned long long processFiniteField(
+        FFElem *mipo, int decompCount, \
+        FFPoly **polys, int *polysCountPerDecomp, \
+        char *evalToZero, \
+        FFElem **mats, int matLen, int *frobPowers, \
+        int *genCounts, int m, int charac, int q, \
+        int *barFactors, int *lenBarFactors, int countBarFactors, \
+        int *biggestPrimeFactor, int lenBiggestPrimeFactor, \
+        FFElem **matCharac, FFElem **elementsF, \
+        int *multTable, int initialMultShift, \
+        int *addTable, int initialAddShift)
+
+
+cdef FFElem *pyList2FFElem(element,int m):
+    cdef FFElem *ff = mallocFFElem(<int>m)
+    initPoly(ff.el,m)
+    for i,e in enumerate(element):
+        ff.el[i] = e
+    updateFFElem(ff,m)
+    return ff
+
+
+
+
+def countCompleteSubmoduleGenerators(F,n, maxEta=0):
+    TIME = time.time()
+    p = F.characteristic()
+    q = F.order();
+    e = q.log(p)
+    E = F.extension(Integer(n),'a');
+    P = E.prime_subfield()
+    #generate factors
+    polys = []
+    polysCount = []
+    evalToZero = []
+    frobPowers = []
+    notComplBasicDivisors = get_completely_basic_divisors(p,e,n)
+    decomposition = decompose(p,e,n)
+    for decomp in decomposition:
+        k,t,pi = decomp
+        divs = divisors(get_module_character(*decomp))
+        #print "for decomp=",decomp, "consider divs=",divs
+        divs = filter(lambda x: x in notComplBasicDivisors, divs)
+        #print "\tnow only", divs
+        countPolysForThisDecomp = 0
+        for d in divs:
+            G = F.extension(Integer(d), 'c');
+            Gx = PolynomialRing(G,'x'); 
+            h = Hom(G,E)[0]
+            cycl = Gx.cyclotomic_polynomial(squarefree(k))\
+                    (Gx.gen()**(k*t*pi/squarefree(k)/d))
+            polys += [cycl.map_coefficients(h)]
+            #print "\tcylcE=",cycl.map_coefficients(h)
+            #print "\tcoeffDegs=", map(lambda gi: gi.polynomial().degree(), cycl.map_coefficients(h)) 
+            frobPowers += [d]
+            evalToZero += [1]
+            countPolysForThisDecomp += 1
+            #print "\ti.e. cycl=",cycl
+            # add Co-Factors
+            for f,mult in cycl.factor():
+                g = cycl.quo_rem(f)[0]
+                gE = g.map_coefficients(h)
+                #print "\tgE=",gE
+                polys += [gE]
+                #print "\tcoeffDegs=", map(lambda gi: gi.polynomial().degree(), gE) 
+                frobPowers += [d]
+                evalToZero += [0]
+                countPolysForThisDecomp +=1
+        polysCount += [countPolysForThisDecomp]
+    
+    charac = int(E.characteristic())
+        #mipo, idcsMipo
+    mipo = E.modulus()
+    m = mipo.degree()
+
+    #calc prime factors of order
+    barFactors = []
+    primitiveOrder = E.order()-1
+    #for r,k in factor(primitiveOrder):
+        #for i in range(1,k+1):
+            #barFactors += [primitiveOrder/(r**i)]
+    biggestPrimeFactor = factor(primitiveOrder)[-1][0]
+    for r,k in factor(primitiveOrder):
+        barFactors += [primitiveOrder/r]
+    countBarFactors = len(barFactors)
+    #print "barFactors=", barFactors
+    curF = 0
+    barFactors_tmp = [barFactors[-1]]
+    for b in reversed(barFactors[:-1]):
+        barFactors_tmp += [ b/biggestPrimeFactor - curF]
+        curF = b/biggestPrimeFactor
+    barFactors = barFactors_tmp
+    #print "barFactors=", barFactors
+    #print "biggestPrimeFactor=", biggestPrimeFactor
+    barFactors = map(\
+            lambda b: get_padic_representation(Integer(b),Integer(p))\
+            ,barFactors)
+    biggestPrimeFactor = get_padic_representation(biggestPrimeFactor,Integer(p))
+    lenBiggestPrimeFactor = len(biggestPrimeFactor)
+    #find biggest gap (i.e. zero-interval)
+    lenBiggestZeroGap = 0
+    lenCurGap = 0
+    for b in barFactors+[biggestPrimeFactor]:
+        i = 0
+        while i < len(b):
+            lenCurGap = 0
+            while i<len(b) and b[i] == 0:
+                lenCurGap+= 1
+                i += 1
+            lenBiggestZeroGap = max(lenBiggestZeroGap, lenCurGap)
+            i += 1
+
+        #generate F elements in E
+    h = Hom(F,E)[0]
+    elementsF = []
+    for e in itertools.product(xrange(p),repeat=e):
+        elementsF += [list( h( F(list(reversed(e))) ).polynomial() )]
+    elementsFDegs = map(lambda e: len(e)-1, elementsF)
+
+    ps = range(p)
+    addTable = ps[P(-2*(p-1)):] + ps*2 + ps[:Integer(P(2*(p-1)))+1]
+    multTable = ps[P(-(p-1)**2):] + ps*(2*(p-2)) + ps[:Integer(P((p-1)**2))+1]
+
+    print "mipo = ",mipo
+    print "decomp = ",decomposition
+    print "polys= ",polys, "len=",len(polys)
+    print "evalToZero=",evalToZero, "len=",len(evalToZero)
+    print "frobPowers=",frobPowers, "len=",len(frobPowers)
+    print "polysCount=",polysCount, "len=",len(polysCount)
+    print "barFactors=",barFactors
+    print "biggestPrimeFactor=", biggestPrimeFactor
+    print "lenBiggestZeroGap=",lenBiggestZeroGap
+    print "multTable=",multTable, " len=", len(multTable)
+    print "addTable=", addTable, " len=", len(addTable)
+    #=========================================================================
+
+    
+    # SETUP C DATA ===========================================================
+    maxMatPower = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
+        # multiplication and addition table
+    cdef np.ndarray[int,ndim=1,mode="c"] multTableC\
+        = np.array(multTable, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] addTableC\
+        = np.array(addTable, dtype=np.int32)
+        #setup mipo
+    cdef FFElem *mipoC = pyList2FFElem(mipo,m)
+       #setup matrices
+    cdef FFElem **matsC  = genFrobMats(mipoC,m,maxMatPower,q,
+            <int*>multTableC.data, <int*>addTableC.data)
+#    #setup polynomials, polyLength, frobPowers, evaltoZero
+#    decompCount = int(len(polysCount))
+#        #evalToZeroC
+#    cdef np.ndarray[char,ndim=1,mode="c",cast=True] evalToZeroC\
+#            = np.array(evalToZero, dtype=np.uint8)
+#        #frobPowersC
+#    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
+#            = np.array(frobPowers, dtype=np.int32)
+#        #polysCountC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
+#            = np.array(polysCount, dtype=np.int32)
+#        #polysCoeffDegsC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysCoeffDegsC\
+#            = np.array(polysCoeffDegs, dtype=np.int32)
+#        #polysLenC
+#    cdef np.ndarray[int,ndim=1,mode="c"] polysLenC\
+#            = np.array(polysLen, dtype=np.int32)
+#        #polys
+#    cdef np.ndarray[int,ndim=2,mode="c"] polysC\
+#            = np.zeros((sum(polysLen),m), dtype=np.int32)
+#    curPos = 0
+#    for idx,g in enumerate(polys):
+#        g = map(lambda gi: list(gi.polynomial()),list(g))
+#        for i in range(len(g)):
+#            for j in range(len(g[i])):
+#                polysC[curPos+i][j] = <int>g[i][j]
+#        curPos += polysLen[idx]
+#        # prime Factors
+#    cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
+#        = np.array(list(itertools.chain(*barFactors)), dtype=np.int32)
+#    cdef np.ndarray[int,ndim=1,mode="c"] lenBarFactorsC \
+#        = np.array(map(len,barFactors), dtype=np.int32)
+#    cdef np.ndarray[int,ndim=1,mode="c"] biggestPrimeFactorC \
+#        = np.array(biggestPrimeFactor, dtype=np.int32)
+#        # mat charac
+#    P = E.prime_subfield()
+#    gen = mipo.parent().gen()
+#    matCharac = matrix(P, m,m)
+#    for i in xrange(m):
+#        for j, fi in enumerate(((gen**i)**p).mod(mipo)):
+#            matCharac[i,j] = fi
+#    matCharac = matCharac.transpose()
+#    cdef np.ndarray[int,ndim=3,mode="c"] matCharacC\
+#        = np.zeros((lenBiggestZeroGap+1,m,m), dtype=np.int32)
+#    tmpMat = matCharac
+#    for i in range(lenBiggestZeroGap+1):
+#        tmpMat = matCharac**(i+1)
+#        for j in range(m):
+#            for k in range(m):
+#                matCharacC[i][j][k] = tmpMat[j][k]
+#    idcsMatCharac = []
+#    lenMatCharac = []
+#    for i in range(lenBiggestZeroGap+1):
+#        for j in range(m):
+#            countCurRow = 0
+#            for k in range(m-1,-1,-1):
+#                if matCharacC[i][j][k] != 0:
+#                    idcsMatCharac += [k]
+#                    countCurRow += 1
+#            lenMatCharac += [countCurRow]
+#    cdef np.ndarray[int,ndim=1,mode="c"] idcsMatCharacC \
+#        = np.array(idcsMatCharac, dtype=np.int32)
+#    cdef np.ndarray[int,ndim=1,mode="c"] lenMatCharacC \
+#        = np.array(lenMatCharac, dtype=np.int32)
+#
+#        # F elements in E
+#    cdef np.ndarray[int,ndim=1,mode="c"] elementsFDegsC\
+#        = np.array(elementsFDegs, dtype=np.int32)
+#    cdef np.ndarray[int,ndim=2,mode="c"] elementsFC\
+#        = np.zeros((q,m), dtype=np.int32)
+#    for i,e in enumerate(elementsF):
+#        for j in range(len(e)):
+#            elementsFC[i][j] = e[j]
+#
+    #--------------------
+    printFFElem("mipoC",mipoC)
+    #print "matsC=", matsC
+    #print "polysC= ",polysC, "len=",len(polysC)
+    #print "polysLenC=",polysLenC, "len=",len(polysLenC)
+    #print "evalToZeroC=",evalToZeroC, "len=",len(evalToZeroC)
+    #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
+    #print "polysCountC=",polysCountC, "len=",len(polysCountC)
+    #print "xmipoC=",xmipoC
+    #print "barFactorsC=",barFactorsC
+    #print "lenBarFactorsC=",lenBarFactorsC
+    #print "matCharacC=", matCharacC
+    #print "elementsFC=", elementsFC
+    #print "elementsFDegsC=",elementsFDegsC
+    #print "multTableC=",multTableC
+    #print "addTableC=",addTableC
+    #=========================================================================
+#
+#    #--------------------
+#    # prepare C output
+#    #print "int polys[] = {"
+#    #for i in range(sum(polysLen)):
+#        #for j in range(m):
+#            #sys.stdout.write(str(polysC[i][j]))
+#            #if j < m-1 or i < sum(polysLen)-1:
+#                #sys.stdout.write(", ")
+#        #printf("\n")
+#    #print "};"
+#    #print "int mats[] = {"
+#    #for i in range(maxMatPower+1):
+#        #for j in range(m):
+#            #for k in range(m):
+#                #sys.stdout.write(str(matsC[i][j][k]))
+#                #if i < maxMatPower or j<m-1 or k<m-1:
+#                    #sys.stdout.write(", ")
+#            #printf("\n")
+#    #print "};"
+#
+#    #print "int matLen = ",maxMatPower+1,";"
+#    
+#    #print "int matsCharac[] = {"
+#    #for j in range(m):
+#        #for k in range(m):
+#            #sys.stdout.write(str(matCharacC[j][k]))
+#            #if j<m-1 or k<m-1:
+#                #sys.stdout.write(", ")
+#        #printf("\n")
+#    #print "};"
+#
+#    #sys.stdout.write("int polysLen[] = {")
+#    #for i in range(len(polysLen)):
+#        #sys.stdout.write(str(polysLenC[i]))
+#        #if i< len(polysLen)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    
+#    #sys.stdout.write("int polysCoeffDegs[] = {")
+#    #for i in range(len(polysCoeffDegs)):
+#        #sys.stdout.write(str(polysCoeffDegsC[i]))
+#        #if i< len(polysCoeffDegs)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#
+#    #sys.stdout.write("bool evalToZero[] = {")
+#    #for i in range(len(evalToZero)):
+#        #sys.stdout.write(str(evalToZeroC[i]))
+#        #if i< len(evalToZero)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    
+#    #sys.stdout.write("int frobPowers[] = {")
+#    #for i in range(len(frobPowers)):
+#        #sys.stdout.write(str(frobPowersC[i]))
+#        #if i< len(frobPowers)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#  
+#    #sys.stdout.write("int polysCount[] = {")
+#    #for i in range(len(polysCount)):
+#        #sys.stdout.write(str(polysCountC[i]))
+#        #if i< len(polysCount)-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    
+#    #sys.stdout.write("int xmipo[] = {")
+#    #for i in range(len(list(mipo))):
+#        #sys.stdout.write(str(xmipoC[i]))
+#        #if i< len(list(mipo))-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#
+#    #sys.stdout.write("int barFactors[] = {")
+#    #for i in range(barFactorsC.shape[0]):
+#        #sys.stdout.write(str(barFactorsC[i]))
+#        #if i< barFactorsC.shape[0]-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    
+#    #sys.stdout.write("int lenBarFactors[] = {")
+#    #for i in range(lenBarFactorsC.shape[0]):
+#        #sys.stdout.write(str(barFactorsC[i]))
+#        #if i< lenBarFactorsC.shape[0]-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    #print "int countBarFactors = ", len(barFactors),";"
+#    
+#    #sys.stdout.write("int elementsF[] = {")
+#    #for i in range(elementsFC.shape[0]):
+#        #for j in range(elementsFC.shape[1])
+#            #sys.stdout.write(str(elementsFC[i][j]))
+#            #if i< elementsFC.shape[0]-1 and j < elementsFC.shape[1]-1:
+#                    #sys.stdout.write(", ")
+#    #print "};"
+#    
+#    #sys.stdout.write("int elementsFDegs[] = {")
+#    #for i in range(elementsFDegsC.shape[0]):
+#        #sys.stdout.write(str(elementsFDegsC[i]))
+#        #if i< elementsFDegsC.shape[0]-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    
+#    #sys.stdout.write("int multTable[] = {")
+#    #for i in range(multTableC.shape[0]):
+#        #sys.stdout.write(str(multTableC[i]))
+#        #if i< multTableC.shape[0]-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#    #sys.stdout.write("int addTable[] = {")
+#    #for i in range(addTableC.shape[0]):
+#        #sys.stdout.write(str(addTableC[i]))
+#        #if i< addTableC.shape[0]-1:
+#                #sys.stdout.write(", ")
+#    #print "};"
+#
+#    #print "int decompCount = ", decompCount, ";"
+#    #print "int m = ", m, ";"
+#    #print "int charac = ",p,";"
+#    #print "int q = ",q,";"
+#
+#    #return
+#
+#    #--------------------
+#    #setup return and tmp values
+#    cdef np.ndarray[int,ndim=1,mode="c"] genCountsC
+#    genCountsC = np.zeros(decompCount, dtype=np.int32)
+#
+#
+#    ## calc shiftsize
+#    #shifter = 1
+#    #shiftSize = 0
+#    #while shifter < charac:
+#        #shiftSize +=1
+#        #shifter <<= 1
+#
+#    #get eta
+#    #eta = eta_processFFElements(<int*>xmipoC.data \
+#            #,<int>decompCount \
+#            #,<int*>polysC.data, <int*>polysLenC.data \
+#            #,<int*>polysCoeffDegsC.data \
+#            #,<int*>polysCountC.data \
+#            #,<char*>evalToZeroC.data \
+#            #,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
+#            #,<int*>genCountsC.data \
+#            #,<int>m,<int>p)
+#    #print "(p,e,n) = (",p,",",e,",",n,") eta = ",eta,"s"
+#    #if maxEta != 0 and eta > maxEta:
+#        #return
+#
+#    cdef unsigned long long pcn
+#    pcn = processFFElements_useGens(<int*>xmipoC.data \
+#            ,<int>decompCount \
+#            ,<int*>polysC.data, <int*>polysLenC.data \
+#            ,<int*>polysCoeffDegsC.data \
+#            ,<int*>polysCountC.data \
+#            ,<char*>evalToZeroC.data \
+#            ,<int*>matsC.data, <int>maxMatPower+1, <int*>frobPowersC.data \
+#            ,<int*>genCountsC.data \
+#            ,<int>m,<int>p, <int>q \
+#            ,<int*>barFactorsC.data, <int*>lenBarFactorsC.data\
+#            ,<int>countBarFactors \
+#            ,<int*>biggestPrimeFactorC.data, <int>lenBiggestPrimeFactor
+#            ,<int*>matCharacC.data \
+#            ,<int*>elementsFC.data, <int*>elementsFDegsC.data \
+#            ,<int*>multTableC.data, <int>(p-1)**2\
+#            ,<int*>addTableC.data, <int>2*(p-1))
+#            #,<int*>tmpC.data ,<int*>tmp2C.data \
+#            #,<int*>xC.data, <int*>retC.data \
+#            #, rootsC, curRootsC, combinedElements)
+#
+#    
+#    #--------------------
+#    #test primitivity
+#    #primOrder = E.order()-1
+#    #countPrims = 0;
+#    #for line in open(filepath,'r'):
+#        ##decodeArr(combinedElements.x,<int*>curEl.data,m, shiftSize)
+#        #curEl = map(int,line.split(' ')[0:m])
+#        ##print "test curEl=",curEl
+#        #if E(list(curEl)).multiplicative_order() == primOrder:
+#            #countPrims += 1
+#    #os.remove(filepath)
+#
+#    #--------------------
+#    genCounts = dict()
+#    for i,d in enumerate(decomposition):
+#        genCounts[d] = genCountsC[i]
+#    return prod(list(genCountsC)), Integer(pcn), genCounts,\
+#            strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
+
+
+def get_padic_representation(number, p):
+    ret = []
+    q = number
+    while q > 0:
+        q,r = q.quo_rem(Integer(p));
+        ret += [r]
+    return list(reversed(ret))
+
+
+
+# computes the quadratic free part of an integer
+def squarefree(n):
+    return sage.all.prod(map(lambda x: x[0], sage.all.factor(Integer(n))))
+
+# computes ordn m(q) = min{ k: q ** k = 1 mod m }
+def ordn(m,q):
+    if m == 1: return 1
+    for i in range(1,m+1):
+        if (q ** i)%m == 1: return i;
+
+# Application of the Decomposition Theorem (Section 19)
+# for x^n-1 over F_p^e
+def decompose(p,e, n):
+    pi = largestDiv(p,n)
+    return decompose_cycl_module(p,e, 1, n/pi, pi)
+
+
+## returns the module characters of a decomposition
+## the module character of U_F,Phi_k(x^t) is k*t / nu(k)
+def get_module_characters(decomp):
+   return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
+
+# returns the module characters of a cyclotomic module
+# the module character of U_F,Phi_k(x^t)^pi is k*t*pi / nu(k)
+def get_module_character(k,t,pi):
+    return Integer(k*t*pi/squarefree(k))
+
+# returns all divisors of the module characters of an extension
+# capped with the complete basic divisors
+# i.e. all intermediate fields that must be considered
+def get_proper_subfield_divisors(p,e, n):
+    basList = get_completely_basic_divisors(p,e,n)
+    return filter(lambda d: d in basList, \
+            list(uniq(itertools.chain(*map(divisors,\
+           get_module_characters(decompose(p,e,n)))))))
+
+
+# internal application of the Decomposition Theorem
+# for Phi_k(x^(t*pi)) over F_p^e
+def decompose_cycl_module(p,e, k,t,pi):
+    if p.divides(k*t): print "ERROR p | kt"
+    #test all prime divisors, start with largest one
+    flag = False
+    for r,l in reversed(factor(t)):
+        if not (r**l).divides(ordn(squarefree(k*t),p**e)):
+            R = largestDiv(r,t)
+            return decompose_cycl_module(p,e, k, t/r, pi) + decompose_cycl_module(p,e, k*R, t/R, pi)
+    return [(k,t,pi)]
+
+
+
+# returns the largest power of p dividing n
+def largestDiv(p,n):
+    l = 0
+    while (p**l).divides(n):
+        l = l+1
+    return p**(l-1);
+
+
+def get_completely_basic_divisors(p,e,n):
+    n = Integer(n)
+    q = Integer(p**e)
+    divs = []
+    for d in divisors(n):
+        isComplBasic = True
+        for r in prime_divisors(n/d):
+            if r.divides(ordn(p_free_part(n/d/r,p),q**d)):
+                isComplBasic = False
+                break
+        divs += [d]
+        if isComplBasic: return divs
+    return divs
+
+
+
+# p-free part of t
+def p_free_part(t,p):
+    while p.divides(t):
+        t /= p
+    return t
+
+
+
+
+# formats timedelta objects to nice string
+def strfdelta(tdelta):
+    d = {}
+    d["hours"], rem = divmod(tdelta.seconds, 3600)
+    d["hours"] += int(tdelta.days*24)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return "{hours}:{minutes}:{seconds}".format(**d)

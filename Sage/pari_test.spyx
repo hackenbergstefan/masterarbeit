@@ -66,7 +66,7 @@ def test2():
 def testPrimitive():
     #p = next_prime(6000)
     p = 5
-    q = 3
+    q = 5
     e = 1
     n = 20
     F = GF(5)

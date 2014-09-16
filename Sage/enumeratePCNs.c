@@ -617,13 +617,14 @@ inline void powerFFElemSqM(struct FFElem *ff, struct FFElem *mipo,
             /*copyFFElem(ffTmp,ffRetInt);*/
             /*printFFElemShort("     ffRetInt",ffRetInt);*/
         }
-        squareFFElem(ff,mipo,ffTmp,tmp,m,multTable,addTable);
-        /*printFFElemShort("    ffTmp",ffTmp);*/
-        /*printFFElemShort("    ff",ff);*/
-        //switch ffTmp and ff
-        ffSwitch = ff; ff = ffTmp; ffTmp = ffSwitch;
-        /*printFFElem("     ff",ff);*/
-        lenCurGap = 0;
+        if(j>0){
+            squareFFElem(ff,mipo,ffTmp,tmp,m,multTable,addTable);
+            /*printFFElemShort("    ffTmp",ffTmp);*/
+            /*printFFElemShort("    ff",ff);*/
+            //switch ffTmp and ff
+            ffSwitch = ff; ff = ffTmp; ffTmp = ffSwitch;
+            /*printFFElem("     ff",ff);*/
+        }
     }
     copyFFElem(ffRetInt,ret);
     /*printFFElemShort("   =>ret",ret);*/
@@ -664,78 +665,96 @@ inline void powerFFElemInt(struct FFElem *ff, struct FFElem *mipo,
 inline bool isPrimitive(struct FFElem *ff, struct FFElem *mipo,
         int m,
         int *barFactors, int *lenBarFactors, int countBarFactors,
-        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+        int *commonBarFactor, int lenCommonBarFactor,
+        int *commonBiggestBarFactor, int lenCommonBiggestBarFactor,
         struct FFElem **matCharac, 
-        struct FFElem *fff, struct FFElem *ffTmp,
-        struct FFElem *ffTmp2, struct FFElem *ffTmp3, 
-        struct FFElem *ffRet,
+        struct FFElem *fff, struct FFElem *ffff, struct FFElem *ffTmp,
+        struct FFElem *ffTmp2, struct FFElem *ffRet, 
         int *tmp, int *multTable, int *addTable){
     int i;
     int curPos = 0;
     bool binarySqM = (matCharac == 0);
+    struct FFElem *ffSwitch = 0;
     /*printFFElemShort("\n\ntestPrimitivity ff=",ff);*/
 
     copyFFElem(ff,fff);
-    //test first barFactor
+    // all barFactors are power of commonBarFactor
     if(binarySqM)
         powerFFElemSqM(fff,mipo,ffTmp,
-                m,barFactors,lenBarFactors[0],
+                m,commonBarFactor,lenCommonBarFactor,
                 tmp,ffTmp2,
                 multTable,addTable);
     else 
         powerFFElem(fff,mipo,ffTmp,
+                m,commonBarFactor,lenCommonBarFactor,
+                matCharac,tmp,ffTmp2,
+                multTable,addTable);
+    /*printf("commonBarFactor=");printArr(commonBarFactor,lenCommonBarFactor);*/
+    /*printFFElem("   y",ffTmp);*/
+    if(isOne(ffTmp)) return false;
+    //switch ffTmp and fff
+    ffSwitch = fff; fff = ffTmp; ffTmp = ffSwitch;
+    copyFFElem(fff,ffff);
+    //test first barFactor
+    if(binarySqM)
+        powerFFElemSqM(ffff,mipo,ffTmp,
+                m,barFactors,lenBarFactors[0],
+                tmp,ffTmp2,
+                multTable,addTable);
+    else
+        powerFFElem(ffff,mipo,ffTmp,
                 m,barFactors,lenBarFactors[0],
                 matCharac,tmp,ffTmp2,
                 multTable,addTable);
     /*printf("firstFactor=");printArr(barFactors,lenBarFactors[0]);*/
-    /*printFFElem("   x^firstFactor",ffTmp);*/
+    /*printFFElem("   y^firstFactor",ffTmp);*/
     if(isOne(ffTmp)) return false;
     curPos += lenBarFactors[0];
-    //test further factors which are powers of biggestPrimeFactor
-    //so first, calc x^biggestPrimeFactor
-    copyFFElem(ff, fff);
+    //test further factors which are powers of commonBiggestBarFactor
+    //so first, calc y^commonBiggestBarFactor
+    copyFFElem(fff, ffff);
     if(binarySqM)
-        powerFFElemSqM(fff,mipo,ffTmp,
-                m,biggestPrimeFactor,lenBiggestPrimeFactor,
+        powerFFElemSqM(ffff,mipo,ffTmp,
+                m,commonBiggestBarFactor,lenCommonBiggestBarFactor,
                 tmp,ffTmp2,
                 multTable,addTable);
     else
-        powerFFElem(fff,mipo,ffTmp,
-                m,biggestPrimeFactor,lenBiggestPrimeFactor,
+        powerFFElem(ffff,mipo,ffTmp,
+                m,commonBiggestBarFactor,lenCommonBiggestBarFactor,
                 matCharac,tmp,ffTmp2,
                 multTable,addTable);
     if(isOne(ffTmp)) return false;
-    copyFFElem(ffTmp, fff);
-    /*printf("biggestPrimeFactor=");printArr(biggestPrimeFactor,lenBiggestPrimeFactor);*/
-    /*printFFElem("   x^biggestPrimeFactor",fff);*/
+    ffSwitch = fff; fff = ffTmp; ffTmp = ffSwitch;
+    /*printf("commonBiggestBarFactor=");printArr(commonBiggestBarFactor,lenCommonBiggestBarFactor);*/
+    /*printFFElem("   z=y^commonBiggestBarFactor",fff);*/
     for(i=1;i<countBarFactors;i++){
-        // copy x^biggestPrimeFactor (fff) to ffTmp
-        if(i>1) copyFFElem(fff,ffTmp);
-        // *** ffTmp == fff == x^biggestPrimeFactor
+        // copy z (fff) to ffff
+        copyFFElem(fff,ffff);
+        // *** ffff == fff == y^commonBiggestBarFactor
         if(binarySqM)
-            powerFFElemSqM(ffTmp, mipo, ffTmp2, 
+            powerFFElemSqM(ffff, mipo, ffTmp, 
                     m,barFactors+curPos, lenBarFactors[i],
-                    tmp,ffTmp3,
+                    tmp,ffTmp2,
                     multTable,addTable);
         else
-            powerFFElem(ffTmp, mipo, ffTmp2, 
+            powerFFElem(ffff, mipo, ffTmp, 
                     m,barFactors+curPos, lenBarFactors[i],
-                    matCharac,tmp,ffTmp3,
+                    matCharac,tmp,ffTmp2,
                     multTable,addTable);
         /*printf("barFactor[%i]=",i);printArr(barFactors+curPos,*/
                 /*lenBarFactors[i]);*/
-        /*printFFElem("   y^curFac",ffTmp2);*/
+        /*printFFElem("   z^curFac",ffTmp);*/
 
         if(i>1){
-            multiplyFFElem(ffRet,ffTmp2,ffTmp3,mipo,
+            multiplyFFElem(ffRet,ffTmp,ffTmp2,mipo,
                     tmp,m,multTable,addTable);
         }else{
-            copyFFElem(ffTmp2,ffTmp3);
+            ffSwitch = ffTmp2; ffTmp2 = ffTmp; ffTmp = ffSwitch;
         }
-        /*printFFElem("ffTmp3",ffTmp3);*/
-        if(isOne(ffTmp3)) return false;
+        /*printFFElem("ffTmp2",ffTmp2);*/
+        if(isOne(ffTmp2)) return false;
         curPos += lenBarFactors[i];
-        copyFFElem(ffTmp3,ffRet);
+        ffSwitch = ffRet; ffRet = ffTmp2; ffTmp2 = ffSwitch;
     }
     /*printf("isPrimitive!\n");*/
     return true;
@@ -1014,7 +1033,8 @@ unsigned long long processLastSubmoduleAndTestPrimitivity(struct Node **roots,
         struct FFElem **elementsF,
         int m, int q, 
         int *barFactors, int *lenBarFactors, int countBarFactors,
-        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+        int *commonBarFactor, int lenCommonBarFactor,
+        int *commonBiggestBarFactor, int lenCommonBiggestBarFactor,
         struct FFElem **matCharac,
         struct FFElem **matmulCache, bool *matmulCacheCalced,
         int *multTable, int *addTable){
@@ -1085,7 +1105,8 @@ unsigned long long processLastSubmoduleAndTestPrimitivity(struct Node **roots,
                 //test primitivity
                 if(isPrimitive(ffff, mipo,m,
                             barFactors,lenBarFactors,countBarFactors,
-                            biggestPrimeFactor,lenBiggestPrimeFactor,
+                            commonBarFactor,lenCommonBarFactor,
+                            commonBiggestBarFactor,lenCommonBiggestBarFactor,
                             matCharac,
                             ffTmp,ffTmp2,ffTmp3,ffTmp4,ffTmp5,
                             tmp,multTable,addTable)){
@@ -1145,7 +1166,8 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
         struct FFElem **mats, int matLen, int *frobPowers,
         int *genCounts, int m, int charac, int q,
         int *barFactors, int *lenBarFactors, int countBarFactors,
-        int *biggestPrimeFactor, int lenBiggestPrimeFactor,
+        int *commonBarFactor, int lenCommonBarFactor,
+        int *commonBiggestBarFactor, int lenCommonBiggestBarFactor,
         struct FFElem **matCharac, struct FFElem **elementsF,
         int *multTable, int *addTable){
     time_t TIME = time(NULL);
@@ -1255,7 +1277,8 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
             elementsF,
             m,q,
             barFactors,lenBarFactors,countBarFactors,
-            biggestPrimeFactor,lenBiggestPrimeFactor,
+            commonBarFactor,lenCommonBarFactor,
+            commonBiggestBarFactor,lenCommonBiggestBarFactor,
             matCharac,
             matmulCache,matmulCacheCalced,
             multTable,addTable);

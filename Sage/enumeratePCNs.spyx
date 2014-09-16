@@ -46,7 +46,8 @@ cdef extern from "./enumeratePCNs.c":
         FFElem **mats, int matLen, int *frobPowers, \
         int *genCounts, int m, int charac, int q, \
         int *barFactors, int *lenBarFactors, int countBarFactors, \
-        int *biggestPrimeFactor, int lenBiggestPrimeFactor, \
+        int *commonBarFactor, int lenCommonBarFactor,
+        int *commonBiggestBarFactor, int lenCommonBiggestBarFactor,
         FFElem **matCharac, FFElem **elementsF, \
         int *multTable, int *addTable)
 
@@ -142,38 +143,41 @@ def countCompleteSubmoduleGenerators(F,n, maxEta=0, binaryPowers=False):
     #for r,k in factor(primitiveOrder):
         #for i in range(1,k+1):
             #barFactors += [primitiveOrder/(r**i)]
-    biggestPrimeFactor = factor(primitiveOrder)[-1][0]
-    for r,k in factor(primitiveOrder):
+    factors = reversed(factor(primitiveOrder))
+    for r,k in factors:
         barFactors += [primitiveOrder/r]
     countBarFactors = len(barFactors)
+    commonBarFactor = gcd(barFactors)
+    commonBiggestBarFactor = max(gcd(barFactors[1:]) / commonBarFactor,1)
     print "barFactors=", barFactors
+    print "commonBarFactor=",commonBarFactor
+    print "commonBiggestBarFactor=",commonBiggestBarFactor
+    barFactors = map(lambda b: b/commonBarFactor, barFactors)
     curF = 0
-    barFactors_tmp = [barFactors[-1]]
-    for b in reversed(barFactors[:-1]):
-        barFactors_tmp += [ b/biggestPrimeFactor - curF]
-        curF = b/biggestPrimeFactor
+    barFactors_tmp = [barFactors[0]]
+    for b in barFactors[1:]:
+        barFactors_tmp += [ b/commonBiggestBarFactor - curF]
+        curF = b/commonBiggestBarFactor
     barFactors = barFactors_tmp
     print "barFactors=", barFactors
-    print "biggestPrimeFactor=", biggestPrimeFactor
     if binaryPowers:
-        barFactors = map(\
-                lambda b: get_padic_representation(Integer(b),Integer(2))\
-                ,barFactors)
-        biggestPrimeFactor = \
-                    get_padic_representation(biggestPrimeFactor,Integer(2))
+        barFactors = map(lambda b: get_padic_representation(b,2),barFactors)
+        commonBarFactor = get_padic_representation(commonBarFactor,2)
+        commonBiggestBarFactor = \
+                get_padic_representation(commonBiggestBarFactor,2)
     else:
-        barFactors = map(\
-                lambda b: get_padic_representation(Integer(b),Integer(p))\
-                ,barFactors)
-        biggestPrimeFactor = \
-                    get_padic_representation(biggestPrimeFactor,Integer(p))
-    lenBiggestPrimeFactor = len(biggestPrimeFactor)
+        barFactors = map(lambda b: get_padic_representation(b,p),barFactors)
+        commonBarFactor = get_padic_representation(commonBarFactor,p)
+        commonBiggestBarFactor = \
+                get_padic_representation(commonBiggestBarFactor,p)
+    lenCommonBarFactor = len(commonBarFactor)
+    lenCommonBiggestBarFactor = len(commonBiggestBarFactor)
 
     lenBiggestZeroGap = 0
     if not binaryPowers:
         #find biggest gap (i.e. zero-interval)
         lenCurGap = 0
-        for b in barFactors+[biggestPrimeFactor]:
+        for b in barFactors+[commonBarFactor]+[commonBiggestBarFactor]:
             i = 0
             while i < len(b):
                 lenCurGap = 0
@@ -203,8 +207,9 @@ def countCompleteSubmoduleGenerators(F,n, maxEta=0, binaryPowers=False):
     #print "evalToZero=",evalToZero, "len=",len(evalToZero)
     #print "frobPowers=",frobPowers, "len=",len(frobPowers)
     #print "polysCount=",polysCount, "len=",len(polysCount)
-    #print "barFactors=",barFactors
-    #print "biggestPrimeFactor=", biggestPrimeFactor
+    print "barFactors=",barFactors
+    print "commonBarFactor=",commonBarFactor
+    print "commonBiggestBarFactor=",commonBiggestBarFactor
     #print "lenBiggestZeroGap=",lenBiggestZeroGap
     #print "multTable=",multTable, " len=", len(multTable)
     #print "addTable=", addTable, " len=", len(addTable)
@@ -245,13 +250,15 @@ def countCompleteSubmoduleGenerators(F,n, maxEta=0, binaryPowers=False):
     cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
             = np.array(polysCount, dtype=np.int32)
     cdef FFPoly **polysC = pyList2PointFFPoly(polys,m)
-        # prime Factors
+        # bar Factors
     cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
         = np.array(list(itertools.chain(*barFactors)), dtype=np.int32)
     cdef np.ndarray[int,ndim=1,mode="c"] lenBarFactorsC \
         = np.array(map(len,barFactors), dtype=np.int32)
-    cdef np.ndarray[int,ndim=1,mode="c"] biggestPrimeFactorC \
-        = np.array(biggestPrimeFactor, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] commonBarFactorC \
+        = np.array(commonBarFactor, dtype=np.int32)
+    cdef np.ndarray[int,ndim=1,mode="c"] commonBiggestBarFactorC \
+        = np.array(commonBiggestBarFactor, dtype=np.int32)
         # F elements in E
     cdef FFElem **elementsFC = pyList2PointFFElem(elementsF,m)
 
@@ -293,7 +300,8 @@ def countCompleteSubmoduleGenerators(F,n, maxEta=0, binaryPowers=False):
                     <int*>genCountsC.data, m, p, q,
                     <int*>barFactorsC.data, <int*>lenBarFactorsC.data,
                     countBarFactors,
-                    <int*>biggestPrimeFactorC.data, lenBiggestPrimeFactor,
+                    <int*>commonBarFactorC.data,lenCommonBarFactor,
+                    <int*>commonBiggestBarFactorC.data,lenCommonBiggestBarFactor,
                     matCharacC,elementsFC,
                     multTableC,addTableC)
 
@@ -507,6 +515,8 @@ def countCompleteSubmoduleGenerators(F,n, maxEta=0, binaryPowers=False):
 
 
 def get_padic_representation(number, p):
+    number = Integer(number)
+    p = Integer(p)
     ret = []
     q = number
     while q > 0:

@@ -1636,6 +1636,7 @@ def findAnyPCN_useGen_Py(n):
             r += 1
             q = p**r
             counter += 1
+            if counter > 100:return
 
 
 #def findAnyPCN_useTrinom(n):

@@ -69,10 +69,32 @@ for q, nlist in SETUP:
         GENLIST += [[q,n]]
 
 #------------------------------------------------------------------------------
-#test n = 6, q = 2, 3, 4, ..., 32, ...
+#test n = 3, q = 2, 3, 4, ..., 32, ...
 filePath = "mullenTableC_struct_n=3_"+st+".txt"
 GENLIST = []
 n = 3
+for p in primes(100):
+    for e in range(1,10):
+        GENLIST += [[p**e,n]]
+
+GENLIST = sorted(GENLIST)
+
+#------------------------------------------------------------------------------
+#test n = 4, q = 2, 3, 4, ..., 32, ...
+filePath = "mullenTableC_struct_n=4_"+st+".txt"
+GENLIST = []
+n = 4
+for p in primes(100):
+    for e in range(1,10):
+        GENLIST += [[p**e,n]]
+
+GENLIST = sorted(GENLIST)
+
+#------------------------------------------------------------------------------
+#test n = 6, q = 2, 3, 4, ..., 32, ...
+filePath = "mullenTableC_struct_n=6_"+st+".txt"
+GENLIST = []
+n = 6
 for p in primes(100):
     for e in range(1,10):
         GENLIST += [[p**e,n]]

@@ -15,3 +15,6 @@ completely free and primitive elements (`pcn`) in `GF(q^n)` over `GF(q)`.
 (where `Phi_k` is the `k`-th cyclotomic polynomial) has `N` 
 complete generators in `GF(q^n)` over `GF(q)`.
 
+##Files start with `enumerationsN_`
+The syntax of `enumerationsN_n` is like in the above paragraph except that 
+now `n` is constant in the whole file and `q` (i.e. `p` and `r`) varies.

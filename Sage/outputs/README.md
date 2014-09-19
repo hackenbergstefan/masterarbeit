@@ -1,10 +1,4 @@
 #Output folder
-##Files start with `PCNS_`
-The file `PCNS_n` contains for every prime `p` and every extension `r` 
-with `p^r < n^4` one polynomial over `GF(p)` of degree `n*r`. 
-At least `p^r` roots of this polynomial are 
-primitive and completely free elements in `GF((p^r)^n)` over `GF(p^r)`.
-
 ##Files start with `enumerationsPCN_P_`
 The file `enumerationsPCN_P_p` contains the information of enumerations 
 done for the prime `p`. The line `q,p,r,n,cn,pcn,gens` in 
@@ -18,3 +12,17 @@ complete generators in `GF(q^n)` over `GF(q)`.
 ##Files start with `enumerationsPCN_N_`
 The syntax of `enumerationsPCN_N_n` is like in the above paragraph except that 
 now `n` is constant in the whole file and `q` (resp. `p` and `r`) varies.
+
+##Files start with `PCNS_`
+The file `PCNS_n` contains for every prime `p` and every extension `r` 
+with `p^r < n^4` one polynomial over `GF(p)` of degree `n*r`. 
+All roots of this polynomial are 
+primitive and completely free elements in `GF((p^r)^n)` over `GF(p^r)`.
+
+##Files start with `PCNS_weight_`
+The file `PCNS_weight_n` contains for every prime `p` and every extension `r` 
+with `p^r < n^4` one polynomial over `GF(p)` of degree `n*r`. 
+All roots of this polynomial are 
+primitive and completely free elements in `GF((p^r)^n)` over `GF(p^r)`.
+In contrast to the above paragraph we concentrated on polynomials
+with lowest hamming weigh.

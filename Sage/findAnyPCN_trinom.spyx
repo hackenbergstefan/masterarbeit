@@ -1,0 +1,263 @@
+from sage.all import *
+import re
+import time
+from multiprocessing import Pool, Value
+import multiprocessing
+import itertools
+import datetime
+import time
+import os
+import ast
+
+
+def findAnyPCN_polynom(F,n):
+    q = F.order();
+    p = F.characteristic();
+    r = q.log(p)
+
+    E = F.extension(n,'a')
+    P = E.prime_subfield()
+
+    Px = PolynomialRing(P,'x')
+    Fx = PolynomialRing(F,'x')
+    Ex = PolynomialRing(E,'x')
+    h = Hom(F,E)[0]
+    primOrder = E.order()-1
+    
+    m = n*r
+
+    primitives = []
+
+    # first test trinoms!
+    for coeffN in xrange(1,p):
+        coeffNP = P(coeffN)
+        if coeffNP.multiplicative_order() != P.order()-1: continue
+        primitives += [coeffNP]
+        for coeffT in xrange(1,p):
+            f = Px.gen()**m + coeffT*Px.gen()**(m-1) + coeffNP
+            if not f.is_irreducible(): continue
+            for fac,mul in Ex(f).factor():
+                if fac.degree() == 1:
+                    x = -fac[0]
+                    if isCompletelyNormal(x,F) and \
+                            x.multiplicative_order() == primOrder:
+                        #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
+                            #"prim: ", (x.multiplicative_order() == E.order()-1)
+                        return x,f
+                    else: break
+                else: break
+    # test rest
+    for length in xrange(1,m-2):
+        for idcs in itertools.combinations(xrange(1,m-1),length):
+            for xs in itertools.product(xrange(1,p),repeat=length+1):
+                for x in primitives:
+                    f = Px.gen()**m + xs[0]*Px.gen()**(m-1) + x
+                    for j,j2 in enumerate(idcs):
+                        f += xs[j+1] * Px.gen() ** j2
+                    if not f.is_irreducible(): continue
+                    for fac,mul in Ex(f).factor():
+                        if fac.degree() == 1:
+                            x = -fac[0]
+                            if isCompletelyNormal(x,F) and \
+                                    x.multiplicative_order() == primOrder:
+                                #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
+                                    #"prim: ", (x.multiplicative_order() == E.order()-1)
+                                return x,f
+                            else: break
+                        else: break
+
+
+
+def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
+        fileoutput=False, filepath="/tmp/pcns_polynom_", \
+        startPrime=1):
+    if fileoutput:
+        st = datetime.datetime.\
+                fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
+        filepath += str(n)+"_"+st
+    border = border(n)
+    p = startPrime
+    while p < border :
+        p = next_prime(p)
+        r = 1
+        q = p**r
+        while q < border:
+            F = GF(q,'a')
+            x,pol = findAnyPCN_polynom(F,n)
+            print "(",p,", ",r,") = ", pol
+            if fileoutput:
+                with open(filepath,'a') as f:
+                    f.write(str(p)+"\t"+str(r)
+                            +"\t"+str(pol)+"\n")
+                f.close();
+            #if not isCompletelyNormal(x,F) or \
+                   #x.multiplicative_order() != q**n-1:
+                #print "FATAL ERROR on p=",p," r=",r," x=",x.polynomial().list()
+                #break;
+            r += 1
+            q = p**r
+
+
+
+
+
+
+
+##############################################################################
+## Slow Py Algorithms for testing ############################################
+##############################################################################
+
+
+def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
+    if x == 0: return False
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    p = F.characteristic();
+    e = q.log(p)
+    divs = get_proper_subfield_divisors(p,e,n)
+    if facAll == []:
+        facAll = dict();
+        prodsAll = dict();
+        fieldsAll = dict();
+        for d in divs:
+            G = F.extension(Integer(d), 'c');
+            Gx = PolynomialRing(G,'x');
+            fieldsAll[d] = G;
+            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+            prodsAll[d] = dict();
+            for idx,(f,mult) in enumerate(facAll[d]):
+                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+    #test isNormal for each divisor
+    pows = dict()
+    for d in divs:
+        h = Hom(fieldsAll[d],E)[0];
+        for idx,(f,mult) in enumerate(facAll[d]):
+            g = prodsAll[d][idx];
+            ret = E.zero();
+            iold = 0
+            xiold = x
+            for i,gi in enumerate(list(g)):
+                if pows.has_key(i*d):
+                    xi = pows[i*d];
+                    iold = i*d
+                    xiold = xi
+                else:
+                    xi = xiold**(q**(d*i-iold));
+                    pows[i*d] = xi;
+                    xiold = xi
+                    iold = i*d
+                ret += h(gi)*xi
+            if ret == 0: return False;
+    return True
+
+
+##############################################################################
+## Helper ####################################################################
+##############################################################################
+
+
+def get_padic_representation(number, p):
+    number = Integer(number)
+    p = Integer(p)
+    ret = []
+    q = number
+    while q > 0:
+        q,r = q.quo_rem(Integer(p));
+        ret += [r]
+    return list(reversed(ret))
+
+
+
+# computes the quadratic free part of an integer
+def squarefree(n):
+    return sage.all.prod(map(lambda x: x[0], sage.all.factor(Integer(n))))
+
+# computes ordn m(q) = min{ k: q ** k = 1 mod m }
+def ordn(m,q):
+    if m == 1: return 1
+    for i in range(1,m+1):
+        if (q ** i)%m == 1: return i;
+
+# Application of the Decomposition Theorem (Section 19)
+# for x^n-1 over F_p^e
+def decompose(p,e, n):
+    pi = largestDiv(p,n)
+    return decompose_cycl_module(p,e, 1, n/pi, pi)
+
+
+## returns the module characters of a decomposition
+## the module character of U_F,Phi_k(x^t) is k*t / nu(k)
+def get_module_characters(decomp):
+   return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
+
+# returns the module characters of a cyclotomic module
+# the module character of U_F,Phi_k(x^t)^pi is k*t*pi / nu(k)
+def get_module_character(k,t,pi):
+    return Integer(k*t*pi/squarefree(k))
+
+# returns all divisors of the module characters of an extension
+# capped with the complete basic divisors
+# i.e. all intermediate fields that must be considered
+def get_proper_subfield_divisors(p,e, n):
+    basList = get_completely_basic_divisors(p,e,n)
+    return filter(lambda d: d in basList, \
+            list(uniq(itertools.chain(*map(divisors,\
+           get_module_characters(decompose(p,e,n)))))))
+
+
+# internal application of the Decomposition Theorem
+# for Phi_k(x^(t*pi)) over F_p^e
+def decompose_cycl_module(p,e, k,t,pi):
+    if p.divides(k*t): print "ERROR p | kt"
+    #test all prime divisors, start with largest one
+    flag = False
+    for r,l in reversed(factor(t)):
+        if not (r**l).divides(ordn(squarefree(k*t),p**e)):
+            R = largestDiv(r,t)
+            return decompose_cycl_module(p,e, k, t/r, pi) + decompose_cycl_module(p,e, k*R, t/R, pi)
+    return [(k,t,pi)]
+
+
+
+# returns the largest power of p dividing n
+def largestDiv(p,n):
+    l = 0
+    while (p**l).divides(n):
+        l = l+1
+    return p**(l-1);
+
+
+def get_completely_basic_divisors(p,e,n):
+    n = Integer(n)
+    q = Integer(p**e)
+    divs = []
+    for d in divisors(n):
+        isComplBasic = True
+        for r in prime_divisors(n/d):
+            if r.divides(ordn(p_free_part(n/d/r,p),q**d)):
+                isComplBasic = False
+                break
+        divs += [d]
+        if isComplBasic: return divs
+    return divs
+
+
+
+# p-free part of t
+def p_free_part(t,p):
+    while p.divides(t):
+        t /= p
+    return t
+
+
+
+
+# formats timedelta objects to nice string
+def strfdelta(tdelta):
+    d = {}
+    d["hours"], rem = divmod(tdelta.seconds, 3600)
+    d["hours"] += int(tdelta.days*24)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return "{hours}:{minutes}:{seconds}".format(**d)

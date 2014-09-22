@@ -1,0 +1,436 @@
+from sage.all import *
+import re
+import time
+from multiprocessing import Pool, Value
+import multiprocessing
+import itertools
+import datetime
+import time
+import os
+import ast
+import numpy as np
+cimport numpy as np
+from libc.stdlib cimport malloc, free
+from libc.stdint cimport int
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
+
+
+cdef extern from "./algs-base.c":
+    void initPoly(int *p, int m)
+    void printArr(int *arr, int l)
+    void copyArray(int *arr1, int *arr2, int m)
+    
+
+cdef extern from "./findAnyPCN.c":
+    struct FFElem:
+        int *el
+        int *idcs
+        int len
+    struct FFPoly:
+        FFElem **poly
+        int lenPoly
+    FFElem *mallocFFElem(int m)
+    FFPoly *mallocFFPoly(int m,int lenPoly)
+    void freeFFElem(FFElem *ff)
+    void freeFFPoly(FFPoly *poly)
+    void freeFFElemMatrix(FFElem **mat, int len)
+    void printFFElem(char *preName, FFElem *ff)
+    void printFFPoly(char *preName, FFPoly *poly)
+    void printFFElemMatrix(FFElem **ff,int m)
+    void updateFFElem(FFElem *ff,int m)
+
+    FFElem **genFrobMats(FFElem *mipo,int m,int maxPower,int q, \
+        int charac, int *addTable)
+    char processFiniteField(FFElem *ff, FFElem *ffRet,\
+            int *nextPowers, int lenNextPowers, int maxPower, \
+            FFElem *mipo, \
+            FFPoly **polys, int polysCount, \
+            FFElem **mats, int matLen, int *frobPowers, \
+            int m, int charac, int q, \
+            int *addTable)
+    int *genAddTable(int charac)
+
+cdef FFElem *pyList2FFElem(element,int m):
+    cdef FFElem *ff = mallocFFElem(<int>m)
+    initPoly(ff.el,m)
+    for i,e in enumerate(element):
+        ff.el[i] = e
+    updateFFElem(ff,m)
+    return ff
+
+cdef FFElem **pyList2PointFFElem(pyList, int m):
+    lenList = len(pyList)
+    cdef FFElem **ffs = <FFElem**>malloc(lenList*sizeof(FFElem*))
+    for i,e in enumerate(pyList):
+        ffs[i] = pyList2FFElem(e,m)
+    return ffs
+
+cdef FFPoly *pyList2FFPoly(listPoly, int m):
+    lenPoly = len(listPoly)
+    cdef FFPoly *poly = <FFPoly*>malloc(sizeof(FFPoly))
+    poly.poly = <FFElem**>malloc(lenPoly*sizeof(FFElem*))
+    poly.lenPoly = lenPoly
+    for i,e in enumerate(listPoly):
+        poly.poly[i] = pyList2FFElem(e,m)
+    return poly
+
+cdef FFPoly **pyList2PointFFPoly(listPolys, int m):
+    countPolys = len(listPolys)
+    cdef FFPoly **polys = <FFPoly**>malloc(countPolys*sizeof(FFPoly*))
+    for i,e in enumerate(listPolys):
+        polys[i] = pyList2FFPoly(e,m)
+    return polys
+
+
+cdef ffElem2PyList(FFElem *ff):
+    if ff.len == 0: return []
+    ret = [0]*(ff.idcs[0]+1)
+    for i in range(ff.len):
+        ret[ff.idcs[i]] = ff.el[ ff.idcs[i] ]
+    return ret
+
+
+
+def findAnyPCN(F,n, maxEta=0, binaryPowers=False):
+    TIME = time.time()
+    p = F.characteristic()
+    q = F.order();
+    e = q.log(p)
+    E = F.extension(Integer(n),'a');
+    P = E.prime_subfield()
+    #generate factors
+    polys = []
+    frobPowers = []
+    notComplBasicDivisors = get_completely_basic_divisors(p,e,n)
+    polysCount = 0
+    maxMatPower = 0
+    for d in notComplBasicDivisors:
+        G = F.extension(Integer(d), 'c');
+        Gx = PolynomialRing(G,'x'); 
+        h = Hom(G,E)[0]
+        cycls = map(lambda d: Gx.cyclotomic_polynomial(d), divisors(n/d))
+        facList = map(factor,cycls)
+        #print "\ti.e. cycl=",cycl
+        for idx,facs in enumerate(facList):
+            mul = prod(cycls[:idx]) * prod(cycls[idx+1:])
+            for f,mult in facs:
+                g = cycls[idx].quo_rem(f)[0] * mul
+                degG = g.degree()
+                if degG > maxMatPower: maxMatPower = degG
+                polys += [map(lambda x: h(x).polynomial().list(), g.list())]
+                frobPowers += [d]
+                polysCount +=1
+    
+    charac = int(E.characteristic())
+        #mipo, idcsMipo
+    mipo = E.modulus().list()
+    m = len(mipo)-1
+
+
+    #print "mipo = ",mipo
+    #print "polys= ",polys, "len=",len(polys)
+    #print "frobPowers=",frobPowers, "len=",len(frobPowers)
+    #print "polysCount=",polysCount, 
+    #print "addTable=", addTable, " len=", len(addTable)
+    #=========================================================================
+    
+    #print "py setup: ",(time.time()-TIME)
+    #TIME = time.time()
+
+    
+    # SETUP C DATA ===========================================================
+        # addition table
+    cdef int *addTableC = genAddTable(p)
+        #setup mipo
+    cdef FFElem *mipoC = pyList2FFElem(mipo,m+1)
+       #setup matrices
+    cdef FFElem **matsC  = genFrobMats(mipoC,m,maxMatPower,q,
+            p, addTableC)
+    #setup polynomials, polyLength, frobPowers, evaltoZero
+        #frobPowersC
+    cdef np.ndarray[int,ndim=1,mode="c"] frobPowersC\
+            = np.array(frobPowers, dtype=np.int32)
+        #polysC
+    cdef FFPoly **polysC = pyList2PointFFPoly(polys,m)
+    
+    #--------------------
+    #print "addTable=",addTable
+    #printFFElem("mipoC",mipoC)
+    #print "maxMatPower = ",maxMatPower
+    #print "matsC: "
+    #for i in range(maxMatPower):
+        #printFFElemMatrix(matsC+<int>(i*m),m)
+        #print ""
+    #print "polysC = {"
+    #for i in range(len(polys)):
+        #print "  i=",i
+        #printFFPoly("",polysC[i])
+    #print "}"
+    #print "frobPowersC=",frobPowersC, "len=",len(frobPowersC)
+    #print "polysCount=",polysCount
+    #=========================================================================
+    
+    #print "\tsetup data: ",(time.time()-TIME)
+    #TIME = time.time()
+    
+    #setup an primitive Element
+    x = E.primitive_element()
+    primOrder = E.order()-1
+    ff = pyList2FFElem(x.polynomial().list(),m)
+    cdef FFElem *ffRet = mallocFFElem(m)
+    # on first run set ffRet to one
+    ffRet.len = 1; ffRet.el[0] = 1; ffRet.idcs[0] = 0
+    
+    #print "\tfind primitive element: ",(time.time()-TIME)
+    #TIME = time.time()
+
+    cdef np.ndarray[int,ndim=1,mode="c"] nextPowersC
+
+    # gen next powers
+    curPower = 1
+    lastPower = 1
+    nextPowers = [1]
+    nextPowers2 = [1]
+    done = False
+    while not done:
+        maxPower = 0
+        while len(nextPowers) < 5:
+            curPower += 1
+            if gcd( curPower, primOrder ) == 1:
+                nextPowers += [ curPower - lastPower ]
+                nextPowers2 += [ curPower ]
+                maxPower = max( curPower-lastPower, maxPower)
+                lastPower = curPower
+        #print "nextPowers2=",nextPowers2
+        #print "maxPower=",maxPower
+        nextPowersC = np.array(nextPowers, dtype=np.int32)
+        done = processFiniteField(ff, ffRet,
+                <int*>nextPowersC.data, len(nextPowers), maxPower,
+                mipoC,polysC,polysCount,
+                matsC, maxMatPower, <int*>frobPowersC.data,
+                m,p,q,
+                addTableC)
+        nextPowers = []
+    x = E(ffElem2PyList(ffRet))
+    #good = True
+    #if not isCompletelyNormal(x,F):
+            #print "FATAL ERROR: notCN on q=",q," n=",n," x=",x
+            #good = False
+    #if x.multiplicative_order() != E.order()-1:
+            #print "FATAL ERROR: notPrim on q=",q," n=",n," x=",x
+            #good =  False
+
+    #printFFElem("found ff",ff)
+    #print "\tdone: ",(time.time()-TIME)
+    #TIME = time.time()
+
+    # Free all malloced variables at the end =================================
+    freeFFElem(mipoC)
+    freeFFElemMatrix(matsC,m*maxMatPower)
+    for i in range(len(polys)):
+        freeFFPoly(polysC[i])
+    free(polysC)
+    free(addTableC-<int>(2*(p-1)))
+    freeFFElem(ff)
+    freeFFElem(ffRet)
+    #=========================================================================
+    #if not good: return False
+    return x
+
+
+def findAnyPCN_wrapper(n, border=lambda n:n**4, \
+        fileoutput=False, filepath="/tmp/pcns_"):
+    if fileoutput:
+        st = datetime.datetime.\
+                fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
+        filepath += str(n)+"_"+st
+    border = border(n)
+    for p in primes(n**4):
+        r = 1
+        q = p**r
+        while q < border:
+            F = GF(q,'a')
+            x = findAnyPCN(F,n)
+            print "(",p,", ",r,") = ", x.polynomial().list()
+            if fileoutput:
+                with open(filepath,'a') as f:
+                    f.write(str(p)+"\t"+str(r)
+                            +"\t"+str(x.polynomial().list())+"\n")
+                f.close();
+            #if not isCompletelyNormal(x,F) or \
+                   #x.multiplicative_order() != q**n-1:
+                #print "FATAL ERROR on p=",p," r=",r," x=",x.polynomial().list()
+                #break;
+            r += 1
+            q = p**r
+
+def findAnyPCN_wrapper_test(n):
+    p = 300000
+    counter = 0
+    while counter < 1000:
+        p = next_prime(p)
+        F = GF(p,'a')
+        print "test p=",p
+        if not findAnyPCN(F,n): return
+        counter += 1
+
+
+
+##############################################################################
+## Helper ####################################################################
+##############################################################################
+
+
+def get_padic_representation(number, p):
+    number = Integer(number)
+    p = Integer(p)
+    ret = []
+    q = number
+    while q > 0:
+        q,r = q.quo_rem(Integer(p));
+        ret += [r]
+    return list(reversed(ret))
+
+
+
+# computes the quadratic free part of an integer
+def squarefree(n):
+    return sage.all.prod(map(lambda x: x[0], sage.all.factor(Integer(n))))
+
+# computes ordn m(q) = min{ k: q ** k = 1 mod m }
+def ordn(m,q):
+    if m == 1: return 1
+    for i in range(1,m+1):
+        if (q ** i)%m == 1: return i;
+
+# Application of the Decomposition Theorem (Section 19)
+# for x^n-1 over F_p^e
+def decompose(p,e, n):
+    pi = largestDiv(p,n)
+    return decompose_cycl_module(p,e, 1, n/pi, pi)
+
+
+## returns the module characters of a decomposition
+## the module character of U_F,Phi_k(x^t) is k*t / nu(k)
+def get_module_characters(decomp):
+   return uniq(map(lambda l: l[0]*l[1]*l[2] / squarefree(l[0]),decomp))
+
+# returns the module characters of a cyclotomic module
+# the module character of U_F,Phi_k(x^t)^pi is k*t*pi / nu(k)
+def get_module_character(k,t,pi):
+    return Integer(k*t*pi/squarefree(k))
+
+# returns all divisors of the module characters of an extension
+# capped with the complete basic divisors
+# i.e. all intermediate fields that must be considered
+def get_proper_subfield_divisors(p,e, n):
+    basList = get_completely_basic_divisors(p,e,n)
+    return filter(lambda d: d in basList, \
+            list(uniq(itertools.chain(*map(divisors,\
+           get_module_characters(decompose(p,e,n)))))))
+
+
+# internal application of the Decomposition Theorem
+# for Phi_k(x^(t*pi)) over F_p^e
+def decompose_cycl_module(p,e, k,t,pi):
+    if p.divides(k*t): print "ERROR p | kt"
+    #test all prime divisors, start with largest one
+    flag = False
+    for r,l in reversed(factor(t)):
+        if not (r**l).divides(ordn(squarefree(k*t),p**e)):
+            R = largestDiv(r,t)
+            return decompose_cycl_module(p,e, k, t/r, pi) + decompose_cycl_module(p,e, k*R, t/R, pi)
+    return [(k,t,pi)]
+
+
+
+# returns the largest power of p dividing n
+def largestDiv(p,n):
+    l = 0
+    while (p**l).divides(n):
+        l = l+1
+    return p**(l-1);
+
+
+def get_completely_basic_divisors(p,e,n):
+    n = Integer(n)
+    q = Integer(p**e)
+    divs = []
+    for d in divisors(n):
+        isComplBasic = True
+        for r in prime_divisors(n/d):
+            if r.divides(ordn(p_free_part(n/d/r,p),q**d)):
+                isComplBasic = False
+                break
+        divs += [d]
+        if isComplBasic: return divs
+    return divs
+
+
+
+# p-free part of t
+def p_free_part(t,p):
+    while p.divides(t):
+        t /= p
+    return t
+
+
+
+
+# formats timedelta objects to nice string
+def strfdelta(tdelta):
+    d = {}
+    d["hours"], rem = divmod(tdelta.seconds, 3600)
+    d["hours"] += int(tdelta.days*24)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return "{hours}:{minutes}:{seconds}".format(**d)
+
+##############################################################################
+## Slow Py Algorithms for testing ############################################
+##############################################################################
+
+
+def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
+    if x == 0: return False
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    p = F.characteristic();
+    e = q.log(p)
+    divs = get_proper_subfield_divisors(p,e,n)
+    if facAll == []:
+        facAll = dict();
+        prodsAll = dict();
+        fieldsAll = dict();
+        for d in divs:
+            G = F.extension(Integer(d), 'c');
+            Gx = PolynomialRing(G,'x');
+            fieldsAll[d] = G;
+            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+            prodsAll[d] = dict();
+            for idx,(f,mult) in enumerate(facAll[d]):
+                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+    #test isNormal for each divisor
+    pows = dict()
+    for d in divs:
+        h = Hom(fieldsAll[d],E)[0];
+        for idx,(f,mult) in enumerate(facAll[d]):
+            g = prodsAll[d][idx];
+            ret = E.zero();
+            iold = 0
+            xiold = x
+            for i,gi in enumerate(list(g)):
+                if pows.has_key(i*d):
+                    xi = pows[i*d];
+                    iold = i*d
+                    xiold = xi
+                else:
+                    xi = xiold**(q**(d*i-iold));
+                    pows[i*d] = xi;
+                    xiold = xi
+                    iold = i*d
+                ret += h(gi)*xi
+            if ret == 0: return False;
+    return True
+

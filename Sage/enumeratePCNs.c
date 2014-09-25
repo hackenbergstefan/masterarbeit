@@ -11,6 +11,15 @@
 // Setup FFElements ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+
+/**
+ * Finite Field Element. 
+ * 
+ * !! idcs must be in desc order !!
+ *
+ * Uses int arrays, i.e. you must not consider 
+ * PrimeFields of order p with  p*p > INT_MAX
+ */
 struct FFElem{
     int *el;
     int *idcs;
@@ -1103,17 +1112,17 @@ unsigned long long processLastSubmoduleAndTestPrimitivity(struct Node **roots,
                 /*printFFElemShort("   => got",ffff);*/
                 /*printFFElemShort("test ff",ffff);*/
                 //test primitivity
-                if(isPrimitive(ffff, mipo,m,
-                            barFactors,lenBarFactors,countBarFactors,
-                            commonBarFactor,lenCommonBarFactor,
-                            commonBiggestBarFactor,lenCommonBiggestBarFactor,
-                            matCharac,
-                            ffTmp,ffTmp2,ffTmp3,ffTmp4,ffTmp5,
-                            tmp,multTable,addTable)){
-                    /*printf("   isPrimitive!\n\n\n");*/
-                    pcn++;
-                }else{
-                    /*printf("   is NOT primitive!\n\n\n");*/
+                if(countBarFactors > 0){
+                    if(isPrimitive(ffff, mipo,m,
+                                barFactors,lenBarFactors,countBarFactors,
+                                commonBarFactor,lenCommonBarFactor,
+                                commonBiggestBarFactor,lenCommonBiggestBarFactor,
+                                matCharac,
+                                ffTmp,ffTmp2,ffTmp3,ffTmp4,ffTmp5,
+                                tmp,multTable,addTable)){
+                        /*printf("   isPrimitive!\n\n\n");*/
+                        pcn++;
+                    }
                 }
 
                 //next element

@@ -52,7 +52,7 @@ chapterprefix=true
 \usepackage{xcolor}
 
 
-\usepackage{enumitem}
+\usepackage[inline]{enumitem}
 \setlist[enumerate]{label=(\arabic*)}
 
 \usepackage{array}
@@ -75,6 +75,7 @@ chapterprefix=true
 
 \usepackage{listings}
 \usepackage[automark]{scrpage2} % Headline styles 
+\usepackage{xspace}
 
 
 %% Listings setup %%%%%%%%%%%%%%%%
@@ -96,6 +97,38 @@ chapterprefix=true
   morecomment=[l]{//},
   columns=flexible
 }
+
+
+\lstnewenvironment{ccode}[1][]{%
+  \lstset{ basicstyle = \small\normalfont\ttfamily,
+  frame = tb,
+  framexleftmargin = 15pt,
+  numbers = left,
+  numberstyle = \tiny,
+  numbersep = 5pt,
+  breaklines = true,
+  xleftmargin = 0.07\linewidth,
+  xrightmargin = 0.07\linewidth,
+  escapeinside = {(*}{*)},
+  tabsize=3,
+  language=C,
+  commentstyle=\color{gray}\small\itshape,
+  mathescape=true,#1}}{}
+
+\lstnewenvironment{cexample}[1][]{%
+  \lstset{ basicstyle = \small\normalfont\ttfamily,
+  frame = none,
+  %numbers = left,
+  %numberstyle = \tiny,
+  %numbersep = 5pt,
+  breaklines = true,
+  xleftmargin = 0pt,
+  xrightmargin = 0pt,
+  escapeinside = {(*}{*)},
+  tabsize=3,
+  language=C,
+  commentstyle=\color{gray}\small\itshape,
+  mathescape=true,#1}}{}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Style Anpassungen
@@ -124,6 +157,15 @@ chapterprefix=true
   counter parent=satz,
   postskip=20pt
   ]{definition}{Definition}
+
+\newtikztheorem[
+  style=elegantbreak,
+  color=mycol,
+  font header=\normalfont\sffamily\bfseries,
+  font body=\normalfont,
+  counter parent=satz,
+  postskip=20pt
+  ]{invariante}{Invariante}
 
 \theoremstyle{plain}
 \theorembodyfont{\itshape}
@@ -233,7 +275,7 @@ chapterprefix=true
 \newcommand{\N}{\ensuremath \mathbb{N}}
 \newcommand{\Q}{\ensuremath \mathbb{Q}}
 \newcommand{\Z}{\ensuremath \mathbb{Z}}
-\newcommand{\C}{\ensuremath \mathbb{C}}
+\newcommand{\C}{\ensuremath \mathcal{C}}
 \newcommand{\F}{\ensuremath \mathbb{F}}
 \newcommand{\K}{\ensuremath \mathbb{K}}
 \renewcommand{\P}{\ensuremath \mathbb{P}}
@@ -250,6 +292,8 @@ chapterprefix=true
 \newcommand{\obda}{\small oBdA\space}
 \newcommand{\inv}{^{-1}}
 \newcommand{\kl}[1]{^{(#1)}}
+\newcommand{\sage}{\texttt{Sage}\xspace}
+\newcommand{\Clang}{\texttt{C}\xspace}
 
 \let\div\undefined
 \DeclareMathOperator{\charak}{char}
@@ -397,6 +441,8 @@ chapterprefix=true
 \input{kreisteilungspolynome}
 \input{moduln}
 \input{normalbasen}
+\input{vollst-normalbasen}
+\input{implementierung}
 
 
 \nocite{*}

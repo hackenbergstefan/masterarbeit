@@ -85,7 +85,8 @@ cdef FFPoly **pyList2PointFFPoly(listPolys, int m):
 
 
 
-def countCompleteSubmoduleGenerators(F,n, maxEta=0, binaryPowers=False):
+def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
+        testPrimitivity=True):
     TIME = time.time()
     p = F.characteristic()
     q = F.order();
@@ -140,52 +141,56 @@ def countCompleteSubmoduleGenerators(F,n, maxEta=0, binaryPowers=False):
     #calc prime factors of order
     barFactors = []
     primitiveOrder = E.order()-1
-    #for r,k in factor(primitiveOrder):
-        #for i in range(1,k+1):
-            #barFactors += [primitiveOrder/(r**i)]
-    factors = reversed(factor(primitiveOrder))
-    for r,k in factors:
-        barFactors += [primitiveOrder/r]
-    countBarFactors = len(barFactors)
-    commonBarFactor = gcd(barFactors)
-    commonBiggestBarFactor = max(gcd(barFactors[1:]) / commonBarFactor,1)
-    print "barFactors=", barFactors
-    print "commonBarFactor=",commonBarFactor
-    print "commonBiggestBarFactor=",commonBiggestBarFactor
-    barFactors = map(lambda b: b/commonBarFactor, barFactors)
-    curF = 0
-    barFactors_tmp = [barFactors[0]]
-    for b in barFactors[1:]:
-        barFactors_tmp += [ b/commonBiggestBarFactor - curF]
-        curF = b/commonBiggestBarFactor
-    barFactors = barFactors_tmp
-    print "barFactors=", barFactors
-    if binaryPowers:
-        barFactors = map(lambda b: get_padic_representation(b,2),barFactors)
-        commonBarFactor = get_padic_representation(commonBarFactor,2)
-        commonBiggestBarFactor = \
-                get_padic_representation(commonBiggestBarFactor,2)
-    else:
-        barFactors = map(lambda b: get_padic_representation(b,p),barFactors)
-        commonBarFactor = get_padic_representation(commonBarFactor,p)
-        commonBiggestBarFactor = \
-                get_padic_representation(commonBiggestBarFactor,p)
-    lenCommonBarFactor = len(commonBarFactor)
-    lenCommonBiggestBarFactor = len(commonBiggestBarFactor)
+    if testPrimitivity:
+        factors = reversed(factor(primitiveOrder))
+        for r,k in factors:
+            barFactors += [primitiveOrder/r]
+        countBarFactors = len(barFactors)
+        commonBarFactor = gcd(barFactors)
+        commonBiggestBarFactor = max(gcd(barFactors[1:]) / commonBarFactor,1)
+        print "barFactors=", barFactors
+        print "commonBarFactor=",commonBarFactor
+        print "commonBiggestBarFactor=",commonBiggestBarFactor
+        barFactors = map(lambda b: b/commonBarFactor, barFactors)
+        curF = 0
+        barFactors_tmp = [barFactors[0]]
+        for b in barFactors[1:]:
+            barFactors_tmp += [ b/commonBiggestBarFactor - curF]
+            curF = b/commonBiggestBarFactor
+        barFactors = barFactors_tmp
+        print "barFactors=", barFactors
+        if binaryPowers:
+            barFactors = map(lambda b: get_padic_representation(b,2),barFactors)
+            commonBarFactor = get_padic_representation(commonBarFactor,2)
+            commonBiggestBarFactor = \
+                    get_padic_representation(commonBiggestBarFactor,2)
+        else:
+            barFactors = map(lambda b: get_padic_representation(b,p),barFactors)
+            commonBarFactor = get_padic_representation(commonBarFactor,p)
+            commonBiggestBarFactor = \
+                    get_padic_representation(commonBiggestBarFactor,p)
+        lenCommonBarFactor = len(commonBarFactor)
+        lenCommonBiggestBarFactor = len(commonBiggestBarFactor)
 
-    lenBiggestZeroGap = 0
-    if not binaryPowers:
-        #find biggest gap (i.e. zero-interval)
-        lenCurGap = 0
-        for b in barFactors+[commonBarFactor]+[commonBiggestBarFactor]:
-            i = 0
-            while i < len(b):
-                lenCurGap = 0
-                while i<len(b) and b[i] == 0:
-                    lenCurGap+= 1
+        lenBiggestZeroGap = 0
+        if not binaryPowers:
+            #find biggest gap (i.e. zero-interval)
+            lenCurGap = 0
+            for b in barFactors+[commonBarFactor]+[commonBiggestBarFactor]:
+                i = 0
+                while i < len(b):
+                    lenCurGap = 0
+                    while i<len(b) and b[i] == 0:
+                        lenCurGap+= 1
+                        i += 1
+                    lenBiggestZeroGap = max(lenBiggestZeroGap, lenCurGap)
                     i += 1
-                lenBiggestZeroGap = max(lenBiggestZeroGap, lenCurGap)
-                i += 1
+    else:
+        countBarFactors = 0
+        barFactors = []
+        commonBarFactor = []
+        commonBiggestBarFactor = []
+        lenBiggestZeroGap = 0
 
         #generate F elements in E
     elementsF = []

@@ -21,7 +21,8 @@ def enumeratePCNs_wrapper(qn):
         f.close();
     if not isProcessed:
         print "(",q,",",n,") not processed"
-        ret = countCompleteSubmoduleGenerators(F,n,binaryPowers=True)
+        ret = countCompleteSubmoduleGenerators(F,n,binaryPowers=True,\
+                testPrimitivity=TEST_PRIMITIVITY)
         print "(q,n) = ",(q,n)," -> (cn,pcn,submod_gens,time) = ", ret
         with open(filePath,'a') as f:
             f.write("(q,n) = "+str((q,n))+" -> (cn,pcn,submod_gens,time) = "+
@@ -41,6 +42,7 @@ SETUP = \
  [8, xrange(2,6)], \
  [9, xrange(2,6)], \
  ]
+TEST_PRIMITIVITY = True
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -54,6 +56,7 @@ SETUP = \
  [8, xrange(2,10)], \
  [9, xrange(2,10)], \
  ]
+TEST_PRIMITIVITY = True
 #------------------------------------------------------------------------------
 
 
@@ -79,6 +82,8 @@ for p in primes(100):
 
 GENLIST = sorted(GENLIST)
 
+TEST_PRIMITIVITY = True
+
 #------------------------------------------------------------------------------
 #test n = 4, q = 2, 3, 4, ..., 32, ...
 filePath = "mullenTableC_struct_n=4_"+st+".txt"
@@ -89,6 +94,7 @@ for p in primes(100):
         GENLIST += [[p**e,n]]
 
 GENLIST = sorted(GENLIST)
+TEST_PRIMITIVITY = True
 
 #------------------------------------------------------------------------------
 #test n = 6, q = 2, 3, 4, ..., 32, ...
@@ -100,6 +106,7 @@ for p in primes(100):
         GENLIST += [[p**e,n]]
 
 GENLIST = sorted(GENLIST)
+TEST_PRIMITIVITY = True
 ##------------------------------------------------------------------------------
 
 

@@ -563,7 +563,7 @@ inline void matmul(struct FFElem **mat, struct FFElem *ff,
  * Square and multiply in charac
  * mat is powering by charac
  *
- * ff is modified!
+ * !! ff is modified !!
  */
 inline void powerFFElem(struct FFElem *ff, struct FFElem *mipo,
         struct FFElem *ret, 
@@ -602,7 +602,7 @@ inline void powerFFElem(struct FFElem *ff, struct FFElem *mipo,
 /**
  * Square and multiply
  *
- * ff is modified!
+ * !! ff is modified !!
  */
 inline void powerFFElemSqM(struct FFElem *ff, struct FFElem *mipo,
         struct FFElem *ret, 
@@ -664,7 +664,7 @@ inline void powerFFElemInt(struct FFElem *ff, struct FFElem *mipo,
 }
 
 /**
- * Calc order of element
+ * Test if element is primitive.
  *
  * !! if matCharac is Zero, all powers are assumed as binary arrays !!
  *
@@ -771,7 +771,8 @@ inline bool isPrimitive(struct FFElem *ff, struct FFElem *mipo,
 
 
 /*
- * calculates g(sigma)(x) where g is a polynomial and sigma the frobenius
+ * calculates g(sigma^frobPower)(x) where g is a polynomial 
+ * and sigma the frobenius
  * application of frobenius is given by mats
  */
 inline void applyFrob(struct FFElem *ff, struct FFElem *mipo,
@@ -947,7 +948,7 @@ inline bool testSubmod(struct FFElem *ff, struct FFElem *mipo,
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Central Algorithms for Enumeration /////////////////////////////////////////
+// Main Algorithms for Enumeration ////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 inline void calcSubmoduleElements(struct Node *root,
         struct FFElem *mipo,

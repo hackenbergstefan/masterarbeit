@@ -220,6 +220,7 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
     #print "addTable=", addTable, " len=", len(addTable)
     #print "elementsF = ", elementsF
     #=========================================================================
+    return
 
     
     # SETUP C DATA ===========================================================
@@ -312,7 +313,7 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
 
     genCounts = dict()
     for i,d in enumerate(decomposition):
-        genCounts[d] = genCountsC[i]
+        genCounts[d] = Integer(genCountsC[i])
 
     # Free all malloced variables at the end =================================
     freeFFElem(mipoC)
@@ -323,7 +324,7 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
     freeFFElemMatrix(matCharacC,m*(lenBiggestZeroGap+1))
     freeFFElemMatrix(elementsFC,len(elementsF))
     #=========================================================================
-    return prod(list(genCountsC)), Integer(pcn), genCounts,\
+    return prod(genCounts.values()), Integer(pcn), genCounts,\
             strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
 
 #

@@ -1,0 +1,1217 @@
+\lstMakeShortInline[
+  basicstyle = \small\normalfont\ttfamily,
+  frame = none,
+% numbers = left,
+  numberstyle = \tiny,
+% numbersep = 5pt,
+  breaklines = true,
+  %xleftmargin = 0.1\linewidth,
+  %xrightmargin = 0.1\linewidth,
+  escapeinside = {(*}{*)},
+  tabsize=3,
+  language=C,
+  mathescape=true]@
+
+\chapter{Enumeration primitiver und vollständig normaler Elemente}
+Grundsätzlich wurde zur konkreten Suche und Enumeration primitiver und
+vollständig normaler Elemente das Computeralgebrasystem \sage verwendet.
+
+\section{Implementierung endlicher Körper und Körpererweiterungen}
+\sage bietet ja bereits die Möglichkeit in endlichen Körpern zu rechnen. Jedoch
+hat sich herausgestellt, dass die zugrunde liegenden \Clang-Bibliotheken 
+(im Allgemeinen Fall ist dies das \texttt{Pari C library}%
+\footnote{vgl. \url{http://www.sagemath.org/doc/reference/%
+rings_standard/sage/rings/finite_rings/constructor.html}}) 
+zu langsam sind. Dies ist sicherlich auf die Allgemeinheit ihrer
+Anwendungsgebiete zurückzuführen. Beispielsweise arbeitet die 
+\texttt{Pari}-Bibliothek stets mit Ganzzahlen beliebiger Größe. Deren
+Arithmetik ist selbstredend aufwendiger und langsamer, als maschineninterne
+\texttt{Integer}-Arithmetik. Daher haben wir uns entschlossen eigene 
+\Clang-Bibliotheken anzulegen, die auf einfacher (jedoch begrenzter) 
+\texttt{Integer}-Arithmetik basieren.
+
+\subsection{Beschreibung von Elementen endlicher Körper}
+\label{sub:beschreibung_endliche_koerper}
+Die Implementierung von Primkörpern ist freilich kanonisch. Daher brauchen wir
+an dieser Stelle nicht viele Worte verlieren, da wir auf der Suche nach
+primitiv und vollständig normalen Elementen ohnehin nur in Erweiterungen von
+Graden größer $1$ zu rechnen haben.
+
+Sei also $\F_q$ ein endlicher Körper von Charakteristik $p$ und $q = p^r$
+für $r>1$.
+Wie auch in \sage üblich, haben wir uns entschieden bei der programmatischen
+Beschreibung die Isomorphie
+\[ \F_q \speq\cong \F_p[x] \big/ (f(x))\]
+mit $f(x) \in F_p[x]$ irreduzibel von Grad $r$ zu nutzen. 
+Also wird ein Element $w \in \F_q$ als Array der Länge $r+1$ beschrieben,
+wobei die nullte Stelle des Arrays auch den Koeffizienten von $x^0$ meint, und
+alle Berechnungen (insb. Multiplikation) modulo $f(x)$ ausgeführt.
+
+Es hat sich herausgestellt, dass es von Vorteil ist, neben dem Koeffizienten
+tragenden Array ein weiteres Array mitzuführen, welches die
+Indizes speichert, deren zugehörige Koeffizienten nicht verschwinden. Letztlich
+fehlt noch, wie es in \Clang üblich und notwendig ist, die Länge des
+Indexarrays zu speichern und wir erhalten den Datentyp @struct FFElem@.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=15]
+/**
+ * Finite Field Element. 
+ * 
+ * !! idcs must be in desc order !!
+ *
+ * Uses int arrays, i.e. you must not consider 
+ * PrimeFields of order p with  (p-1)*(p-1) > INT_MAX
+ */
+struct FFElem{
+    int *el;
+    int *idcs;
+    int len;
+};
+\end{ccode}
+
+@len@ gibt immer die Länge von @idcs@ an. Zusätzlich fordern wir noch folgende
+Eigenschaften, die den Umgang mit @struct FFElem@ erleichtern.
+
+\begin{invariante}
+  \label{invariante:desc_order}
+  Für das Indexarray @idcs@ eines @struct FFElem@ sei sichergestellt, 
+  dass die Werte stets in absteigender Reihenfolge sortiert sind. 
+\end{invariante}
+
+\begin{invariante}
+  \label{invariante:array_len}
+  Bei der Benutzung von @struct FFElem@ sei sichergestellt, 
+  dass die Länge aller auftretenden Arrays dem Grade der 
+  Körpererweiterung über dem jeweiligen Primkörper entspricht
+\end{invariante}
+
+\cref{invariante:desc_order} erleichtert den Zugriff auf
+den Grad des Elements (also seinen Grad als Polynom in
+$\F_p[x]\big/(f(x))$). Letztere Invariante stellt sicher, dass durch
+Veränderung eines @struct FFElem@ (beispielsweise Arithmetik) kein 
+Speicherzugriffsfehler auftritt.
+
+\begin{beispiel}
+  Wollen wir das Element 
+  \[ w := x^8 + 2*x^6 + x^2 + 2 \in \F_3[x]\]
+  des endlichen Körpers $\F_{3^{10}}$ 
+  (wir verzichten auf Angabe eines Minimalpolynoms, da es hier keine
+  Rolle spielt) in obiger Darstellung beschreiben, so müssen wir \Clang-üblich
+  Speicher allokieren und die Arrays in passender Länge anlegen:
+  \begin{cexample}
+    struct FFElem *w = malloc(sizeof(struct FFElem));
+    w->el = (int[]) {2, 0, 1, 0, 0, 0, 2, 0, 1, 0};
+    w->idcs = (int[]) {9, 7, 2, 0, 0, 0, 0, 0, 0, 0};
+    w->len = 4;
+  \end{cexample}
+  Der besseren Lesbarkeit zu Gute haben wir die ungenutzten Indizes und die 
+  verschwindenden Koeffizienten mit @0@ aufgefüllt. Man überlege sich jedoch,
+  dass lediglich eine einzige @0@ notwendig ist und alle anderen 
+  beliebig ersetzt werden könnten. Beispielsweise ist
+  \begin{cexample}
+    struct FFElem *w = malloc(sizeof(struct FFElem));
+    w->el = (int[]) {2, -10, 1, 100, -2, -3, 2, -4, 1, -8};
+    w->idcs = (int[]) {9, 7, 2, 0, -3, -2, -5, -1, -1, -1};
+    w->len = 4;
+  \end{cexample}
+  mit obiger Beschreibung identisch.
+\end{beispiel}
+
+
+\subsubsection{Hilfsfunktionen zum Anlegen und Löschen}
+
+Da \Clang ohne \emph{Garbage-Collection} auskommt, muss man selbst für die
+entsprechende Speicherverwaltung sorgen. Dies erleichtern die Funktionen
+@mallocFFElem@ und @freeFFElem@.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=30]
+inline struct FFElem *mallocFFElem(int m){
+    struct FFElem *ff = malloc(sizeof(struct FFElem));
+    ff->el = malloc(m*sizeof(int));
+    ff->idcs = malloc(m*sizeof(int));
+    ff->len = 0;
+    return ff;
+}
+\end{ccode}
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=37]
+inline void freeFFElem(struct FFElem *ff){
+    free(ff->el);
+    free(ff->idcs);
+    free(ff);
+}
+\end{ccode}
+
+Schließlich führen wir noch eine Funktion ein, die den Inhalt eines
+@struct FFElem@s in ein neues kopiert. Dieses muss aber bereits allokiert sein!
+
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=50]
+/**
+ * Copies the content of ff1 into ff2
+ *
+ * !! ff2 must be malloced!
+ */
+inline void copyFFElem(struct FFElem *ff1, struct FFElem *ff2){
+    if(ff1 == ff2) return;
+    int i;
+    for(i=0;i < ff1->len;i++){
+        ff2->idcs[i] = ff1->idcs[i];
+        ff2->el[ ff1->idcs[i] ] = ff1->el[ ff1->idcs[i] ];
+    }
+    ff2->len = ff1->len;
+}
+\end{ccode}
+
+\subsection{Arithmetik in endlichen Körpern}
+
+
+\subsubsection{Additions- und Multiplikationstabellen}
+Will man Arithmetik mit @struct FFElems@ betreiben, so stellt sich sicherlich
+am Anfang die Frage, wie die Arithmetik im Primkörper 
+$\F_p = \{0,1,\ldots,p-1\}$
+aussehen möge. Da
+die @FFElem@s auf @int@-Arrays basieren liegt es nahe, die Addition bzw.
+Multiplikation zweier Elemente $a,b\in \F_p$ durch die integrierten Funktionen
+@($a$+$b$) % $p$@ 
+und @($a$*$b$) % $p$@
+zu implementieren. Es hat sich jedoch herausgestellt, dass dies vergleisweise
+langsam ist. Insbesondere bei kleinen Primzahlen hat sich das Anlegen einer
+Additions- und einer Multiplikationstabelle bewährt. Diese sind @int@-Arrays,
+sodass die @($a$+$b$)@-te Stelle der Additions- und die 
+@($a$*$b$)@-te Stelle der Multiplikationstabelle gerade das Ergebnis der
+jeweiligen Rechnung in $\F_p$ liefert.
+
+\begin{bemerkung}
+  Um sich nicht um vorzeichenbehaftete Werte kümmern zu müssen, überdecken die
+  Tabellen auch negative Bereiche und daher ist eine Additionstabelle in $\F_p$
+  stets von Länge $4(p-1)+1$ und eine Multiplikationstabelle von
+  Länge $2(p-1)^2+1$.
+\end{bemerkung}
+
+\begin{beispiel}
+  Betreiben wir Arithmetik in $\F_3$, so legen wir eine Additions- bzw.
+  Multiplikationstabelle wie folgt an und stellen durch eine Verschiebung des
+  Pointers sicher, dass auch vorzeichenbehaftete Rechnungen richtig erfasst
+  werden können.
+  \begin{cexample}
+    int addTableRaw[] = {2, 0, 1, 2, 0, 1, 2, 0, 1};
+    int initialAddShift = 4;
+    int *addTable = addTableRaw+initialAddShift;
+    int multTableRaw[] = {2, 0, 1, 2, 0, 1, 2, 0, 1};
+    int initialMultShift = 4;
+    int *multTable = multTableRaw+initialMultShift;
+  \end{cexample}
+  Führen wir nun Rechnungen durch können wir diese nutzen:
+  \begin{cexample}
+    addTable[ 2+1 ]  // == 0 
+    addTable[ 0-2 ]  // == 1
+    multTable[ 2*2 ]  // == 1
+  \end{cexample}
+\end{beispiel}
+
+
+\subsubsection{Addition}
+Aufgrund der effizienteren Darstellung der Elemente endlicher Körper durch
+Speicherung ihrer Indices, ist die Addition nicht lediglich gegeben durch
+komponentenweise Betrachtung, sondern erfordert etwas mehr Aufwand.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=226]
+/**
+ * Adds two FFElems.
+ *
+ * !! ff1 may be same as ret !!
+ * !! ff2 must not be same as ret !!
+ */
+inline void addFFElem(struct FFElem *ff1, struct FFElem *ff2,
+        struct FFElem *ret,
+        int *tmp,
+        int *multTable, int *addTable){
+    int i=0,j=0,k=0, i2;
+    bool end = false;
+    //handle trivial cases
+    if(ff1->len == 0){
+        copyFFElem(ff2,ret);
+        return;
+    }
+    if(ff2->len == 0){
+        copyFFElem(ff1,ret);
+        return;
+    }
+    copyArray(ff1->idcs,tmp,ff1->len);
+    while( end == false ){
+        while( tmp[i] != ff2->idcs[j] ){
+            if( tmp[i] > ff2->idcs[j] ){
+                ret->el[ tmp[i] ] = ff1->el[ tmp[i] ];
+                ret->idcs[k] = tmp[i];
+                i++; k++;
+            }else if( tmp[i] < ff2->idcs[j] ){
+                ret->el[ ff2->idcs[j] ] = ff2->el[ ff2->idcs[j] ];
+                ret->idcs[k] = ff2->idcs[j];
+                j++; k++;
+            }
+            if(i == ff1->len || j == ff2->len){
+                end = true;
+                break;
+            }
+
+        }
+        if(end == true) break;
+        //tmp[i] == ff2->idcs[j]
+        i2 = tmp[i];
+        ret->el[i2] = addTable[ ff1->el[i2] + ff2->el[i2] ];
+        if(ret->el[i2] != 0){
+            ret->idcs[k] = i2;
+            k++;
+        }
+        i++; j++;
+        if(i == ff1->len || j == ff2->len) end = true;
+    }
+    //add rest of ff1 or ff2
+    if(i != ff1->len ){
+        while(i<ff1->len){
+            ret->el[ tmp[i] ] = ff1->el[ tmp[i] ];
+            ret->idcs[k] = tmp[i];
+            i++; k++;
+        }
+    }else if(j != ff2->len){
+        while(j<ff2->len){
+            ret->el[ ff2->idcs[j] ] = ff2->el[ ff2->idcs[j] ];
+            ret->idcs[k] = ff2->idcs[j];
+            j++; k++;
+        }
+    }
+    ret->len = k;
+}
+\end{ccode}  
+
+Wie später aus der Beschreibung anderer Algorithmen hervorgeht, ist es von
+Vorteil, wenn das Ergebnis einer Addition bereits eines der beiden addierten
+Elemente ist. Auf diese Weise spart man das Anlegen unnötiger Hilfs-@FFElem@s.
+Wie man schnell einsieht, werden jeweils nur die beiden Indexarrays durchlaufen
+und lediglich wenn diese gleich sind, muss eine Addition ausgeführt werden;
+ansonsten reicht es den jeweiligen Koeffizienten zu übernehmen.
+
+
+\subsubsection{Multiplikation}
+Wir haben uns entschieden, keine speziellen Multiplikationsalgorithmen 
+(wie Karatsuba oder FFT-basierte Algorithmen) zu implementieren, da
+die hier betrachteten Erweiterungen nicht von Graden sind, in denen jene
+Algorithmen ihre Vorteile ausspielen könnten.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=302]
+/**
+ * Multiplies two FFElems and reduces the result by mipo.
+ *
+ * !! tmp must have at least length m!
+ * !! ret must be malloced!
+ */
+inline void multiplyFFElem(struct FFElem *ff1, struct FFElem *ff2, 
+        struct FFElem *ret, 
+        struct FFElem *mipo, int *tmp, int m,
+        int *multTable, int *addTable){
+    /* 
+     * catch trivial cases
+     */
+    if(ff1->len == 0 || ff2->len == 0){
+        ret->len = 0;
+        return;
+    }
+    if(ff1->len == 1 && ff1->idcs[0] == 0 && ff1->el[0] == 1){
+        copyFFElem(ff2, ret);
+        return;
+    }
+    if(ff2->len == 1 && ff2->idcs[0] == 0 && ff2->el[0] == 1){
+        copyFFElem(ff1, ret);
+        return;
+    }
+
+    /*
+     * Do multiplication
+     */
+    int maxlen = ff1->idcs[0] + ff2->idcs[0] + 1;
+    int i,j,i2,j2,k;
+    int max2 = maxlen;
+    if( maxlen > m ){
+        max2 = m;
+        initPoly(tmp,maxlen-m);
+    }
+    initPoly(ret->el,max2);
+    //multiply 
+    for(i=0;i<(ff1->len);i++){
+        for(j=0;j<(ff2->len);j++){
+            i2 = ff1->idcs[i];
+            j2 = ff2->idcs[j];
+            k = i2+j2;
+            if(k<m){
+                ret->el[k] = addTable[ ret->el[k] + 
+                    multTable[ ff1->el[i2] * ff2->el[j2] ] ];
+            }else{
+                tmp[k-m] = addTable[ tmp[k-m] +
+                    multTable[ ff1->el[i2] * ff2->el[j2] ] ];
+            }
+        }
+    }
+    
+    /*
+     * Reduce mod mipo
+     */
+    if(maxlen > m){
+        int quo;
+        for(i=maxlen-m-1;i>=0;i--){
+            quo = tmp[i];
+            if(quo == 0) continue;
+            for(j=0;j<(mipo->len); j++){
+                j2 = mipo->idcs[j];
+                k = i+j2;
+                if(k>=m){
+                    tmp[k-m] = addTable[ tmp[k-m] - 
+                        multTable[ mipo->el[j2]*quo ] ];
+                }else{
+                    ret->el[k] = addTable[ ret->el[k] - 
+                        multTable[ mipo->el[j2]*quo ] ];
+                }
+            }
+        }
+    }
+
+    /*
+     * Recalc indices
+     */
+    i2 = 0;
+    for(i=max2-1;i>=0;i--){
+        if(ret->el[i] != 0){
+            ret->idcs[i2] = i;
+            i2++;
+        }
+    }
+    ret->len = i2;
+}
+\end{ccode}
+Außer den beiden zu multiplizierenden @FFElem@s muss man natürlich das
+Minimalpolynom des zu Grunde liegenden Körpers und dessen Grad über dem
+Primkörper -- hier mit @int m@ bezeichnet -- mit übergeben.
+Leider war es an dieser Stelle im Gegensatz zur Addition nicht 
+möglich, die Indizes des Produkts direkt zu berechnen, da es sich bei den
+Koeffizienten des Produkts ja Summen von Produkten von Koeffizienten der beiden
+Faktoren handelt. Daher muss nach der
+Reduktion modulo Minimalpolynoms eine Neuberechnung der Indizes erfolgen.
+
+\subsubsection{Quadratur}
+Im Hinblick auf das Testen von @struct FFElem@s auf Primitivität und dem damit
+verbundenen Potenzieren, existiert eine separate Funktion zur Quadrierung eines 
+@FFElem@s. Es ist klar, dass beim Quadrieren weniger Produkte und Summen
+berechnet werden müssen als bei einer allgemeinen Multiplikation.
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=404]
+/**
+ * Squares an FFElem
+ *
+ * !! ff is not modified !!
+ * !! tmp must have at least length m !!
+ */
+inline void squareFFElem(struct FFElem *ff, struct FFElem *mipo,
+        struct FFElem *ret, int *tmp, int m,
+        int *multTable, int *addTable){
+    /* 
+     * catch trivial cases
+     */
+    if(ff->len == 0){
+        copyFFElem(ff,ret);
+        return;
+    }
+    if(ff->len == 1 && ff->idcs[0] == 0 && ff->el[0] == 1){
+        copyFFElem(ff,ret);
+        return;
+    }
+
+    /*
+     * Do multiplication
+     */
+    int maxlen = 2*ff->idcs[0] + 1;
+    int i,j,i2,j2,k;
+    int max2 = maxlen;
+    if( maxlen > m ){
+        max2 = m;
+        initPoly(tmp,maxlen-m);
+    }
+    initPoly(ret->el,max2);
+    for(i=0;i<(ff->len);i++){
+        // same index must be squared
+        i2 = ff->idcs[i];
+        k = 2*i2;
+        if(k<m){
+            ret->el[k] = addTable[ ret->el[k] + 
+                multTable[ ff->el[i2]*ff->el[i2] ] ];
+        }else{
+            tmp[k-m] = addTable[ tmp[k-m] +
+                multTable[ ff->el[i2]*ff->el[i2] ] ];
+        }
+        // other indices only multipied and doubled
+        for(j=i+1;j<(ff->len);j++){
+            i2 = ff->idcs[i];
+            j2 = ff->idcs[j];
+            k = i2+j2;
+            if(k<m){
+                ret->el[k] = addTable[ ret->el[k] + 
+                    multTable[ 2 * multTable[ ff->el[i2] * ff->el[j2] ] ] ];
+            }else{
+                tmp[k-m] = addTable[ tmp[k-m] +
+                    multTable[ 2 * multTable[ ff->el[i2] * ff->el[j2] ] ]];
+            }
+        }
+    }
+    /*
+     * Reduce mod mipo
+     */
+    if(maxlen > m){
+        int quo;
+        for(i=maxlen-m-1;i>=0;i--){
+            quo = tmp[i];
+            if(quo == 0) continue;
+            for(j=0;j<(mipo->len); j++){
+                j2 = mipo->idcs[j];
+                k = i+j2;
+                if(k>=m){
+                    tmp[k-m] = addTable[ tmp[k-m] - 
+                        multTable[ mipo->el[j2]*quo ] ];
+                }else{
+                    ret->el[k] = addTable[ ret->el[k] - 
+                        multTable[ mipo->el[j2]*quo ] ];
+                }
+            }
+        }
+    }
+
+    /*
+     * Recalc indices
+     */
+    i2 = 0;
+    for(i=max2-1;i>=0;i--){
+        if(ret->el[i] != 0){
+            ret->idcs[i2] = i;
+            i2++;
+        }
+    }
+    ret->len = i2;
+}
+\end{ccode}
+
+
+\subsection{Matrizen und Polynome über endlichen Körpern}
+
+\subsubsection{Matrizen und Matrixmultiplikation}
+
+Nach \thref{satz:power_p_linear} ist das Potenzieren mit der Charakteristik in
+endlichen Körpern eine lineare Abbildung. Dies wollen wir Nutzen und haben
+daher als Darstellung von Matrizen über endlichen Körpern naheliegenderweise
+ein Array aus @FFElem@s gewählt.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=515]
+/**
+ * Matrix multiplication
+ *
+ * !! tmp must have at least length m!
+ */
+inline void matmul(struct FFElem **mat, struct FFElem *ff,
+        struct FFElem *ret, 
+        int m, int *multTable, int *addTable){
+    int i,j,i2, row;
+    bool end;
+    for(row=0;row<m;row++){
+        ret->el[row] = 0;
+        i=0; j=0;
+        end = false;
+        while(end == false){
+            while(ff->idcs[i] != mat[row]->idcs[j]){
+                if(ff->idcs[i] > mat[row]->idcs[j]) i++;
+                else if(ff->idcs[i] < mat[row]->idcs[j]) j++;
+                if(i == ff->len || j == mat[row]->len){
+                    end = true;
+                    break;
+                }
+            }
+            if(end == true) break;
+            i2 = ff->idcs[i]; // == mat[row]->idcs[j]
+            ret->el[row] = addTable[ ret->el[row] 
+                + multTable[ mat[row]->el[i2]*ff->el[i2] ] ];
+            i++;
+            j++;
+            if(i==ff->len || j==mat[row]->len) end = true;
+        }
+    }
+    i2 = 0;
+    for(i=m-1;i>=0;i--){
+        if(ret->el[i] != 0){
+            ret->idcs[i2] = i;
+            i2++;
+        }
+    }
+    ret->len = i2;
+}
+\end{ccode}
+
+Hier wird -- anders als bei der Addition -- nur nach den gemeinsamen Indizes
+gesucht (alle anderen Produkte sind schließlich 0). 
+\thref{invariante:desc_order} stellt dabei wiederum sicher, dass das hier
+aufgeführte Verfahren funktioniert.
+
+Ferner existiert eine Funktion, die das Freigeben von Matrizen erleichtert.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=43]
+inline void freeFFElemMatrix(struct FFElem **mat, int len){
+    if(mat==0) return;
+    int i;
+    for(i=0;i<len;i++) freeFFElem(mat[i]);
+    free(mat);
+}
+\end{ccode}
+
+
+\subsubsection{Polynome}
+Im Hinblick auf das Testen von @FFElem@s auf vollständige Normalität 
+(bzw. vollständige Erzeuger-Eigenschaft) müssen wir einen Weg wählen, Polynome
+über endlichen Körpern darzustellen; also Polynome deren Koeffizienten 
+@FFElem@s sind. Dazu führen wir ein eigenes @struct@ ein.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=144]
+struct FFPoly{
+    struct FFElem **poly;
+    int lenPoly;
+};
+\end{ccode}
+
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=149]
+inline struct FFPoly *mallocFFPoly(int m, int lenPoly){
+    struct FFPoly *poly = malloc(lenPoly*sizeof(struct FFElem*));
+    poly->lenPoly = lenPoly;
+    int i;
+    for(i=0;i<lenPoly;i++) poly->poly[i] = mallocFFElem(m);
+    return poly;
+}
+\end{ccode}  
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=157]
+inline void freeFFPoly(struct FFPoly *poly){
+    int i;
+    for(i=0;i<poly->lenPoly;i++) freeFFElem(poly->poly[i]);
+    free(poly->poly);
+    free(poly);
+}
+\end{ccode}  
+
+
+\section{Potenzieren und Primitivitätstest}
+
+\subsection{Potenzieren}
+Für das Potenzieren von @FFElem@s wurde stets ein Square-and-Multiply-Ansatz
+verwendet. Da in endlichen Körpern jedoch das Potenzieren mit der
+Charakteristik eine lineare Abbildung darstellt, ist es a priori nicht unklug
+eine $p$-adische Square-and-Multiply-Variante zu wählen. Es hat sich jedoch
+herausgestellt, dass in den meisten Fällen normales Square-and-Multiply
+schneller ist als sein $p$-adisches Pendant. Dies veranschaulicht auch
+nachstehendes Beispiel.
+
+\begin{beispiel}
+  Sei $u \in E := \F_{3^4}$ und zu berechnen sei $u^{16}$, so stellen wir zunächst
+  $16$ binär und $3$-adisch da:
+  \[ 16 \speq= 10000_2 \speq= 121_3 \,.\]
+  Damit gilt
+  \[ u^{16} \speq= ((u^2)^2)^2)^2 \speq= (u^3\cdot u\cdot u)^3\cdot u\,.\]
+  In einer Implementierung sehen wir also, dass die binäre Exponentiation 
+  $4$ Quadrierungen „kostet“, die $3$-adische Version 
+  hingegen $2$ Matrixmultiplikationen und $3$ Multiplikationen.
+  Da in der Regel allgemeine Multiplikationen teuer sind, wäre in diesem Fall
+  die binäre Variante wohl die bessere Wahl.\\
+  Wollen wir $u^{10}$ berechnen, so sehen wir aus
+  \[ 10 \speq= 1010_2 \speq= 101_3\,,\]
+  dass in diesem Fall die binäre Exponentiation 4 Quadierungen und eine
+  allgemeine Multiplikation erfordert, die $3$-adische Variante jedoch nur 
+  $2$ Matrixmultiplikationen und $1$ allgemeine Multiplikation. Letzteres lässt
+  sich sogar auf eine Matrixmultiplikation reduzieren, berechnet man die
+  Darstellungsmatrix der linearen Abbildung $E\to E,\ x\mapsto x^9$ bereits
+  vorher! Die beiden Varianten der Berechnung würden 
+  in diesem Fall also wie folgt von Statten gehen:
+  \[ u^{10} \speq= ((u^2)^2\cdot u)^2 \speq= u^9\cdot u\,.\]
+\end{beispiel}
+
+Nachstehend werden nun die beiden Varianten der Implementierung der Potenzierung
+aufgeführt. Wir beginnen mit $p$-adischem Square-and-Multiply. Zu bemerken ist,
+dass die Potenz bereits in $p$-adischer Darstellung als @int@-Array übergeben
+werden muss. Zudem werden vermeidbare Matrixmultiplikationen (vgl. obiges
+Beispiel) nicht durchgeführt und es ist sicherzustellen, 
+dass @struct FFElem **matCharac@ als @struct FFElem*@-Array
+von Länge $(l+1)m$ ist, wobei $l$ die Länge
+des maximal auftretenden $0$-Intervalls in der $p$-adischen Darstellung meint 
+(in obigem Beispiel bei $u^{10}$ wäre $l=1$).
+
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=562, label=lst:powerffelem]
+/**
+ * Square and multiply in charac
+ * mat is powering by charac
+ *
+ * !! ff is modified !!
+ */
+inline void powerFFElem(struct FFElem *ff, struct FFElem *mipo,
+        struct FFElem *ret, 
+        int m, int *power, int powerLen,
+        struct FFElem **matCharac, int *tmp, struct FFElem *ffTmp,
+        int *multTable, int *addTable){
+    int i,j,k;
+    int lenCurGap = 0;
+    struct FFElem *ffSwitch = 0;
+    struct FFElem *ffRetInt = ret;
+    // init ret to 1
+    ffRetInt->el[0] = 1; ffRetInt->idcs[0] = 0; ffRetInt->len = 1;
+    for(j=powerLen-1;j>=0;j--){
+        for(k=0;k<power[j];k++){
+            multiplyFFElem(ffRetInt,ff,ffTmp, mipo,tmp,m,multTable,addTable);
+            ffSwitch = ffRetInt; ffRetInt = ffTmp; ffTmp = ffSwitch;
+        }
+        if(j==0 || power[j-1] == 0){
+            lenCurGap++;
+            continue;
+        }
+        matmul(matCharac+lenCurGap*m, ff, ffTmp, m, multTable,addTable);
+        ffSwitch = ff; ff = ffTmp; ffTmp = ffSwitch;
+        lenCurGap = 0;
+    }
+    copyFFElem(ffRetInt,ret);
+}
+\end{ccode}
+
+
+Als nächstes folgt die standardmäßige binäre Exponentiation. Auch hier wird die
+Potenz bereits in Binärdarstellung erwartet.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=602, label=lst:powerffelemsqm]
+/**
+ * Square and multiply
+ *
+ * !! ff is modified !!
+ */
+inline void powerFFElemSqM(struct FFElem *ff, struct FFElem *mipo,
+        struct FFElem *ret, 
+        int m, int *power, int powerLen,
+        int *tmp, struct FFElem *ffTmp,
+        int *multTable, int *addTable){
+    int i,j,k;
+    int lenCurGap = 0;
+    struct FFElem *ffSwitch = 0;
+    struct FFElem *ffRetInt = ret;
+    // init ret to 1
+    ffRetInt->el[0] = 1; ffRetInt->idcs[0] = 0; ffRetInt->len = 1;
+    for(j=powerLen-1;j>=0;j--){
+        if(power[j] == 1){
+            multiplyFFElem(ffRetInt,ff,ffTmp, mipo,tmp,m,multTable,addTable);
+            //switch ffTmp and ffRetInt
+            ffSwitch = ffRetInt; ffRetInt = ffTmp; ffTmp = ffSwitch;
+        }
+        if(j>0){
+            squareFFElem(ff,mipo,ffTmp,tmp,m,multTable,addTable);
+            //switch ffTmp and ff
+            ffSwitch = ff; ff = ffTmp; ffTmp = ffSwitch;
+        }
+    }
+    copyFFElem(ffRetInt,ret);
+}
+\end{ccode}
+
+
+\subsection{Primitivitätstest}
+
+Beim Testen eines Elements eines endlichen Körpers auf Primitivität bedienen
+wir uns des wohlbekannten Satz von Lagrange aus der Gruppentheorie und geben
+zunächst ein kleines Lemma an, auf dem der dann folgende Algorithmus basiert.
+
+\begin{lemma}
+  Sei $u \in \F_q$ und
+  \[ q-1 \speq= p_1^{\nu_1}\cdot\ldots\cdot p_r^{\nu_r}\]
+  die Primfaktorzerlegung von $q-1$. Definiere
+  für alle $i=1,\dots,r$
+  \[ \bar n_i \speq{:=}  \frac{q-1}{p_i} \speq=
+    p_1^{\nu_1}\cdot \ldots\cdot p_{i-1}^{\nu_{i-1}} \cdot
+    p_i^{\nu_i-1}\cdot p_{i+1}^{\nu_{i+1}}\cdot\ldots\cdot p_r^{\nu_r}\,.\]
+  Dann gilt: $u$ ist primitiv genau dann, wenn
+  \[ u^{\bar n_i} \speq\neq 1\quad\forall i=1,\ldots,r \,.\]
+\end{lemma}
+\begin{proof}
+  Per definitionem der Primitivität klar.
+\end{proof}
+
+Es bleibt jedoch immer noch offen diese $r$ Potenzierungen möglichst gut
+zu organisieren. Nehmen wir die Primzahlen sind in der Primfaktorzerlegung
+\[ q-1 \speq= p_1^{\nu_1}\cdot\ldots\cdot p_r^{\nu_r}\]
+aufsteigend sortiert, also $p_1<p_2<\ldots < p_r$, so
+hat sich als besonders hilfreich erwiesen, die Potenzen $\bar n_i$ auf
+Basis der Potenzen
+\begin{itemize}
+  \item $d := \ggT\{ \bar n_i:\ i=1,\ldots,r\}$ und 
+  \item $d' := \ggT\{ \frac{\bar n_i}{d}:\ i=1,\ldots,r-1\}$
+\end{itemize}
+durchzuführen, wie nachstehendes Beispiel veranschaulicht.
+
+\begin{beispiel}
+  Sei $u \in \F_{3^{10}}$. Da
+  \[ 3^{10}-1 = \speq 2^{3} \cdot 11^{2} \cdot 61 \,,\]
+  sind folgende Potenzen von $u$ zu berechnen:
+  \[ \begin{array}{l@{\ =\ }l@{}l@{}l@{\ =\ }l}
+    \bar n_1 & 2^2 \cdot & 11^2 & \cdot 61 & 29524\,,\\
+    \bar n_2 & 2^3 \cdot & 11 & \cdot 61 & 5368\,,\\
+    \bar n_3 & 2^3 \cdot & 11^2 && 968\,. \end{array} \]
+  Wir sehen jedoch dass die Potenzen
+  \[ d \speq{:=} \ggT\{ \bar n_1,\bar n_2,\bar n_3\} 
+    \speq= 2^2\cdot 11 \speq= 44 \]
+  und 
+  \[ d' \speq{:=} \ggT\{ \tfrac{\bar n_1}{d},\tfrac{\bar n_2}{d}\} \speq= 61\]
+  uns die Arbeit erheblich erleichtern können:
+  Wir berechnen $v := u^d = u^{44}$ und 
+  $w := v^{d'} = v^{61}$ separat, so schreiben sich die restlichen Potenzen wie
+  folgt:
+  \[ \begin{array}{l@{\ =\ }l}
+    u^{\bar n_3} & w^{11}\,, \\
+    u^{\bar n_2} & v^2\,, \\
+    u^{\bar n_1} & v^{11}\,.
+  \end{array} \]
+  Selbstverständlich kann man den Test auf Primitivität bereits abbrechen,
+  falls $v = 1$ oder $w = 1$.
+  Es ist klar, dass in diesem Beispiel obiges Vorgehen eine erhebliche
+  Verkleinerung der zu berechnenden Potenzen liefert, die jedoch nicht in allen
+  Fällen erwartet werden kann.
+\end{beispiel}
+
+
+In nachstehender Implementierung sind die separat aufgelisteten Potenzen $d$
+mit @commonBarFactor@ und $d'$ mit @commonBiggestBarFactor@ bezeichnet und
+werden in $p$-adischer bzw. binärer Darstellung erwartet.  Ferner
+werden die restlichen $\bar n_i$s in @barFactors@ bereits in 
+$p$-adischer bzw. binärer Darstellung als ein einziges @int@-Array übergeben, 
+wobei die jeweilige Länge der einzelnen Faktoren in dem @int@-Array
+@lenBarFactors@ zu hinterlegen ist. Wie im Quelltext bemerkt, wird 
+die Exponentiation $p$-adisch durchgeführt (siehe \autoref{lst:powerffelem}),
+falls @matCharac@ ungleich @0@ ist, ansonsten binär 
+(siehe \autoref{lst:powerffelemsqm}), wobei natürlich sicherzustellen ist, dass
+die Potenzen in passender Darstellung vorliegen.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=666]
+/**
+ * Test if element is primitive.
+ *
+ * !! if matCharac is Zero, all powers are assumed as binary arrays !!
+ *
+ * !! fff,ffTmp,ffTmp2,ffTmp3,ffRet must be malloced !!
+ * !! x is NOT modified !!
+ */
+inline bool isPrimitive(struct FFElem *ff, struct FFElem *mipo,
+        int m,
+        int *barFactors, int *lenBarFactors, int countBarFactors,
+        int *commonBarFactor, int lenCommonBarFactor,
+        int *commonBiggestBarFactor, int lenCommonBiggestBarFactor,
+        struct FFElem **matCharac, 
+        struct FFElem *fff, struct FFElem *ffff, struct FFElem *ffTmp,
+        struct FFElem *ffTmp2, struct FFElem *ffRet, 
+        int *tmp, int *multTable, int *addTable){
+    int i;
+    int curPos = 0;
+    bool binarySqM = (matCharac == 0);
+    struct FFElem *ffSwitch = 0;
+
+    copyFFElem(ff,fff);
+    // all barFactors are power of commonBarFactor
+    if(binarySqM)
+        powerFFElemSqM(fff,mipo,ffTmp,
+                m,commonBarFactor,lenCommonBarFactor,
+                tmp,ffTmp2,
+                multTable,addTable);
+    else 
+        powerFFElem(fff,mipo,ffTmp,
+                m,commonBarFactor,lenCommonBarFactor,
+                matCharac,tmp,ffTmp2,
+                multTable,addTable);
+    if(isOne(ffTmp)) return false;
+    //switch ffTmp and fff
+    ffSwitch = fff; fff = ffTmp; ffTmp = ffSwitch;
+    copyFFElem(fff,ffff);
+    //test first barFactor
+    if(binarySqM)
+        powerFFElemSqM(ffff,mipo,ffTmp,
+                m,barFactors,lenBarFactors[0],
+                tmp,ffTmp2,
+                multTable,addTable);
+    else
+        powerFFElem(ffff,mipo,ffTmp,
+                m,barFactors,lenBarFactors[0],
+                matCharac,tmp,ffTmp2,
+                multTable,addTable);
+    if(isOne(ffTmp)) return false;
+    curPos += lenBarFactors[0];
+    //test further factors which are powers of commonBiggestBarFactor
+    //so first, calc y^commonBiggestBarFactor
+    copyFFElem(fff, ffff);
+    if(binarySqM)
+        powerFFElemSqM(ffff,mipo,ffTmp,
+                m,commonBiggestBarFactor,lenCommonBiggestBarFactor,
+                tmp,ffTmp2,
+                multTable,addTable);
+    else
+        powerFFElem(ffff,mipo,ffTmp,
+                m,commonBiggestBarFactor,lenCommonBiggestBarFactor,
+                matCharac,tmp,ffTmp2,
+                multTable,addTable);
+    if(isOne(ffTmp)) return false;
+    ffSwitch = fff; fff = ffTmp; ffTmp = ffSwitch;
+    for(i=1;i<countBarFactors;i++){
+        // copy z (fff) to ffff
+        copyFFElem(fff,ffff);
+        // *** ffff == fff == y^commonBiggestBarFactor
+        if(binarySqM)
+            powerFFElemSqM(ffff, mipo, ffTmp, 
+                    m,barFactors+curPos, lenBarFactors[i],
+                    tmp,ffTmp2,
+                    multTable,addTable);
+        else
+            powerFFElem(ffff, mipo, ffTmp, 
+                    m,barFactors+curPos, lenBarFactors[i],
+                    matCharac,tmp,ffTmp2,
+                    multTable,addTable);
+
+        if(i>1){
+            multiplyFFElem(ffRet,ffTmp,ffTmp2,mipo,
+                    tmp,m,multTable,addTable);
+        }else{
+            ffSwitch = ffTmp2; ffTmp2 = ffTmp; ffTmp = ffSwitch;
+        }
+        if(isOne(ffTmp2)) return false;
+        curPos += lenBarFactors[i];
+        ffSwitch = ffRet; ffRet = ffTmp2; ffTmp2 = ffSwitch;
+    }
+    return true;
+}
+\end{ccode}
+
+\section{Frobenius-Auswertung und Test auf vollständige
+  Erzeuger-Eigenschaft}
+
+\subsection{Frobenius-Auswertung}
+
+Sei wie immer $F = \F_q$ ein endlicher Körper und $E = \F_{q^m}$ eine
+Körpererweiterung. Sei $\C_{k,t}$ ein verallgemeinerter
+Kreisteilungsmodul über $F$ (vgl.
+\thref{def:verallgemeinerter_kreisteilungsmodul}) und 
+$u\in E$ ein Element, das wir als vollständigen Erzeuger 
+in Betracht ziehen (vgl. \thref{def:vollst_erzeuger}). Nach 
+\thref{satz:erzeuger_zykl_moduln} (3) ist $u$ genau dann ein vollständiger 
+Erzeuger von $\C_{k,t}$, wenn
+\[ \Ord_{q^d}(u) \speq= \Phi_{\nu(k),\, \frac{kt}{\nu(k)d}} \qquad
+  \forall d \mid \tfrac{k\,t}{\nu(k)}\,.\]
+Folglich müssen wir, um $q$-Ordnungen berechnen zu können, in der Lage sein,
+für beliebige Zwischenkörper $F\mid K\mid E$ von Grad $d$ über $F$ und beliebige 
+$f(x) \in K[x]$ 
+\[ f(\sigma^d)(u) \in E\]
+auswerten zu können, wobei wieder $\sigma: \bar F\to \bar F, x \mapsto x^q$ den
+Frobenius über $F$ bezeichne. Bleibt die Frage, wie die verschiedenen
+Zwischenkörper mit Hilfe der @FFElem@s gelesen werden können. Da wir $E$ jedoch
+stets als Erweiterung über dem zu Grunde liegenden Primkörper betrachten 
+(vgl. \autoref{sub:beschreibung_endliche_koerper}) ist dies völlig unklar.
+Daher umgehen wir dieses Problem und betrachten eine beliebige Einbettung von
+$K$ in $E$. Die Frage, ob man damit immer noch $q$-Ordnungen berechnen kann,
+beantwortet nachstehendes Lemma.
+
+\begin{lemma}
+  \label{lemma:einbettung_egal}
+  Seien $F \mid K\mid E$ ein Turm endlicher Körper mit $[K:F] = d$ und 
+  $\sigma: \bar F\to \bar F$ der Frobenius von $F$. 
+  Sei $f(x) \in K[x]$ ein Polynom und $u\in E$. Für je zwei
+  injektive Körperhomomorphismen
+  $g,h: K\to E$ ist entweder
+  \[ h(f)(\sigma^d)(u) \speq= 0 \quad\text{und}\quad 
+    g(f)(\sigma^d)(u) \speq= 0\]
+  oder 
+  \[ h(f)(\sigma^d)(u) \speq\neq 0 \quad\text{und}\quad 
+    g(f)(\sigma^d)(u) \speq\neq 0\,,\]
+  wobei $h(f) \in E[x]$ koeffizientenweise zu lesen ist.\\
+  Mit anderen Worten hängt also die Frage, ob eine Frobenius-Auswertung $0$ 
+  ist oder nicht, nicht von der Wahl der konkreten Einbettung ab.
+\end{lemma}
+\begin{proof}
+  Aufgrund der Eindeutigkeit endlicher Körper (z.B.
+  \thref{satz:eindeutigkeit_endlicher_koerper}) unterscheiden sich zwei
+  Einbettungen $g,h: K\to E$ lediglich um einen Automorphismus $a: E\to E$,
+  also $h = a \circ g$. Dies beweist aber bereits die Behauptung.
+\end{proof}
+
+
+Damit können wir uns erstmal davon ausgehen, dass die zu betrachtenden Polynome
+bereits in $E[x]$ liegen; also vom Typ @FFPoly@ sind. Analog zu 
+\autoref{lst:powerffelem} wird auch hier das Potenzieren durch
+Matrixmultiplikation beschrieben, wobei sicherzustellen ist, dass die maximal
+auftretende Matrixpotenz vorhanden ist, d.h. übergibt man ein Polynom @poly@
+vom Grad $k$, so muss @mats@ als Array bestehend aus @FFElem*@ von Länge
+$m\cdot k$ sein, wobei $m$ wiederum den Grad der Erweiterung von $E$ über dem
+Primkörper meint. Das bedeutet insbesondere, dass die erste Matrix in @mats@
+die Darstellungsmatrix zu $\sigma^1$ ist und der Fall $\sigma^0 = \id$ separat
+betrachtet werden muss (vgl. Zeile \texttt{791} in \autoref{lst:applyFrob}).
+
+Im Hinblick auf das Berechnen von $q$-Ordnungen, wo ein Körperelement meist
+mehr als einmal einer Frobenius-Auswertung unterzogen werden muss, haben wir
+die Möglichkeit bereitgestellt, bereits durchgeführte Matrixmultiplikationen in
+@matmulCache@ zu speichern. Das Array @matmulCacheCalced@ gibt dabei an, welche
+Stellen in @matmulCache@ bereits berechnet wurden. Selbstredend wird dieser 
+Zwischenspeicher durch die Ausführung von @applyFrob@ fortwährend aktualisiert.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=773, label=lst:applyFrob]
+/*
+ * calculates g(sigma^frobPower)(x) where g is a polynomial 
+ * and sigma the frobenius
+ * application of frobenius is given by mats
+ */
+inline void applyFrob(struct FFElem *ff, struct FFElem *mipo,
+        struct FFPoly *poly,
+        struct FFElem **mats,
+        int frobPower, struct FFElem *ret, 
+        int m, int *tmp, struct FFElem *ffTmp, struct FFElem *ffTmp2,
+        struct FFElem **matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
+    int i,j;
+        
+    ret->len = 0;
+    for(i=0;i<poly->lenPoly;i++){
+        if(poly->poly[i]->len == 0) continue;
+        j = i*frobPower-1;
+        if(i>0 && matmulCacheCalced[j] == true){
+            multiplyFFElem(matmulCache[j],poly->poly[i],
+                    ffTmp, mipo,
+                    tmp,m,multTable,addTable);
+            addFFElem(ret,ffTmp,ret,tmp,multTable,addTable);
+        }else{
+            if(i>0){
+                matmul(mats+j*m, ff, ffTmp, m, multTable,addTable);
+                //update matmulCache
+                copyFFElem(ffTmp, matmulCache[j]);
+                matmulCacheCalced[j] = true;
+            }else{
+                copyFFElem(ff,ffTmp);
+            }
+            //go on and multiply ffTmp with current coefficient
+            multiplyFFElem(ffTmp, poly->poly[i],
+                    ffTmp2, mipo,
+                    tmp,m,multTable,addTable);
+            addFFElem(ret,ffTmp2,ret,tmp,multTable,addTable);
+        }
+    }
+}
+\end{ccode}
+
+Falls bereits klar ist, dass für ein gegebenes Element nur eine
+Frobenius-Auswertung vollzogen wird, so ist der @matmulCache@ überflüssig und
+führt zur Variante @applyFrob_noCache@, die ansonsten identisch zu obigem ist.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=827]
+/*
+ * calculates g(sigma^frobPower)(x) where g is a polynomial 
+ * and sigma the frobenius
+ * application of frobenius is given by mats
+ */
+inline void applyFrob_noCache(struct FFElem *ff, struct FFElem *mipo,
+        struct FFPoly *poly,
+        struct FFElem **mats,
+        int frobPower, struct FFElem *ret, 
+        int m, int *tmp, struct FFElem *ffTmp, struct FFElem *ffTmp2,
+        int *multTable, int *addTable){
+    int i,j;
+    ret->len = 0;
+    
+    for(i=0;i<poly->lenPoly;i++){
+        if(poly->poly[i]->len == 0) continue;
+        if(i>0){
+            j = i*frobPower-1;
+            matmul(mats+j*m, ff, ffTmp, m, multTable,addTable);
+        }else{
+            copyFFElem(ff,ffTmp);
+        }
+        multiplyFFElem(ffTmp, poly->poly[i],
+                ffTmp2, mipo,
+                tmp,m,multTable,addTable);
+        addFFElem(ret,ffTmp2,ret,tmp,multTable,addTable);
+    }
+}
+\end{ccode}
+
+
+\subsection{Testen von vollständigen Erzeugern}
+
+Wie bereits erwähnt ist $u\in \F_{q^m}$ über $\F_q$ genau dann ein vollständiger
+Erzeuger eines verallgemeinerten Kreisteilungsmoduls $\C_{k,t}$, wenn
+\[ \Ord_{q^d}(u) \speq= \Phi_{\nu(k),\, \frac{kt}{\nu(k)d}} \qquad
+  \forall d\mid \tfrac{k\,t}{\nu(k)}\,.\]
+Analog zum Primitivitätstest reicht es, lediglich maximale Kofaktoren des
+jeweiligen verallgemeinerten Kreisteilungspolynoms zu testen, wie nachstehendes
+Lemma beschreibt.
+
+\begin{lemma}
+  Seien $u\in \F_{q^m}$ und $\Phi_{k,t}(x) \in \F_q[x]$ ein verallgemeinertes
+  Kreisteilungspolynom. Sei ferner
+  \[ \Phi_{k,t}(x)  \speq= f_1(x)^{\nu_1} \cdot \ldots \cdot
+    f_r(x)^{\nu_r}\quad \in \F_q[x]\]
+  die vollständige Faktorisierung von $\Phi_{k,t}$ über $\F_q$ und
+  bezeichne $F_i(x) := \tfrac{\Phi_{k,t}(x)}{f_i(x)}$ den jeweiligen maximalen
+  Kofaktor von $f_i$ in $\Phi_{k,t}$ für alle $i=1,\ldots,r$.
+  Seien zuletzt $h: \F_q \to \F_{q^m}$ ein injektiver Körperhomomorphismus und 
+  $\sigma:\bar \F_q \to \bar \F_q, x\mapsto x^q$ der Frobenius von $\F_q$, 
+  so ist $\Ord_q(u) = \Phi_{k,t}$ genau dann, wenn
+  \[h(\Phi_{k,t})(\sigma)(u) \speq= 0 
+    \qquad\text{und}\qquad 
+    h(F_i)(\sigma)(u) \speq\neq 0 \quad \forall i=1,\ldots,r \,.\]
+\end{lemma}
+\begin{proof}
+  Klar per definitionem der $q$-Ordnung und \thref{lemma:einbettung_egal}.
+\end{proof}
+
+
+Nun können wir auf diese Weise leicht eine Implementierung eines Tests auf
+vollständige Erzeuger-Eigenschaft angeben, wenn wir davon ausgehen, dass die
+Berechnung der maximalen Kofaktoren bereits geschehen ist. In
+\autoref{lst:testSubmod} ist also sicherzustellen, dass in dem Array
+@polys@ sowohl das verallgemeinerte Kreisteilungspolynom, als auch alle 
+maximalen Kofaktoren auftauchen. Das Array @evalToZero@ gibt dabei an, ob 
+bei Vorliegen eines vollständigen Erzeugers die Auswertung am jeweiligen
+Polynom $0$ ergibt (@true@) oder nicht (@false@). Der Rückgabewert der Funktion
+ist selbstredend ein @bool@ mit der Information, ob das getestete Element @ff@
+ein vollständiger Erzeuger dieses Kreisteilungsmoduls ist (@true@) oder nicht
+(@false@).
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=912, label=lst:testSubmod]
+inline bool testSubmod(struct FFElem *ff, struct FFElem *mipo, 
+        struct FFPoly **polys,
+        int polysCount, bool *evalToZero, 
+        struct FFElem **mats, int *frobPowers,
+        int m, int *tmp, 
+        struct FFElem *ffTmp, struct FFElem *ffTmp2, struct FFElem *ffTmp3, 
+        struct FFElem **matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
+    int i;
+    int goodCounter = 0;
+    for(i=0;i<polysCount;i++){
+        applyFrob(ff,mipo,
+                polys[i],
+                mats,frobPowers[i], ffTmp,
+                m,tmp,ffTmp2,ffTmp3,
+                matmulCache,matmulCacheCalced,
+                multTable,addTable);
+        if( isZero(ffTmp) == evalToZero[i] ){
+            goodCounter++;
+        }else{
+            return false;
+        }
+    }
+    if(goodCounter == polysCount){
+        return true;
+    }
+    return false;
+}
+\end{ccode}
+
+
+Ferner bieten wir die Möglichkeit ein Element auf vollständige
+Erzeuger-Eigenschaft für mehrere verallgemeinerte Kreisteilungsmoduln zu
+testen, wie \autoref{lst:testAllSubmods} zeigt. @decompCount@ ist dabei die
+Anzahl der zu testenden verallgemeinerten Kreisteilungsmoduln und das Array
+@polysCountPerDecomp@ gibt die Anzahl der Polynome für den jeweiligen
+Kreisteilungsmodul an. Der Rückgabewert -- anders als in 
+\autoref{lst:testSubmod} -- ist ein @int@, der die Werte $-1$, falls @ff@ kein
+vollständiger Erzeuger der getesteten Kreisteilungsmoduln ist, oder $i$, falls
+@ff@ gerade vollständiger Erzeuger des $i$-ten getesteten Kreisteilungsmoduls
+ist, annimmt. Ferner bricht die Funktion ab, falls @ff@ ein vollständiger
+Erzeuger ist, da es klar sein sollte, dass diese Eigenschaft lediglich für
+\emph{einen} verallgemeinerten Kreisteilungsmodul zutreffen kann.
+
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
+  firstnumber=861, label=lst:testAllSubmods]
+inline int testAllSubmods(struct FFElem *ff, struct FFElem *mipo, 
+        int decompCount, struct FFPoly **polys,
+        int *polysCountPerDecomp, bool *evalToZero, 
+        struct FFElem **mats, int *frobPowers, bool *toTestIndicator,
+        int m, int *tmp, 
+        struct FFElem *ffTmp, struct FFElem *ffTmp2, struct FFElem *ffTmp3,
+        struct FFElem **matmulCache, bool *matmulCacheCalced,
+        int *multTable, int *addTable){
+    if(ff->len == 0) return -1;
+    int i,j,k;
+    int goodCounter = 0;
+    int curDecompPosition = 0;
+    for(i=0;i<decompCount;i++){
+        if(toTestIndicator != 0 && toTestIndicator[i] == false){
+            curDecompPosition += polysCountPerDecomp[i];
+            continue;
+        }
+        goodCounter = 0;
+        for(j=0;j<polysCountPerDecomp[i];j++){
+            applyFrob(ff,mipo,
+                    polys[curDecompPosition+j],
+                    mats,frobPowers[curDecompPosition+j], ffTmp,
+                    m,tmp,ffTmp2,ffTmp3,
+                    matmulCache,matmulCacheCalced,
+                    multTable,addTable);
+            if( isZero(ffTmp) == evalToZero[curDecompPosition+j] ){
+                goodCounter++;
+            }else break;
+        }
+        if(goodCounter == polysCountPerDecomp[i]){
+            return i;
+        }
+        curDecompPosition += polysCountPerDecomp[i];
+    }
+    return -1;
+}
+\end{ccode}
+
+
+\section{Implementierung der gezielten Enumeration}
+
+\subsubsection{Enumeration eines verallgemeinerten Kreisteilungsmoduls}
+
+Sei $E := \F_{q^m}$ über $F := \F_q$ eine Körpererweiterung endlicher Körper. Die Frage
+nach einer Enumeration aller vollständig normaler Elemente dieser Erweiterung
+lässt sich nach dem Zerlegungssatz (\thref{satz:zerlegungssatz}) auf die
+separate Enumeration von verallgemeinerten Kreisteilungsmoduln zurückführen.
+Daher starten wir mit einem verallgemeinerten Kreisteilungsmodul $\C_{k,t}$
+über $\F_q$. Sicherlich könnte man alle $q^m$ Elemente von $E$ testen, ob sie
+vollständige Erzeuger von $\C_{k,t}$ sind, was jedoch einen unnötig großen
+Aufwand darstellen würde. Sei nämlich $u\in E$ ein vollständiger Erzeuger von
+$\C_{k,t}$, so erhalten wir alle weiteren Elemente dieses Kreisteilungsmoduls
+durch Anwendung von \thref{kor:moduln_ueber_v_g}, was wir hier in passender
+Notation noch einmal formulieren möchten.
+
+\begin{lemma}
+  Sei $u\in E$ ein vollständiger Erzeuger von $\C_{k,t}$ über $F$. 
+  Dann gilt
+  \[ \C_{k,t} \speq= \big\{ f(\sigma)(u):\ f(x) \in F[x]_{<\varphi(k)\,t},\ 
+    \ggT(f,\Phi_{k,t}) = 1 \big\} \,,\]
+  wobei wiederum $\sigma$ den Frobenius von $F$ und 
+  $\varphi$ die Eulersche $\varphi$-Funktion notieren.
+\end{lemma}
+\begin{proof}
+  \thref{kor:moduln_ueber_v_g} mit der Erkenntnis, dass
+  $\deg(\Phi_{k,t}) = \varphi(k)\,t$.
+\end{proof}
+
+

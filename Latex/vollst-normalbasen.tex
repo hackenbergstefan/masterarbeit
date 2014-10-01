@@ -1,0 +1,104 @@
+\chapter{Vollständige Normalbasen}
+
+\begin{definition}[vollständig normal]
+  Sei $F \mid E$ eine Körpererweiterung endlicher Körper $F$ und $E$.
+  $w\in E$ heißt \emph{vollständig normal}, falls $w$ normal über jedem
+  Zwischenkörper $F \mid K\mid E$ ist.
+\end{definition}
+
+\begin{definition}[einfach]
+  Eine Körpererweiterung $F \mid E$ endlicher Körper $F$ und $E$ heißt 
+  \emph{einfach}, falls jedes normale Element von $E$ über $F$ bereits
+  vollständig normal ist.
+\end{definition}
+
+
+\begin{satz}
+  \label{satz:einfache_erweiterungen}
+  Sei $\F_{q^m} \mid \F_q$ eine Erweiterung endlicher Körper. Dann ist
+  äquivalent:
+  \begin{enumerate}
+    \item $\F_{q^m} \mid \F_q$ ist einfach.
+    \item Für jeden Primteiler $r \mid m$ ist jedes normale Element in 
+      $\F_{q^m}$ über $\F_q$ auch normal in $\F_{q^m}$ über $\F_{q^r}$.
+    \item Für jeden Primteiler $r \mid m$ teilt $r$ nicht
+      $\ord_{(\frac m r)'}(q)$.
+  \end{enumerate}
+\end{satz}
+
+\begin{definition}[verallgemeinertes Kreisteilungspolynom]
+  Sei $F$ ein endlicher Körper. Seien $k,t\geq 1$ natürliche Zahlen und 
+  $k$ teilerfremd zu $\charak F$, so heißt
+  \[ \Phi_{k,t}(x) \speq{:=} \Phi_k(x^t) \ \in F[x]\]
+  \emph{verallgemeinertes Kreisteilungspolynom}.
+\end{definition}
+
+
+\begin{definition}[verallgemeinerter Kreisteilungsmodul, Modulcharakter]
+  \label{def:verallgemeinerter_kreisteilungsmodul}
+  Sei $\Phi_{k,t}$ ein verallgemeinertes Kreisteilungspolynom über einem
+  endlichen Körper $F$. Notiere ferner $\sigma: \bar F\to \bar F$ 
+  den Frobenius von $F$,so heißt
+  \[ \C_{k,t} \speq{:=} \{ w \in \bar F:\ \Phi_{k,t}(\sigma)(w) = 0 \}\]
+  \emph{verallgemeinerter Kreisteilungsmodul}.
+
+  Der \emph{Modulcharakter} von $\C_{k,t}$ ist $\frac{k\,t}{\nu(k)}$.
+\end{definition}
+
+\begin{definition}[vollständiger Erzeuger]
+  \label{def:vollst_erzeuger}
+  Sei $\C_{k,t}$ ein verallgemeinerter Kreisteilungsmodul über $\F_q$.
+  $w \in \bar F$ heißt 
+  \emph{vollständiger Erzeuger von $\C_{k,t}$}, falls
+  $w$ ein Erzeuger von $\C_{k,t}$ als $\F_{q^d}[x]$-Modul 
+  für alle Teiler $d$ des Modulcharakters $\frac{kt}{\nu(k)}$ ist.
+\end{definition}
+
+\begin{definition}[Zerlegung in verallgemeinerte Kreisteilungsmoduln]
+  Sei $\Phi_{k,t}$ ein verallgemeinertes Kreisteilungspolynom über $F$.
+  $\Delta \subseteq F[x]$ heißt eine 
+  \emph{Zerlegung von $\Phi_{k,t}$ in verallgemeinerte Kreisteilungspolynome}, 
+  falls $\Delta$ nur verallgemeinerte Kreisteilungspolynome enthält, diese
+  paarweise teilerfremd sind und
+  \[ \Phi_{k,t}(x) \speq= \prod_{\Psi \in \Delta} \Psi(x)\,. \]
+  Definiere ferner
+  \[ i(\Delta) \speq{:=} \{ (l,s) \in \N^2:\ 
+    \Phi_{l,s} \in \Delta\}\,.\]
+\end{definition}
+
+
+\begin{definition}[verträgliche Zerlegung]
+  Sei $\Delta$ eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte
+  Kreisteilungspolynome über $F$.
+  Dann heißt $\Delta$ 
+  \emph{verträgliche Zerlegung} falls gilt: Sei für jedes 
+  $(l,s) \in i(\Delta)$
+  $w_{l,s} \in \bar F$ ein vollständiger Erzeuger von 
+  $\C_{l,s}$ über $F$,
+  so ist 
+  \[ w = \sum_{(l,s) \in i(\Delta)} w_{l,s} \]
+  ein vollständiger Erzeuger von $\C_{k,t}$ über $F$.
+\end{definition}
+
+\begin{satz}[Zerlegungssatz für verallgemeinerte Kreisteilungsmoduln]
+  \label{satz:zerlegungssatz}
+  Sei $\Phi_{k,t}$ ein verallgemeinertes Kreisteilungspolynom über einem
+  endlichen Körper $\F_q$ mit Charakteristik $p$. Sei $r$ eine Primzahl
+  mit
+
+  \begin{itemize*}[itemjoin={\qquad}]
+    \item $r \mid t$,
+    \item $r \neq p$,
+    \item $r \nmid k$.
+  \end{itemize*}
+
+  Dann ist 
+  \[ \Delta_r \speq{:=} \{ \Phi_{k,\frac{t}{r}},\ \Phi_{kr, \frac{t}{r}}\}\]
+  eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte Kreisteilungspolynome und
+  diese ist verträglich genau dann, wenn
+  \[ r^a \nmid \ord_{\nu(kt')}(q) \]
+  mit $a = \max\{ b\in \N: r^b \mid t\}$.
+\end{satz}
+
+
+

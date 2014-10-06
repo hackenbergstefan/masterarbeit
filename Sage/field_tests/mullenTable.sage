@@ -87,6 +87,21 @@ if SETUP_NUMBER == 3:
     TEST_PRIMITIVITY = False
 #------------------------------------------------------------------------------
 
+#------------------------------------------------------------------------------
+if SETUP_NUMBER == 4:
+    filePath = "mullenTableC_struct_noPrim_"+st+".txt"
+    SETUP = \
+    [[2, xrange(25,30)], \
+     [3, xrange(19,30)], \
+     [4, xrange(15,30)], \
+     [5, xrange(13,30)], \
+     [7, xrange(12,20)], \
+     [8, xrange(10,20)], \
+     [9, xrange(10,20)], \
+     ]
+    TEST_PRIMITIVITY = False
+#------------------------------------------------------------------------------
+
 GENLIST = []
 for q, nlist in SETUP:
     for n in nlist:
@@ -98,7 +113,7 @@ for q, nlist in SETUP:
 
 #------------------------------------------------------------------------------
 #test n = 3, q = 2, 3, 4, ..., 32, ...
-if SETUP_NUMBER == 4:
+if SETUP_NUMBER == 5:
     filePath = "mullenTableC_struct_n=3_"+st+".txt"
     GENLIST = []
     n = 3
@@ -112,7 +127,7 @@ if SETUP_NUMBER == 4:
 
 #------------------------------------------------------------------------------
 #test n = 4, q = 2, 3, 4, ..., 32, ...
-if SETUP_NUMBER == 5:
+if SETUP_NUMBER == 6:
     filePath = "mullenTableC_struct_n=4_"+st+".txt"
     GENLIST = []
     n = 4
@@ -125,7 +140,7 @@ if SETUP_NUMBER == 5:
 
 #------------------------------------------------------------------------------
 #test n = 6, q = 2, 3, 4, ..., 32, ...
-if SETUP_NUMBER == 6:
+if SETUP_NUMBER == 7:
     filePath = "mullenTableC_struct_n=6_"+st+".txt"
     GENLIST = []
     n = 6
@@ -143,7 +158,7 @@ if SETUP_NUMBER == 6:
 
 #------------------------------------------------------------------------------
 #test n = 6, q = 43, ...
-if SETUP_NUMBER == 7:
+if SETUP_NUMBER == 8:
     filePath = "mullenTableC_struct_n=6_noPrim_"+st+".txt"
     GENLIST = []
     n = 6
@@ -157,5 +172,5 @@ if SETUP_NUMBER == 7:
 
 
 def main():
-    pool = Pool(4);
+    pool = Pool(1);
     pool.imap_unordered(enumeratePCNs_wrapper, GENLIST)

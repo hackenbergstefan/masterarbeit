@@ -148,9 +148,9 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
         countBarFactors = len(barFactors)
         commonBarFactor = gcd(barFactors)
         commonBiggestBarFactor = max(gcd(barFactors[1:]) / commonBarFactor,1)
-        print "barFactors=", barFactors
-        print "commonBarFactor=",commonBarFactor
-        print "commonBiggestBarFactor=",commonBiggestBarFactor
+        #print "barFactors=", barFactors
+        #print "commonBarFactor=",commonBarFactor
+        #print "commonBiggestBarFactor=",commonBiggestBarFactor
         barFactors = map(lambda b: b/commonBarFactor, barFactors)
         curF = 0
         barFactors_tmp = [barFactors[0]]
@@ -158,7 +158,7 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
             barFactors_tmp += [ b/commonBiggestBarFactor - curF]
             curF = b/commonBiggestBarFactor
         barFactors = barFactors_tmp
-        print "barFactors=", barFactors
+        #print "barFactors=", barFactors
         if binaryPowers:
             barFactors = map(lambda b: get_padic_representation(b,2),barFactors)
             commonBarFactor = get_padic_representation(commonBarFactor,2)
@@ -201,7 +201,7 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
         for e in itertools.product(xrange(p),repeat=e):
             elementsF += [h( F(list(reversed(e))) ).polynomial().list()]
 
-
+        #calculate addition and multiplication tables
     ps = range(p)
     addTable = ps[P(-2*(p-1)):] + ps*2 + ps[:Integer(P(2*(p-1)))+1]
     multTable = ps[P(-(p-1)**2):] + ps*(2*(p-2)) + ps[:Integer(P((p-1)**2))+1]
@@ -212,15 +212,14 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
     #print "evalToZero=",evalToZero, "len=",len(evalToZero)
     #print "frobPowers=",frobPowers, "len=",len(frobPowers)
     #print "polysCount=",polysCount, "len=",len(polysCount)
-    print "barFactors=",barFactors
-    print "commonBarFactor=",commonBarFactor
-    print "commonBiggestBarFactor=",commonBiggestBarFactor
+    #print "barFactors=",barFactors
+    #print "commonBarFactor=",commonBarFactor
+    #print "commonBiggestBarFactor=",commonBiggestBarFactor
     #print "lenBiggestZeroGap=",lenBiggestZeroGap
     #print "multTable=",multTable, " len=", len(multTable)
     #print "addTable=", addTable, " len=", len(addTable)
     #print "elementsF = ", elementsF
     #=========================================================================
-    return
 
     
     # SETUP C DATA ===========================================================
@@ -534,7 +533,7 @@ def get_padic_representation(number, p):
 
 # computes the quadratic free part of an integer
 def squarefree(n):
-    return sage.all.prod(map(lambda x: x[0], sage.all.factor(Integer(n))))
+    return prod(map(lambda x: x[0], factor(Integer(n))))
 
 # computes ordn m(q) = min{ k: q ** k = 1 mod m }
 def ordn(m,q):
@@ -578,7 +577,8 @@ def decompose_cycl_module(p,e, k,t,pi):
     for r,l in reversed(factor(t)):
         if not (r**l).divides(ordn(squarefree(k*t),p**e)):
             R = largestDiv(r,t)
-            return decompose_cycl_module(p,e, k, t/r, pi) + decompose_cycl_module(p,e, k*R, t/R, pi)
+            return decompose_cycl_module(p,e, k, t/r, pi) \
+                    + decompose_cycl_module(p,e, k*R, t/R, pi)
     return [(k,t,pi)]
 
 
@@ -591,6 +591,8 @@ def largestDiv(p,n):
     return p**(l-1);
 
 
+# returns the NOT completely basic divisors of an 
+# extension n over GF(p^e)
 def get_completely_basic_divisors(p,e,n):
     n = Integer(n)
     q = Integer(p**e)

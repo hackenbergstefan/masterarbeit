@@ -68,6 +68,7 @@
 
 
 \begin{definition}[verträgliche Zerlegung]
+  \label{def:vertraeglich}
   Sei $\Delta$ eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte
   Kreisteilungspolynome über $F$.
   Dann heißt $\Delta$ 
@@ -102,3 +103,50 @@
 
 
 
+\begin{definition}[regulär]
+  \label{def:regulaer}
+  Ein verallgemeinerter Kreisteilungsmodul $\C_{k,t}$ 
+  mit $\ggT(k,t)=1$ heißt \emph{regulär},
+  falls $\ord_{\nu(k\,t')}(q)$ und $k\,t$ teilerfremd sind.
+\end{definition}
+
+
+\begin{definition}[ausfallend]
+  \label{def:ausfallend}
+  Sei $\C_{k, p^b}$ ein regulärer verallgemeinerter Kreisteilungsmodul 
+  über $\F_q$ mit $\charak \F_q = p$. Schreibe $k = 2^c \cdot \bar k$ mit $\bar
+  k$ ungerade. Dann heißt $\C_{k,p^b}$ \emph{ausfallend}, falls gilt:
+  \begin{itemize}
+    \item $q \equiv 3 \bmod 4$,
+    \item $c \geq 3$ und 
+    \item $\ord_{2^c}(q) = 2$.
+  \end{itemize}
+\end{definition}
+
+\begin{definition}[$\tau$-Teiler]
+  Sei $\C_{k,p^b}$ ein regulärer verallgemeinerter Kreisteilungsmodul über
+  $\F_q$. Schreibe
+  \[ \ord_k(q) \speq= \ord_{\nu(k)}(q) \ \prod_{r \in \pi(k)} r^{\alpha_r}\,,\]
+  wobei $\pi(k)$ die Primteiler von $k$ bezeichnen.
+  Dann heißt
+  \[ \tau \speq{:=} \tau(q,k) \speq{:=} \prod_{r\in \pi(k)} 
+    r^{\lfloor \frac{\alpha_r}{2}\rfloor}\]
+  der \emph{$\tau$-Teiler von $\C_{k,p^b}$}.
+\end{definition}
+
+\begin{satz}[Über reguläre Erweiterungen]
+  \label{satz:regulare_erweiterungen}
+  Sei $\F_q$ ein endlicher Körper von Charakteristik $p$. 
+  Seien $k$ eine positive ganze Zahl teilerfremd zu $q$ und 
+  $\C_{k,p^b}$ ein regulärer verallgemeinerter Kreisteilungsmodul. Dann gilt:
+  \begin{enumerate}
+    \item Ist $\C_{k,p^b}$ nicht ausfallend, so ist $u \in \bar F$ genau dann
+      ein vollständiger Erzeuger von $\C_{k,p^b}$, falls
+      \[ \Ord_{q^\tau}(u) \speq= \Phi_{\frac k \tau,\, p^b} \,.\]
+    \item Ist $\C_{k,p^b}$ ausfallend, so ist $u\in \bar F$ genau dann
+      ein vollständiger Erzeuger von $\C_{k,p^b}$, falls
+      \[ \Ord_{q^\tau}(u) \speq= \Phi_{\frac k \tau,\, p^b} \quad
+        \text{und}\quad 
+        \Ord_{q^{2\tau}}(u) \speq= \Phi_{\frac{k}{2\tau},\, p^b}\,.\]
+  \end{enumerate}
+\end{satz}

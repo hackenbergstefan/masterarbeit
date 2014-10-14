@@ -699,7 +699,7 @@ inline bool isPrimitive(struct FFElem *ff, struct FFElem *mipo,
                 matCharac,tmp,ffTmp2,
                 multTable,addTable);
     /*printf("commonBarFactor=");printArr(commonBarFactor,lenCommonBarFactor);*/
-    /*printFFElem("   y",ffTmp);*/
+    /*printFFElemShort("   y",ffTmp);*/
     if(isOne(ffTmp)) return false;
     //switch ffTmp and fff
     ffSwitch = fff; fff = ffTmp; ffTmp = ffSwitch;
@@ -716,7 +716,7 @@ inline bool isPrimitive(struct FFElem *ff, struct FFElem *mipo,
                 matCharac,tmp,ffTmp2,
                 multTable,addTable);
     /*printf("firstFactor=");printArr(barFactors,lenBarFactors[0]);*/
-    /*printFFElem("   y^firstFactor",ffTmp);*/
+    /*printFFElemShort("   y^firstFactor",ffTmp);*/
     if(isOne(ffTmp)) return false;
     curPos += lenBarFactors[0];
     //test further factors which are powers of commonBiggestBarFactor
@@ -732,10 +732,10 @@ inline bool isPrimitive(struct FFElem *ff, struct FFElem *mipo,
                 m,commonBiggestBarFactor,lenCommonBiggestBarFactor,
                 matCharac,tmp,ffTmp2,
                 multTable,addTable);
+    /*printf("commonBiggestBarFactor=");printArr(commonBiggestBarFactor,lenCommonBiggestBarFactor);*/
+    /*printFFElemShort("   z=y^commonBiggestBarFactor",ffTmp);*/
     if(isOne(ffTmp)) return false;
     ffSwitch = fff; fff = ffTmp; ffTmp = ffSwitch;
-    /*printf("commonBiggestBarFactor=");printArr(commonBiggestBarFactor,lenCommonBiggestBarFactor);*/
-    /*printFFElem("   z=y^commonBiggestBarFactor",fff);*/
     for(i=1;i<countBarFactors;i++){
         // copy z (fff) to ffff
         copyFFElem(fff,ffff);
@@ -752,7 +752,7 @@ inline bool isPrimitive(struct FFElem *ff, struct FFElem *mipo,
                     multTable,addTable);
         /*printf("barFactor[%i]=",i);printArr(barFactors+curPos,*/
                 /*lenBarFactors[i]);*/
-        /*printFFElem("   z^curFac",ffTmp);*/
+        /*printFFElemShort("   z^curFac",ffTmp);*/
 
         if(i>1){
             multiplyFFElem(ffRet,ffTmp,ffTmp2,mipo,
@@ -953,7 +953,7 @@ inline bool testSubmod(struct FFElem *ff, struct FFElem *mipo,
 inline void calcSubmoduleElements(struct Node *root,
         struct FFElem *mipo,
         int maxLenPoly, 
-        int *genCounts, int curGen,
+        unsigned long long *genCounts, int curGen,
         struct FFPoly **polys, int polysCount, bool *evalToZero,
         struct FFElem **mats, int matLen, int *frobPowers,
         struct FFElem **elementsF,
@@ -981,9 +981,9 @@ inline void calcSubmoduleElements(struct Node *root,
         curPoly[0] = 0;
         curPoly[1] = 1;
     }
-    /*printf("    curPoly");printArr(curPoly,maxLenPoly);*/
     if(q != 2 || maxLenPoly > 1){
         while(true){
+            /*printf("    curPoly");printArr(curPoly,maxLenPoly);*/
             //setup curFPoly
             for(i=0;i<curLenPoly;i++)
                 curFPoly->poly[i] = elementsF[curPoly[i]];
@@ -1005,6 +1005,7 @@ inline void calcSubmoduleElements(struct Node *root,
                     matmulCache,matmulCacheCalced, multTable,addTable)){
                 curRoot = appendToEnd(curRoot,ffTmp,m);
                 genCounts[curGen]++;
+                /*printf("    is gen!\n");*/
             }
             //generate next element
             curPoly[0] += 1;
@@ -1037,7 +1038,7 @@ inline void calcSubmoduleElements(struct Node *root,
 unsigned long long processLastSubmoduleAndTestPrimitivity(struct Node **roots,
         struct FFElem *mipo, int decompCount,
         int maxLenPoly, 
-        int *genCounts, 
+        unsigned long long *genCounts, 
         struct FFPoly **polys, int polysCount, bool *evalToZero,
         struct FFElem **mats, int matLen, int *frobPowers,
         struct FFElem **elementsF,
@@ -1087,7 +1088,7 @@ unsigned long long processLastSubmoduleAndTestPrimitivity(struct Node **roots,
                 mats,1, fff, //return value
                 m,tmp,ffTmp,ffTmp2,
                 multTable,addTable);
-        /*printFFElem("     =>f(x)",fff);*/
+        /*printFFElemShort("     =>f(x)",fff);*/
         //test generated element
         for(i=0;i<matLen;i++) matmulCacheCalced[i] = false;
         if(testSubmod(fff, mipo,
@@ -1172,9 +1173,9 @@ unsigned long long processLastSubmoduleAndTestPrimitivity(struct Node **roots,
 
 unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
         struct FFPoly **polys, int *polysCountPerDecomp,
-        bool *evalToZero, 
+        bool *evalToZero, int *maxLenPolysPerDecomp,
         struct FFElem **mats, int matLen, int *frobPowers,
-        int *genCounts, int m, int charac, int q,
+        unsigned long long *genCounts, int m, int charac, int q,
         int *barFactors, int *lenBarFactors, int countBarFactors,
         int *commonBarFactor, int lenCommonBarFactor,
         int *commonBiggestBarFactor, int lenCommonBiggestBarFactor,
@@ -1210,11 +1211,11 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
     //------------------------------------------------------------------------
     
     int foundCounter = 0;
-    initPoly(genCounts,decompCount);
+    for(i=0;i<decompCount;i++) genCounts[i] = 0;
 
     // chase for elements ----------------------------------------------------
     while(true){
-        /*printFFElem("test element",ff);*/
+        /*printFFElemShort("test element",ff);*/
         for(i=0;i<matLen;i++) matmulCacheCalced[i] = 0;
         int curGen = testAllSubmods(ff,mipo,decompCount,
                 polys,polysCountPerDecomp,evalToZero,
@@ -1229,7 +1230,7 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
                 foundCounter++;
                 toTestIndicator[curGen] = false;
                 /*printf("found curGen=%i",curGen);*/
-                /*printFFElem("         ",ff);*/
+                /*printFFElemShort("         ",ff);*/
             }
             if(foundCounter == decompCount) break;
         }
@@ -1260,7 +1261,7 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
     int curDecompPosition = 0;
     for(i=0;i<decompCount-1;i++){
         calcSubmoduleElements(roots[i], mipo,
-                polys[curDecompPosition]->lenPoly-1, // *** == maxLenPoly
+                maxLenPolysPerDecomp[i],  // *** == maxLenPoly
                 genCounts,i, // *** i == curGen
                 polys+curDecompPosition, polysCountPerDecomp[i],
                 evalToZero+curDecompPosition,
@@ -1279,7 +1280,7 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
     int curGen = decompCount-1;
     unsigned long long pcn = 
         processLastSubmoduleAndTestPrimitivity(roots,mipo,decompCount,
-            polys[curDecompPosition]->lenPoly-1, // *** == maxLenPoly
+            maxLenPolysPerDecomp[curGen],  // *** == maxLenPoly
             genCounts,
             polys+curDecompPosition,polysCountPerDecomp[curGen],
             evalToZero+curDecompPosition,

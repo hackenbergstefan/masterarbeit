@@ -34,6 +34,7 @@ Grundsätzlich wurde zur konkreten Suche und Enumeration primitiver und
 vollständig normaler Elemente das Computeralgebrasystem \sage verwendet.
 
 \section{Implementierung endlicher Körper und Körpererweiterungen}
+\label{sec:impl_endl_körper}
 \sage bietet ja bereits die Möglichkeit in endlichen Körpern zu rechnen. Jedoch
 hat sich herausgestellt, dass die zugrunde liegenden \Clang-Bibliotheken 
 (im Allgemeinen Fall ist dies das \texttt{Pari C library}%
@@ -774,7 +775,7 @@ zunächst ein kleines Lemma an, auf dem der dann folgende Algorithmus basiert.
 \end{proof}
 
 Es bleibt jedoch immer noch offen diese $r$ Potenzierungen möglichst gut
-zu organisieren. Nehmen wir die Primzahlen sind in der Primfaktorzerlegung
+zu organisieren. Nehmen wir an, die Primzahlen sind in der Primfaktorzerlegung
 \[ q-1 \speq= p_1^{\nu_1}\cdot\ldots\cdot p_r^{\nu_r}\]
 aufsteigend sortiert, also $p_1<p_2<\ldots < p_r$, so
 hat sich als besonders hilfreich erwiesen, die Potenzen $\bar n_i$ auf
@@ -783,7 +784,8 @@ Basis der Potenzen
   \item $d := \ggT\{ \bar n_i:\ i=1,\ldots,r\}$ und 
   \item $d' := \ggT\{ \frac{\bar n_i}{d}:\ i=1,\ldots,r-1\}$
 \end{itemize}
-durchzuführen, wie nachstehendes Beispiel veranschaulicht.
+durchzuführen und die bereits berechneten Potenzen zu nutzen, 
+wie nachstehendes Beispiel veranschaulicht.
 
 \begin{beispiel}
   Sei $u \in \F_{3^{10}}$. Da
@@ -805,7 +807,7 @@ durchzuführen, wie nachstehendes Beispiel veranschaulicht.
   \[ \begin{array}{l@{\ =\ }l}
     u^{\bar n_3} & w^{11}\,, \\
     u^{\bar n_2} & v^2\,, \\
-    u^{\bar n_1} & v^{11}\,.
+    u^{\bar n_1} & v^2 \cdot v^{9}\,.
   \end{array} \]
   Selbstverständlich kann man den Test auf Primitivität bereits abbrechen,
   falls $v = 1$ oder $w = 1$.
@@ -1223,6 +1225,7 @@ durch Anwendung von \thref{kor:moduln_ueber_v_g}, was wir hier in passender
 Notation noch einmal formulieren möchten.
 
 \begin{lemma}
+  \label{lemma:moduln_durch_polys}
   Sei $u\in E$ ein vollständiger Erzeuger von $\C_{k,t}$ über $F$. 
   Dann gilt
   \[ \C_{k,t} \speq= \big\{ f(\sigma)(u):\ f(x) \in F[x]_{<\varphi(k)\,t},\ 
@@ -1351,6 +1354,7 @@ damit für späteres Zusammensetzen gespeichert.
 
 \subsubsection{Verkettete Listen zum Speichern berechneter vollständiger 
 Erzeuger}
+\label{subsub:verkettete_listen}
 
 Die verkettete Liste ist dabei wie folgt aufgebaut.
 
@@ -1415,6 +1419,7 @@ inline void freeNode(struct Node* head){
 \end{ccode}
 
 \subsection{Dynamische Enumeration des größten Kreisteilungsmoduls}
+\label{sub:dynamische_enumeration}
 
 Da der Zerlegungssatz (\thref{satz:zerlegungssatz}) nicht immer eine echte
 Zerlegung liefert (sich also alle vollständig normalen Elemente auf einen
@@ -1869,7 +1874,7 @@ gerade zu betrachtenden Teiler einer Erweiterung liefert
 (und deren Benennung vielleicht etwas kontraintuitiv gewählt wurde).
 
 \begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=594]
+  firstnumber=594, label=lst:get_completely_basic_divisors]
 # returns the NOT completely basic divisors of an 
 # extension n over GF(p^e)
 def get_completely_basic_divisors(p,e,n):
@@ -1901,6 +1906,74 @@ def p_free_part(t,p):
         t /= p
     return t
 \end{sagecode}
+
+
+
+
+\subsubsection{Ausnutzen regulärer Kreisteilungsmoduln}
+
+Sicherlich wollen wir auch Regularität (\thref{def:regulaer}) nicht unbeachtet
+lassen, um uns die Suche nach vollständig normalen Elementen zu erleichtern.
+Also haben wir auch einen Test auf Regularität nach \sage übersetzt.
+
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
+  firstnumber=431]
+# tests if cyclotomic module C_k,t is regular over F_p^e
+def isRegular(p,e, k,t,pi):
+    return gcd( ordn( squarefree(k*p_free_part(t,p)), p**e ),  k*t*pi) == 1
+\end{sagecode}
+
+Ist ein Kreisteilungsmodul regulär, so ist ein Test auf vollständige
+Erzeuger-Eigenschaft durch \thref{satz:regulare_erweiterungen} gegeben.
+Da Regularität lediglich die Anzahl der Teiler des Erweiterungsgrades, deren
+zugehörige Kreisteilungsmoduln auf vollständige Erzeuger getestet werden
+müssen, reduziert, wird \thref{satz:regulare_erweiterungen} durch Rückgabe der
+Teiler $\tau$ bzw. $\tau$ und $2\tau$ (in Notation dieses Satzes)
+im ausfallenden Fall realisiert, wie die Funktion 
+"get_tau_divisors" zeigt. Die zu übergebenden Parameter bestehen wieder aus 
+$q = p^e$ und der Daten $(k,t,\pi)$ des zu betrachtenden Kreisteilungsmoduls 
+$\C_{k,\,tpi}$ über $\F_q$.
+
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
+  firstnumber=436]
+# returns tau-divisors for complete generator test of 
+# the cyclotomic module C_k,t*pi over F_p^e
+def get_tau_divisors(p,e, k,t,pi):
+    if t != 1:
+        print "ERROR get_tau_divisors: t != 1 for p=",p," e=",e\
+                ," k=",k," t=",t," pi=",pi
+        raise Exception("Error t!=1")
+    q = p**e
+    tau = ordn(k,q) / ordn(squarefree(k),q)
+    tau = prod(map(lambda ra: ra[0]**floor(ra[1]/2), factor(tau)))
+    if isExceptional(p,e, k):
+        return [ tau, 2*tau ]
+    else:
+        return [ tau ]
+\end{sagecode}
+
+Wie in $\thref{satz:regular_dann_kanonische_zerlegnug}$ gezeigt, ist die
+kanonische Zerlegung im regulären Fall verträglich. Daher tritt ein Fehler auf,
+wird obiger Funktion ein Kreisteilungsmodul $\C_{l,m}$ übergeben mit 
+$m \neq p^b$ für ein $b\geq 0$.
+
+Es bleibt natürlich noch ein Test anzugeben, der überprüft, ob 
+die Parameter $(p,e,k)$ ausfallend sind (vgl. \thref{def:ausfallend}).
+
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
+  firstnumber=452]
+# tests if n is exceptional over F_p^e
+def isExceptional(p,e, n):
+    q = p**e
+    c = 0
+    nbar = n
+    while Integer(2).divides(nbar):
+        c += 1
+        nbar /= 2
+    if (q).mod(4) == 3  and c >= 3  and ordn(q, 2**c) == 2:
+        return True
+    return False
+\end{sagecode}  
 
 
 \subsubsection{Die zentrale \sage-Funktion 
@@ -2247,3 +2320,424 @@ wird und nicht als expliziter Rückgabewert erkennbar ist.
             strfdelta(datetime.timedelta(seconds=(time.time()-TIME)))
 \end{sagecode}
 
+
+\subsection{Ein ausführliches Beispiel}
+
+Wir wollen nun einmal das gesamte Verfahren zur Berechnung Anzahl 
+der primitiv vollständig normalen Elemente einer Erweiterung endlicher Körper
+anhand eines Beispiels nachvollziehen. Dazu wählen wir $F := \F_2$ und 
+$n := 6$, also $E := \F_{2^6}$. Die Wahl des Minimalpolynoms dieser Erweiterung
+überlassen wir \sage und erhalten 
+\[ E = \F_2[a] \big/ ( a^6 + a^4 + a^3 + a + 1 ) \,.\]
+
+Gehen wir erneut den Code von "countCompleteSubmoduleGenerators"
+Zeile für Zeile durch, so beginnen wir mit der Festlegung der grundlegenden
+Parameter:
+\[ p := 2,\qquad q := 2,\qquad e := 1,\qquad P := \F_2\,.\]
+
+
+\paragraph{Berechnung der nicht einfachen Teiler} Im nächsten Schritt berechnen
+wir die nicht einfachen Teiler mithilfe "get_completely_basic_divisors" 
+(\autoref{lst:get_completely_basic_divisors}).
+Dazu gehen wir alle Teiler von $n=6$ durch und überprüfen, ob die jeweiligen
+Erweiterungen einfach sind, d.h. für jeden Teiler $d \mid n$ testen wir für
+jeden Primteiler $r \mid \tfrac{n}{d}$, ob $r \nmid \ord_{(\frac{n}{dr})'}(q^d)$
+(vgl. \thref{satz:einfache_erweiterungen}). Wir brechen jeweils ab, falls ein
+$r$ die Teilbarkeitsbedingung nicht erfüllt.
+
+\[ \begin{array}{l|l|l|l|l|ll} 
+  d & \frac{n}{d} & r & (\frac{n}{dr})' & \ord_{(\frac{n}{dr})'}(q^d) & 
+    \multicolumn{2}{l}{r \nmid \ord_{(\frac{n}{dr})'}(q^d)}\\\hline\hline
+  1 & 6 & 2 & 3 & 2 & \lightning &\leadsto\text{\small nicht einfach}\\\hline
+  2 & 3 & 3 & 1 & 1 & \checkmark\\
+  &&&&&& \leadsto\text{\small einfach}
+  \end{array}\]
+
+Damit sind alle zu betrachtenden Teiler von $n$ gegeben durch
+\[ \text{"notComplBasicDivisors"} := [1,2]\,. \]
+Wie man erkennt, wollen wir in diesem Beispiel alle auftretenden Listen in der
+\python/\sage-üblichen Notation $[\ ,\ ,\ldots]$ angeben.
+
+
+\paragraph{Anwendung des Zerlegungssatzes} Anschließend folgt die Berechnung
+der Zerlegung in Kreisteilungsmoduln durch den Zerlegungssatz. Da wir in der
+konkreten Implementierung stets drei Parameter für die Angabe von
+Kreisteilungsmoduln verwenden, d.h. Potenzen der Charakteristik immer
+„ausklammern”, wollen wir dies auch hier so notieren. Der zu
+$x^n-1 = x^6-1$ über $\F_2$ gehörige Kreisteilungsmodul ist offenbar
+\[ \C_{1,6} \speq= \C_{1,3\cdot 2}\]
+und wir erhalten damit das Parametertripel $(k,t,\pi) := (1,3,2)$.
+Hier startet der Zerlegungssatz rekursiv und wie in "decompose_cycl_module" 
+(\autoref{lst:decompose_cycl_module}) erkennbar, durchlaufen wir die Primteiler
+von $t$ in der Größe nach absteigend sortierter Reihenfolge.
+
+\begin{center}
+  \begin{tikzpicture}[level distance=2cm,sibling distance=3cm]
+    \node (root) {$(1,3,2)$}
+      child {node {$(1,1,2)$}
+        edge from parent
+          node[above, sloped, 
+            font=\scriptsize,text=gray!50]
+            {$(k,\tfrac t r, \pi)$}}
+      child {node {$(3,1,2)$}
+        edge from parent
+          node[above,sloped,
+          font=\scriptsize,text=gray!50]
+          {$(kr,\tfrac t r, \pi)$}};
+    \begin{scope}[overlay]
+      \node[right=0.5cm of root, fill=gray!5,
+        font=\small] 
+        {$r=3$ $\leadsto$ 
+          $3^1 \nmid \ord_{\nu(kt')}(q) = \ord_{3}(2) = 2$};
+    \end{scope}
+  \end{tikzpicture}
+\end{center}
+Da an den beiden Blättern $t=1$ gilt, endet hier die Möglichkeit einer weiteren
+Rekursionsstufe und wir fassen zusammen, dass
+\[ x^6-1 \speq= \Phi_1(x)^2 \ \Phi_3(x)^2 \]
+die feinste verträgliche Zerlegung des Kreisteilungsmoduls $\C_{1,6}$
+über $\F_2$ ist.
+
+
+\paragraph{Polynome aufstellen} Nun sind wir in der Lage, die Polynome zu
+berechnen, die wir für den Test von vermeindlichen vollständigen Erzeugen
+benötigen werden. 
+\begin{enumerate}
+  \item Wir starten beim ersten erweiterten Kreisteilungspolynom
+    \[ \Phi_{1,1}^2 \speq= x^2 + 1 \qquad \in \F_2[x]\,. \]
+    Es ist nun $(k,t,pi) := (1,1,2)$ und wir 
+    müssten alle Teiler des Modulcharakters $\frac{k\,t\,\pi}{\nu(k)} = 2$,
+    betrachten. Wie man an obig berechnetem "notComplBasicDivisors" erkennt, 
+    lässt sich in diesem Fall auch keiner der beiden Teiler $\{1,2\}$
+    streichen. Ein zweiter Kniff schafft aber eine Reduktion der Teilerzahl, da 
+    $(1,1,2)$ regulär über $\F_2$ ist:
+    \[ \ord_{\nu(k\,t')}(q) \speq= \ord_{1}(2) \speq= 1 \,. \]
+    Da auch $(1,1,2)$ nicht ausfallend über $\F_2$ ist, reicht es den einzigen
+    Teiler zu berechnen, den wir benötigen:
+    \[ \tau(q,k) \speq= \tau(2,1) \speq= 1\,,\]
+    da $\ord_k(q) = \ord_1(2) = \ord_{\nu(k)}(q)$.
+    \begin{description}
+      \item[$d=1.$] Nun sind alle Kofaktoren einer vollständigen Faktorisierung
+        von $\Phi_{1,1}(x)^2$ über $\F_{2^d} = \F_2$ zu berechnen:
+        \[ \Phi_{1,1}(x)^2 \speq= (x+1)^2\]
+        und der einzige Kofaktor ist durch
+        \[ g_{1,1,1}(x) \speq= x+1 \]
+        gegeben.
+    \end{description}
+  \item Nun zum zweiten Kreisteilungsmodul $(k,t,\pi) := (3,1,2)$. Der
+    Modulcharakter ist wiederum $\frac{k\,t\,\pi}{\nu(k)} = 2$. Auch hier
+    können wir mit "notComplBasicDivisors" keinen Teiler wegdiskutieren. Anders
+    als in obigem Fall ist dieser Kreisteilungsmodul nicht einmal regulär, da 
+    \[ \ord_{\nu(kt')}(q) \speq= \ord_3(2) = 2\]
+    nicht teilerfremd zu $kt=2$ ist.
+    Also bleiben beide Teiler $\{1,2\}$ übrig.
+    \begin{description}
+      \item[$d=1.$] Wir faktorisieren 
+        \[ \Phi_{3,1}(x)^2 \speq= (x^2+x+1)^2 \qquad \in \F_2[x] \]
+        und erhalten als einzigen Kofaktor dieses Teilers
+        \[ g_{2,1,1}(x) \speq= x^2+x+1\,.\]
+      \item[$d=2.$] Blicken wir noch einmal in die Definition eines
+        vollständigen Erzeugers (\thref{def:vollst_erzeuger}), so sehen wir,
+        dass wir nun $\C_{3,1\cdot 2}$ als $\F_{2^2}[x]$-Modul betrachten
+        müssen. Orientiert man sich an der Definition eines verallgemeinerten
+        Kreisteilungsmoduls (\thref{def:verallgemeinerter_kreisteilungsmodul}),
+        so sind wir gezwungen $\Phi_3(x^{\frac{2}{2}})$ über $\F_{2^2}$ zu
+        faktorisieren. Dazu überlassen wir wiederum \sage die Repräsentation
+        des endlichen Körpers
+        \[ \F_{2^2} \speq= \F_2[b] \big/ (b^2+b+1)\]
+        und faktorisieren
+        \[ \Phi_{3,1}(x) \speq= (x+b) (x+b+1)\,. \]
+        Ergo erhalten wir die beiden Kofaktoren in $\F_{2^2}[x]$:
+        \begin{align*}
+          g_{2,2,1}(x) &\speq{:=} x + b+1\,,\\
+          g_{2,2,2}(x) &\speq{:=} x + b\,.
+        \end{align*}
+        Wie aber in der Beschreibung der Implementierung erwähnt, bietet es
+        sich an, diese Polynome mittels eines injektiven Körperhomomorphismus
+        in $E = \F_{2^6}$ zu lesen. Auch die Berechnung eines solchen
+        überlassen wir \sage und wählen
+        \[ h:\ \funcdef{\F_2[b]\big/(b^2+b+1) &\to& 
+          \F_2[a] \big/ ( a^6 + a^4 + a^3 + a + 1 )\,,\\[10pt]
+          b &\mapsto& a^2+a^2+a\,.}\]
+        Damit schreiben wir obige Kofaktoren zu
+        \begin{align*}
+          g_{2,2,1}(x) &\speq{:=} x + a^3+a^2+a+1\,,\\
+          g_{2,2,2}(x) &\speq{:=} x + a^3+a^2+a
+        \end{align*}
+        um, gelesen als Elemente von $\big(\F_2[a]\big/(a^6+a^4+a^3+a+1)\big)[x]$.
+    \end{description}
+\end{enumerate}
+Als letzten Schritt des Aufstellens der Polynome fassen wir alle Ergebnisse
+zusammen und erinnern uns an die Implementierung, wo neben den Polynomen auch
+die Information, welche Polynome bei Vorliegen eines vollständigen Erzeugers in
+der Frobenius-Auswertung zu Null ausgewertet werden müssen, und die Angabe der
+Frobenius-Potenzen benötigt werden. Da alle Polynome in \emph{eine einzige}
+Liste geschrieben werden, muss man selbstredend die Anzahl der Polynome des
+jeweiligen Kreisteilungsmoduls abspeichern. Zusammengefasst erhalten wir
+folgende Daten:
+\[\small\begin{array}{r@{\ := [}llllll@{]}}
+    \text{"polys"} &  x^2+1,& x+1, & x^4+x^2+1, &x^2+x+1, 
+      & x+a^3+a^2+a+1, & x+a^3+a^2+a\\
+    \text{"evalToZero"} & 1, & 0, & 1, & 0, & 0, & 0\\
+    \text{"frobPowers"} & 1, & 1, & 1, & 1, & 2, & 2\\
+    \text{"polysCount"} & 2, &    & 4  &    &    &\\
+  \end{array}\]
+Wie man sicherlich bemerkt, führen wir das den zweiten Kreisteilungsmodul
+definierende Polynom $\Phi_{3,2}$ lediglich für den Teiler $d=1$ auf. Für den
+Teiler $d=2$ hätten wir $\Phi_{3,1}$ jedoch mit Frobenius-Potenz $2$. Da ein
+Element $u\in E$ jedoch genau dann $\Phi_{3,2}(\sigma)(u) = 0$ erfüllt, wenn 
+$\Phi_{3,1}(\sigma^2)(u) = 0$, ist dieser Berechnungsschritt obsolet.
+
+\paragraph{Daten für einen Primitivitätstest}
+Für den in \autoref{lst:isPrimitive} beschriebenen Primitivitätstest, müssen
+wir zunächst $q^n-1 = 2^6-1$ faktorisieren:
+\[ 2^6-1 = 3^2\cdot 7\,.\]
+Also sind die zu testenden Kofaktoren gerade $9$ und $21$. Wir erkennen sofort,
+dass der größte gemeinsame Teiler beider Faktoren $3$ ist und setzen daher
+in Benennung von "isPrimitive" (\autoref{lst:isPrimitive})
+\[ \text{"commonBarFactor"}\ := 3\,.\]
+Ergo reduzieren sich die Kofaktoren auf $3$ und $7$.
+Im nächsten Schritt betrachten wir nur noch alle Kofaktoren, die den größten
+Primfaktor obiger Faktorisierung enthalten. Hier ist dies nur einer:
+$7$. Wieder berechnen wir den $\ggT$ all dieser: $7$. Damit haben wir alle
+restlichen Daten:
+\[ \begin{array}{r@{\ :=\ }l}
+    \text{"commonBiggestBarFactor"} & 7\\
+    \text{"barFactors"} & [3,1]
+  \end{array} \]
+Benutzen wir binäre Exponentiation so übersetzen wir die erhaltenen Zahlen ins
+Binärsystem:
+\[ \begin{array}{r@{\ :=\ }l}
+    \text{"commonBarFactor"} & [1,1]\\
+    \text{"commonBiggestBarFactor"} & [1,1,1]\\
+    \text{"barFactors"} & \big[[1,1,1],\ [1]\big]
+  \end{array} \]
+In diesem Fall wären die Zahlen in $p$-adischer Schreibweise identisch, da ja
+$p=2$.
+
+\paragraph{Aufstellen der Frobenius-Matrizen}
+Um den Frobenius von $F$, also 
+$\bar F\to \bar F, x\mapsto x^2$,
+effizient auf Elemente aus $E$ anwenden zu können,
+müssen wir seine Darstellungsmatrix bezüglich der kanonischen Basis
+\[\{ 1, a, a^2, a^3, a^4, a^5\} 
+  \subseteq \F_2[a]\big/(a^6 + a^4 + a^3 + a + 1)\]
+berechnen. Dazu fassen wir selbstredend die Elemente aus $E$ als Vektoren in
+$\F_2^6$ auf:
+\[\begin{array}{l@{\ =\ }l@{\quad\cong\quad}l}
+  1^2 & 1 & \begin{bmatrix}1&0&0&0&0&0\end{bmatrix}^T\\
+  a^2 & a^2 & \begin{bmatrix}0&0&1&0&0&0\end{bmatrix}^T\\
+  (a^2)^2 & a^4 & \begin{bmatrix}0&0&0&0&1&0\end{bmatrix}^T\\
+  (a^3)^2 & a^4+a^3+a+1 & \begin{bmatrix}1&1&0&1&1&0\end{bmatrix}^T\\
+  (a^4)^2 & a^5 + a^4 + a^2 + a + 1 & \begin{bmatrix}1&1&1&0&1&1\end{bmatrix}^T\\
+  (a^5)^2 & a^5+a^4+1 & \begin{bmatrix}1&0&0&0&1&1\end{bmatrix}^T
+\end{array}\]
+
+Damit erhalten wir eine Darstellungsmatrix des Frobenius:
+\[\Gamma_\sigma \speq{:=} \begin{bmatrix}
+  1 & 0 & 0 & 1 & 1 & 1 \\
+  0 & 0 & 0 & 1 & 1 & 0 \\
+  0 & 1 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 1 & 0 & 0 \\
+  0 & 0 & 1 & 1 & 1 & 1 \\
+  0 & 0 & 0 & 0 & 1 & 1 \\
+  \end{bmatrix}\]
+
+Wie man an den obigen Polynomen in "polys" erkennen kann, ist die maximale
+Potenz des Frobenius gerade $4$. Daher bleibt noch $\Gamma_\sigma^2$,
+$\Gamma_\sigma^3$ und $\Gamma_\sigma^4$ zu berechnen:
+
+\[ \Gamma_\sigma^2 \speq{=}
+  \begin{bmatrix}
+    1 & 0 & 1 & 1 & 1 & 1 \\
+    0 & 0 & 1 & 0 & 1 & 1 \\
+    0 & 0 & 1 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 1 & 1 & 0 & 1 & 0 \\
+    0 & 0 & 1 & 1 & 0 & 0 \\
+    \end{bmatrix},
+  \quad\Gamma_\sigma^3 \speq=
+  \begin{bmatrix}
+    1 & 1 & 1 & 1 & 0 & 1 \\
+    0 & 1 & 1 & 1 & 1 & 0 \\
+    0 & 1 & 0 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 1 & 1 & 0 & 1 & 1 \\
+    0 & 1 & 0 & 1 & 1 & 0 \\
+  \end{bmatrix},
+  \quad\Gamma_\sigma^4 \speq=
+  \begin{bmatrix}
+    1 & 1 & 0 & 1 & 0 & 0 \\
+    0 & 1 & 1 & 1 & 1 & 1 \\
+    0 & 0 & 0 & 1 & 0 & 1 \\
+    0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 1 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 1 & 1 & 0 & 1 \\
+  \end{bmatrix}.\]
+
+Wie man in der Implementierung erkennen kann übergeben wir die
+Frobenius-Matrizen stets als @FFElem **mats@, d.h. man sollte sich obige vier
+Matrizen eher als eine $(24\times 6)$-Matrix vorstellen, deren Zeilen jeweils
+aus einem @FFElem@ bestehen (vgl. \autoref{sec:impl_endl_körper}). 
+Unter dieser Analogie ist dies gerade das Ergebnis der Funktion "genFrobMats".
+
+\paragraph{Iteration von $E$ auf der Suche nach vollständigen Erzeugern}
+Wie in der Beschreibung von @processFiniteField@
+(\autoref{lst:processFiniteField}) angegeben, starten wir die Suche nach
+vollständig normalen und primitiven Elementen bei einer Iteration des endlichen
+Körpers $E$, bis wir für jeden Kreisteilungsmodul der Zerlegung einen
+vollständigen Erzeuger gefunden haben. Die konkrete Iteration erfolgt dabei
+lexikographisch in $\F_2^6$, wobei wir der besseren Lesbarkeit geschuldet
+zwischen den verschiedenen Schreibweisen von Vektoren in $\F_2^6$ und
+Polynomen in $\F_2[a]\big/(a^6 + a^4 + a^3 + a + 1)$ ohne besondere
+Kennzeichnung wechseln werden.
+\begin{description}
+  \item[$u := \vec{0&0&0&0&0&0}.$] Hier gibt es nichts zu tun.
+  \item[$u := \vec{1&0&0&0&0&0}.$] Wir blicken auf "polys" und berechnen
+    \[ (x^2+1)(\sigma)(1) \speq= 0\ \checkmark,
+    \qquad (x+1)(\sigma)(1) \speq= 0\ \lightning\,.\]
+    Also ist $1$ kein Erzeuger von $\C_{1,1\cdot 2}$ über $\F_2$.
+    Beim zweiten Kreisteilungsmodul scheitern wir bereits beim ersten Polynom:
+    \[ (x^4+x+1)(\sigma)(1) \speq= 1\ \lightning\,.\]
+  \item[\ldots] Hier sind weitere Elemente zu denken, die ebenfalls keine 
+    vollständigen Erzeuger liefern.
+  \item[$u := \vec{0&1&1&0&0&0}.$] Dieses Element liefert einen vollständigen
+    Erzeuger des zweiten Kreisteilungsmoduls:
+    \[\begin{array}{r@{\ =\ }l@{\quad}r@{\ =\ }l} 
+      (x^4+x^2+1)(\sigma)(u) & 0, &
+      (x^2+x+1)(\sigma)(u) & a^5+a^4+a^2+1, \\[8pt]
+      (x+a^3+a^2+a^1)(\sigma^2)(u) & a^5 + a^4 + a^3 + a, &
+      (x+a^3+a^2+a)(\sigma^2)(u) & a^5+a^4\,.
+      \end{array}\]
+    Die Anwendung des Frobenius ist dabei jeweils durch obige Matrizen zu
+    denken.
+  \item[\ldots]
+  \item[$u := \vec{0&1&1&1&0&0}.$] Hier haben wir einen vollständigen Erzeuger
+    des ersten Kreisteilungsmoduls, wie nachstehende Rechnung zeigt.
+    \[\begin{array}{r@{\ =\ }l@{\qquad}r@{\ =\ }l} 
+      (x^2+1)(\sigma)(u) & 0, &
+      (x+1)(\sigma)(u) & 1\,.
+      \end{array}\]
+\end{description}
+Die berechneten vollständigen Erzeuger speichern wir in einem Array aus
+verketteten Listen (vgl. \autoref{subsub:verkettete_listen}). Die verketteten
+Listen sowie das Array wollen wir hier jedoch wieder in \python-üblicher 
+Notation angeben. Bisher haben wir also für jeden Kreisteilungsmodul einen
+Erzeuger gefunden:
+\[ \text{"roots"}\ =\ \big[\, [a^3+a^2+a],\ [a^2+a] \,\big]\]
+Die Benennung "roots" ist hier konsistent mit @processFiniteField@
+(\autoref{lst:processFiniteField}) gewählt. Jedoch sind die Elemente der Listen
+natürlich wieder als @FFElem@ zu denken.
+
+
+\paragraph{Enumeration der einzelnen Kreisteilungsmoduln}
+An diesem Punkt haben wir für jeden Kreisteilungsmodul einen Erzeuger gefunden
+und können anhand diesem den jeweiligen Modul vollständig enumerieren.
+\begin{description}
+  \item[$\Phi_{1,1}^2.$] Sei $u := a^3+a^2+a$ unser gefundener Erzeuger, so können
+    wir nach \thref{lemma:moduln_durch_polys} den Modul durch Polynome über
+    $F$, deren Grad kleiner $2$ ist, enumerieren:
+    \[ \C_{1,1\cdot 2} \speq= \{ f(\sigma)(u):\ 
+      f \in F[x]_{<2},\ \ggT(f,\Phi_{1,1}^2) = 1\}\,.\]
+    Wie im Absatz nach \thref{lemma:moduln_durch_polys} erwähnt, führen wir die
+    Berechnung des $\ggT$ nicht durch, sondern testen jedes Element auf
+    vollständige Erzeuger-Eigenschaft für diesen Modul.
+    \[\begin{array}{l|l|l}
+      f(x) & f(\sigma)(u) & \text{vollst. Erz.}\\\hline
+      1 & a^3+a^2+a & \checkmark\\
+      x & a^3+a^2+a+1 & \checkmark\\
+      x+1 & 1 & \lightning
+      \end{array}\]
+  \item [$\Phi_{3,1}^2.$] Sei in diesem Fall $u:= a^2+a$ der gefundene
+    Erzeuger, so müssen wir Polynome bis zum Grad $3$ über $F$ betrachten:
+    \[\begin{array}{l|l|l}
+      f(x) & f(\sigma)(u) & \text{vollst. Erz.}\\\hline
+      1 & a^2+a & \checkmark\\
+      x & a^4+a^2 & \checkmark\\
+      x+1 & a^4+a & \lightning\\
+      x^2 & a^5+a^2+a+1 & \checkmark\\
+      x^2+1 & a^5+1 & \checkmark\\
+      x^2+x & a^5+a^4+a+1 & \lightning\\
+      x^2+x+1 & a^5+a^4+a^2+1 & \lightning\\
+      x^3 & a^5+a^2 & \checkmark\\
+      x^3+1 & a^5+a & \lightning\\
+      x^3+x & a^5+a^4 & \checkmark\\
+      x^3+x+1 & a^5+a^4+a^2+a & \lightning\\
+      x^3+x^2 & a+1 & \lightning\\
+      x^3+x^2+1 & a^2+1 & \lightning\\
+      x^3+x^2+x & a^4+a^2+a+1 & \lightning\\
+      x^3+x^2+x+1 & a^4+1 & \lightning
+      \end{array}\]
+    In der konkreten Implementierung speichern wir diese Ergebnisse nicht ab,
+    sondern erzeugen die weiteren Erzeuger des letzten Kreisteilungsmoduls
+    dynamisch (vgl.  
+    \autoref{sub:dynamische_enumeration}), was
+    wir hier zur besseren Übersichtlichkeit nicht tun wollen.
+\end{description}
+
+Nun können wir die aktualisierte Liste "roots" angeben:
+\[\text{"roots"}\ =\ \big[\, [a^3+a^2+a,\, a^3+a^2+a+1],\ 
+  [a^2+a,\, a^4+a^2,\, a^5+a^2+a+1,\, a^5+1,\, a^5+a^2,\, a^5+a^4]\,\big]\]
+
+An dieser Stelle können wir bereits festhalten, dass in der Erweiterung von
+Grad $6$ über $\F_2$ genau $6\cdot 2=12$ vollständig normale Elemente
+existieren.
+
+\paragraph{Primitivitätstest}
+Für einen Primitivitätstest müssen wir die $12$ vollständig normalen Elemente
+natürlich erst einmal „zusammenbauen”. Dazu durchlaufen wir das kartesische
+Produkt aus den Listen in "roots" und bilden jeweils die Summe der einzelnen
+Elemente (vgl. \thref{def:vertraeglich}).
+\begin{description}
+  \item[$(a^3+a^2+a)\ +\ (a^2+a).$] 
+    Wie in der Beschreibung zu @isPrimitive@ (\autoref{lst:isPrimitive})
+    erläutert, berechnen wir zunächst $v^\texttt{\scriptsize commonBarFactor} = v^3$,
+    wobei $v := a^3+a^2+a + a^2+a = a^3$ das zu testende Element ist.
+    Dies führen wir mittels binärer Exponentiation durch, wie in 
+    @powerFFElemSqM@ (\autoref{lst:powerffelemsqm}) beschrieben, geben hier
+    jedoch nur das Ergebnis an. Es ist 
+    \[ v^3 \speq=  a^5 + a^4 + a^2 + 1 \speq{=:} w\,.\]
+    Da $w \neq 1$ müssen wir fortfahren mit dem ersten Faktor aus 
+    @barFactors@:
+    \[ w^3 \speq= a^5 + a^4 + a^2\,. \]
+    Auch dies ist ungleich $1$, also fahren wir fort mit 
+    $w^\texttt{\scriptsize commonBiggestBarFactor}$ wie in 
+    @isPrimitive@ (\autoref{lst:isPrimitive}) angegeben:
+    \[ w^7 \speq= 1\,.\]
+    An dieser Stelle können wir abbrechen und wissen, dass $v$ kein
+    primitives Element ist.
+  \item[$(a^3+a^2+a+1)\ +\ (a^2+a).$]
+    Auch hier beginnen wir mit $v := a^3+a^2+a+1 + a^2+a = a^3+1$ und 
+    berechnen
+    \[ v^3 \speq= a^5+a^2+a+1 \speq{=:} w \,.\]
+    Wieder ist $w\neq 1$ und wir fahren fort mit dem ersten @barFactor@.
+    \[ w^3 \speq= a^4+a^2+a\,.\]
+    Für den Exponenten $\text{"biggestCommonBarFactor"} = 7$ erhalten wir:
+    \[ w^7 \speq= a^3+a^2+a \speq{=:} z\,.\]
+    Diesen müssen wir nun mit allen verbleibenden @barFactor@s potenzieren. In
+    unserem Fall lediglich einer:
+    \[ z^1 \speq= a^3+a^2+a \]
+    und somit ist $v$ ein primitives Element in $E$.
+\end{description}
+
+Für alle weiteren Elemente wollen wir nur das Ergebnis der Primitivitätstests
+in tabellarischer Form angeben.
+
+\[\begin{array}{l|l|l|l}
+  \text{Gen von } \C_{1,1\cdot 2} & \text{Gen von } \C_{3,1\cdot 2} &
+    \text{Element} & 
+    \text{primitiv} \\\hline
+  a^3+a^2+a & a^4+a^2 & a^4+a^3 +a & \checkmark\\
+  a^3+a^2+a+1 & a^4+a^2 & a^4+a^3+a+1 & \lightning\\
+  a^3+a^2+a & a^5+a^2+a+1 & a^5+a^3+1 & \lightning\\
+  a^3+a^2+a+1 &a^5+a^2+a+1 & a^5+a^3 & \checkmark\\
+  a^3+a^2+a & a^5+1 & a^5 +a^3+a^2+a+1& \lightning\\
+  a^3+a^2+a+1 &a^5+1 & a^5+a^3+a^2+a &\checkmark\\
+  a^3+a^2+a & a^5+a^2 & a^5+a^3+a & \checkmark\\
+  a^3+a^2+a+1 & a^5+a^2& a^5+a^3+a+1 &\lightning\\
+  a^3+a^2+a & a^5+a^4 & a^5+a^4+a^3+a^2+a &\checkmark\\
+  a^3+a^2+a+1 & a^5+a^4 & a^5+a^4+a^3+a^2+a+1 &\lightning\\
+  \end{array}\]
+
+Zusammenfassend existieren also $6$ primitiv vollständig normale Elemente in
+der Erweiterung von Grad $6$ über $\F_2$.

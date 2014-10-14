@@ -32,7 +32,7 @@ def enumeratePCNs_wrapper(qn):
 
 ###############################################################################
 ###############################################################################
-SETUP_NUMBER = 3
+SETUP_NUMBER = "2a"
 ###############################################################################
 ###############################################################################
 st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
@@ -68,6 +68,18 @@ if SETUP_NUMBER == 2:
      ]
     TEST_PRIMITIVITY = True
 #------------------------------------------------------------------------------
+
+if SETUP_NUMBER == "2a":
+    filePath = "mullenTableC_struct_"+st+".txt"
+    SETUP = \
+    [[2, xrange(25,28)]]
+    TEST_PRIMITIVITY = True
+
+if SETUP_NUMBER == "2b":
+    filePath = "mullenTableC_struct_"+st+".txt"
+    SETUP = \
+    [[3, xrange(18,22)]]
+    TEST_PRIMITIVITY = True
 
 ###############################################################################
 ## Without Primitivity ########################################################

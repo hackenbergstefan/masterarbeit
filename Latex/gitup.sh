@@ -1,5 +1,5 @@
 #!/bin/sh
-#cp ./latexmk_files/document.pdf Masterarbeit.pdf
+cp ./latexmk_files/document.pdf Masterarbeit.pdf
 if [ -z "$1" ]; then
   git commit -a -m "tex weiter"
 else

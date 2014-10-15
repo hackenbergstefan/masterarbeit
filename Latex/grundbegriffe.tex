@@ -74,7 +74,7 @@ Phifunktion und geben wir dann die wichtigsten Rechenregeln an.
 \end{bemerkung}
 
 \begin{satz}
-  \label{satz:frob_auto}
+  \label{satz:frob_fix}
   Sei $q$ eine Primpotenz und $n\in \N_{>0}$. Der Automorphismus
   \[ \sigma: \funcdef{\F_{q^n} &\to& \F_{q^n}\\
     a &\mapsto& a^q}\]
@@ -100,6 +100,21 @@ $F$, so können wir das folgende zentrale Resultat zitieren:
   \autocite[Theorem 7.3]{wan2003lectures}.
 \end{proof}
 
+Neben der Tatsache, dass der Frobenius alle Endomorphismen erzeugt, können wir
+auch zeigen, dass alle Potenzen des Frobenius von $\F_q$ über $\F_{q^n}$ linear
+unabhängig sind. Dies gilt sogar in einem größeren Kontext:
+
+\begin{satz}[Dedekindsches Lemma]
+  \label{satz:dedekindsches_lemma}
+  Seinen $K,L$ zwei Körper, $n \in \N$ und $\tau_1,\ldots,\tau_n: K\to L$
+  injektive Körperhomorphismen. Dann ist für jedes $x \in K$
+  \[ \{\tau_1(x),\ldots,\tau_n(x) \}\]
+  linear unabhängig über $L$.
+\end{satz}
+\begin{proof}
+  \autocite[Satz 27.2]{karpfinger2010algebra}.
+\end{proof}
+
 
 Mit \thref{satz:frob_sind_alle_autos} wird klar, dass für ein
 irreduzibles Polynom $f(X) \in \F_q[X]$, das in $\F_{q^n}$ eine Nullstelle 
@@ -120,3 +135,4 @@ Beides fasst nachstehender Satz zusammen.
 \begin{proof}
   \autocite[Theorem 2.14]{lidl1997finite}.
 \end{proof}
+

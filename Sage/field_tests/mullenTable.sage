@@ -32,15 +32,16 @@ def enumeratePCNs_wrapper(qn):
 
 ###############################################################################
 ###############################################################################
-SETUP_NUMBER = "2a"
+SETUP_NUMBER = "cn p1"
 ###############################################################################
 ###############################################################################
 st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
 
+SETUP = []
 
 #------------------------------------------------------------------------------
 # mullen setup
-if SETUP_NUMBER == 1:
+if SETUP_NUMBER == "pcn p1":
     filePath = "mullenTableC_struct_"+st+".txt"
     SETUP = \
     [[2, xrange(2,19)], \
@@ -55,7 +56,7 @@ if SETUP_NUMBER == 1:
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
-if SETUP_NUMBER == 2:
+if SETUP_NUMBER == "pcn p2":
     filePath = "mullenTableC_struct_"+st+".txt"
     SETUP = \
     [[2, xrange(2,25)], \
@@ -69,13 +70,13 @@ if SETUP_NUMBER == 2:
     TEST_PRIMITIVITY = True
 #------------------------------------------------------------------------------
 
-if SETUP_NUMBER == "2a":
+if SETUP_NUMBER == "pcn p3":
     filePath = "mullenTableC_struct_"+st+".txt"
     SETUP = \
     [[2, xrange(25,28)]]
     TEST_PRIMITIVITY = True
 
-if SETUP_NUMBER == "2b":
+if SETUP_NUMBER == "pcn p4":
     filePath = "mullenTableC_struct_"+st+".txt"
     SETUP = \
     [[3, xrange(18,22)]]
@@ -85,11 +86,11 @@ if SETUP_NUMBER == "2b":
 ## Without Primitivity ########################################################
 ###############################################################################
 #------------------------------------------------------------------------------
-if SETUP_NUMBER == 3:
-    filePath = "mullenTableC_struct_"+st+".txt"
+if SETUP_NUMBER == "cn p1":
+    filePath = "mullenTableC_struct_noPrim_"+st+".txt"
     SETUP = \
-    [[2, xrange(25,30)], \
-     [3, xrange(19,30)], \
+    [[2, xrange(31,35)], \
+     [3, xrange(21,30)], \
      [4, xrange(15,30)], \
      [5, xrange(13,30)], \
      [7, xrange(12,20)], \
@@ -100,7 +101,7 @@ if SETUP_NUMBER == 3:
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
-if SETUP_NUMBER == 4:
+if SETUP_NUMBER == "cn p2":
     filePath = "mullenTableC_struct_noPrim_"+st+".txt"
     SETUP = \
     [[2, xrange(25,30)], \
@@ -125,7 +126,7 @@ for q, nlist in SETUP:
 
 #------------------------------------------------------------------------------
 #test n = 3, q = 2, 3, 4, ..., 32, ...
-if SETUP_NUMBER == 5:
+if SETUP_NUMBER == "pcn n1":
     filePath = "mullenTableC_struct_n=3_"+st+".txt"
     GENLIST = []
     n = 3
@@ -139,7 +140,7 @@ if SETUP_NUMBER == 5:
 
 #------------------------------------------------------------------------------
 #test n = 4, q = 2, 3, 4, ..., 32, ...
-if SETUP_NUMBER == 6:
+if SETUP_NUMBER == "pcn n2":
     filePath = "mullenTableC_struct_n=4_"+st+".txt"
     GENLIST = []
     n = 4
@@ -152,7 +153,7 @@ if SETUP_NUMBER == 6:
 
 #------------------------------------------------------------------------------
 #test n = 6, q = 2, 3, 4, ..., 32, ...
-if SETUP_NUMBER == 7:
+if SETUP_NUMBER == "pcn n3":
     filePath = "mullenTableC_struct_n=6_"+st+".txt"
     GENLIST = []
     n = 6
@@ -170,7 +171,7 @@ if SETUP_NUMBER == 7:
 
 #------------------------------------------------------------------------------
 #test n = 6, q = 43, ...
-if SETUP_NUMBER == 8:
+if SETUP_NUMBER == "cn n1":
     filePath = "mullenTableC_struct_n=6_noPrim_"+st+".txt"
     GENLIST = []
     n = 6
@@ -182,6 +183,19 @@ if SETUP_NUMBER == 8:
     TEST_PRIMITIVITY = False
 ##------------------------------------------------------------------------------
 
+#------------------------------------------------------------------------------
+#test n = 4, q = 243, ...
+if SETUP_NUMBER == "cn n2":
+    filePath = "mullenTableC_struct_n=4_noPrim_"+st+".txt"
+    GENLIST = []
+    n = 4
+    for p in primes(200):
+        for e in range(1,20):
+            GENLIST += [[p**e,n]]
+
+    GENLIST = sorted(GENLIST)[243:]
+    TEST_PRIMITIVITY = False
+##------------------------------------------------------------------------------
 
 def main():
     pool = Pool(1);

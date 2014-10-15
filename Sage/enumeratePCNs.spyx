@@ -440,6 +440,11 @@ def get_completely_basic_divisors(p,e,n):
     return divs
 
 
+def isCompletelyBasic(p,e,n):
+    return len(get_completely_basic_divisors(p,e,n)) == 1
+
+
+
 # tests if cyclotomic module C_k,t is regular over F_p^e
 def isRegular(p,e, k,t,pi):
     return gcd( ordn( squarefree(k*p_free_part(t,p)), p**e ),  k*t*pi) == 1

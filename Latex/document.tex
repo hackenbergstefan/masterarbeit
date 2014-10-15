@@ -77,6 +77,8 @@ chapterprefix=true
 \usepackage[automark]{scrpage2} % Headline styles 
 \usepackage{xspace}
 
+\usepackage{longtable}
+
 
 %% Listings setup %%%%%%%%%%%%%%%%
 \lstset{
@@ -302,6 +304,9 @@ chapterprefix=true
 \newcommand{\Q}{\ensuremath \mathbb{Q}}
 \newcommand{\Z}{\ensuremath \mathbb{Z}}
 \newcommand{\C}{\ensuremath \mathcal{C}}
+\newcommand{\CN}{\ensuremath \mathcal{CN}}
+\newcommand{\PN}{\ensuremath \mathcal{CN}}
+\newcommand{\PCN}{\ensuremath \mathcal{PCN}}
 \newcommand{\F}{\ensuremath \mathbb{F}}
 \newcommand{\K}{\ensuremath \mathbb{K}}
 \renewcommand{\P}{\ensuremath \mathbb{P}}
@@ -322,6 +327,7 @@ chapterprefix=true
 \newcommand{\cython}{\texttt{Cython}\xspace}
 \newcommand{\python}{\texttt{Python}\xspace}
 \newcommand{\Clang}{\texttt{C}\xspace}
+\let\cal\mathcal
 
 \let\div\undefined
 \DeclareMathOperator{\charak}{char}
@@ -478,6 +484,7 @@ chapterprefix=true
 
 
 \appendix
+\input{anhang}
 %\chapter{\texttt{Sage}-Quellcodes}
 %\lstset{language=python,
   %basicstyle = \footnotesize\normalfont\ttfamily,

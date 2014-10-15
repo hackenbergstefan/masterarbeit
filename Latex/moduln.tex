@@ -7,11 +7,34 @@ beginnt die Reise bei der Betrachtung von Moduln über Hauptidealbereichen. Dazu
 wiederholen wir die wichtigsten Definitionen und Aussagen. Für eine intensivere
 Betrachtung sei auf Standardwerke der Algebra, z.B. 
 \autocite{lang2002algebra} oder \autocite{hartley1974rings}, verwiesen.
+Die Referenzen als Beweise seien ohne explizite Erwähnung immer 
+als beispielhafte Angabe zu verstehen und es
+sei bemerkt, dass jene grundlegenden Resultate auch in anderen Werken zu 
+finden sind.
 
 \begin{definition}[Integritätsbereich]
   Sei $R$ ein kommutativer Ring, so heißt $R$ \emph{Integritätsbereich},
   falls $R$ nullteilerfrei ist und $1\neq 0$ in $R$.
 \end{definition}
+
+\begin{lemma}
+  Sei $R$ ein Integritätsbereich. Dann ist $R[X]$, also der 
+  univariate Polynomring über $R$, ein Integritätsbereich und
+  $R[X]^\times = R^\times$.
+\end{lemma}
+\begin{proof}
+  \autocite[Lemma 13.4]{karpfinger2010algebra}.
+\end{proof}
+
+\begin{definition}[assoziierte Elemente]
+  Sei $R$ ein Integritätsbereich. Zwei Elemente $r,s\in R$ heißen 
+  \emph{assoziiert}, falls sie sich nur um eine Einheit unterscheiden, d.h. ein
+  $u \in R^\times$ existiert mit $r = us$.
+\end{definition}
+
+\begin{bemerkung}
+  Man sieht leicht ein, dass Assoziiertheit eine Äquivalenzrelation definiert.
+\end{bemerkung}
 
 \begin{definition}[Hauptidealbereich]
   Sei $R$ ein Integritätsbereich, so heißt $R$ \emph{Hauptidealbereich}
@@ -19,6 +42,31 @@ Betrachtung sei auf Standardwerke der Algebra, z.B.
   Hauptideal ist, d.h. ein $r \in R$ existiert mit
   $I = (r)$.
 \end{definition}
+
+
+\begin{lemma}
+  Sei $K$ ein Körper, so ist $K$ und $K[X]$ ein Hauptidealbereich.
+\end{lemma}
+\begin{proof}
+  \autocite[Satz 17.6]{karpfinger2010algebra}.
+\end{proof}
+
+\begin{definition}[$\ggT$ und $\kgV$]
+  Sei $R$ ein Hauptidealbereich und $a,b \in R$. Dann heißt $t\in R$ mit 
+  \[ (a)+(b) \speq= (a,b) \speq= (t)\]
+  \emph{größter gemeinsamer Teiler von $a$ und $b$}; 
+  geschrieben $t=\ggT(a,b)$.\\
+  Ferner heißt $T\in R$ mit 
+  \[ (a)\cap (b) \speq= (T)\]
+  \emph{kleinstes gemeinsames Vielfaches von $a$ und $b$};
+  geschrieben $T = \kgV(a,b)$.
+\end{definition}
+
+
+\begin{bemerkung}
+  $\ggT$ und $\kgV$ sind nur bis auf Assoziiertheit gleich, wie man sich leicht
+  überlegen kann.
+\end{bemerkung}
 
 \begin{definition}[irreduzibles Element]
   Sei $R$ ein Integritätsbereich, so heißt $p\in R$ 
@@ -40,21 +88,12 @@ Betrachtung sei auf Standardwerke der Algebra, z.B.
   $\pi$ von $\{1,\ldots,n\}$ und Einheiten $a_i$ für alle $i=1,\ldots,n$.
 \end{definition}
 
-\begin{definition}[assoziierte Elemente]
-  Sei $R$ ein Integritätsbereich. Zwei Elemente $r,s\in R$ heißen 
-  \emph{assoziiert}, falls sie sich nur um eine Einheit unterscheiden, d.h. ein
-  $u \in R^\times$ existiert mit $r = us$.
-\end{definition}
-
-\begin{bemerkung}
-  Man sieht leicht ein, dass Assoziiertheit eine Äquivalentzrelation definiert.
-\end{bemerkung}
-
 \begin{satz}
-  Integritätsbereiche sind faktorielle Ringe.
+  \label{satz:hid_sind_faktoriell}
+  Hauptidealbereiche sind faktorielle Ringe.
 \end{satz}
 \begin{proof}
-  \autocite{}.
+  \autocite[Theorem II.5.2]{lang2002algebra}.
 \end{proof}
 
 \begin{definition}[Modul]
@@ -124,7 +163,7 @@ sich so auch beispielsweise in \autocite[Lemma 8.10]{hartley1974rings}
 wiederfindet.
 
 \begin{satz}[Zerlegungssatz für Moduln mit Ordnung]
-  Seien $R$ ein Integritätsbereich und 
+  Seien $R$ ein Hauptidealbereich und 
   $M$ ein nicht-trivialer $R$-Modul mit Exponent $r$, also $rM = 0$.
   Sei $r = e p_1^{\alpha_1}\ldots p_k^{\alpha_k}$ eine Zerlegung in irreduzible
   Faktoren, sodass die $p_i$ paarweise nicht assoziiert sind, 
@@ -134,7 +173,8 @@ wiederfindet.
 \end{satz}
 \begin{proof}
   Zu Beginn stellen wir fest, dass die geforderte Zerlegung für $r$ existiert
-  und eindeutig ist, in dem wir ($R$ ist faktoriell) $r$ in irreduzibele
+  und eindeutig ist, in dem wir ($R$ ist faktoriell nach 
+  \thref{satz:hid_sind_faktoriell}) $r$ in irreduzibele
   Elemente zerlegen und dann diejenigen, die zueinander assoziiert sind,
   zusammenfassen. Ferner notieren wir $d_i = \frac{r}{p_i^{\alpha_i}}$.
   Kümmern wir nun um die Eindeutigkeit. Sei also 
@@ -166,6 +206,50 @@ wiederfindet.
   mit $sd_i + tp_i^{\alpha_i} = 1$. Also
   \[ y \speq= 1y \speq= (s_di + tp_i^{\alpha_i})y \speq= 0\,,\]
   was den Beweis abschließt.
+\end{proof}
+
+
+\begin{definition}
+  Seien $M$ ein $R$-Modul und $r \in R$, so definiere
+  \[ V_r \speq{:=} \{ a\in M:\ ra = 0\}\,.\]
+\end{definition}
+
+
+\begin{bemerkung}
+  Es ist klar, dass $V_r$ wieder zu einem $R$-Modul wird, da sich $V_r$ auch
+  lesen lässt, als der Kern des Modulhomomorphismus
+  \[ M\to M,\ a \mapsto ra\,.\]
+\end{bemerkung}
+
+\begin{satz}
+  \label{satz:schnitt_plus_vs}
+  Seien $M$ ein Modul über einem Hauptidealbereich $R$ und $r,s,t,T\in R$ mit 
+  $t = \ggT(r,s)$ und $T = \kgV(r,s)$. Dann gilt
+  \begin{enumerate}
+    \item $V_r \cap V_s \speq= V_t$.
+    \item $V_r + V_s \speq= V_T$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  Zunächst ist klar, dass $V_r+V_s$ und $V_r\cap V_s$ wiederum $R$-Moduln sind.
+  \begin{enumerate}
+    \item Sei $x\in V_t$, so ist $t \in \Ann_Rx$ nach Definition des
+      Annihilators. Dieser ist ein Ideal, also sind auch $s,t\in \Ann_Rx$.
+      Damit folgt sofort $x \in V_r\cap V_s$.
+      Sei umgekehrt $x \in V_r \cap V_s$, also $rx = 0$ und $sx = 0$. 
+      Nach Definition des $\ggT$ existieren $r',s'\in R$ mit 
+      $t = r'r + s's$, also 
+      \[ tx = r'rx + s'sx = 0\,.\]
+    \item Da $r$ und $s$ Teiler von $T$ sind, ist klar, dass
+      $V_r+V_s \subseteq V_T$. Sei umgekehrt $z\in V_T$.
+      Schreibe nun $r = r't$, $s = s't$ und setze
+      $x := s'z$, $y:=r'z$. Dann ist 
+      \[ rx \speq= rs'z \speq= Tz \speq= r'sz \speq= sy \]
+      und wegen $Tz = 0$ folgt $x\in U_r$ und $y \in U_s$. Da nach Wahl nun
+      $(r')+(s') = (1)$, existieren $\alpha,\beta\in R$ mit 
+      $\alpha r' + \beta s' = 1$ und wir folgern
+      \[ z \speq= \alpha r'z + \beta s'z \speq= \alpha y + \beta x \,.\]
+  \end{enumerate}
 \end{proof}
 
 
@@ -202,9 +286,10 @@ wiederfindet.
   denn: Es ist klar, dass $n = \deg \chi_\tau$ und da nach dem Satz von
   Cayley-Hamilton ist $\sigma$ Nullstelle von $\chi_\tau$. Daher teilt
   $\mu_\tau$ das charakteristische Polynom. Jedoch kennen wir das
-  Minimalpolynom von $\tau$: Nach Dedekinds-Unabhängigkeitslemma ist 
+  Minimalpolynom von $\tau$: Nach dem Dedekindschen Lemma
+  \thref{satz:dedekindsches_lemma} ist 
   $\id_E,\sigma,\ldots,\sigma^{n-1}$ linear unabhänig über $E$, also insbesondere
-  über $F$, und $\sigma^n = \id_E$.\marginpar{References!}
+  über $F$, und $\sigma^n = \id_E$.
 \end{bemerkung}
 
 
@@ -222,7 +307,15 @@ wiederfindet.
       $\K[x]$-Teilmodul von $V$}.
   \end{enumerate}
 \end{definition}
-\marginpar{Eindeutigkeit!}
+
+\begin{bemerkung}
+  Die Eindeutigkeit der $\tau$-Ordnung wird sofort klar, wenn man sich
+  überlegt, dass für einen Hauptidealbereich $R$ mit $(a) = (b) \subseteq R$ 
+  gilt: Schreibe $a = b b'$ und $b = a a'$ so gilt $a = a a'b'$, also 
+  $a'b' = 1$. Damit unterscheiden sich die Erzeuger zweier gleicher Hauptideale
+  lediglich um eine Einheit. Wir haben jedoch $K[x]^\times = \K^\times$. Die
+  Forderung nach Normiertheit klärt damit abschließend die Eindeutigkeit.
+\end{bemerkung}
 
 
 \begin{notation}
@@ -244,8 +337,10 @@ wiederfindet.
 \end{lemma}
 \begin{proof}
   \begin{enumerate}
-    \item \TODO
-    \item \TODO
+    \item 
+      \TODO
+    \item Wir haben $u \in V_g$ und $v \in V_h$ und 
+      nach \thref{satz:schnitt_plus_vs} ist $V_g + V_h = V_{\kgV(g,h)}$.
   \end{enumerate}
 \end{proof}
 

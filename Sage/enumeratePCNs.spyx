@@ -86,7 +86,8 @@ cdef FFPoly **pyList2PointFFPoly(listPolys, int m):
 
 
 def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
-        testPrimitivity=True):
+        testPrimitivity=True,\
+        onlyNormal=False):
     TIME = time.time()
     p = F.characteristic()
     q = F.order();
@@ -99,19 +100,22 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
     evalToZero = []
     frobPowers = []
     maxLenPolysPerDecomp = []
-    notComplBasicDivisors = get_completely_basic_divisors(p,e,n)
+    notComplBasicDivisors = get_not_completely_basic_divisors(p,e,n)
     decomposition = decompose(p,e,n)
     for decomp in decomposition:
         k,t,pi = decomp
-        divs = divisors(get_module_character(*decomp))
-        #print "for decomp=",decomp, "consider divs=",divs
-        divs = filter(lambda x: x in notComplBasicDivisors, divs)
-        #print "\t\t\tnow only", divs
-        if isRegular(p,e,k,t,pi):
-            if get_tau_divisors(p,e, k,t,pi) != divs:
-                #print "better!! F=",F," n=",n," decomp=",decomp,\
-                        #" divs=",divs," tau_divs=",get_tau_divisors(p,e,k,t,pi)
-                divs = get_tau_divisors(p,e, k,t,pi)
+        if onlyNormal:
+            divs = [1]
+        else:
+            divs = divisors(get_module_character(*decomp))
+            #print "for decomp=",decomp, "consider divs=",divs
+            divs = filter(lambda x: x in notComplBasicDivisors, divs)
+            #print "\t\t\tnow only", divs
+            if isRegular(p,e,k,t,pi):
+                if get_tau_divisors(p,e, k,t,pi) != divs:
+                    #print "better!! F=",F," n=",n," decomp=",decomp,\
+                            #" divs=",divs," tau_divs=",get_tau_divisors(p,e,k,t,pi)
+                    divs = get_tau_divisors(p,e, k,t,pi)
         #print "\t=> isRegular? ", isRegular(p,e,k,t,pi), " now only", divs
         maxLenPolysPerDecomp += [ euler_phi(k)*t*pi ]
         countPolysForThisDecomp = 0
@@ -386,7 +390,7 @@ def get_module_character(k,t,pi):
 # capped with the complete basic divisors
 # i.e. all intermediate fields that must be considered
 def get_proper_subfield_divisors(p,e, n):
-    basList = get_completely_basic_divisors(p,e,n)
+    basList = get_not_completely_basic_divisors(p,e,n)
     return filter(lambda d: d in basList, \
             list(uniq(itertools.chain(*map(divisors,\
            get_module_characters(decompose(p,e,n)))))))
@@ -420,11 +424,13 @@ def largestDiv(p,n):
 
 # returns the NOT completely basic divisors of an 
 # extension n over GF(p^e)
-def get_completely_basic_divisors(p,e,n):
+def get_not_completely_basic_divisors(p,e,n):
     n = Integer(n)
     q = Integer(p**e)
     divs = []
-    for d in divisors(n):
+    divsN = divisors(n)
+    while len(divsN) > 0:
+        d = divsN.pop(0)
         #print "d=",d
         isComplBasic = True
         for r in prime_divisors(n/d):
@@ -436,12 +442,35 @@ def get_completely_basic_divisors(p,e,n):
                 isComplBasic = False
                 break
         divs += [d]
-        if isComplBasic: return divs
+        if isComplBasic: 
+            #print "\t -> compl basic!"
+            divsN = filter(lambda k: not d.divides(k), divsN)
+            #print "\t new divsN=",divsN
     return divs
 
 
+#def get_completely_basic_divisors_WRONG(p,e,n):
+    #n = Integer(n)
+    #q = Integer(p**e)
+    #divs = []
+    #for d in divisors(n):
+        ##print "d=",d
+        #isComplBasic = True
+        #for r in prime_divisors(n/d):
+            ##print "\tr=",r
+            ##print "\t\t (n/d/r)\'=",p_free_part(n/d/r,p)," ordn(_,q^d)=",\
+                          ##ordn(p_free_part(n/d/r,p),q**d)
+            #if r.divides(ordn(p_free_part(n/d/r,p),q**d)):
+                ##print "\t\t=> r | _"
+                #isComplBasic = False
+                #break
+        #divs += [d]
+        #if isComplBasic: return divs
+    #return divs
+
+
 def isCompletelyBasic(p,e,n):
-    return len(get_completely_basic_divisors(p,e,n)) == 1
+    return len(get_not_completely_basic_divisors(p,e,n)) == 1
 
 
 

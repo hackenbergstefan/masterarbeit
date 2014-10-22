@@ -1,60 +1,47 @@
 \chapter{Explizite Konstruktion von Normalbasen}
-In diesem Kapitel wollen wir uns Gedanken darüber machen, wie man Normalbasen
-explizit konstruieren kann, indem man die $F[x]$-Modulstruktur eines endlichen
-Körpers $E \mid F$ betrachtet.
+Wir haben nun kennengelernt, wie man einen 
+Vektorraum $V$ über $\K$ zusammen mit einem Endomorphismus $\tau$ als
+$\K[x]$-Modul lesen kann. Analog dazu wollen wir nun eine Erweiterung
+endlicher Körper $E$ über $F$ in diesem Kontext verstehen: $E$ ist ein
+Vektorraum über $F$ und wird mit Hilfe des Frobenius 
+$\sigma: \bar F \to \bar F$ zu einem $F[x]$-Modul im Sinne von 
+\thref{def:V_tau}. Dies wird uns helfen, normale (und später vollständig
+normale) Elemente zu konstruieren.
 
 \section{Grundlegende Ideen}
 
-Seien wieder $F := \F_q$ ein endlicher Körper von Charakteristik $p$ und 
-$E := \F_{q^n} \mid F$ eine Körpererweiterung.
-Wir wiederholen kurz die Definition einer \emph{Normalbasis}
+Seien im Folgenden stets $F := \F_q$ ein endlicher Körper von 
+Charakteristik $p$ und $E := \F_{q^n} \mid F$ eine Körpererweiterung.
+Wir wiederholen kurz die Definition einer \emph{Normalbasis}.
 
 \begin{definition}[normales Element, normales Polynom, Normalbasis]
   Sei $F$ ein Körper und $E \mid F$ eine endliche Galoiserweiterung von Grad
   $n$. Sei ferner $w\in E$ mit $F(w) = E$. $w$ heißt \emph{normal über $F$},
   falls
-  \[ \{ \gamma(w) \mid \gamma \in G\}\]
+  \[ \{ \gamma(w) \mid \gamma \in \Gal(E\mid F) \}\]
   eine $F$-Basis von $E$ ist. 
-  $\{ \gamma(w) \mid \gamma \in G\}$ heißt entsprechend \emph{Normalbasis} und
-  $g(x) \in F[x]$ mit 
-  \[ g(x) = \prod_{\gamma \in G}(x - \gamma(w))\]
+  $\{ \gamma(w) \mid \gamma \in \Gal(E\mid F)\}$ heißt entsprechend 
+  \emph{Normalbasis} und $g(x) \in F[x]$ mit 
+  \[ g(x) = \prod_{\gamma \in \Gal(E\mid F)}(x - \gamma(w))\]
   heißt \emph{normales Polynom}.
 \end{definition}
 
-Um effizient normale Elemente in $E\mid F$ zu finden, betrachten wir 
-$(E,\sigma)$ als $F[x]$-Modul und nutzen die Aussagen aus
-\autoref{chap:moduln}.
+Wir wollen nun die Begriffe der normalen Elemente und der Erzeuger von
+zyklischen Moduln aus vorhergehendem Kapitel in Zusammenhang bringen. Dazu
+müssen wir uns Gedanken machen, wie sich Normalität im Kontext der
+Modulstruktur einer Körpererweiterung lesen lässt.
 
 \begin{satz}
-  \label{satz:erzeuger_zykl_moduln}
-  \begin{enumerate}
-    \item Die Erzeuger von $(E,\sigma)$ als $F[x]$-Modul sind genau die 
-      normalen Elemente in $E\mid F$.
-    \item Man hat eine Bijektion von Mengen
-      \[ \{V_g :\ g(x) \in F[x] \text{ monisch mit } g(x) \mid x^n-1\}
-        \overset{1-1}{\longleftrightarrow}
-        \{F[x] \text{-Teilmoduln von }E\}\]
-        wobei $V_g := \{v \in E : g(x)\cdot v = 0\} = \ker(g(\sigma))$.
-    \item Jedes $V_g$ ist ein zyklischer Modul und es gilt
-      \[u \text{ erzeugt } V_g \quad\Leftrightarrow \quad
-        \Ord_q(u) = g(x).\]
-        Insbesondere sind die Erzeuger von $V$ genau die Elemente $v \in V$ mit 
-        $\Ord_q(v) = x^n-1$.
-  \end{enumerate}
+  Ein Element $u\in E$ ist genau dann normal über $F$, wenn
+  \[ \Ord_q(u) \speq= x^n-1 \qquad\in F[x]\,.\]
 \end{satz}
 \begin{proof}
-  Alles schon in \TODO~gezeigt.
-\end{proof}
-
-Dies liefert uns die grundlegende Idee für das Auffinden von normalen
-Elementen:
-\begin{lemma}
-  Sei $x^n-1 = \prod_{i=1}^s r_i(x)$ eine Zerlegung in paarweise teilerfremde
-  Polynome, so gilt:
-  \[ E \speq= \bigoplus_{i=1}^s V_{r_i} \,.\]
-\end{lemma}
-\begin{proof}
-  \TODO.
+  Nach \thref{bem:mipo_frob} ist das Minimalpolynom des Frobenius von $F$
+  gerade $x^n-1$. Ferner wissen wir nach \thref{satz:frob_sind_alle_autos},
+  dass $\Gal(E\mid F) = \langle\sigma\rangle$. 
+  Letztlich liefert \thref{satz:moduln_ueber_v_g} (3), dass die Erzeuger von 
+  $E$ als $F[x]$-Modul, also gerade die normalen Elemente, jene mit $q$-Ordnung
+  $x^n-1$ sind.
 \end{proof}
 
 \begin{kor}
@@ -65,9 +52,10 @@ Elementen:
   normal in $E \mid F$.
 \end{kor}
 \begin{proof}
-  Da obige Zerlegung von $x^n-1$ paarweise teilerfremd ist, folgt nach
-  \thref{lemma:eigenschaften_tau_ordnung}
-  $\Ord_q(u) = \prod_{i=1}^s \Ord_q(u_i) = \prod_{i=1}^s r_i(x) = x^n -1$.
+  %Da obige Zerlegung von $x^n-1$ paarweise teilerfremd ist, folgt nach
+  %\thref{lemma:eigenschaften_tau_ordnung}
+  %$\Ord_q(u) = \prod_{i=1}^s \Ord_q(u_i) = \prod_{i=1}^s r_i(x) = x^n -1$.
+  \thref{satz:zerlegungssatz_zykl_vektorraume}.
 \end{proof}
 
 \section{Stark reguläre Erweiterungen}
@@ -109,7 +97,7 @@ Elementen:
 \end{beispiel}
 
 Ein entscheidender Vorteil in der Konstruktion eines normalen Elements in
-obigem Beispiel war der Zerfall der Kreisteilungspolynome in Monome. Aus \TODO
+obigem Beispiel war der Zerfall der Kreisteilungspolynome in Binome. Aus \TODO
 wissen wir bereits, wann genau die Kreisteilungspolynome in Monome zerfallen.
 Damit können wir diese sehr einfache Möglichkeit Normalbasen explizit anzugeben,
 als Reihe von Aussagen formulieren:

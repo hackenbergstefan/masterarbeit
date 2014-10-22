@@ -87,6 +87,48 @@ def enumsPCNP2csv(filein):
 
     f.close()
 
+def enumsPNP2csv(filein):
+    fileout = "outputs/enumerationsPN_P_"
+    with open(filein) as f:
+        for line in f:
+            if all(c in string.whitespace for c in line): continue
+            reMatch = re.compile("(\d+), (\d+)").search(line)
+            reGroup = reMatch.groups()
+            q = Integer(reGroup[0])
+            n = Integer(reGroup[1])
+            pr = tuple(factor(q)[0])
+            p,r = pr
+
+            reGroup = map(lambda s: s.replace(",",""),\
+                    re.compile("(\d+), (\d+), {(.+)}")\
+                    .search(line,reMatch.end()).groups())
+
+            fileout_tmp = fileout+str(p)+".csv"
+            alreadyDone = False
+            if not os.path.exists(fileout_tmp):
+                with open(fileout_tmp,'a') as fout:
+                    fout.write("q,p,r,n,n,pn,gens\n")
+                fout.close()
+            else:
+                with open(fileout_tmp) as fout:
+                    if re.search(\
+                            "\\n"+str(q)+","+str(p)+","+str(r)+","+str(n)\
+                            ,fout.read()):
+                        print "found ",p,q,r,n," in ",fileout_tmp
+                        alreadyDone = True
+                fout.close()
+            if not alreadyDone:
+                with open(fileout_tmp,'a') as fout:
+                    fout.write(str(q)+","+str(p)+","+str(r)+","+\
+                            str(n)+","+(",".join(reGroup))+"\n")
+                fout.close()
+                print "added ",str(q)+","+str(p)+","+str(r)+","+\
+                            str(n)+","+(",".join(reGroup)),\
+                            " to ",fileout_tmp
+
+
+    f.close()
+
 
 def enumsPCNN2csv(filein):
     fileoutN = "outputs/enumerationsPCN_N_"
@@ -185,6 +227,55 @@ def enumsPCN2Latex(filein):
 
 
 
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+
+def checkWrongComplBasics():
+    for f in os.listdir("./outputs"):
+        if not f.startswith('enumerations'): continue
+        with open("./outputs/"+f,'r') as fin:
+            for line in fin:
+                if all(c in string.whitespace for c in line): continue
+                splits = str.split(line,",")
+                try:
+                    q = Integer(splits[0])
+                    p = Integer(splits[1])
+                    r = Integer(splits[2])
+                    n = Integer(splits[3])
+                    cn = Integer(splits[4])
+                    pcn = Integer(splits[5])
+                except:
+                    continue
+                
+                divs = get_not_completely_basic_divisors(p,r,n)
+                divsWRONG = get_completely_basic_divisors_WRONG(p,r,n)
+                if divs == divsWRONG:
+                    continue
+                print "unequal on p=",p," r=",r," n=",n," divs=",divs," divsWRONG=",divsWRONG
 
 
+                regexGens = re.compile("\((\d+) (\d+) (\d+)\): (\d+)")\
+                        .findall(splits[6])
+
+                regexGens = sorted(regexGens,\
+                        key=lambda t: Integer(t[0]))
+                gensString = ""
+                for idx, (k,t,pi,count) in enumerate(regexGens):
+                    k = Integer(k)
+                    t = Integer(t)
+                    pi = Integer(pi)
+                    if isRegular(p,r,k,t,pi):
+                        continue
+
+                    divsMod = divisors(get_module_character(k,t,pi))
+                    if filter(lambda x: x in divs, divsMod) \
+                            != filter(lambda x: x in divsWRONG, divsMod):
+                        print "ERROR on: p=",p," r=",r," n=",n,\
+                                " k=",k," t=",t," pi=",pi
+                        print "\t",filter(lambda x: x in divs, divsMod)," vs wrong",\
+                                filter(lambda x: x in divsWRONG, divsMod)
+
+        fin.close()
 

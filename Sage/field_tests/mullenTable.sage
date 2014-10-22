@@ -22,7 +22,8 @@ def enumeratePCNs_wrapper(qn):
     if not isProcessed:
         print "(",q,",",n,") not processed"
         ret = countCompleteSubmoduleGenerators(F,n,binaryPowers=True,\
-                testPrimitivity=TEST_PRIMITIVITY)
+                testPrimitivity=TEST_PRIMITIVITY,\
+                onlyNormal=TEST_ONLY_NORMAL)
         print "(q,n) = ",(q,n)," -> (cn,pcn,submod_gens,time) = ", ret
         with open(filePath,'a') as f:
             f.write("(q,n) = "+str((q,n))+" -> (cn,pcn,submod_gens,time) = "+
@@ -32,7 +33,7 @@ def enumeratePCNs_wrapper(qn):
 
 ###############################################################################
 ###############################################################################
-SETUP_NUMBER = "cn p1"
+SETUP_NUMBER = "pn p1"
 ###############################################################################
 ###############################################################################
 st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
@@ -53,6 +54,7 @@ if SETUP_NUMBER == "pcn p1":
      [9, xrange(2,6)], \
      ]
     TEST_PRIMITIVITY = True
+    TEST_ONLY_NORMAL = False
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -68,6 +70,7 @@ if SETUP_NUMBER == "pcn p2":
      [9, xrange(2,10)], \
      ]
     TEST_PRIMITIVITY = True
+    TEST_ONLY_NORMAL = False
 #------------------------------------------------------------------------------
 
 if SETUP_NUMBER == "pcn p3":
@@ -75,12 +78,14 @@ if SETUP_NUMBER == "pcn p3":
     SETUP = \
     [[2, xrange(25,28)]]
     TEST_PRIMITIVITY = True
+    TEST_ONLY_NORMAL = False
 
 if SETUP_NUMBER == "pcn p4":
     filePath = "mullenTableC_struct_"+st+".txt"
     SETUP = \
     [[3, xrange(18,22)]]
     TEST_PRIMITIVITY = True
+    TEST_ONLY_NORMAL = False
 
 ###############################################################################
 ## Without Primitivity ########################################################
@@ -98,6 +103,7 @@ if SETUP_NUMBER == "cn p1":
      [9, xrange(10,20)], \
      ]
     TEST_PRIMITIVITY = False
+    TEST_ONLY_NORMAL = False
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -113,12 +119,37 @@ if SETUP_NUMBER == "cn p2":
      [9, xrange(10,20)], \
      ]
     TEST_PRIMITIVITY = False
+    TEST_ONLY_NORMAL = False
 #------------------------------------------------------------------------------
+
+###############################################################################
+## Enumerate normals only P = ... #############################################
+###############################################################################
+
+
+#------------------------------------------------------------------------------
+if SETUP_NUMBER == "pn p1":
+    filePath = "mullenTableC_struct_norm_"+st+".txt"
+    SETUP = \
+    [[2, xrange(2,30)], \
+     [3, xrange(2,30)], \
+     [4, xrange(2,30)], \
+     [5, xrange(2,30)], \
+     [7, xrange(2,20)], \
+     [8, xrange(2,20)], \
+     [9, xrange(2,20)], \
+     ]
+    TEST_PRIMITIVITY = True
+    TEST_ONLY_NORMAL = True
+#------------------------------------------------------------------------------
+
 
 GENLIST = []
 for q, nlist in SETUP:
+    p,e = list(factor(q))[0]
     for n in nlist:
-        GENLIST += [[q,n]]
+        if not TEST_ONLY_NORMAL or not isCompletelyBasic(p,e,n):
+            GENLIST += [[q,n]]
 
 ###############################################################################
 ## Enumerate N = ... ##########################################################

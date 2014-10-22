@@ -5,9 +5,13 @@ berechneten Werte vor. Dabei ist folgende Legende zu beachten:
 \begin{description}
   \item[$q, p,r$] sind die Daten des betrachteten Grundkörpers $\F_q$, wobei
     $q = p^r$ gilt.
+  \item[$\cal N(q,n)$] gibt die Anzahl der normalen Elemente
+    der Erweiterung von Grad $n$ über $\F_q$ an.
   \item[$\CN(q,n)$] gibt die Anzahl der vollständig normalen Elemente
     der Erweiterung von Grad $n$ über $\F_q$ an.
   \item[$\PCN(q,n)$] gibt die Anzahl der primitiv vollständig normalen Elemente 
+    der Erweiterung von Grad $n$ über $\F_q$ an.
+  \item[$\PN(q,n)$] gibt die Anzahl der primitiv normalen Elemente 
     der Erweiterung von Grad $n$ über $\F_q$ an.
   \item[\normalfont Erzeuger.] Hier ist die Anzahl der vollständigen Erzeuger
     der Zerlegung nach \thref{satz:zerlegungssatz} gegeben, wobei ein Datum
@@ -17,6 +21,8 @@ berechneten Werte vor. Dabei ist folgende Legende zu beachten:
     ob die aktuelle Körpererweiterung einfach (\thref{def:einfach}) ist.
     Falls ja, so gilt per definitionem 
     $\CN(q,n) = \cal N(q,n)$ und $\PCN(q,n) = \PN(q,n)$.
+    Daher sind in den Tabellen mit (primitiv) normalen Elementen lediglich
+    diejenigen Erweiterungen gelistet, die nicht einfach sind.
   \item[$(\speq.)^\dagger$] gibt bei Vorhandensein hinter einem Erzeuger-Datum
     an, ob dieser regulär ist (\thref{def:regulaer}).
 \end{description}
@@ -29,9 +35,23 @@ berechneten Werte vor. Dabei ist folgende Legende zu beachten:
 \end{longtable}
 
 \begin{longtable}{llllllp{7cm}}
+  \caption{Enumerationen $p=2$}\\
+  $q$ & $p$ & $r$ & $n$ & $\cal N(q,n)$ & $\PN(q,n)$ & Erzeuger \\\hline
+  \endhead
+  \input{./tables/enumerationsPN_P_2.tex}
+\end{longtable}
+
+\begin{longtable}{llllllp{7cm}}
   \caption{Enumerationen $p=3$}\\
   $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
   \input{./tables/enumerationsPCN_P_3.tex}
+\end{longtable}
+
+\begin{longtable}{llllllp{7cm}}
+  \caption{Enumerationen $p=3$}\\
+  $q$ & $p$ & $r$ & $n$ & $\cal N(q,n)$ & $\PN(q,n)$ & Erzeuger \\\hline
+  \endhead
+  \input{./tables/enumerationsPN_P_3.tex}
 \end{longtable}
 
 \begin{longtable}{llllllp{7cm}}
@@ -68,3 +88,5 @@ berechneten Werte vor. Dabei ist folgende Legende zu beachten:
   \endhead
   \input{./tables/enumerationsPCN_N_6.tex}
 \end{longtable}
+
+

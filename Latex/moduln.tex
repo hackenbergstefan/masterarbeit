@@ -1,6 +1,8 @@
 \chapter{Moduln}
+\label{chap:moduln}
 
 \section{Über Moduln über Hauptidealbereichen}
+\label{sec:Moduln}
 
 Nähern wir uns der Situation von Normalbasen in möglichst allgemeiner Form, so
 beginnt die Reise bei der Betrachtung von Moduln über Hauptidealbereichen. Dazu
@@ -116,45 +118,22 @@ finden sind.
   \[ M = xR\,.\]
 \end{definition}
 
-\begin{definition}[Annihilator]
-  Sei $M$ ein $R$-Modul. Für $S\subset M$ heißt
-  \[ \Ann_R(S) := \{ r \in R \mid sr = 0\ \forall s\in S\}\]
-  der \emph{Annihilator von $S$ in $R$}. 
-  Für $S= \{x\}$ schreibe $\Ann_R(x) := \Ann_R(\{x\})$.
-\end{definition}
 
-\begin{bemerkung}
-  In mancher Literatur wird auch die Schreibweise $M = (x)$ für einen
-  zyklischen Modul benutzt, jedoch suggeriert $(x)$ ein Ideal in $R$ zu
-  bezeichnen. Da dies im Allgemeinen nicht der Fall ist, verzichten wir auf
-  diese Schreibweise.
-\end{bemerkung}
-
-\begin{bemerkung}
-  Man spricht in obiger Definition auch vom \emph{Annihilator-Ideal}, da in der
-  Tat $\Ann_R(S)$ ein Ideal in $R$ ist. Insbesondere, falls 
-  $M = xR$ ein zyklischer $R$-Modul über einem Hauptidealbereich $R$ ist, so
-  ist 
-  \[ \Ann_R x \speq= (r)\]
-  für ein $r\in R$.
-\end{bemerkung}
-
-
-\begin{lemma}
-  Sei $M = xR$ ein zyklischer $R$-Modul. Dann gilt
-  \[M \cong R\big/\Ann_Rx\]
-  als $R$-Moduln und dieser Isomorphismus ist kanonisch.
-\end{lemma}
+\begin{satz}
+  \label{satz:untermoduln_bleiben_zyklisch}
+  Untermoduln zyklischer Moduln sind wieder zyklisch.
+\end{satz}
 \begin{proof}
-  $\phi:R \to M,\ r \mapsto rx$ liefert einen surjektiven Homomorphismus von
-  $R$-Moduln, dessen Kern gerade $\Ann_Rx$ ist. Damit folgt die Behauptung
-  sofort aus dem Homomorphiesatz für Moduln.
+  Die Aussage ist nicht anderes, als ein Spezialfall der Tatsache, dass
+  Untermoduln freier Moduln wieder frei sind und die Dimension des Untermoduls
+  nie größer ist als die des Moduls 
+  (\autocite[Theorem 7.1]{lang2002algebra}).
 \end{proof}
 
-\begin{definition}[Ordnung eines Moduls]
+\begin{definition}[Ordnung/Exponent eines Moduls]
   Sei $M$ ein $R$-Modul. Existiert ein $r \in R$ mit
   \[ rM \speq= 0\,,\]
-  so heißt $r$ \emph{Ordnung von $M$}.
+  so heißt $r$ \emph{Ordnung von $M$} oder \emph{Exponent von $M$}.
 \end{definition}
 
 
@@ -163,6 +142,7 @@ sich so auch beispielsweise in \autocite[Lemma 8.10]{hartley1974rings}
 wiederfindet.
 
 \begin{satz}[Zerlegungssatz für Moduln mit Ordnung]
+  \label{satz:zerlegungssatz_moduln}
   Seien $R$ ein Hauptidealbereich und 
   $M$ ein nicht-trivialer $R$-Modul mit Exponent $r$, also $rM = 0$.
   Sei $r = e p_1^{\alpha_1}\ldots p_k^{\alpha_k}$ eine Zerlegung in irreduzible
@@ -209,7 +189,9 @@ wiederfindet.
 \end{proof}
 
 
+
 \begin{definition}
+  \label{def:V_r}
   Seien $M$ ein $R$-Modul und $r \in R$, so definiere
   \[ V_r \speq{:=} \{ a\in M:\ ra = 0\}\,.\]
 \end{definition}
@@ -252,10 +234,102 @@ wiederfindet.
   \end{enumerate}
 \end{proof}
 
+\begin{definition}[Annihilator]
+  Sei $M$ ein $R$-Modul. Für $S\subset M$ heißt
+  \[ \Ann_R(S) := \{ r \in R \mid sr = 0\ \forall s\in S\}\]
+  der \emph{Annihilator von $S$ in $R$}. 
+  Für $S= \{x\}$ schreibe $\Ann_R(x) := \Ann_R(\{x\})$.
+\end{definition}
+
+\begin{bemerkung}
+  In mancher Literatur wird auch die Schreibweise $M = (x)$ für einen
+  zyklischen Modul benutzt, jedoch suggeriert $(x)$ ein Ideal in $R$ zu
+  bezeichnen. Da dies im Allgemeinen nicht der Fall ist, verzichten wir auf
+  diese Schreibweise.
+\end{bemerkung}
+
+\begin{bemerkung}
+  Man spricht in obiger Definition auch vom \emph{Annihilator-Ideal}, da in der
+  Tat $\Ann_R(S)$ ein Ideal in $R$ ist. Insbesondere, falls 
+  $M = xR$ ein zyklischer $R$-Modul über einem Hauptidealbereich $R$ ist, so
+  ist 
+  \[ \Ann_R x \speq= (r)\]
+  für ein $r\in R$.
+\end{bemerkung}
+
+
+\begin{lemma}
+  \label{lemma:zyklischer_modul_iso}
+  Sei $M = xR$ ein zyklischer $R$-Modul. Dann gilt
+  \[M \speq\cong R\big/\Ann_Rx\]
+  als $R$-Moduln und dieser Isomorphismus ist kanonisch.
+\end{lemma}
+\begin{proof}
+  $\phi:R \to M,\ r \mapsto rx$ liefert einen surjektiven Homomorphismus von
+  $R$-Moduln, dessen Kern gerade $\Ann_Rx$ ist. Damit folgt die Behauptung
+  sofort aus dem Homomorphiesatz für Moduln.
+\end{proof}
+
+\begin{lemma}
+  \label{lemma:teilmoduln_prim_moduln}
+  Sei $Z = Rz$ ein zyklischer $R$-Modul von Ordnung $p^\alpha$ für ein
+  Primelement $p\in R$. Dann sind die einzigen Teilmoduln von $Z$
+  \[ 0 = Z_\alpha \speq\subseteq Z_{\alpha-1} \speq\subseteq \ldots
+    \speq\subseteq Z_0 = Z \,,\]
+  wobei $Z_\beta = p^\beta Z$.
+\end{lemma}
+\begin{proof}
+  Nach \thref{lemma:zyklischer_modul_iso} ist $Z \cong R\big/(p^\alpha)$. Damit
+  stehen die Teilmoduln von $Z$ in Bijektion zu den Teilmoduln von
+  $R$ (gelesen als $R$-Modul), die $(p^\alpha)$ enthalten. Solch ein
+  Teilmoduln ist also gerade ein Ideal $(r)$ mit 
+  $(p^\alpha)\subseteq (r)$. Da $p$ prim ist, folgt $r = up^\beta$ für
+  $0\leq\beta \leq \alpha$ und $u\in R^\times$, wobei $u=1$ \obda angenommen
+  werden kann. Damit sind die $Z_\beta$ die einzigen Teilmoduln von $Z$.
+\end{proof}
+
+
+
+\begin{lemma}
+  \label{lemma:annihilator_ggt}
+  Sei $x \in M$ mit $\Ann_R(x) = (\lambda)$. Für $r \in R$ gilt
+  \[ \Ann_R(rx) \speq= (\delta) \]
+  mit $\lambda = \delta t$ für $t = \ggT(r,\lambda)$.
+\end{lemma}
+\begin{proof}
+  Schreibe $r = r't$, so ist $\delta rx = \delta r'tx = r'\lambda x = 0$. Also
+  $\delta \in \Ann_R(rx)$. Für die andere Inklusion sei $s \in \Ann_R(rx)$,
+  also $srx = 0$. Damit ist aber $sr \in \Ann_R(x)$ und
+  $\lambda \mid sr$. Mit $\lambda = \delta t$ und $sr = sr't$ folgt
+  für $t\neq 0$ (der Fall $t=0$ ist ohnehin trivial) $\delta \mid sr'$.
+  Nach Definition des $\ggT$ sind $r'$ und $\delta$ teilerfremd, wodurch
+  $\delta \mid s$. Also $s \in (\delta)$.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lemma:annihilator_teilerfremd}
+  Seien $x,y \in M$ mit $\Ann_R(x) = (a)$ und $\Ann_R(y) = (b)$. Sind 
+  $a$ und $b$ teilerfremd, so gilt $\Ann_R(x+y) = (ab)$.
+\end{lemma}
+\begin{proof}
+  Zunächst ist klar, dass $ab(x+y) = abx + aby = 0$, also 
+  $(ab) \subseteq \Ann_R(x+y)$. Ist nun $t(x+y) = 0$ für ein $t \in R$, so
+  ist $z:= tx = -ty \in (x)\cap(y)$. Ferner ist 
+  $(x)\cap(y) \subseteq V_a \cap V_b$ nach Voraussetzung. 
+  Nach \thref{satz:schnitt_plus_vs} (1) ist aber $V_a \cap V_b = (0)$.
+  also auch $z=0$. Damit ist 
+  \[ t \in \Ann_R(x)\cap \Ann_R(y) \speq= (a)\cap(b) \speq= 
+    \speq= (\kgV(a,b)) \speq= (ab)\,,\]
+  da $a$ und $b$ nach Voraussetzung teilerfremd sind.
+  Also ist $\Ann_R(x+y) \subseteq (ab)$.
+\end{proof}
+
 
 \section{Vektorräume als Moduln}
 
 \begin{definition}[$(V,\tau)$]
+  \label{def:V_tau}
   Sei $\K$ ein Körper und $V$ ein $\K$-Vektorraum und 
   $\tau \in \End_\K(V)$, so können wir $V$ als $\K[x]$-Modul auffassen:
   \[ f(x) \cdot v \speq{:=} f(\tau)(v)\]
@@ -276,6 +350,7 @@ wiederfindet.
 
 
 \begin{bemerkung}
+  \label{bem:mipo_frob}
   Ist $\K  = F :=\F_q$ ein endlicher Körper, 
   $V = E := \F_{q^n}$ eine Körpererweiterung
   von Grad $n$ und 
@@ -287,7 +362,7 @@ wiederfindet.
   Cayley-Hamilton ist $\sigma$ Nullstelle von $\chi_\tau$. Daher teilt
   $\mu_\tau$ das charakteristische Polynom. Jedoch kennen wir das
   Minimalpolynom von $\tau$: Nach dem Dedekindschen Lemma
-  \thref{satz:dedekindsches_lemma} ist 
+  (\thref{satz:dedekindsches_lemma}) ist 
   $\id_E,\sigma,\ldots,\sigma^{n-1}$ linear unabhänig über $E$, also insbesondere
   über $F$, und $\sigma^n = \id_E$.
 \end{bemerkung}
@@ -318,6 +393,11 @@ wiederfindet.
 \end{bemerkung}
 
 
+\begin{bemerkung}
+  In Notation von \autoref{sec:Moduln} gilt offensichtlich
+  \[ \Ann_{\K[x]}(v) \speq= \ker\psi_v \,.\]
+\end{bemerkung}
+
 \begin{notation}
   Für $\K = \F_q$ einen endlichen Körper, $V = E \mid \F_q$ eine 
   Körpererweiterung und $\tau = \sigma$ den Frobenius-Endomorphismus schreibe
@@ -337,26 +417,27 @@ wiederfindet.
 \end{lemma}
 \begin{proof}
   \begin{enumerate}
-    \item 
-      \TODO
-    \item Wir haben $u \in V_g$ und $v \in V_h$ und 
-      nach \thref{satz:schnitt_plus_vs} ist $V_g + V_h = V_{\kgV(g,h)}$.
+    \item Dies ist lediglich eine Umformulierung von
+      \thref{lemma:annihilator_ggt}.
+    \item In \thref{lemma:annihilator_teilerfremd} haben wir gesehen, dass
+      in diesem Fall $\Ann_{\K[x]}(u+v) = (g(x)h(x))$ gilt.
   \end{enumerate}
 \end{proof}
 
 \begin{lemma}
+  \label{lemma:modul_dim_deg}
   Sei $(V,\tau)$ ein $\K[x]$-Modul. Sei $v\in V$. Dann gilt:
   \[ \dim_\K( \K[x]\cdot v ) \speq= \deg( \Ord_\tau(v) )\,.\]
 \end{lemma}
 \begin{proof}
-  Nach dem Homomorphiesatz gilt: \marginpar{References!}
-  $ \im\psi_v \cong \K[x] \big/ \ker \psi_v$.
+  Nach dem Homomorphiesatz gilt: 
+  $ \im\psi_v \cong \K[x] \big/ \ker \psi_v$ als $\K[x]$-Moduln.
 \end{proof}
 
 
-\begin{definition}[zyklischer Modul]
+\begin{definition}[zyklischer {$\K\lbr x \rbr$}-Modul]
   $(V,\tau)$ heißt \emph{zyklischer $\K[x]$-Modul bzgl. $w$}, falls es ein 
-  $w\in \K$ gibt, sodass $K[\tau]\cdot w = V$.
+  $w\in \K$ gibt, sodass $\K[\tau]\cdot w = V$.
 \end{definition}
 
 
@@ -367,7 +448,7 @@ wiederfindet.
 \end{satz}
 \begin{proof}
   Fassen wir zunächst ein paar einfache Tatsachen zusammen:
-  Ist $u \in V$, so haben wir 
+  Ist $v \in V$, so haben wir 
   \[ \dim(\K[x]\cdot v) = \deg( \Ord_\tau(v) ) \speq\leq 
     \deg\mu_\tau \speq\leq \deg \chi_\tau \]
   und 
@@ -393,86 +474,59 @@ wiederfindet.
   \end{description}
 \end{proof}
 
-Nun wollen wir spezielle Untermoduln von $V$ betrachten, welche uns guten
-Aufschluss über die Struktur von $V$ geben können:
-
-\begin{notation}
-  Seien $(V,\tau)$ ein $\K[x]$-Modul und $g(x) \in \K[x]$.
-  Definiere
-  \[ V_g \speq{:=} \{ v \in V \mid g(x)\cdot v = 0 \}\,.\]
-\end{notation}
-
-Zunächst ist klar, dass $V_g \neq 0$ nur für $g$ Teiler von $\mu_\tau$ gelten
-kann. Damit können wir folgende "`Rechenregeln"' formulieren:
-
-\begin{lemma}
-  \label{lemma:moduln:ueber_schnitt_und_vereinigung_von_v_g}
-  Seien $g(x), h(x) \in \K[x]$ mit $g,h \mid \mu_\tau$. Dann gilt:
-  \begin{enumerate}
-    \item $V_g \cap V_h \speq= V_{\ggT(g,h)}$
-    \item $V_g + V_h \speq= V_{\kgV(g,h)}$
-  \end{enumerate}
-\end{lemma}
-\begin{proof}
-  Per definitionem ist klar, dass für $v \in V_g$ gerade
-  $\Ord_\tau(v) \mid g$. Also können wir $V_g$ auch wie folgt auffassen:
-  \[ V_g \speq= \{ v\in V:\ \Ord_\tau(v) \mid g\} \,,\]
-  Damit sind die Behautungen nach \cref{lemma:eigenschaften_tau_ordnung} klar,
-  denn für $v \in V$ gilt:
-  \[ v\in V_g \cap V_h \speq\Leftrightarrow 
-    \Ord_\tau(v) \mid g \land \Ord_\tau(v) \mid h \speq\Leftrightarrow
-    \Ord_\tau(v) \mid \ggT(g,h) \speq\Leftrightarrow v \in V_{\ggT(g,h)}\]
-  und ebenso
-  \[ v \in V_g + V_h \speq\Leftrightarrow 
-    \Ord_\tau(v) \mid g \lor \Ord_\tau(v) \mid h \speq\Leftrightarrow
-    \Ord_\tau(v) \mid \kgV(g,h) \speq\Leftrightarrow v \in V_{\kgV(g,h)}\,.\]
-\end{proof}
-
-Da wir letztlich zyklische Moduln und darin Untermoduln untersuchen wollen, ist
-brauchen wir noch ein Lemma, das garantiert, dass auch die Untermoduln von
-zyklischen Moduln wieder zyklisch sind.
-
-\begin{lemma}
-  \label{lemma:untermoduln_bleiben_zyklisch}
-  Sei $R$ ein Hauptidealbereich. Ferner seien $V$ ein zyklischer $R$-Modul und
-  $W \subseteq V$ ein $R$-Untermodul. Dann ist auch $W$ zyklisch.
-\end{lemma}
-\begin{proof}
-\TODO
-\marginpar{References!}
-\end{proof}
-
 
 \begin{satz}
   \label{satz:moduln_ueber_v_g}
-  Sei $(V,\tau)$ ein zyklischer Modul mit $\dim(V) = n$. Sei ferner 
-  $g(x)\in \K[x]$ normiert mit $g\mid \mu_\tau$. Dann gilt:
+  Sei $(V,\tau)$ ein zyklischer Modul über einem endlich dimensionalem
+  Vektorraum. Sei ferner $g(x)\in \K[x]$ normiert mit $g\mid \mu_\tau$. 
+  Dann gilt:
   \begin{enumerate}
-    \item $V_g$ ist ein $\K[x]$-Teilmodul von $V$.
+    \item $V_g$ (siehe \thref{def:V_r}) ist ein $\K[x]$-Teilmodul von $V$.
     \item Alle $\K[x]$-Teilmoduln von $V$ sind von dieser Form.
-    \item $V_g$ ist zyklisch bzgl. $\tau$ mit Minimalpolynom $g(x)$.
-      Ferner ist $\dim(V_g) = \deg(g)$.
     \item Die Erzeuger von $V_g$ sind genau die Elemente $v\in V$ mit 
       $\Ord_\tau(v) = g$, d.h. für diese gilt
       $\K[x]\cdot v = V_g$.
+      Insbesondere sind die Erzeuger von $V$ gerade die Elemente $u\in V$ mit
+      $\Ord_\tau(u) = \mu_\tau$.
+    \item $V_g$ ist zyklisch bzgl. $\tau$ mit Minimalpolynom $g(x)$.
+      Ferner ist $\dim(V_g) = \deg(g)$.
   \end{enumerate}
 \end{satz}
 \begin{proof}
   \begin{enumerate}
     \item Klar: $0\in V_g$. Weiter seien $f(x) \in \K[x]$ und 
       $v \in V_g$ mit $h(x) := \Ord_\tau(v)$, 
-      so ist nach \cref{lemma:eigenschaften_tau_ordnung}
+      so ist nach \thref{lemma:eigenschaften_tau_ordnung}
       $\Ord_\tau(f(x)\cdot v) = \frac{h(x)}{\ggT(f,h)} \mid g(x)$.
       Damit liegt auch $f(x)\cdot v$ in $V_g$.
-    \item Da $V$ ein zyklischer Modul ist, existiert ein $v\in V$ mit 
-      $V = \K[x]\cdot v$. Sei nun $W\subseteq V$ ein Untermodul,
-      so ist dieser nach \cref{lemma:untermoduln_bleiben_zyklisch} ebenfalls
-      zyklisch; sagen wir zu $w \in W$. 
-
-    \item
-    \item
+    \item Dies ist lediglich eine Umformulierung von
+      \thref{satz:zerlegungssatz_moduln}
+      und \thref{lemma:teilmoduln_prim_moduln}.
+    \item Sei $v \in V$ ein Erzeuger von $V_g$, so ist per definitionem von 
+      $g(x)\cdot v = 0$. Also $\Ord_\tau(v) \mid g(x)$. Schreibe
+      $\Ord_\tau(v) =: h(x)$, so folgt
+      \[ h(x)\cdot V_g \speq= \K[x]\cdot (h(x)\cdot v) \speq=0
+      \quad\Leftrightarrow\quad g(x) \mid h(x)\,.\]
+      Ist andererseits $w \in V$ mit $\Ord_\tau(w) = g(x)$, 
+      so können wir zunächst festhalten, dass $\K[x] \cdot w \subseteq V_g$.
+      Sei ferne $x \in V$ ein Erzeuger von $V_g$. Dann ist $w = f(x)\cdot v$ für
+      ein $f(x)\in \K[x]$ und ferner $\ggT(f(x),g(x)) = 1$ nach 
+      \thref{lemma:eigenschaften_tau_ordnung}. Also existieren
+      $f'(x),g'(x)\in \K[x]$ mit $f'f + g'g = 1$. Wir folgern:
+      \[ v \speq= (f'(x)f(x) + g'(x)g(x)) \cdot v \speq=
+        f'(x)\cdot w\,,\]
+      d.h. $v \in \K[x]\cdot w$; mithin $V_g \subseteq \K[x]\cdot w$.
+    \item Klar nach (3) und \thref{lemma:modul_dim_deg}.
   \end{enumerate}
 \end{proof}
+
+
+\begin{bemerkung}
+  Die Punkte (1) und (2) hätten bereits in \autoref{sec:Moduln} aufgeführt
+  werden können, da die Zyklizität des Moduls hier ausreichend war.
+  In \autocite[Theorem 7.10]{hachenberger1997finite} ist dies auch so
+  vorzufinden.
+\end{bemerkung}
 
 \begin{kor}
   \label{kor:moduln_ueber_v_g}
@@ -485,4 +539,55 @@ zyklischen Moduln wieder zyklisch sind.
   Nach \thref{satz:moduln_ueber_v_g} ist $v$ Erzeuger von $V_g$, d.h.
   $V_g = \im \psi_v \cong \K[x]\big/(g(x))$, wobei letztere Isomorphie nach dem
   Homomorphiesatz gilt. Dies zeigt die Behauptung.
+\end{proof}
+
+
+Wir schließen dieses Kapitel mit einer wesentlichen Beobachtung, über den
+Zusammenhang von Zerlegungen im Ring $\K[x]$ und im Vektorraum $V$. 
+Für den Spezialfall von zyklischen Galoiserweiterung findet man den Satz auch
+in \autocite[Theorem 8.6]{hachenberger1997finite} wieder.
+
+\begin{definition}[Zerlegung]
+  Sei $f(x)\in \K[x]$ normiert mit $\deg f \geq 1$, so heißt 
+  $\Delta \subseteq \K[x]$ \emph{Zerlegung von $f(x)$}, falls gilt: Alle
+  $\delta \in \Delta$ sind normiert, vom Grad größer gleich 1, paarweise
+  teilerfremd und es gilt: $f(x) = \prod_{\delta\in \Delta} \delta(x)$.
+\end{definition}
+
+
+\begin{satz}
+  \label{satz:zerlegungssatz_zykl_vektorraume}
+  Sei $(V,\tau)$ ein zyklischer Moduln von endlicher Dimension. Seien ferner 
+  $g(x) \in \K[x]$ normiert mit $g\mid \mu_\tau$ und $\Delta$ eine 
+  Zerlegung von $g$. Dann gilt:
+  \begin{enumerate}
+    \item $V_g = \oplus_{\delta\in\Delta} V_\delta$ ist eine direkte Summe 
+      von zyklischen Moduln bzgl. $\tau$.
+    \item Jedes $w \in V_g$ lässt sich eindeutig schreiben als 
+      $w = \sum_{\delta\in\Delta} w_\delta$ mit $w_\delta \in V_\delta$. Ferner
+      gilt 
+      \[ \Ord_\tau(w) \speq= \prod_{\delta\in \Delta} \Ord_\tau(w_\delta)\]
+      und $\Ord_\tau(w)$ ist ein normierter Teiler von $g(x)$.
+    \item $w$ ist ein Erzeuger von $V_g$ genau dann, wenn für alle 
+      $\delta\in\Delta$ auch $w_\delta$ Erzeuger von $V_\delta$ ist.
+    \item Ist $V_g = \oplus_{i \in I} V_i$ eine Zerlegung in Teilmoduln,
+      so existieren eine Zerlgung $\Delta$ von $g$ und 
+      eine Bijektion $\pi:I\to\Delta$, so dass $V_i = V_{\pi(i)}$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  \begin{enumerate}
+    \item Betrachten wir $V_g$ selbst als $\K[x]$-Modul, so ist diese Aussage
+      lediglich eine Anwendung von \thref{satz:zerlegungssatz_moduln}.
+    \item Dass die geforderte Zerlegung in $w_\delta$ existiert und eindeutig
+      ist, ist eine direkte Konsequenz aus (1). Da $w$ von $g(x)$ annihiliert
+      wird, ist klar, dass $\Ord_\tau(w) \mid g$. Analog gilt auch
+      $\Ord_\tau(w_\delta)\mid \delta$ für alle $\delta \in \Delta$. Diese sind
+      jedoch teilerfremd und wir erhalten die postulierte Gleichung aus
+      \thref{lemma:eigenschaften_tau_ordnung} (2).
+    \item Dies ist mit (2) und \thref{satz:moduln_ueber_v_g} (3) sofort klar.
+    \item Nach \thref{satz:moduln_ueber_v_g} (2) sind alle $V_i = V_{\pi(i)}$
+      für einen normierterten Teiler $\pi(i) \mid g$. Da die Summe direkt ist,
+      folgt die Behauptung mit \thref{satz:schnitt_plus_vs}.
+  \end{enumerate}
 \end{proof}

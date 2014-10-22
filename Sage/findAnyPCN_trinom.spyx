@@ -69,7 +69,7 @@ def findAnyPCN_polynom(F,n):
 
 
 def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
-        fileoutput=False, filepath="/tmp/pcns_polynom_", \
+        fileoutput=False, filepath="pcns_polynom_", \
         startPrime=1):
     if fileoutput:
         st = datetime.datetime.\

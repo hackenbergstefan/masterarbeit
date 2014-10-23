@@ -53,6 +53,13 @@ def findAnyPCN_polynom(F,n):
                                 x.multiplicative_order() == primOrder:
                             #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                 #"prim: ", (x.multiplicative_order() == E.order()-1)
+                            del Flist
+                            del E
+                            del Ex
+                            del Fx
+                            del h
+                            del Px
+                            del primitives
                             return x,f
                         else: break
                     else: break
@@ -69,6 +76,13 @@ def findAnyPCN_polynom(F,n):
                                 x.multiplicative_order() == primOrder:
                             #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                 #"prim: ", (x.multiplicative_order() == E.order()-1)
+                            del Flist
+                            del E
+                            del Ex
+                            del Fx
+                            del h
+                            del Px
+                            del primitives
                             return x,f
                         else: break
                     else: break
@@ -83,12 +97,12 @@ def findAnyPCN_polynom(F,n):
                     if not f.is_irreducible(): continue
                     for fac,mul in Ex(f.map_coefficients(h)).factor():
                         if fac.degree() == 1:
-                            x = -fac[0]
-                            if isCompletelyNormal(x,F) and \
-                                    x.multiplicative_order() == primOrder:
+                            y = -fac[0]
+                            if isCompletelyNormal(y,F) and \
+                                    y.multiplicative_order() == primOrder:
                                 #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                     #"prim: ", (x.multiplicative_order() == E.order()-1)
-                                return x,f
+                                return y,f
                             else: break
                         else: break
 
@@ -228,6 +242,9 @@ def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
                     f.write(str(p)+"\t"+str(r)
                             +"\t"+str(pol)+"\n")
                 f.close();
+            del F
+            del x
+            del pol
             #if not isCompletelyNormal(x,F) or \
                    #x.multiplicative_order() != q**n-1:
                 #print "FATAL ERROR on p=",p," r=",r," x=",x.polynomial().list()

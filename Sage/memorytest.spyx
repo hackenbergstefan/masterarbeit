@@ -1,19 +1,18 @@
 from sage.all import *
 import time
-import gc
 
 def test(q):
     E = GF(q,'a')
-### no memory problem!
-    x = E.random_element()
+    x = E.zero()
+### good
+    while x == E.zero(): x = E.random_element()
 ###
+### bad
+    #while x == 0: x = E.random_element()
+###
+    print x.multiplicative_order()
 
-### memory runs full
-    #x = E.zero()
-    #while x == 0:
-        #x = E.random_element()
-###
 
 def main():
-    for p in primes(3000000):
+    for p in primes(1000000):
         test(p)

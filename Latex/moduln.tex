@@ -20,9 +20,9 @@ finden sind.
 \end{definition}
 
 \begin{lemma}
-  Sei $R$ ein Integritätsbereich. Dann ist $R[X]$, also der 
+  Sei $R$ ein Integritätsbereich. Dann ist $R[x]$, also der 
   univariate Polynomring über $R$, ein Integritätsbereich und
-  $R[X]^\times = R^\times$.
+  $R[x]^\times = R^\times$.
 \end{lemma}
 \begin{proof}
   \autocite[Lemma 13.4]{karpfinger2010algebra}.
@@ -253,7 +253,7 @@ wiederfindet.
   Tat $\Ann_R(S)$ ein Ideal in $R$ ist. Insbesondere, falls 
   $M = xR$ ein zyklischer $R$-Modul über einem Hauptidealbereich $R$ ist, so
   ist 
-  \[ \Ann_R x \speq= (r)\]
+  \[ \Ann_R(x) \speq= (r)\]
   für ein $r\in R$.
 \end{bemerkung}
 
@@ -261,12 +261,12 @@ wiederfindet.
 \begin{lemma}
   \label{lemma:zyklischer_modul_iso}
   Sei $M = xR$ ein zyklischer $R$-Modul. Dann gilt
-  \[M \speq\cong R\big/\Ann_Rx\]
+  \[M \speq\cong R\big/\Ann_R(x)\]
   als $R$-Moduln und dieser Isomorphismus ist kanonisch.
 \end{lemma}
 \begin{proof}
   $\phi:R \to M,\ r \mapsto rx$ liefert einen surjektiven Homomorphismus von
-  $R$-Moduln, dessen Kern gerade $\Ann_Rx$ ist. Damit folgt die Behauptung
+  $R$-Moduln, dessen Kern gerade $\Ann_R(x)$ ist. Damit folgt die Behauptung
   sofort aus dem Homomorphiesatz für Moduln.
 \end{proof}
 
@@ -533,7 +533,7 @@ wiederfindet.
   Sei $v \in V$ mit $\Ord_\tau(v) = g(x)$.
   Für $w \in V$ gilt dann:
   \[ w \in V_g \quad\Leftrightarrow\quad 
-    w = f(x)\cdot v \text{ für ein } f(x) \in \K[x]_{< \deg g},\ \ggT(f,g)=1\]
+    w = f(x)\cdot v \text{ für ein } f(x) \in \K[x]_{< \deg g}\]
 \end{kor}
 \begin{proof}
   Nach \thref{satz:moduln_ueber_v_g} ist $v$ Erzeuger von $V_g$, d.h.

@@ -1,4 +1,5 @@
 \chapter{Explizite Konstruktion von Normalbasen}
+
 Wir haben nun kennengelernt, wie man einen 
 Vektorraum $V$ über $\K$ zusammen mit einem Endomorphismus $\tau$ als
 $\K[x]$-Modul lesen kann. Analog dazu wollen wir nun eine Erweiterung
@@ -33,7 +34,7 @@ Modulstruktur einer Körpererweiterung lesen lässt.
 
 \begin{satz}
   Ein Element $u\in E$ ist genau dann normal über $F$, wenn
-  \[ \Ord_q(u) \speq= x^n-1 \qquad\in F[x]\,.\]
+  \[ \Ord_q(u) \speq= x^n-1 \quad\in F[x]\,.\]
 \end{satz}
 \begin{proof}
   Nach \thref{bem:mipo_frob} ist das Minimalpolynom des Frobenius von $F$
@@ -59,6 +60,7 @@ Modulstruktur einer Körpererweiterung lesen lässt.
 \end{proof}
 
 \section{Stark reguläre Erweiterungen}
+\label{sec:stark_regulare_erweiterungen}
 
 \begin{beispiel}
   \label{bsp:stark_regular_1}
@@ -97,12 +99,14 @@ Modulstruktur einer Körpererweiterung lesen lässt.
 \end{beispiel}
 
 Ein entscheidender Vorteil in der Konstruktion eines normalen Elements in
-obigem Beispiel war der Zerfall der Kreisteilungspolynome in Binome. Aus \TODO
-wissen wir bereits, wann genau die Kreisteilungspolynome in Monome zerfallen.
+obigem Beispiel war der Zerfall der Kreisteilungspolynome in Binome. Aus 
+\thref{satz:kreisteilungspolynome_binome}
+wissen wir bereits, wann die Kreisteilungspolynome in Binome zerfallen.
 Damit können wir diese sehr einfache Möglichkeit Normalbasen explizit anzugeben,
 als Reihe von Aussagen formulieren:
 
 \begin{definition}[stark regulär]
+  \label{def:stark_regular}
   Das Paar $(q,n) \in \N^2$ heißt \emph{stark regulär}, falls
   \begin{itemize}
     \item $q = p^r$ mit $p$ einer Primzahl und $r>0$,
@@ -114,6 +118,7 @@ als Reihe von Aussagen formulieren:
   Eine Körpererweiterung $\F_{q^n} \mid \F_q$ heißt \emph{stark regulär}, falls
   $n \in \S_q$.
 \end{definition}
+
 
 \begin{satz}
   \label{satz:konstruktion_q_ordnung}
@@ -128,11 +133,11 @@ als Reihe von Aussagen formulieren:
 \end{satz}
 \begin{proof}
   \begin{enumerate}
-  \item Nach \thref{lemma:uber-pi-m-1} wissen wir, dass 
+  \item Aus \thref{lemma:cl_2} haben wir 
    $\pi_m(q^m-1) = m\pi_m(q-1) = ml$ und
     damit $[F(u):F] = \ord_{ml}(q) = m$. 
   \item Sei nun $\zeta \in F^\ast$ eine primitive $a$-te Einheitswurzel. Dann
-    ist nach \TODO
+    ist nach \thref{satz:kreisteilungspolynome_binome}
     \[ \Phi_m(x) \speq= \prod_{i\in I_a} (x^{\frac m a} - \zeta^i).\]
     Wie in \thref{bsp:stark_regular_1} betrachten wir für $i \in I_a$:
     \begin{align*}
@@ -145,12 +150,13 @@ als Reihe von Aussagen formulieren:
     $E\mid F$ meint. Wir wollen nun zeigen, dass $\Ord_q(u) = (x^{\frac m a} -
     \zeta^i)$ für ein $i\in I_a$, explizit also, dass $(\ast) = 0$ für ein
     $i\in I_a$ gilt. Dazu müssen wir $q^{\frac m a} -1$ genauer untersuchen:
-    Wiederum nach \thref{lemma:uber-pi-m-1} haben wir:
+    Wiederum nach \thref{lemma:cl_2} haben wir:
     \[ \pi_m(q^{\frac m a} -1 ) \speq= \frac m a \pi_m(q-1) \speq=
       \frac{ml}{a} \speq= \kgV(m,l) \speq{=:} c\,.\]
-    Nach \thref{lemma:uber-pi-m-2} ist dann $q^{\frac m a}-1 = ck$ für 
-    ein $k\in\N$ mit $\ggT(k,ml) = 1$. Erinnern wir uns kurz, dass $u$ eine
-    primitive $(ml)$-te Einheitswurzel war, so folgern wir:
+    Nun ist $q^{\frac m a}-1 = ck$ für 
+    ein $k\in\N$ mit $\ggT(k,ml) = 1$, wie man sich anhand der 
+    Primfaktorzerlegungen leicht klar machen kann. Erinnern wir uns kurz, 
+    dass $u$ eine primitive $(ml)$-te Einheitswurzel war, so folgern wir:
     \[ \ord(u^{ck}) \speq= \ord(u^c) \speq= \frac{ml}{\ggT(ml,c)}
       \speq= \frac{ml}{c} \speq= a\,.\]
     Ergo gibt es $j\in I_a$ mit $u^{ck} = \zeta^j$ und für dieses $j$ ist
@@ -195,7 +201,7 @@ und damit auf eine explizite Angabe eines normalen Elements zu schließen:
 \end{kor}
 \begin{proof}
   Da  $\ord\big(\lambda^{\frac{\pi_n(q-1)}{a(q,m}}\big) = a(q,m)$
-  und nach \TODO für $m\mid n$ auch $m\in \S_q$, ist obige Aussage lediglich
+  und für $m\mid n$ offensichtlich auch $m\in \S_q$, ist obige Aussage lediglich
   eine Anwendung von \thref{satz:konstruktion_q_ordnung}.
 \end{proof}
 
@@ -225,7 +231,7 @@ und damit auf eine explizite Angabe eines normalen Elements zu schließen:
   Darüber hinaus können wir die Elemente deren $q$-Ordnung ein irreduzibler
   Teiler von $\Phi_m(x)$ über $F[x]$ ist, auch durch die Modulstruktur selbst
   beschreiben.
-  Diese beiden Überlegungen wollen wir in den nächsten beiden Lemmata beweisen.
+  Diese beiden Überlegungen wollen wir in den nächsten beiden Lemmas beweisen.
 \end{bemerkung}
 
 \begin{lemma}
@@ -268,15 +274,23 @@ Als Korollar dieses Lemmas können wir einen Satz von \citeauthor{semaev:1989}
   \spann_{\F_q}\{ \theta^i \mid i\in M_q(l\bmod n)\}$.
 \end{satz}
 \begin{proof}
-  Aus \thref{} \marginpar{References!} wissen wir, dass für $a \in \F_q$
+  Aus \thref{satz:binom_irreduzibel} und \thref{satz:binom_irreduzibel_aquiv}
+  wissen wir, dass für $a \in \F_q^\ast$ das Polynom
   $x^n-a \in \F_q[x]$ genau dann irreduzibel ist, wenn
   $p\nmid n$, $\nu(n) \mid f := \ord(a)$, $l := \pi_n(q-1)\mid f$ und
-  $4 \mid q-1$, falls $4\mid n$. Damit ist $n \in \S_q$.
-  \marginpar{In stark regulär: $4 \mid q-1$, falls $2\mid n$ !?}
+  $q \equiv 1 \bmod 4$, falls $4\mid n$. 
+  Ist bereits $q\equiv 1 \bmod 4$, falls $n$ gerade, so sind wir genau in der 
+  Situation, dass $n$ stark regulär ist.
   Damit ist $\theta$ eine primitive $(nf)$-te Einheitswurzel und wir wissen
   nach \thref{lemma:hoehere_wurzeln_auch_erzeuger}, dass
   $\Ord_q(\theta)$ ein irreduzibler Teiler von $\Phi_n(x)$ über $\F_q[x]$ ist,
   womit alles gezeigt wäre.
+
+  Es bleibt ein Wort zur Situation $q\equiv 3 \bmod 4$, falls $n$ gerade, zu
+  verlieren. Dieser Fall wird von den bisherigen Resultaten nicht erfasst.
+  Mit etwas mehr Aufwand ist es jedoch möglich, die explizite Konstruktion 
+  von Normalbasen mit primitiven Einheitswurzeln zu erweitern, wie Hachenberger
+  in \autocite[Section 22]{hachenberger1997finite} zeigt.
 \end{proof}
 
 Bevor wir die Ideen der stark regulären Körpererweiterungen verallgemeinern
@@ -371,12 +385,12 @@ sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$
 \begin{proof}
   Zerlegen wir $s = \bar s p^\beta$ mit $p\nmid s'$, so ist 
   nach Voraussetzungen $\ggT(\bar s, m) = 1$ und wir sind in der Situation von
-  \thref{}. Damit gilt
+  \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}. Damit gilt
   \[ \Phi_m(x^s) \speq= \Phi_m(x^{\bar s})^{p^\beta}
     \speq= \prod_{d \mid \bar s} \Phi_{md}(x)^{p^\beta}\,.\]
   Mit konsequenter Anwendung von \thref{lemma:eigenschaften_tau_ordnung}
   folgern wir die Behauptungen:
-  \[ \Ord_q(H(\sigma_E)v) = \frac{\Phi_m(x^s)}{\ggT(\Phi_m(x^s), H(x)}
+  \[ \Ord_q(H(\sigma_E)v) = \frac{\Phi_m(x^s)}{\ggT(\Phi_m(x^s), H(x))}
     = \Phi_m(x)\,.\]
   Für (2) und (3) überlegen wir uns, dass für $a \in E'$
   \[ \Tr_{E'\mid E}(a) = \sum_{i=0}^{s-1} a^{q^{im}} = 
@@ -412,7 +426,7 @@ gute Dienste leistet.
   Seien die Voraussetzungen wie in \thref{satz:q_ordnung_von_trace}.
   Ist dann wiederum $u$ eine primitive $(nl)$-te Einheitswurzel und
   $k(x) = \sum_{i=0}^j a_i x^i \in F[x]$, $j\in\N$, so dass
-  $\Ord_q(u) = \Ord(u^i) = f(x^s)$ für einen irreduziblen monischen Teiler 
+  $\Ord_q(u) = \Ord_q(u^i) = f(x^s)$ für einen irreduziblen monischen Teiler 
   $f(x)$ von $\Phi_m(x)$ über $F$ für alle $i=0,\ldots,j$. Gilt letztlich
   $[F(k(u)):F]=n$, so gilt:
   $\Ord_q(k(u))$ ist ein irreduzibler monischen Teiler 
@@ -423,10 +437,10 @@ gute Dienste leistet.
   \begin{itemize}
     \item $\Ord_q(u) = \Ord_q(u^i) = f(x^s)$ teilt $\Phi_m(x^s)$.
     \item Für $s = \bar s p^\beta$ mit $p\nmid \bar s$ gilt nach
-      \thref{}
+      \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}
       \[\Phi_m(x^s) = \prod_{d\mid \bar s} \Phi_{md}(x)^{p^\beta}\]
     \item Als leichte Konsequenz aus 
-      \thref{lemma:moduln:ueber_schnitt_und_vereinigung_von_v_g} haben wir 
+      \thref{lemma:} haben wir 
       \[\Ord_q(k(u)) \speq\mid \kgV\{\Ord_q(a_iu^i): i=1,\ldots,j\} = f(x^s) \]
     \item Da $k(u)\in E$ und die $q$-Ordnung immer das Minimalpolynom 
       des zugehörigen Frobenius teilt, folgt

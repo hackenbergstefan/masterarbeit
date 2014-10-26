@@ -235,13 +235,46 @@ Dies motiviert nachstehende Definition.
 Nun können wir uns überlegen, ob und wie unterschiedliche Kreisteilungspolynome
 zusammenhängen und kommen dabei auf die bekannten Resultate, die z.B. in 
 \autocite[Proposition 10.6, 10.7]{hachenberger1997finite} zu finden sind. Um
-diese anzugeben, benötigen wir jedoch noch eine Definitionen.
+diese anzugeben, benötigen wir jedoch noch eine Definitionen und zitieren
+einige Eigenschaften.
 
 \begin{definition}
   Seien $r,n\in \N$, so definiere
   \[ \pi_r(n) \speq{:=} \max\{k \in \N^\ast:\ k \mid n,\ \nu(k) \mid \nu(r)
   \}\,.\]
 \end{definition}
+
+
+\begin{lemma}
+  \label{lemma:cl_1}
+  Seien $q>1$ eine ganze Zahl, $n\in \N^\ast$ und $r$ ein Primteiler von $q-1$.
+  Dann gilt:
+  \begin{enumerate}
+    \item Ist $r\neq 2$ oder $q\equiv 1 \bmod 4$, so gilt
+      \[ \pi_r(q^{r^n}-1) \speq= r^n\, \pi_r(q-1) \,.\]
+    \item Ist $q \equiv 3 \bmod 4$, so gilt
+      \[ \pi_2(q^{2^n}-1) \speq= 2^{n-1}\, \pi_2(q^2-1)\,.\]
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \autocite[Lemma 19.4]{hachenberger1997finite}.
+\end{proof}
+
+
+\begin{lemma}
+  \label{lemma:cl_2}
+  Seien $q,m,k > 1$ ganze Zahlen mit $\nu(k) \mid \nu(m)\mid q-1$. Dann gilt
+  \begin{enumerate}
+    \item Ist $m$ ungerade oder $q \equiv 1 \bmod 4$ oder $k$ ungerade, so
+      gilt
+      \[ \pi_m(q^k-1) \speq= k\,\pi_m(q-1)\,. \]
+    \item Ist $m$ gerade, $q \equiv 3 \bmod 4$ und $k$ gerade, so ist
+      \[ \pi_m(q^k-1) \speq= \tfrac k 2\, \pi_m(q^2-1)\,.\]
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \autocite[Lemma 19.5]{hachenberger1997finite}.
+\end{proof}
 
 \begin{satz}
   \label{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}
@@ -306,8 +339,117 @@ diese anzugeben, benötigen wir jedoch noch eine Definitionen.
   was den Beweis abschließt.
 \end{proof}
 
-An dieser Stelle kann man sich an \thref{satz:zerfall_kreisteilungspolys}
-erinnern und sich die Frage stellen, ob man den
+Bevor wir den Zerfall der Kreisteilungspolynome noch genauer untersuchen,
+kann man als einfache Folgerung angeben, wann genau ein
+Binom $x^n-\beta \in \F_q[x]$ irreduzibel ist.
+
+\begin{satz}
+  \label{satz:binom_irreduzibel}
+  Seien $\beta \in F_q^\ast$ und $n\in \N$. Es gilt:
+  $x^n -\beta \in \F_q[x]$ ist genau
+  dann irreduzibel, wenn 
+  \begin{enumerate}
+    \item $p := \charak \F_q \nmid n$,
+    \item $\nu(n) \mid e := \ord(\beta)$ und
+    \item $\ord_{ne}(q) = n$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  Zunächst ist klar, dass $p \nmid n$ erfüllt sein muss, da ansonsten 
+  $\beta' \in \F_q^\ast$ existiert mit $\beta'^p = \beta$ ($(\cdot)^p$ ist ein
+  Automorphismus auf $\F_q$ nach \thref{satz:frob_auto}). Damit wäre
+  $x^n-\beta = (x^\frac n p - \beta')^p$ eine Faktorisierung.
+  Nun sei $u$ eine Nullstelle von $x^n-\beta$, so lässt sich beobachten, dass
+  (in Notation des Beweises von
+  \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys})
+  $u \in \psi_n\inv(C\kl{e})$. Damit gilt nach
+  \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys} (3)
+  \[ x^n-\beta \speq= \prod_{d\mid \bar n} \ggT(x^n-\beta, \Phi_{en_0d}(x))\]
+  für $n = \pi_{e}(n) \bar n$ und diese Zerlegung ist, wie man sich analog zum
+  Beweis von \thref{satz:zerfall_kreisteilungspolys} überlegen kann, 
+  nicht trivial (vgl. \autocite[Theorem \ldots]{hachenberger2015}). 
+  Damit ist (2) der Behauptung
+  klar, so dass $x^n-\beta \mid \Phi_{ne}(x)$. Ferner zerfällt nach
+  \thref{satz:zerfall_kreisteilungspolys} $\Phi_{ne}(x)$ in 
+  $\frac{\varphi(ne)}{\ord_{ne}(q)}$ irreduzible Faktoren von jeweils Grad
+  $\ord_{ne}(q)$. Damit wird auch (3) der Behauptung augenblicklich klar.
+\end{proof}
+
+Für die letzte Bedingung in obigem Satz existieren noch verschiedene weitere
+äquivalente Charakterisierungen, die nachstehend zu finden sind.
+
+\begin{satz}
+  \label{satz:binom_irreduzibel_aquiv}
+  Seien $p$ eine Primzahl, $q$ eine Potenz von $p$ und $n,e\in \N^\ast$ 
+  mit $p\nmid n$ und $\nu(n)\mid e\mid q-1$. Dann sind äquivalent:
+  \begin{enumerate}
+    \item $\ord_{ne}(q)  = n$,
+    \item $\ggT(\tfrac{q-1}{e},n)=1$ und $q\equiv 1 \bmod 4$, falls $4\mid n$,
+      und
+    \item $\pi_n(q-1) \mid e$ und $q\equiv 1 \bmod 4$, falls $4\mid n$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  \autocite[Theorem \ldots]{hachenberger2015}.
+\end{proof}
+
+
+Wir haben nun erkannt, wann genau Binome über einem endlichen Körper
+irreduzibel sind. Doch wenn man dem Titel dieses Kapitels Glauben schenken mag,
+interessieren wir uns hier vorangig für den Zerfall der Kreisteilungspolynome
+über endlichen Körpern. Diese sind im Allgemeinen keine Binome, 
+aber genau das Wissen über die Irreduzibiltät von
+Binomen lässt uns Bedingungen formulieren, die dazu führen, dass ein
+Kreisteilungspolynom über einem gegebenen endlichen Körper in irreduzible
+Binome zerfällt
+Später (\autoref{sec:stark_regulare_erweiterungen}) werden wir diese
+Bedingungen \emph{stark regulär} (\thref{def:stark_regular}) nennen und
+einsehen, dass sie eine wesentliche Rolle bei der expliziten Konstruktion 
+von Normalbasen spielen.
+
+\begin{satz}
+  \label{satz:kreisteilungspolynome_binome}
+  Seien $\F_q$ ein endlicher Körper von Charakteristik $p$ und $m \in \N^\ast$.
+  Es gelte $p\nmid m$, $\nu(m)\mid q-1$ und $4\mid q-1$, falls $2\mid m$.
+  Setze $l := \pi_m(q-1)$, $a := \ggT(l,m)$ und $I_a := \{ j\in \N^\ast:\ 
+  j\geq a,\ \ggT(j,a)=1\}$. Ist $\zeta \in \F_q^\ast$ eine primitive 
+  $a$-te Einheitswurzel, so ist
+  \[ \Phi_m(x) \speq= \prod_{j\in I_a} \big( x^\frac m a - \zeta^j\big) \]
+  die vollständige Faktorisierung des $m$-ten Kreisteilungspolynoms über
+  $\F_q$.
+\end{satz}
+\begin{proof}
+  Wir stellen fest, dass $\F_q$ in der Tat $a$-te Einheitswurzeln enthält, da 
+  $\ord_a(q) = 1$. Dies ist klar, da $l$ per definitionem $q-1$ teilt und 
+  $a = \ggT(l,m)$.
+  Nun wollen wir uns klar werden, dass beide Seiten obiger Gleichung auch
+  identisch sind: Für $j \in I_a$ durchläuft $\zeta^j$ alle primitiven $a$-ten
+  Einheitswurzeln und damit sind die Nullstellen der rechten Seite der
+  Gleichung gerade alle primitiven $m$-ten Einheitswurzeln.
+  Bleibt die Irreduzbilität von $x^\frac m a - \zeta^j$ zu zeigen, wobei wir
+  ohne Einschränkung $j=1$ wählen können: Klar ist, dass $p\nmid \frac m a$, da
+  $p \nmid m$ nach Voraussetzungen. Ferner ist $\nu(l) = \nu(m)$, da wegen
+  $\nu(m) \mid q-1$ gilt:
+  \[ \pi_m(q-1) = \max\{k\in \N^\ast:\ k\mid q-1,\ \nu(k)= \nu(m) \}\,. \]
+  Also ist auch $\nu(a) = \nu(\ggT(l,m)) = \nu(m)$ und damit folgt
+  $\nu(\tfrac m a) \mid \nu(m) = \nu(a) \mid a$, womit auch (2) in 
+  \thref{satz:binom_irreduzibel} erfüllt wäre.
+  Da $\nu(m)\mid q-1$ ist $\pi_{\frac m a}(q-1) \mid m$, also auch
+  $\pi_{\frac m a}(q-1)\mid a$. Damit wäre durch die Bedingung $q\equiv 1 \bmod
+  4$, falls $2\mid m$, auch (3) in \thref{satz:binom_irreduzibel_aquiv}
+  erfüllt.
+\end{proof}
+
+\begin{bemerkung}
+  Man hätte obigen Beweis auch ohne das Wissen über irreduzible Binome führen
+  können, in dem man sich \thref{satz:zerfall_kreisteilungspolys} bedient. So
+  findet man dies auch in \autocite[Lemma 22.2]{hachenberger1997finite}.
+\end{bemerkung}
+
+
+
+Erinnert man sich nun erneut an \thref{satz:zerfall_kreisteilungspolys}, so
+kann man sich die Frage stellen, ob man den
 Zusammenhang unterschiedlicher Kreisteilungspolynome aus 
 \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}
 in dem Sinne verfeinern kann, dass man sich nicht für das gesamte 
@@ -319,16 +461,16 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   \label{satz:zerfall_f_x_s}
   Seien $q=p^r$ eine Primzahlpotenz und
   $m,t\in \N$ mit $p\nmid m$, $p\nmid t$ und $\ggT(m,t) = 1$. Ist dann 
-  $f(X) \mid \Phi_m(x)$ ein über $\F_q$ irreduzibler monischer Teiler des
+  $f(x) \mid \Phi_m(x)$ ein über $\F_q$ irreduzibler monischer Teiler des
   $m$-ten Kreisteilungspolynoms. Definieren wir 
   ferner 
   \[ \Delta_q(m,d) \speq{:=} \frac{\varphi(d) \ord_m(q)}{\ord_{md}(q)}\,,\]
   so gilt:
-  \[ f(X^t) \speq= \prod_{d\mid t} \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(X)\,,\]
+  \[ f(x^t) \speq= \prod_{d\mid t} \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x)\,,\]
   wobei für alle $i=1,\ldots,\Delta_q(m,d)$ 
-  \[ f_{d,i}\in \F_q[X] 
-    \text{ monisch, irreduzibel und } f_{d,i}(X) \mid \Phi_{md}(X)\,.\]
-  Ferner sind alle $f_{d,i}(X)$ paarweise teilerfremd.
+  \[ f_{d,i}\in \F_q[x] 
+    \text{ monisch, irreduzibel und } f_{d,i}(x) \mid \Phi_{md}(x)\,.\]
+  Ferner sind alle $f_{d,i}(x)$ paarweise teilerfremd.
 \end{satz}
 \begin{proof}
   Wie schon im Beweis von
@@ -362,7 +504,7 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   %$q^i \neq t$ für alle $i=1,\ldots,\delta-1$ und damit 
   %$\beta^{q^i} \neq \alpha$ für alle $i=1,\ldots,\delta-1$, was
   %$f(X)\nmid f(X^t)$ zeigt.
-  Wollen wir nun einsehen, wie $f(X^t)$ über $\F_q$ zerfällt, so müssen wir
+  Wollen wir nun einsehen, wie $f(x^t)$ über $\F_q$ zerfällt, so müssen wir
   überlegen, wie obige Nullstellenmenge in $\sigma$-invariante Teilmengen
   zerfällt. Für jedes $d\mid t$ und jedes $j\in\{0,\ldots,\delta -1\}$ ist
   $\zeta \in \beta^{q^j}\,C\kl d$ ein Element mit $\ord(\zeta) = md$, also
@@ -433,43 +575,43 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
 
 \begin{beispiel}
   Greifen wir noch einmal \thref{beispiel:zerfall_x21_1_1} auf und betrachten
-  einen irreduziblen Teiler $f(X)$ von $\Phi_7(X)$ über $\F_2$, sagen wir
-  \[ f(X) \speq{:=} X^3+ X +1\,.\]
+  einen irreduziblen Teiler $f(x)$ von $\Phi_7(x)$ über $\F_2$, sagen wir
+  \[ f(x) \speq{:=} x^3+ x +1\,.\]
   Sei $t := 3$.
-  Nun wissen wir nach \thref{satz:zerfall_f_x_s}, dass $f(X^3)$ wie folgt über
+  Nun wissen wir nach \thref{satz:zerfall_f_x_s}, dass $f(x^3)$ wie folgt über
   $\F_2$ zerfällt:
-  \[ f(X^3) \speq= 
+  \[ f(x^3) \speq= 
     \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
       (n)
-      {$\displaystyle\prod_{i=1}^{\Delta_2(7,1)} f_{1,i}(X)$};
+      {$\displaystyle\prod_{i=1}^{\Delta_2(7,1)} f_{1,i}(x)$};
       \node[above=0pt of n, font=\scriptsize, text=gray]{$d=1 \mid 3$};}
     \cdot
     \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
       (n)
-      {$\displaystyle\prod_{i=1}^{\Delta_2(7,3)} f_{3,i}(X)$};
+      {$\displaystyle\prod_{i=1}^{\Delta_2(7,3)} f_{3,i}(x)$};
       \node[above=0pt of n, font=\scriptsize, text=gray]{$d=3 \mid 3$};}
     \speq=
     \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
       (n)
-      {$\displaystyle f_{1,1}(X)$};}
+      {$\displaystyle f_{1,1}(x)$};}
     \cdot
     \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
       (n)
-      {$\displaystyle f_{3,1}(X)$};}
+      {$\displaystyle f_{3,1}(x)$};}
     \]
     da 
     \begin{alignat*}{6}
-      \Delta_2(7,1) &\speq=& \frac{\phi(1)\ord_7(2)}{\ord_{7}(2)} &\speq=&
+      \Delta_2(7,1) &\speq=& \frac{\varphi(1)\ord_7(2)}{\ord_{7}(2)} &\speq=&
         \frac{1\cdot 3}{3} &\speq=& 1\,, \\
-      \Delta_2(7,3) &\speq=& \frac{\phi(3)\ord_7(2)}{\ord_{21}(2)} &\speq=&
+      \Delta_2(7,3) &\speq=& \frac{\varphi(3)\ord_7(2)}{\ord_{21}(2)} &\speq=&
         \frac{2\cdot 3}{6} &\speq=& 1\,. 
     \end{alignat*}
-    Wir wollen nun herausfinden, welche Teiler $f_{1,1}(X)$ und $f_{3,1}(X)$ 
-    von $\Phi_7(X)$ und $\Phi_{21}(X)$ sind. Wir übernehmen den Zerfall
+    Wir wollen nun herausfinden, welche Teiler $f_{1,1}(x)$ und $f_{3,1}(x)$ 
+    von $\varphi_7(x)$ und $\varphi_{21}(x)$ sind. Wir übernehmen den Zerfall
     der Kreisteilungspolynome aus \thref{beispiel:zerfall_x21_1_1}
     und können einsehen, dass
-    \[ f_{1,1}(X) \speq= X^3+X^2+1\,,\qquad
-      f_{3,1}(X) \speq= X^6+X^5+X^4+X^2+1\,.\]
+    \[ f_{1,1}(x) \speq= x^3+x^2+1\,,\qquad
+      f_{3,1}(x) \speq= x^6+x^5+x^4+x^2+1\,.\]
 \end{beispiel}
 
 %\begin{beispiel}
@@ -545,31 +687,31 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
     10& 10 \\
     11& 11, 13, 17, 19 
     \end{array}\]
-  Wir sehen, dass $\Phi_{20}(X)$ für $l=1,11$ in 
+  Wir sehen, dass $\Phi_{20}(x)$ für $l=1,11$ in 
   2 Polynome von jeweils Grad $4$ zerfällt:
   \[\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
     \begin{array}{rcccc} 
       \Phi_{20}(x) &=& 
-        (X^{4} + X^{3} + 2 X + 1) &\cdot& (X^{4} + 2 X^{3} + X + 1) \\
-      &=& (X-\zeta^{11})(X-\zeta^{13})(X-\zeta^{17})(X-\zeta^{19}) &\cdot&
-        (X-\zeta)(X-\zeta^{3})(X-\zeta^{7})(X-\zeta^{9})\,,
+        (x^{4} + x^{3} + 2 x + 1) &\cdot& (x^{4} + 2 x^{3} + x + 1) \\
+      &=& (x-\zeta^{11})(x-\zeta^{13})(x-\zeta^{17})(x-\zeta^{19}) &\cdot&
+        (x-\zeta)(x-\zeta^{3})(x-\zeta^{7})(x-\zeta^{9})\,,
     \end{array}\]
-  wobei wir $\zeta \in C\kl{20}$ mit Minimalpolynom $X^4+2X^3+X+1$ gewählt
+  wobei wir $\zeta \in C\kl{20}$ mit Minimalpolynom $x^4+2x^3+x+1$ gewählt
   haben.
-  Nun können wir den Zerfall von $\Phi_5(X)$ und $\Phi_{10}(X)$ in Termen von
+  Nun können wir den Zerfall von $\Phi_5(x)$ und $\Phi_{10}(x)$ in Termen von
   $\zeta$ anhand der Restklassen ${}\bmod{20}$ beschreiben:
   \[\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
     \begin{array}{rcccc} 
-      \Phi_5(X)&=& X^4 + X^3 + X^2 + X + 1\\
-      &=& (X-\zeta^4)(X-\zeta^{8})(X-\zeta^{12})(X-\zeta^{16})\,, \\[10pt]
-      \Phi_{10}(X) &=& X^{4} + 2 X^{3} + X^{2} + 2 X + 1 \\
-      &=& (X-\zeta^2)(X-\zeta^6)(X-\zeta^{14})(X-\zeta^{16})\,.
+      \Phi_5(x)&=& x^4 + x^3 + x^2 + x + 1\\
+      &=& (x-\zeta^4)(x-\zeta^{8})(x-\zeta^{12})(x-\zeta^{16})\,, \\[10pt]
+      \Phi_{10}(x) &=& x^{4} + 2 x^{3} + x^{2} + 2 x + 1 \\
+      &=& (x-\zeta^2)(x-\zeta^6)(x-\zeta^{14})(x-\zeta^{16})\,.
     \end{array}\]
   Die Restklassen für $l=0,5,10$ gehören zu den Kreisteilungspolynomen 
-  $\Phi_1(X), \Phi_4(X)$ und $\Phi_2(X)$, die wir für ein Beispiel zu
+  $\Phi_1(x), \Phi_4(x)$ und $\Phi_2(x)$, die wir für ein Beispiel zu
   \thref{satz:zerfall_f_x_s} nicht benötigen.
   Nun brauchen wir wieder einen irreduziblen monischen Teiler von
-  $\Phi_m(X)$ und setzen daher $f(X) = \Phi_m(X)$.
+  $\Phi_m(x)$ und setzen daher $f(x) = \Phi_m(x)$.
   Wir berechnen wie oben
   \begin{alignat*}{6}
     \Delta_3(5,1) &\speq=& \frac{\varphi(1)\ord_5(3)}{\ord_{5}(3)} &\speq=&
@@ -579,21 +721,21 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
     \Delta_3(5,4) &\speq=& \frac{\varphi(4)\ord_5(3)}{\ord_{20}(3)} &\speq=&
       \frac{2\cdot 4}{4} &\speq=& 2\,. 
   \end{alignat*}
-  Nun ist klar, wie $f(X^t)$ über $\F_3$ zerfällt:
-  \[\small f(X^3) \speq= \big(
+  Nun ist klar, wie $f(x^t)$ über $\F_3$ zerfällt:
+  \[\small f(x^3) \speq= \big(
     \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
       (n)
-      {$\displaystyle X^4+X^3+X^2+X+1$};
+      {$\displaystyle x^4+x^3+x^2+x+1$};
       \node[above=0pt of n, font=\scriptsize, text=gray]{$d=1 \mid 4$};}
     \big)\cdot\big(
     \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
       (n)
-      {$\displaystyle X^4+2X^3+X^2+2X+1$};
+      {$\displaystyle x^4+2x^3+x^2+2x+1$};
       \node[above=0pt of n, font=\scriptsize, text=gray]{$d=2 \mid 4$};}
     \big)\cdot\big(
     \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
       (n)
-      {$\displaystyle (X^4+X^3+2X+1)(X^4+2X^3+X+1)$};
+      {$\displaystyle (x^4+x^3+2x+1)(x^4+2x^3+x+1)$};
       \node[above=0pt of n, font=\scriptsize, text=gray]{$d=4 \mid 4$};}
     \big) \]
 \end{beispiel}

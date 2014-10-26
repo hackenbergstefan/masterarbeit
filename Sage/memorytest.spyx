@@ -1,18 +1,32 @@
 from sage.all import *
 import time
 
-def test(q):
-    E = GF(q,'a')
-    x = E.zero()
-### good
-    while x == E.zero(): x = E.random_element()
-###
-### bad
-    #while x == 0: x = E.random_element()
-###
-    print x.multiplicative_order()
+def test(F,n):
+    n = Integer(n)
+    q = F.order();
+    p = F.characteristic();
+    r = q.log(p)
+
+
+    #E = F.extension(n,'a')
+    #P = E.prime_subfield()
+
+    #Px = PolynomialRing(P,'x')
+    Fx = PolynomialRing(F,'x')
+    #Ex = PolynomialRing(E,'x')
+    #h = Hom(F,E)[0]
+    #primOrder = E.order()-1
+    
+    #primitives = []
+
+    #Flist = F.list()
+
+    for f in Fx.polynomials(n):
+        if f.is_irreducible():
+            break
+    E = GF(q**r, name='a', modulus=f)
 
 
 def main():
-    for p in primes(1000000):
-        test(p)
+    for p in primes(50000):
+        test(GF(p,'a'),12)

@@ -383,7 +383,7 @@ sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$
   \end{enumerate}
 \end{satz}
 \begin{proof}
-  Zerlegen wir $s = \bar s p^\beta$ mit $p\nmid s'$, so ist 
+  Zerlegen wir $s = \bar s p^\beta$ mit $p\nmid \bar s$, so ist 
   nach Voraussetzungen $\ggT(\bar s, m) = 1$ und wir sind in der Situation von
   \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}. Damit gilt
   \[ \Phi_m(x^s) \speq= \Phi_m(x^{\bar s})^{p^\beta}
@@ -408,55 +408,93 @@ sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$
     \speq= \Phi_m(x)\]
   und
   \[ \Ord_q(\Tr_{E'\mid E}(u)) \speq= 
-    \frac{f(x^s)}{\ggT(f(x^s), \frac{x^{sm}-1}{x^m-1})} \speq= f_1(x) \,,\]
-  wobei wir uns hierfür noch einmal an \thref{satz:f_x_s_ist_teiler_von_phimd} 
+    \frac{f(x^s)}{\ggT(f(x^s), \frac{x^{sm}-1}{x^m-1})} \speq= f_{1,1}(x) \,,\]
+  wobei wir uns hierfür noch einmal an \thref{satz:zerfall_f_x_s}
   erinnern müssen, wo wir gezeigt haben, dass in genau dieser Situation 
-  $f(x^s) = \prod_{i=1}^? f_i(x) \in F[x]$ mit $f_i$ irreduzibler monischer 
-  Teiler von $\Phi_{md}(x)$ für $d\mid \bar s$, wobei wir \obda 
-  $f_1 \mid \Phi_m(x)$ für den einzigen Teiler von $\Phi_m(x)$ wählen.
+  \[ f(x^{\bar s}) = \prod_{d\mid m} \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x) \]
+  für monische, irreduzible Teiler $f_{d,i}$ von $\Phi_{md}(x)$ für alle 
+  $i=1,\ldots,\Delta_q(m,d)$ und wir damit 
+  \[ \ggT\big(f(x^{\bar s})^{p^\beta}, \tfrac{x^{sm}-1}{x^m-1}\big) \speq=
+    \prod_{d\mid m\atop d \neq 1} \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x) \]
+  folgern können. Abschließend sehen wir dass
+  \[ \Delta_q(m,1) \speq= \frac{\varphi(1) \ord_m(q)}{\ord_{1\cdot m}(q)}
+    \speq= 1\,.\]
 \end{proof}
 
 
-Wir können sogar noch in gewisser Weise eine Verschärfung dieses Satzes
-angeben, die genauer charakterisiert, warum die Spurfunktion in diesem Fall
-gute Dienste leistet.
+Wir können in gewisser Weise sogar eine Verschärfung obiges Satzes angeben und
+die Verwendung der Spurfunktion etwas erweitern. Wir müssen lediglich dafür
+sorgen, dass wir ein Element des Körpers erhalten, für den wir Erzeuger (und
+letztendlich normale Elemente) konstruieren wollen.
 
 \begin{satz}
   \label{satz:q_ordnung_von_zusammensetzen}
-  Seien die Voraussetzungen wie in \thref{satz:q_ordnung_von_trace}.
-  Ist dann wiederum $u$ eine primitive $(nl)$-te Einheitswurzel und
-  $k(x) = \sum_{i=0}^j a_i x^i \in F[x]$, $j\in\N$, so dass
-  $\Ord_q(u) = \Ord_q(u^i) = f(x^s)$ für einen irreduziblen monischen Teiler 
-  $f(x)$ von $\Phi_m(x)$ über $F$ für alle $i=0,\ldots,j$. Gilt letztlich
-  $[F(k(u)):F]=n$, so gilt:
-  $\Ord_q(k(u))$ ist ein irreduzibler monischen Teiler 
-  von $\Phi_m(x)$ über $F$.
+  Seien die Voraussetzungen wie in \thref{satz:q_ordnung_von_trace} und 
+  sei wiederum $u$ eine primitive $(ml)$-te Einheitswurzel. 
+  Für $g(x) \in F[x]$ gilt:
+  Ist $g(x)\cdot u \in E$, so gilt
+  \[ \Ord_q(g(x)\cdot u) \text{ ist ein monischer irreduzibler Teiler von }
+    \Phi_m(x)\,. \]
 \end{satz}
 \begin{proof}
-  Sammeln wir einmal den Wissensstand für gegebene Situation zusammen:
-  \begin{itemize}
-    \item $\Ord_q(u) = \Ord_q(u^i) = f(x^s)$ teilt $\Phi_m(x^s)$.
-    \item Für $s = \bar s p^\beta$ mit $p\nmid \bar s$ gilt nach
-      \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}
-      \[\Phi_m(x^s) = \prod_{d\mid \bar s} \Phi_{md}(x)^{p^\beta}\]
-    \item Als leichte Konsequenz aus 
-      \thref{lemma:} haben wir 
-      \[\Ord_q(k(u)) \speq\mid \kgV\{\Ord_q(a_iu^i): i=1,\ldots,j\} = f(x^s) \]
-    \item Da $k(u)\in E$ und die $q$-Ordnung immer das Minimalpolynom 
-      des zugehörigen Frobenius teilt, folgt
-      \[\Ord_q(k(u)) \speq\mid x^m-1 = \prod_{d\mid m} \Phi_d(x)\]
-  \end{itemize}
-  Zusammengefasst teilt also $\Ord_q(k(u))$ nur den Anteil von $f(x^s)$,
-  der auch in $\Phi_m(x)$ liegt. Damit folgt nach
-  \thref{satz:f_x_s_ist_teiler_von_phimd} die Behauptung.
+  Auf der einen Seite haben wir 
+  \[ \Ord_q(g(x)\cdot u) \speq\mid x^m-1 \speq= \prod_{d\mid m} \Phi_m(x)\,, \]
+  da $g(x) \cdot u$ nach Voraussetzung Grad $m$ über $F$ hat und auf der
+  anderen Seite gilt nach \thref{lemma:eigenschaften_tau_ordnung}
+  \[ \Ord_q(g(x)\cdot u) \speq= \frac{f(x^s)}{\ggT(f(x^s), g(x))} 
+    \speq\mid f(x^s) \,.\]
+  Wir wissen jedoch aus \thref{satz:zerfall_f_x_s} (vgl. auch den Beweis von
+  \thref{satz:q_ordnung_von_trace}), dass 
+  \[ f(x^s) \speq= \prod_{d\mid \bar s} 
+    \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x)^{p^\beta}\]
+  für $s = \bar sp^\beta$ mit $p\nmid \bar s$ und
+  $f_{d,i}(x)$ monische, irreduzible Teiler von $\Phi_{md}(x)$. Da 
+  $p\nmid m$ nach Voraussetzung, kommt $\Phi_m(x)$ in $x^m-1$ lediglich in
+  einfacher Vielfachheit vor und damit folgt
+  \[ \Ord_q(g(x)\cdot u) \speq= f_{1,1}(x)\]
+  für den einzigen monischen irreduziblen Teiler in $f(x^s)$ von $\Phi_m(x)$.
 \end{proof}
 
-\begin{bemerkung}
-  Auf diese Weise kann man auch den Beweis von \thref{satz:q_ordnung_von_trace}
-  führen, wenn man sich überlegt, dass für $\Ord_q(u) = f(x^s)$ auch
-  $\Ord_q(u^{q^m}) = f(x^s)$ ($m$ und $s$ sind teilerfremd!) 
-  gilt und gerade $\Tr_{E'\mid E}(u) \in E$ gilt.
-\end{bemerkung}
+%Wir können sogar noch in gewisser Weise eine Verschärfung dieses Satzes
+%angeben, die genauer charakterisiert, warum die Spurfunktion in diesem Fall
+%gute Dienste leistet.
+
+%\begin{satz}
+  %\label{satz:q_ordnung_von_zusammensetzen}
+  %Seien die Voraussetzungen wie in \thref{satz:q_ordnung_von_trace}.
+  %Ist dann wiederum $u$ eine primitive $(nl)$-te Einheitswurzel und
+  %$k(x) = \sum_{i=0}^j a_i x^i \in F[x]$, $j\in\N$, so dass
+  %$\Ord_q(u) = \Ord_q(u^i) = f(x^s)$ für einen irreduziblen monischen Teiler 
+  %$f(x)$ von $\Phi_m(x)$ über $F$ für alle $i=0,\ldots,j$. Gilt letztlich
+  %$[F(k(u)):F]=n$, so gilt:
+  %$\Ord_q(k(u))$ ist ein irreduzibler monischen Teiler 
+  %von $\Phi_m(x)$ über $F$.
+%\end{satz}
+%\begin{proof}
+  %Sammeln wir einmal den Wissensstand für gegebene Situation zusammen:
+  %\begin{itemize}
+    %\item $\Ord_q(u) = \Ord_q(u^i) = f(x^s)$ teilt $\Phi_m(x^s)$.
+    %\item Für $s = \bar s p^\beta$ mit $p\nmid \bar s$ gilt nach
+      %\thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}
+      %\[\Phi_m(x^s) = \prod_{d\mid \bar s} \Phi_{md}(x)^{p^\beta}\]
+    %\item Als leichte Konsequenz aus 
+      %\thref{lemma:} haben wir 
+      %\[\Ord_q(k(u)) \speq\mid \kgV\{\Ord_q(a_iu^i): i=1,\ldots,j\} = f(x^s) \]
+    %\item Da $k(u)\in E$ und die $q$-Ordnung immer das Minimalpolynom 
+      %des zugehörigen Frobenius teilt, folgt
+      %\[\Ord_q(k(u)) \speq\mid x^m-1 = \prod_{d\mid m} \Phi_d(x)\]
+  %\end{itemize}
+  %Zusammengefasst teilt also $\Ord_q(k(u))$ nur den Anteil von $f(x^s)$,
+  %der auch in $\Phi_m(x)$ liegt. Damit folgt nach
+  %\thref{satz:f_x_s_ist_teiler_von_phimd} die Behauptung.
+%\end{proof}
+
+%\begin{bemerkung}
+  %Auf diese Weise kann man auch den Beweis von \thref{satz:q_ordnung_von_trace}
+  %führen, wenn man sich überlegt, dass für $\Ord_q(u) = f(x^s)$ auch
+  %$\Ord_q(u^{q^m}) = f(x^s)$ ($m$ und $s$ sind teilerfremd!) 
+  %gilt und gerade $\Tr_{E'\mid E}(u) \in E$ gilt.
+%\end{bemerkung}
 
 
 Auch für reguläre Erweiterungen wollen wir ein Analogon von 
@@ -532,11 +570,12 @@ Nun können wir obige Sätze beweisen.
   Ist dann $\theta \in \F_{q^{2n}} =: E'$ eine Wurzel, so wissen wir nach
   \thref{satz:gao1} und \thref{lemma:hoehere_wurzeln_auch_erzeuger_reg}, dass
   $\Ord_q(\theta) = f(x^s)$ für einen irreduziblen Teiler $f(x)$ von
-  $\Phi_n(x)$ über $F$. Nach \thref{satz:q_ordnung_von_trace}
-  ist
-  \[ f_1(x) \speq{:=} \Ord_q( \Tr_{E'\mid E}(\theta) ) \speq=
-    \Ord_q(\theta + \theta^{q^n})\]
-  ein irreduzibler Teiler von $\Phi_n(x)$ in $F[x]$.
+  $\Phi_n(x)$ über $F$. 
+  %Nach \thref{satz:q_ordnung_von_trace}
+  %ist
+  %\[ f_1(x) \speq{:=} \Ord_q( \Tr_{E'\mid E}(\theta) ) \speq=
+    %\Ord_q(\theta + \theta^{q^n})\]
+  %ein irreduzibler Teiler von $\Phi_n(x)$ in $F[x]$.
   
   Es ist nun $\theta^{q^n} = \theta\inv$: 
   Da $\theta \in E'$, gilt $\theta^{q^{2n}} = \theta$, also
@@ -545,22 +584,37 @@ Nun können wir obige Sätze beweisen.
   zur Definition von $\theta$.
   Also haben wir nach \thref{satz:q_ordnung_von_zusammensetzen} 
   gerade 
-  \[ \Ord_q(\theta + a\theta\inv) = f_1(x)\,,\]
-  da mit \thref{lemma:dickson:dickson_polynome_potenz}
+  \[ \Ord_q(\theta + a\theta\inv) \speq=
+    \Ord_q((1+ax^n)\cdot \theta) \speq= f_{1,1}(x)\]
+  für einen monischen, irreduziblen Teiler $f_{1,1}(x)$ von $\Phi_n(x)$
+  (wieder in Notation von \thref{satz:zerfall_f_x_s}), denn
+  mit \thref{lemma:dickson:dickson_polynome_potenz} sehen wir, dass
   \[ D_n(\theta + a\theta\inv,a) -b \speq= \theta^n + a^n\theta^{-n} -b
     \speq= \beta +a^n\beta\inv -b \speq= b - b\speq= 0\,,\]
   also $\theta + a\theta\inv$ Grad $n$ über $F$ hat.
-  Da wir mit $\theta^l$ für $l \in R_q(n)$ alle irreduziblen Teilmoduln
-  %
-  \footnote{hier vielleicht noch ein Satz/Lemma/Bemerkung im vorherigen 
-  Abschnitt über die Erzeugung \emph{aller} irreduziblen Teilmodule}
-  %
-  von $x^n-1$ erzeugen können, also $\Ord_q(\theta^i) = g(x^s)$ für einen
-  irreduziblen monischen Teiler $g(x)$ von $x^n-1$ über $F$, ist alles gezeigt,
-  da analog zu oben
-  \[ \Ord_q(\theta^l + a^l\theta^{-l}) \speq\mid x^n-1 \]
-  für $l\in R_q(n)$ ein irreduzibler Teiler von $x^n-1$ ist
-  (für $l=0$ hat $\theta^l+a^l\theta^{-l}$ natürlich Grad $0$ über $F$).
-  $\gamma := \theta + a\theta\inv$ und $D_l(\gamma,a) =
-  \theta^l+a^l\theta^{-l}$ schließt den Beweis ab.
+  %Da mit $\theta^l$ für $l \in R_q(n)$ alle irreduziblen Teilmoduln
+  %%
+  %\footnote{hier vielleicht noch ein Satz/Lemma/Bemerkung im vorherigen 
+  %Abschnitt über die Erzeugung \emph{aller} irreduziblen Teilmodule}
+  %%
+  %von $x^n-1$ erzeugbar sind, also $\Ord_q(\theta^i) = g(x^s)$ für einen
+  %irreduziblen monischen Teiler $g(x)$ von $x^n-1$ über $F$, ist alles gezeigt,
+  %da analog zu oben
+  %\[ \Ord_q(\theta^l + a^l\theta^{-l}) \speq\mid x^n-1 \]
+  %für $l\in R_q(n)$ ein irreduzibler Teiler von $x^n-1$ ist
+  %(für $l=0$ hat $\theta^l+a^l\theta^{-l}$ natürlich Grad $0$ über $F$).
+  %$\gamma := \theta + a\theta\inv$ und $D_l(\gamma,a) =
+  %\theta^l+a^l\theta^{-l}$ schließt den Beweis ab.
+  Wählen wir $1 \neq l \in R_q(n)$, so entspricht 
+  $\Ord_q(\theta^l) = g(x^s)$ für einen monischen irreduziblen Teiler 
+  $g(x) \mid \Phi_m(x)$ mit $m\mid n$ und $\ggT(f,g) = 1$. Damit sind aber 
+  auch $\Ord_q(\theta+a\theta\inv)$ und $\Ord_q(\theta^l+a^l\theta^{-l})$ 
+  nach \thref{satz:zerfall_f_x_s} (2) teilerfremd.
 \end{proof}
+
+
+\begin{bemerkung}
+  Man bemerke, dass in obigem Beweis $\theta + a\theta\inv$ lediglich eine
+  leichte Abwandlung von $\theta + \theta^{q^n} = \Tr_{E'\mid E}(\theta)$ ist!
+  Daher ist das Resultat vielleicht auch nicht besonders überraschend.
+\end{bemerkung}

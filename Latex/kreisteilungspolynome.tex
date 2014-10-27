@@ -460,17 +460,23 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
 \begin{satz}
   \label{satz:zerfall_f_x_s}
   Seien $q=p^r$ eine Primzahlpotenz und
-  $m,t\in \N$ mit $p\nmid m$, $p\nmid t$ und $\ggT(m,t) = 1$. Ist dann 
-  $f(x) \mid \Phi_m(x)$ ein über $\F_q$ irreduzibler monischer Teiler des
-  $m$-ten Kreisteilungspolynoms. Definieren wir 
-  ferner 
+  $m,t\in \N$ mit $p\nmid m$, $p\nmid t$ und $\ggT(m,t) = 1$.
+  Definieren wir ferner
   \[ \Delta_q(m,d) \speq{:=} \frac{\varphi(d) \ord_m(q)}{\ord_{md}(q)}\,,\]
   so gilt:
-  \[ f(x^t) \speq= \prod_{d\mid t} \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x)\,,\]
-  wobei für alle $i=1,\ldots,\Delta_q(m,d)$ 
-  \[ f_{d,i}\in \F_q[x] 
-    \text{ monisch, irreduzibel und } f_{d,i}(x) \mid \Phi_{md}(x)\,.\]
-  Ferner sind alle $f_{d,i}(x)$ paarweise teilerfremd.
+  \begin{enumerate}
+    \item Ist $f(x) \mid \Phi_m(x)$ ein über $\F_q$ irreduzibler monischer Teiler des
+      $m$-ten Kreisteilungspolynoms, so gilt
+      \[ f(x^t) \speq= \prod_{d\mid t} 
+        \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x)\,,\]
+      wobei für alle $i=1,\ldots,\Delta_q(m,d)$ 
+      \[ f_{d,i}\in \F_q[x] 
+        \text{ monisch, irreduzibel und } f_{d,i}(x) \mid \Phi_{md}(x)\,.\]
+      Ferner sind alle $f_{d,i}(x)$ paarweise teilerfremd.
+    \item Sind $f(x) \mid \Phi_m(x)$ und $g(x) \mid \Phi_m(x)$ zwei
+      teilerfremde, monische, über $\F_q$ irreduzible Teiler des $m$-ten
+      Kreisteilungspolynoms, so sind auch $f(x^t)$ und $g(x^t)$ teilerfremd.
+  \end{enumerate}
 \end{satz}
 \begin{proof}
   Wie schon im Beweis von
@@ -487,7 +493,7 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   so existiert -- wiederum
   weil $m$ und $t$ teilerfremd sind -- genau ein $\beta \in C\kl m$ mit
   $\beta^t = \alpha$. Damit ist also
-  \[ \psi\inv(\{\alpha\}) \speq= \beta\, E\kl t \speq=
+  \[ \psi_t\inv(\{\alpha\}) \speq= \beta\, E\kl t \speq=
     \bigcupdot_{d\mid t}\ \beta\, C\kl d \,.\]
   Notiert wieder $\sigma$ der Frobenius von
   $\F_q$, so sind nach \thref{satz:nst_irred_polys}
@@ -495,11 +501,13 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   $\delta=\ord_q(m)$ die Nullstellen von $f(x)$. Da $p\nmid t$ bleibt
   die Menge der $t$-en Einheitswurzeln invariant unter $\sigma $ und 
   damit ist die Menge der Nullstellen von $f(x^t)$ gerade
-  \[ \bigcupdot_{j=0}^{\delta-1} \sigma^j(\beta)\, E\kl t \speq=
+  \begin{equation}
+    \bigcupdot_{j=0}^{\delta-1} \sigma^j(\beta)\, E\kl t \speq=
     \bigcupdot_{j=0}^{\delta-1}\ \bigcupdot_{d\mid t}\ \beta^{q^j}\, C\kl d
     \speq=
     \bigcupdot_{d\mid t}\ \bigcupdot_{j=0}^{\delta-1}\ \beta^{q^j}\, C\kl d
-    \speq{=:} \bigcupdot_{d\mid t} N_d\,. \]
+    \speq{=:} \bigcupdot_{d\mid t} N_d\,. 
+  \end{equation}
   %Wir bemerken kurz, dass $\alpha$ nicht in obiger Nullstellenmenge liegt, da
   %$q^i \neq t$ für alle $i=1,\ldots,\delta-1$ und damit 
   %$\beta^{q^i} \neq \alpha$ für alle $i=1,\ldots,\delta-1$, was
@@ -519,7 +527,14 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   \[ \frac{\ord_m(q)\,\varphi(d)}{\ord_{md}(q)} \speq=
     \frac{\varphi(d)\, \ggT(\ord_m(q),\ord_d(q))}{\ord_d(q)}\]
   und $\ord_d(q) \mid \varphi(d)$ nach \thref{lemma:rechenregeln_ordn} (1).
-  Damit ist alles gezeigt.
+  Damit ist alles in (1) gezeigt.
+  Der Zusatz (2) folgt sofort, denn ist $\alpha_f \in C\kl m$ 
+  bzw. $\alpha_g \in C\kl m$ Nullstelle von $f$ bzw. $g$, so gehören diese zu 
+  verschiedenen $\sigma$-invarianten Teilmengen von $C\kl m$ (vgl. 
+  auch \thref{beispiel:zerfall_x21_1_1}) und folglich gehören auch
+  $\beta_f\in C\kl m$ bzw. $\beta_g\in C\kl m$ mit $\beta_f^t = \alpha_f$ bzw.
+  $\beta_g^t = \alpha_g$ zu verschiedenen und damit disjunkten
+  $\sigma$-invarianten Teilmengen von $\C\kl m$.
 \end{proof}
 
 %\begin{satz}

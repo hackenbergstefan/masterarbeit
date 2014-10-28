@@ -432,7 +432,7 @@ letztendlich normale Elemente) konstruieren wollen.
   Seien die Voraussetzungen wie in \thref{satz:q_ordnung_von_trace} und 
   sei wiederum $u$ eine primitive $(ml)$-te Einheitswurzel. 
   Für $g(x) \in F[x]$ gilt:
-  Ist $g(x)\cdot u \in E$, so gilt
+  Ist $[F(g(x)\cdot u) : F] = m$, so gilt
   \[ \Ord_q(g(x)\cdot u) \text{ ist ein monischer irreduzibler Teiler von }
     \Phi_m(x)\,. \]
 \end{satz}
@@ -590,8 +590,9 @@ Nun können wir obige Sätze beweisen.
   (wieder in Notation von \thref{satz:zerfall_f_x_s}), denn
   mit \thref{lemma:dickson:dickson_polynome_potenz} sehen wir, dass
   \[ D_n(\theta + a\theta\inv,a) -b \speq= \theta^n + a^n\theta^{-n} -b
-    \speq= \beta +a^n\beta\inv -b \speq= b - b\speq= 0\,,\]
-  also $\theta + a\theta\inv$ Grad $n$ über $F$ hat.
+    \speq= \beta +a^n\beta\inv -b \speq= b - b\speq= 0\]
+  und da $D_n(x,a)-b$ irreduzibel nach Voraussetzung, hat
+  $\theta + a\theta\inv$ Grad $n$ über $F$.
   %Da mit $\theta^l$ für $l \in R_q(n)$ alle irreduziblen Teilmoduln
   %%
   %\footnote{hier vielleicht noch ein Satz/Lemma/Bemerkung im vorherigen 
@@ -607,14 +608,41 @@ Nun können wir obige Sätze beweisen.
   %\theta^l+a^l\theta^{-l}$ schließt den Beweis ab.
   Wählen wir $1 \neq l \in R_q(n)$, so entspricht 
   $\Ord_q(\theta^l) = g(x^s)$ für einen monischen irreduziblen Teiler 
-  $g(x) \mid \Phi_m(x)$ mit $m\mid n$ und $\ggT(f,g) = 1$. Damit sind aber 
-  auch $\Ord_q(\theta+a\theta\inv)$ und $\Ord_q(\theta^l+a^l\theta^{-l})$ 
+  $g(x) \mid \Phi_m(x)$ mit $m\mid n$ und $\ggT(f,g) = 1$. 
+  Wegen $\theta^l+a^l\theta^{-l} = D_l(\theta+a\theta\inv,a)$ hat 
+  $\theta^l+a^l\theta^{-l}$ Grad kleiner oder gleich $n$ über $F$ 
+  (vgl. \thref{bem:grad_phi_l})
+  und damit sind auch
+  $\Ord_q(\theta+a\theta\inv)$ und $\Ord_q(\theta^l+a^l\theta^{-l})$ 
   nach \thref{satz:zerfall_f_x_s} (2) teilerfremd.
 \end{proof}
 
-
 \begin{bemerkung}
-  Man bemerke, dass in obigem Beweis $\theta + a\theta\inv$ lediglich eine
-  leichte Abwandlung von $\theta + \theta^{q^n} = \Tr_{E'\mid E}(\theta)$ ist!
-  Daher ist das Resultat vielleicht auch nicht besonders überraschend.
+  \label{bem:grad_phi_l}
+  In der Tag können wir sogar genau angeben, welchen Grad 
+  $\theta^l+a^l\theta^{-l}$ über $F$ hat: Es gilt nämlich offenbar
+  \[ D_{\frac{n}{\ggT(n,l)}}(\theta^l+a^l\theta^{-l},a)-b = 0\,. \]
 \end{bemerkung}
+
+
+Man bemerke, dass in obigem Beweis $\theta + a\theta\inv$ lediglich eine
+leichte Abwandlung von $\theta + \theta^{q^n} = \Tr_{E'\mid E}(\theta)$ ist!
+Daher ist das Resultat vielleicht auch nicht besonders überraschend und in
+Notation des vorherigen Abschnittes würde man die Aussagen vielleicht auf die
+folgende Art und Weise aufschreiben.
+
+\begin{satz}
+  Seien $F := \F_q$ ein endlicher Körper von Charakteristik $p$ und $m\in
+  \N^\ast$ ungerade mit $p\nmid m$ und $\nu(m)\mid q^2-1$. Sind $a,b\in F$, 
+  sodass $D_m(x,a)-b \in F[x]$ irreduzibel mit Nullstelle $\gamma \in E:=
+  \F_{q^m}$, so gilt:
+  \begin{enumerate}
+    \item $E = F(\gamma+a\gamma\inv)$,
+    \item Für alle $l\in R_q(m)$ mit $r_q(l\bmod m) = \ord_q(m)$ ist 
+      $\Ord_q(D_l(\gamma+a\gamma\inv,a))$ ist ein irreduzibler Teiler von
+      $\Phi_m(x)$.
+    \item Setze 
+      \[ v := \sum_{l\in R_q(m)} D_l(\gamma+a\gamma\inv,a)\,. \]
+      Dann ist $v \in E$ normal über $F$.
+  \end{enumerate}
+\end{satz}

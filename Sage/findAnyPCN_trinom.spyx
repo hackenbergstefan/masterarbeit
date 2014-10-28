@@ -44,7 +44,7 @@ def findAnyPCN_polynom(p,r,n):
                 if coeffNF.multiplicative_order() != F.order()-1: continue
                 primitives += [coeffNF]
                 f = Fx.gen()**n + coeffTF*Fx.gen()**(n-1) + coeffNF
-                print f
+                #print f
                 if not f.is_irreducible(): continue
                 for fac,mul in Ex(f.map_coefficients(h)).factor():
                     if fac.degree() == 1:
@@ -60,7 +60,7 @@ def findAnyPCN_polynom(p,r,n):
         else:
             for coeffNF in primitives:
                 f = Fx.gen()**n + coeffTF*Fx.gen()**(n-1) + coeffNF
-                print "not first:",f
+                #print "not first:",f
                 if not f.is_irreducible(): continue
                 for fac,mul in Ex(f.map_coefficients(h)).factor():
                     if fac.degree() == 1:

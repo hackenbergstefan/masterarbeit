@@ -175,12 +175,20 @@ Dies motiviert nachstehende Definition.
 %\end{proof} 
 
 \begin{definition}
+  \label{def:nebenklassen_mod_m}
   Für $m,q\in\N$ mit $\ggT(m,q) = 1$ und $j \in \Z_m$ definieren wir
-  \[ M_q(j\bmod m) \speq{:=} \{ j\,q^i \bmod m\mid i\in\N\} \speq= 
+  \[ M_q(j\bmod m) \speq{:=} \{ j\,q^i \bmod m:\ i\in\N\} \speq= 
     \{j,\ jq,\ jq^2,\ jq^3,\ldots\ \bmod m\}\]
   Ein vollständiges Repräsentantensystem von Nebenklassen von $M_q(1\bmod m)$
-  in $\Z_m$ sei mit $R_q(m)$ bezeichnet.
+  in $\Z_m$ sei mit $R_q(m)$ bezeichnet. Für $l \in M_q(j\bmod m)$ 
+  bezeichne ferner
+  $r_q(l \bmod m) := |\{lq^i:\ i\in \N \}|$ die Länge der zugehörigen Bahn.
 \end{definition}
+
+\begin{bemerkung}
+  Per Definition von $\ord_m(q)$ ist für $l\neq 0$
+  \[ r_q(l\bmod m) = \ord_{\frac{m}{\ggT(m,l)}}(q)\,. \]
+\end{bemerkung}
 
 
 \begin{beispiel}

@@ -670,7 +670,7 @@ def dickson(i,a, P):
 def gen_irred_dickson(n,P):
    F = P.base_ring();
    for a in F:
-       if a == 0 or a == 1: continue
+       #if a == 0 or a == 1: continue
        for b in F:
            if a == 0 or b == 0: continue;
            f = dickson(n,a,P) - b;

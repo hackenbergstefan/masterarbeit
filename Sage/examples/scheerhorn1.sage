@@ -78,7 +78,7 @@ print "\t", "D_"+str(n)+"("+str(th+a*th**(-1))+", "+str(a)+") = ",\
 # Splitting of cyclotomic Polynomials
 print "----------------------------------------"
 print "----- Splitting of Cyclotomic Polynomials"
-for i in divisors(s*n):
+for i in divisors(n)+map(lambda d: d*n,divisors(s)[1:]):
     phi = Fx.cyclotomic_polynomial(i).factor();
     print "Phi_"+i.str()+" = ", phi, "over F"
     sys.stdout.write("\t")

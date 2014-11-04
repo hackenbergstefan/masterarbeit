@@ -3,12 +3,18 @@
 
 In diesem Kapitel wollen wir ein paar grundlegende Resultate wiederholen, die
 dem Leser sicherlich bekannt sind. Daher werden wir die meisten Aussagen ohne
-Beweis lediglich zitieren.
+Beweis lediglich zitieren. Wir beginnen dabei bei der Gruppentheorie und
+zitieren einige Aussagen über zyklische Gruppen. Diese werden uns später
+helfen, die Untergruppe der (primitiven) Einheitswurzeln
+in \autoref{chap:kreisteilungspolynome} zu verstehen. Im anschließend Abschnitt
+rekapitulieren wir ein wenig die Galoistheorie von endlichen Körpern.
+Insbesondere wollen wir wiederholen, dass diese zyklisch ist und von einem
+speziellen Automorphismus erzeugt wird.
 
 \section{Ein wenig Gruppentheorie}
 
-Um später den Zerfall der Kreisteilungspolynome übe endlichen Körpern zu
-verstehen, wiederholen wir zunächst ein paar Aussagen über zyklische Gruppen.
+%Um später den Zerfall der Kreisteilungspolynome über endlichen Körpern zu
+%verstehen, wiederholen wir zunächst ein paar Aussagen über zyklische Gruppen.
 
 \autocite[Theorem 1.15]{lidl1997finite} fasst alle notwendigen Resultate
 zusammen.
@@ -24,7 +30,7 @@ zusammen.
   u    Ordnung $d$.
      \item Sei $f$ ein positiver Teiler der Gruppenordnung einer endlichen
         zyklischen Gruppe $\langle a \rangle$. Dann enthält $\langle a \rangle$
-        genau $\phi(f)$ Elemente der Ordnung $f$.
+        genau $\varphi(f)$ Elemente der Ordnung $f$.
      \item Eine zyklische Gruppe der Ordnung $m$ enthält genau $\varphi(m)$
         ($\varphi$ bezeichne die Eulersche Phifunktion)
         Erzeuger. Ist $a$ ein Erzeuger, so sind alle Erzeuger der Form
@@ -35,6 +41,14 @@ zusammen.
 Da wir später ein paar Eigenschaften der Eulerschen Phifunktion benötigen
 werden, wiederholen wir die wohlbekannte Definition der Eulerschen
 Phifunktion und geben wir dann die wichtigsten Rechenregeln an.
+
+
+\begin{definition}[Eulersche Phifunktion]
+  Die Funktion
+  \[ \varphi: \funcdef{\N^\ast &\to& \N^\ast,\\
+    n &\mapsto& |\{ a \in \N:\ 1\leq a\leq n,\ \ggT(a,n)=1 \}|}\]
+  heißt \emph{Eulersche $\varphi$-Funktion}.
+\end{definition}
 
 \begin{definition}[quadratfreier Teil]
   Sei $n \in \N$ und $n = p_1^{r_1}\cdot\ldots\cdot p_l^{r_l}$ seine
@@ -53,6 +67,35 @@ Phifunktion und geben wir dann die wichtigsten Rechenregeln an.
     \item $\varphi(a) = \tfrac{a}{\nu(a)}\varphi(\nu(a))$.
   \end{enumerate}
 \end{lemma}
+
+
+Zyklische Gruppen und endliche Körper hängen eng zusammen, da bekanntlich die
+multiplikative Gruppe eines endlichen Körpers immer zyklisch ist. Dies können
+wir nutzen, um Erzeugern (im Sinne der Gruppentheorie) der multiplikativen
+eines endlichen Körpers einen Namen zu geben.
+
+\begin{satz}
+  Die multiplikative Gruppe eines endlichen Körpers ist zyklisch.
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 2.8]{lidl1997finite}.
+\end{proof}
+
+
+\begin{definition}[primitiv]
+  \label{def:primitiv}
+  Sei $\F_q$ ein endlicher Körper. $u\in \F_q$ heißt \emph{primitiv} 
+  (oder \emph{primitives Element}), falls $\langle u \rangle = \F_q^\ast$, 
+  also $u$ ein Erzeuger der multiplikativen Gruppe $\F_q^\ast$ ist.
+\end{definition}
+
+
+\begin{bemerkung}
+  Es ist klar, dass $u\in \F_q$ genau dann primitiv ist, wenn 
+  $\ord(u) = q-1$, also seine gruppentheoretische Ordnung in $\F_q^\ast$ genau
+  der Gruppenordnung entspricht.
+\end{bemerkung}
+
 
 \section{Automorphismen über endlichen Körpern}
 
@@ -117,19 +160,19 @@ unabhängig sind. Dies gilt sogar in einem größeren Kontext:
 
 
 Mit \thref{satz:frob_sind_alle_autos} wird klar, dass für ein
-irreduzibles Polynom $f(X) \in \F_q[X]$, das in $\F_{q^n}$ eine Nullstelle 
+irreduzibles Polynom $f(x) \in \F_q[x]$, das in $\F_{q^n}$ eine Nullstelle 
 $\alpha$ besitzt, auch $\sigma^i(\alpha)$ für alle $i=1,\ldots,n-1$
 Nullstellen sind. 
 Ferner kann man sich relativ einfach überlegen, dass
-für ein irreduzibles Polynom $f(X)\in \F_q[X]$ eine Nullstelle 
-in $\F_{q^n}$ zu besitzen hinreichend ist, dass $f(X)$ vom Grad $n$ ist. 
+für ein irreduzibles Polynom $f(x)\in \F_q[x]$ eine Nullstelle 
+in $\F_{q^n}$ zu besitzen hinreichend ist, dass $f(x)$ vom Grad $n$ ist. 
 Beides fasst nachstehender Satz zusammen.
 
 \begin{satz}
   \label{satz:nst_irred_polys}
-  Ist $f(X) \in \F_q[X]$ ein irreduzibles Polynom vom Grad $n$. Dann 
-  existiert eine Nullstelle $\alpha$ von $f(X)$ in $\F_{q^n}$, alle 
-  Nullstellen von $f(X)$ sind einfach und gegeben durch
+  Ist $f(x) \in \F_q[x]$ ein irreduzibles Polynom vom Grad $n$. Dann 
+  existiert eine Nullstelle $\alpha$ von $f(x)$ in $\F_{q^n}$, alle 
+  Nullstellen von $f(x)$ sind einfach und gegeben durch
   \[ \alpha, \alpha^{q^2}, \ldots, \alpha^{q^{n-1}}\ \in \F_{q^n}\,.\]
 \end{satz}
 \begin{proof}

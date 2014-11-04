@@ -16,6 +16,7 @@ Charakteristik $p$ und $E := \F_{q^n} \mid F$ eine Körpererweiterung.
 Wir wiederholen kurz die Definition einer \emph{Normalbasis}.
 
 \begin{definition}[normales Element, normales Polynom, Normalbasis]
+  \label{def:normal}
   Sei $F$ ein Körper und $E \mid F$ eine endliche Galoiserweiterung von Grad
   $n$. Sei ferner $w\in E$ mit $F(w) = E$. $w$ heißt \emph{normal über $F$},
   falls
@@ -46,6 +47,7 @@ Modulstruktur einer Körpererweiterung lesen lässt.
 \end{proof}
 
 \begin{kor}
+  \label{kor:summe_erzeuger_normal}
   Sei $x^n-1 = \prod_{i=1}^s r_i(x)$ eine Zerlegung in paarweise teilerfremde
   Polynome. Seien ferner $u_i \in V_{r_i}$ Elemente mit 
   $\Ord_q(u_i) = r_i(x)$ $\forall i=1,\ldots,s$. Dann ist
@@ -358,7 +360,9 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
   \end{enumerate}
 \end{satz}
 \begin{proof}
-  \TODO
+  \begin{enumerate}
+    \item Zunächst stellen wir fest, dass 
+  \end{enumerate}
 \end{proof}
 
 Nun haben wir also Elemente mit $q$-Ordnung $\Phi_m(x^s)$ gefunden. Es stellt
@@ -519,10 +523,112 @@ Auch für reguläre Erweiterungen wollen wir ein Analogon von
 
 
 \section{Normalbasen mit Dickson-Polynomen}
+
+\begin{definition}[Dickson-Polynom]
+  Sei $n \in \N^\ast$. Für $a \in \F_q$ definieren wir das
+  \emph{$n$-te Dickson-Polynom erster Art über $\F_q$} 
+  (hier auch nur \emph{$n$-tes Dickson-Polynom}) als
+  \[ D_n(x,a) \speq{:=} \sum_{i=0}^{\lfloor\frac n 2\rfloor} \frac{n}{n-i}
+    \binom{n-i}{i} (-a)^i x^{n-2i}\,.\]
+  Das \emph{$n$-te Dickson-Polynom zweiter Art über $\F_q$} ist gegeben durch
+  \[ E_n(x,a) \speq{:=} \sum_{i=0}^{\lfloor\frac n 2\rfloor} 
+    \binom{n-i}{i} (-a)^i x^{n-2i}\,.\]
+\end{definition}
+
+\begin{bemerkung}
+  Über den komplexen Zahlen sind die Dickson-Polynome 
+  nahe verwandt mit den
+  Chebyshev-Polynomen, wie man z.B. in \autocite[Absatz nach Corollary
+  7.15]{lidl1997finite} nachlesen kann.
+  Über endlichen Körpern liefern sie eine spezielle Klasse von
+  Permutations-Polynomen (vgl. \autocite[Theorem 7.16]{lidl1997finite}, 
+  \autocite[Section 9.6]{mullen2013handbook}).
+\end{bemerkung}
+
+Die Dickson-Polynome erfüllen einige interessante Eigenschaften, 
+welche wir im Folgenden zitieren wollen.
+
+\begin{satz}
+  \label{satz:dickson_1}
+   Seien $n\in \N^\ast$ und $a,y\in \F_q$ beliebig, so gilt
+  \[ D_n(y+ay\inv, a) \speq= y^n +a^ny^{-n}\,.\]
+\end{satz}
+\begin{proof}
+  \autocite[Gleichung (7.8)]{lidl1997finite}.
+\end{proof}
+
+\begin{satz}
+  \label{satz:dickson_2}
+  Sei $a \in F_q$. Die Dickson-Polynome erster und zweiter Art 
+  erfüllen für alle $n\geq 2$ folgende Rekursionsgleichungen:
+  \begin{align*}
+    D_n(x,a) &\speq= xD_{n-1}(x,a) - a D_{n-2}(x,a) \,, \\
+    E_n(x,a) &\speq= xE_{n-1}(x,a) - a E_{n-2}(x,a)
+  \end{align*}
+  mit den Startwerten $D_0(x,a) = 2$ und $D_1(x,a)=x$ bzw.
+  $E_0(x,a) = 1$ und $E_1(x,a) = x$. Ferner gilt
+  \[ D_mn(x,a) \speq= D_m(D_n(x,a),a^n)\]
+\end{satz}
+\begin{proof}
+  \autocite{??}
+\end{proof}
+
+Ferner können wir eine  relativ einfache Charakterisierung angeben, wann ein
+Polynom der Form $D_n(x,a)-b$ irreduzibel ist.
+
+\begin{satz}
+  \label{satz:dickson_irred}
+  Seien $n\geq 2$ eine ganze Zahl und $a,b \in \F_q$ mit $a \neq 0$.
+  Seien
+  \[ x^2 + bx +a^n \speq= (x-\beta_1)(x-\beta_2), \qquad 
+    \beta_1,\beta_2 \in \F_{q^2}\]
+  und $e_i = \ord(\beta_i)$ für $i=1,2$. Es ist
+  \[ D_n(x,a) + b \]
+  irreduzibel genau dann, wenn für sowohl (1), als auch (2) für $i=1,2$ erfüllt
+  sind:
+  \begin{enumerate}
+    \item Jeder ungerade Primteiler von $n$ teilt $e_i$, jedoch nicht
+      $\tfrac{q^2-1}{e_i}$.
+    \item Ist $n$ gerade, so ist $\charak \F_q$ ungerade und eine der beiden
+      folgenden Aussagen gilt:
+      \begin{enumerate}[label=(\arabic*')]
+        \item $b^2-4a^n \neq 0$ ist ein quadratischer Rest in $\F_q$, $2\mid e_i$
+          und falls $4\mid n$, so $4 \mid (q-1)$.
+        \item $b^2-4a^n$ ist ein quadratischer Nichtrest in $\F_q$,
+          $-b-2a^\frac n 2$ ist ein quadratischer Rest in $\F_q$, 
+          $2 \mid \tfrac{q^2-1}{e_i}$ und falls $4\mid n$, so $2\mid e_i$, 
+          aber nicht $\tfrac{q^2-1}{2e_i}$.
+      \end{enumerate}
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 4]{gao1994}
+\end{proof}
+
+Da die weiteren Aussagen lediglich für ungerade Erweiterungen bewiesen werden,
+wollen wir obigen Satz in einer handlicheren Form für unsere Zwecke noch einmal
+verfassen.
+
+\begin{kor}
+  \label{kor:dickson_irred}
+  Seien $n\geq 3$ eine ungerade ganze Zahl und $a,b\in \F_q^\ast$. Seien
+  \[ x^2 - bx +a^n \speq= (x-\beta_1)(x-\beta_2), \qquad 
+    \beta_1,\beta_2 \in \F_{q^2}\]
+  und $e_i = \ord(\beta_i)$ für $i=1,2$. Es ist
+  \[ D_n(x,a) - b \]
+  irreduzibel genau dann, wenn $\nu(n)\mid e_i$, aber 
+  $\nu(n)\nmid \tfrac{q^2-1}{e_i}$ für $i=1,2$.
+\end{kor}
+
+
 \citeauthor{scheerhorn:1996} zeigt in
 \autocites{scheerhorn:1996}{scheerhorn:1997}, dass sich Dickson-Polynome
-eignen, um Normalbasen zu beschreiben. Insbesondere zeigt er die beiden
-folgenden Resultate.
+eignen, um Normalbasen zu beschreiben. Im weiteren Verlauf werden wir sogar
+sehen, dass man daraus vollständig normale Polynome, also Polynome, deren
+Nullstellen vollständig normale Elemente (\thref{def:vollst_normal}) sind,
+konstruieren lassen. Alle Folgerungen über (vollständig) normale Polynome
+basieren jedoch auf zwei zentralen Resultaten über die Modulstruktur der
+betrachteten Erweiterungskörper, wie die beiden nachstehenden Sätze angeben.
 
 \begin{satz}[{\autocite[Theorem 2]{scheerhorn:1997}}]
   \label{satz:scheerhorn1}
@@ -539,36 +645,41 @@ folgenden Resultate.
 \end{satz}
 
 \begin{satz}[{\autocite[Theorem 3]{scheerhorn:1997}}] 
+  \marginpar{Genauere Betrachtung, warum $x^2+bx+a^n$ hier nicht irreduzibel
+  ist!?}
   \label{satz:scheerhorn2}
   Seien $n\geq 3$ ein Produkt ungerader Primzahlen von $(q-1)$ und
   $a,b \in \F_q =: F$, so dass $D_n(x,a)-b\in F[x]$ irreduzibel ist.
   Seien ferner $x^2+bx +a^n = (x-\beta)(x-a^n\beta\inv) \in \F_q$ und
-  $\theta \in \F_{q^n}$ eine Wurzel von $x^n-\beta$. Ist schießlich
-  $\gamma\in \F_{q^n}$ eine Wurzel von $D_n(x,a) -b$, so gilt für
+  $\theta \in \F_{q^n}$ eine Wurzel von $x^n-\beta$. Setze 
+  $\gamma := \theta + a\theta\inv$, so gilt für 
   $l\in R_q(n) \setminus\{0\}$
   \[ \langle \theta^l\rangle_q \oplus \langle \theta^{n-l}\rangle_q
   \speq= \langle D_l(\gamma,a)\rangle_q\]
 \end{satz}
 
-Wir wollen nun im Folgenden zeigen, dass dies relativ einfach aus der
-allgemeinen Theorie aus dem vorherigen Abschnitt folgt.
-Zunächst brauchen wir jedoch eine wesentliche Eigenschaft der Dickson-Polynome.
-
-\begin{lemma}[{??}]
-  \label{lemma:dickson:dickson_polynome_potenz}
-  Es gilt $D_n(x+a x\inv,a) = x^n + a^n x^{-n}$.
-\end{lemma}
-
-Nun können wir obige Sätze beweisen.
+In \autocite{scheerhorn:1996}{scheerhorn:1997} werden die Beweise dieser
+Resultate ohne Zuhilfenahme der allgemeinen Theorie über (stark) reguläre
+Erweiterungen geführt, wie wir sie im letzten Abschnitt kennengelernt haben.
+Wir wollen uns nun im Folgenden überlegen, dass die Theorie der vorherigen
+Abschnitte an diesem Punk ein besseres Verständnis der Struktur der Zerlegung 
+des Erweiterungskörpers in Teilmoduln liefert. Ferner sind wir in der Lage
+das vielleicht überraschende Auftauchen von Dickson-Polynomen im Kontext
+(vollständig) normaler Elemente zu rechtfertigen und die benötigten 
+Eigenschaften herzuleiten, welche an diesem Punkt eine zentrale Rolle spielen
+und die Verwendung der Dickson-Polynome motivieren.
 
 \begin{proof}[von \thref{satz:scheerhorn1}]
   Betrachten wir die vorliegende Situation, so sehen wir, dass
   $s := \ord_{\nu(n)}(q) = 2$ und damit $n \in \S_{q^2}$.
-  Nach \thref{} ist $x^2 +bx+a^n \in F[x]$ irreduzibel. Sei 
-  $x^2+bx+a^n = (x -\beta)(x -a^n\beta\inv)$ über $K := \F_{q^2}$.
-  Dann ist $x^n-\beta \in \F_{q^2}[x]$ irreduzibel.
+  Sei nun 
+  $x^2-bx+a^n = (x -\beta)(x -a^n\beta\inv)$ über $K := \F_{q^2}$.
+  Dann ist 
+  nach \thref{satz:binom_irreduzibel} und \thref{satz:binom_irreduzibel_aquiv} 
+  $x^n-\beta \in \F_{q^2}[x]$ irreduzibel.
   Ist dann $\theta \in \F_{q^{2n}} =: E'$ eine Wurzel, so wissen wir nach
-  \thref{satz:gao1} und \thref{lemma:hoehere_wurzeln_auch_erzeuger_reg}, dass
+  \thref{satz:gao1} und \thref{lemma:hoehere_wurzeln_auch_erzeuger_reg}
+  ($\theta$ ist eine $(n\ord(\beta))$-te primitive Einheitswurzel), dass
   $\Ord_q(\theta) = f(x^s)$ für einen irreduziblen Teiler $f(x)$ von
   $\Phi_n(x)$ über $F$. 
   %Nach \thref{satz:q_ordnung_von_trace}
@@ -588,10 +699,10 @@ Nun können wir obige Sätze beweisen.
     \Ord_q((1+ax^n)\cdot \theta) \speq= f_{1,1}(x)\]
   für einen monischen, irreduziblen Teiler $f_{1,1}(x)$ von $\Phi_n(x)$
   (wieder in Notation von \thref{satz:zerfall_f_x_s}), denn
-  mit \thref{lemma:dickson:dickson_polynome_potenz} sehen wir, dass
+  mit \thref{satz:dickson_1} sehen wir, dass
   \[ D_n(\theta + a\theta\inv,a) -b \speq= \theta^n + a^n\theta^{-n} -b
     \speq= \beta +a^n\beta\inv -b \speq= b - b\speq= 0\]
-  und da $D_n(x,a)-b$ irreduzibel nach Voraussetzung, hat
+  und da $D_n(x,a)-b \in F[x]$ irreduzibel nach Voraussetzung, hat
   $\theta + a\theta\inv$ Grad $n$ über $F$.
   %Da mit $\theta^l$ für $l \in R_q(n)$ alle irreduziblen Teilmoduln
   %%
@@ -620,29 +731,185 @@ Nun können wir obige Sätze beweisen.
 \begin{bemerkung}
   \label{bem:grad_phi_l}
   In der Tag können wir sogar genau angeben, welchen Grad 
-  $\theta^l+a^l\theta^{-l}$ über $F$ hat: Es gilt nämlich offenbar
-  \[ D_{\frac{n}{\ggT(n,l)}}(\theta^l+a^l\theta^{-l},a)-b = 0\,. \]
+  $\theta^l+a^l\theta^{-l}$ über $F$ hat: Ist $l\mid n$, 
+  so hat $\theta^l+a^l\theta^{-l}$ Grad $\tfrac n l$ über $F$, denn nach
+  \thref{satz:dickson_2} ist
+  \[ \F_q\ \ni\ D_n(\theta + a \theta\inv, a) \speq= 
+    D_{\frac n l}\big( D_l(\theta+a\theta\inv,a),\, a^l\big) \speq=
+    D_{\frac n l}\big(\theta^l + a^l \theta^{-l}, a^l\big)\,.\]
+ \TODO
 \end{bemerkung}
 
 
-Man bemerke, dass in obigem Beweis $\theta + a\theta\inv$ lediglich eine
-leichte Abwandlung von $\theta + \theta^{q^n} = \Tr_{E'\mid E}(\theta)$ ist!
-Daher ist das Resultat vielleicht auch nicht besonders überraschend und in
-Notation des vorherigen Abschnittes würde man die Aussagen vielleicht auf die
-folgende Art und Weise aufschreiben.
+\begin{proof}[von \thref{satz:scheerhorn2}]
+  Im Grunde brauchen wir nichts zu zeigen, wenn wir uns überlegen, dass
+  hier $n$ stark regulär ist! Nach \thref{lemma:hoehere_wurzeln_auch_erzeuger}
+  ist dann $\Ord_q(\theta)$ ein irreduzibler monischer Teiler von $x^n-1$. Also
+  werden alle irreduziblen Teilmoduln von $\F_{q^n}$ von $\theta^l$ mit 
+  $l\in \R_q(n)$ erzeugt.  Wie im Beweis von \thref{satz:scheerhorn1} ist
+  natürlich 
+  \[ D_n(\theta+a\theta\inv,a)-b \speq= 0 \quad\text{und}\quad
+    D_l(\theta+a\theta\inv,a) \speq= \theta^l+a^l\theta^{-l},\ l=1,\ldots,n\,. \]
+  Letztlich überlege man sich, dass $\Ord_q(a^l\theta^{-l}) =
+  \Ord_q(\theta^{n-l})$, da $a \in F$. 
+\end{proof}
+
+
+Man bemerke, dass im Beweis von \thref{satz:scheerhorn1}
+$\theta + a\theta\inv$ lediglich eine
+Abwandlung von $\theta + \theta^{q^n} = \Tr_{E'\mid E}(\theta)$ ist!
+Daher ist das Resultat vielleicht auch nicht besonders überraschend,
+da wir in \thref{satz:q_ordnung_von_trace} erkannt haben, wie die Spurfunktion
+zur Konstruktion von normalen Elementen in regulären Erweiterungen zentral ist.
+In Notation des vorherigen Abschnittes würde man die beiden Sätze von
+Scheerhorn vielleicht auf die folgende Art und Weise aufschreiben. 
+Insbesondere erlaubt es die Theorie aus den vorherigen Abschnitten, den Fall
+$\nu(n)\mid (q-1)$ zu erweitern, um auch dort (unter leichten
+Zusatzvoraussetzungen) ein normales Element zu konstruieren.
 
 \begin{satz}
+  \label{satz:scheerhorn_erweitert}
   Seien $F := \F_q$ ein endlicher Körper von Charakteristik $p$ und $m\in
-  \N^\ast$ ungerade mit $p\nmid m$ und $\nu(m)\mid q^2-1$. Sind $a,b\in F$, 
-  sodass $D_m(x,a)-b \in F[x]$ irreduzibel mit Nullstelle $\gamma \in E:=
-  \F_{q^m}$, so gilt:
+  \N^\ast$ ungerade mit $p\nmid n$ und $\nu(n)\mid q^2-1$. Sind $a,b\in F$, 
+  sodass $D_n(x,a)-b \in F[x]$ irreduzibel mit Nullstelle $\gamma \in E:=
+  \F_{q^n}$, so gilt:
   \begin{enumerate}
-    \item $E = F(\gamma+a\gamma\inv)$,
-    \item Für alle $l\in R_q(m)$ mit $r_q(l\bmod m) = \ord_q(m)$ ist 
-      $\Ord_q(D_l(\gamma+a\gamma\inv,a))$ ist ein irreduzibler Teiler von
+    \item $E = F(\gamma)$,
+    \item Ist $\nu(n)\mid (q+1)$, so gilt:
+      Für alle $l\in R_q(n)$ mit $r_q(l\bmod n) = \ord_q(m)$ 
+      für einen Teiler $m$ von $n$ ist 
+      $\Ord_q(D_l(\gamma,a))$ ist ein irreduzibler Teiler von
       $\Phi_m(x)$.
     \item Setze 
-      \[ v := \sum_{l\in R_q(m)} D_l(\gamma+a\gamma\inv,a)\,. \]
-      Dann ist $v \in E$ normal über $F$.
+      \[ v := \sum_{l\in R_q(n)} D_l(\gamma,a)\,. \]
+      Dann ist $v \in E$ normal über $F$, falls
+      $\nu(n)\mid (q+1)$ oder $a^l\neq -1$ für alle $l \in R_q(n)$.
   \end{enumerate}
 \end{satz}
+\begin{proof}
+  Für $\nu(n)\mid (q+1)$ liegt gerade \thref{satz:scheerhorn1} vor und es gibt
+  nichts mehr zu zeigen. Aussage (2) haben wir uns bereits in
+  \thref{bem:grad_phi_l} überlegt.
+  Für $\nu(n)\mid (q-1)$ bleibt anzugeben, warum $v$ normal über $F$ ist, wenn
+  $a^l\neq -1$ für alle $l\in R_q(n)$. 
+  Da in $v$ gerade je zwei Erzeuger pro irreduziblem Teilmodul von $E$
+  vorkommen, ist sicherzustellen, dass diese sich nicht gegenseitig aufheben:
+  Existierte $a^l = -1$ für ein $l\in R_q(n)$, so wäre
+  \[ \theta^{n-l} + a^l\theta^{n-l} \speq= 0\,.\]
+\end{proof}
+
+
+\subsection{Normale und vollständig normale Polynome mit
+  Dickson-Polynomen}
+
+Mit Hilfe dieser Resultate lassen sich nun relativ einfach vollständig normale
+Polynome angeben, wie sie in \autocite[Section 3]{scheerhorn:1997} und 
+\autocite[Section 4]{scheerhorn:1996} zu finden sind. Ihre Beweise beinhalten
+keine besondere Beachtung der Modulstrukturen und sollen daher hier nur
+nachvollzogen werden.
+Zunächst brauchen wir jedoch eine Transformation eines Polynoms, welches gerade
+die Nullstellen desselbigen invertiert.
+
+\begin{definition}[reziprokes Polynom]
+  Sei $f(x) \in \K[x]$ ein Polynom über einem Körper $\K$. Dann heißt
+  \[ f^\ast(x) \speq{:=} \tfrac{1}{f(0)}\, x^{\deg f}\, f(\tfrac 1 x)
+    \quad \in \K[x] \]
+  \emph{reziprokes Polynom von $f(x)$}.
+\end{definition}
+
+\begin{bemerkung}
+  Man bemerke, dass das reziproke Polynom stets monisch ist.
+\end{bemerkung}
+
+\begin{bemerkung}
+  Ist $u$ eine Nullstelle von $f(x)$, so ist $u\inv$ eine Nullstelle von 
+  $f^\ast(x)$, wie man sofort erkennen kann.
+\end{bemerkung}
+
+\begin{satz}[{\autocite[Theorem 4]{scheerhorn:1997}}]
+  \label{satz:scheerhorn3}
+  Seien $n\geq 3$ ein Produkt aus ungeraden Primteilern von $(q+1)$ und
+  $D_n(x,a)-b \in \F_q[x]$ irreduzibel. Seien ferner $s,t\in \F_q$ mit
+  $s\neq 0$. Dann ist
+  \[ \big(D_n(sx+t,a)-b\big)^\ast\]
+  normal über $\F_q$ genau dann, wenn für jedes $l\in R_q(n)$ ein
+  $i\in M_q(l\bmod n)$ existiert, so dass $E_{n-1-i}(t,a)\neq 0$.
+\end{satz}
+\begin{proof}
+  Setzen wir wieder $x^2-bx+a^n = (x-\beta)(x-a^n\beta\inv)$ über $\F_{q^2}$
+  wie im Beweis von \thref{satz:scheerhorn1} mit $\theta \in \F_{q^{2n}}$ einer
+  Nullstelle von $x^n-\beta$, so erkennen wir, dass
+  $s(\theta-t+a\theta\inv)\inv$ eine Nullstelle von 
+  $\big(D_n(sx+t,a)-b\big)^\ast$ ist.
+  Dort haben wir ebenfalls gesehen, dass
+  $\{ 1\} \cup \{\theta^l+a^l\theta^{-l}:\ l=1,\ldots,n-1\}$ eine 
+  $\F_q$-Basis von $F_{q^n}$ bildet. Offensichtlich ist
+  $s(\theta-t+a\theta\inv)\inv$ genau dann normal über $\F_q$, wenn
+  $(\theta+t+a\theta\inv$ normal über $\F_q$ ist. Also überlegen wir uns,
+  für welche $\alpha = a_0 + \sum_{i=1}^{n-1} a_i(\theta^i+a^i\theta^{-i})$
+  das Produkt $\alpha(\theta-t+a\theta\inv)$ in $\F_q^\ast$ liegt.
+  Durch Ausmultiplizieren erkennt man, dass die Koeffizienten $a_i$ gerade 
+  die Rekursionsgleichung der Dickson-Polynome zweiter Art erfüllen müssen 
+  (siehe \autocite[Beweis zu Theorem 4]{scheerhorn:1997} für die konkrete
+  Rechnung). Damit ist $\alpha(\theta-t+a\theta\inv) \in \F_q^\ast$, falls
+  \[ \alpha \speq= E_{n-1}(t,a) + \sum_{i=1}^{n-1} E_{n-1-i}(t,a)
+    (\theta^ia^i\theta^{-i})\,.\]
+  Die Aussage folgt dann sofort mit \thref{satz:scheerhorn1} 
+  (oder \thref{satz:scheerhorn_erweitert})
+\end{proof}
+
+
+Ferner können wir genau diese Folgerung benutzen, um vollsändig normale
+Polynome, also solche, die über jedem Zwischenkörper normal sind, anzugeben.
+
+\begin{satz}[{\autocite[Theorem 5]{scheerhorn:1997}}]
+  \label{satz:scheerhorn4}
+  Seien $n\geq 3$ ein Produkt aus ungeraden Primteilern von $(q+1)$ und
+  $D_n(x,a)-b \in \F_q[x]$ irreduzibel. Seien ferner $s,t\in \F_q$ mit
+  $s\neq 0$. Ist $d$ ein Teiler von $n$, so ist
+  \[ \big(D_n(sx+t,a)-b\big)^\ast\]
+  normal über $\F_{q^d}$ genau dann, wenn für jedes 
+  $l\in R_{q^d}(\tfrac n d)$ ein
+  $i\in M_{q^d}(l\bmod \tfrac n d)$ existiert, so dass 
+  $E_{\frac n d -1-i}(t,a)\neq 0$.
+\end{satz}
+\begin{proof}
+  Wie wir uns bereits in \thref{bem:grad_phi_l} überlegt haben, hat
+  $\theta^{\frac n d}+a^{\frac n d} \theta^{-\frac n d}$ Grad $\tfrac n d$ über 
+  $\F_q$ und das Minimalpolynom von 
+  $(\theta -t+a\theta\inv)$ über $F_{q^d}$ ist 
+  $D_{\frac n d}(x+t,a) - (\theta^{\frac n d}+a^{\frac n d}\theta^{-\frac n
+  d})$. Dann folgt die Aussage analog zu vorherigem Satz.
+\end{proof}
+
+
+Nun lassen sich einige Korollare ziehen, in denen spezielle Werte für $a,b,s,t$
+dazu führen, dass die geforderten Eigenschaften aus 
+\thref{satz:scheerhorn3} bzw. \thref{satz:scheerhorn4} erfüllt sind.
+Diese werden wir hier nicht beweisen und der Leser sei auf
+\autocite{scheerhorn:1997} verwiesen.
+
+
+\begin{kor}
+  Sei $n\geq 3$ ein Produkt ungerader Primfaktoren von $(q-1)$ und sei
+  $D_n(x,a) -b$ irreduzibel über $\F_q$. Ist ferner $n\nequiv 0 \bmod 3$, so
+  ist
+  \[ \big(D_n(x\pm 1,1) -b\big)^\ast\]
+  ein vollständig normales Polynom über $\F_q$.
+\end{kor}
+\begin{proof}
+  \autocite[Corollary 2]{scheerhorn:1997}.
+\end{proof}
+
+\begin{kor}
+  Sei $n\geq 3$ ein Produkt ungerader Primfaktoren von $(q-1)$ und sei
+  $D_n(x,a) -b$ irreduzibel über $\F_q$. Dann ist
+  \[ \big(D_n(x\pm 2,1) -b\big)^\ast\]
+  ein vollständig normales Polynom über $\F_q$.
+\end{kor}
+\begin{proof}
+  \autocite[Corollary 3]{scheerhorn:1997}.
+\end{proof}
+
+
+

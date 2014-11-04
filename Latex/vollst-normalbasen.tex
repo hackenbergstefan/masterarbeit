@@ -3,19 +3,33 @@
 In den vorherigen Kapiteln haben wir einige Resultate zu Normalbasen kennen
 gelernt. Es stellt sich jedoch ganz natürlich die Frage, ob dieser Begriff
 nicht erweitert werden kann: Für eine Körpererweiterung $E$ über $F$ existieren
-im Allgemeinen Zwischenkörper $F \mid K \mid E$, so wollen wir untersuchen,
+im Allgemeinen Zwischenkörper $E \mid K \mid F$, so wollen wir untersuchen,
 ob ein Element $w \in E$, welches normal über $F$ ist, auch normal über allen
-Zwischenkörpern bleibt. Diese Eigenschaft verdient einen eigenen Namen:
+Zwischenkörpern bleibt. Solche Elemente wollen wir \emph{vollständig normal}
+nennen. Ähnlich zu normalen Elementen kann man mit Hilfe der Modulstrukturen
+von Körpererweiterungen eine Theorie aufbauen, die es erlaubt, vollständig
+normale Elemente in vollständige Erzeuger (\thref{def:vollst_erzeuger}) zu
+zerlegen, wie es für normale Elemente aus \thref{kor:summe_erzeuger_normal}
+kennt. Hachenberger konnte in \autocite{hachenberger1997finite} ausarbeiten, wie
+die simultan auftretenden Modulstrukturen zu behandeln sind. Wir wollen hier
+die zentralen Resultate lediglich ohne Beweise zitieren. Eine ebenfalls gute
+Übersicht dazu findet man in \autocite[Section 5.4]{mullen2013handbook}.
+Wir beginnen bei der grundlegendsten Definition, die sich ja bereits in der
+Kapitelüberschrift wiederfinden lässt.
 
 \begin{definition}[vollständig normal]
   Sei $E \mid F$ eine Körpererweiterung endlicher Körper $E$ über $F$.
   $w\in E$ heißt \emph{vollständig normal}, falls $w$ normal über jedem
   Zwischenkörper $E \mid K\mid F$ ist.
+
+  Die Begriffe \emph{vollständige Normalbasis}, \emph{vollständig normales
+  Polynom} sind analog zu \thref{def:normal} zu setzen.
 \end{definition}
 
-Ungeklärt ist in diesem Moment, ob überhaupt vollständig normale Elemente
-existieren. Greifen wir auf das zurück, was wir über normale Elemente wissen,
-so treffen wir folgende Definition und erkennen 
+Ein besonders trivialer Fall würde auftreten, wenn bereits alle normalen
+Elemente eine Körpererweiterung auch vollständig normal wären. Man kann zeigen,
+dass dies in der Tat unter gewissen Bedingungen auftreten kann und verleiht
+dieser Konstellation den Namen \emph{einfach}.
 
 \begin{definition}[einfach]
   \label{def:einfach}
@@ -37,6 +51,20 @@ so treffen wir folgende Definition und erkennen
       $\ord_{(\frac m r)'}(q)$.
   \end{enumerate}
 \end{satz}
+\begin{proof}
+  \autocite[Corollary 15.8]{hachenberger1997finite}.
+\end{proof}
+
+
+Im Abschnitt über normale Elemente konnten wir herausarbeiten, dass die
+Zerlegung von $x^n-1$ in Kreisteilungspolynome eine guter Startpunkt ist, um
+normale Elemente zu konstruieren und die Modulstrukturen zu beschreiben. Jedoch
+zeigt es sich, dass im Allgemeinen ein Element, dessen $q$-Ordnung einem
+Kreisteilungspolynom entspricht, eine $q^d$-Ordnung für einen Teiler $d$ von
+$n$ besitzt, die kein reines Kreisteilungspolynom mehr ist. 
+Also muss eine passende Klasse von Polynomen gefunden werden, um die
+verschiedenen simultan auftauchenden $q^d$-Ordnungen zu erfassen: 
+\emph{verallgemeinerte Kreisteilungspolynome}.
 
 \begin{definition}[verallgemeinertes Kreisteilungspolynom]
   Sei $F$ ein endlicher Körper. Seien $k,t\geq 1$ natürliche Zahlen und 
@@ -84,14 +112,28 @@ so treffen wir folgende Definition und erkennen
   Sei $\Delta$ eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte
   Kreisteilungspolynome über $F$.
   Dann heißt $\Delta$ 
-  \emph{verträgliche Zerlegung} falls gilt: Sei für jedes 
-  $(l,s) \in i(\Delta)$
+  \emph{verträgliche Zerlegung} falls gilt: Für jedes 
+  $(l,s) \in i(\Delta)$ sei
   $w_{l,s} \in \bar F$ ein vollständiger Erzeuger von 
   $\C_{l,s}$ über $F$,
   so ist 
   \[ w = \sum_{(l,s) \in i(\Delta)} w_{l,s} \]
   ein vollständiger Erzeuger von $\C_{k,t}$ über $F$.
 \end{definition}
+
+
+Nun können wir den einen zentralen Satz formulieren, der eine passende
+Zerlegung eines erweiterten Kreisteilungspolynoms herstellt, so dass sich ein
+vollständiger Erzeuger als Summe von vollständigen Erzeugern der entsprechenden
+Teilmoduln zusammensetzen lässt. Man bemerke an dieser Stelle, dass das Problem
+der vollständigen Erzeuger (und damit der vollständigen Normalbasen) ungleich
+schwerer ist, als das der normalen Elemente, da sich dort Elemente 
+mit teilerfremden $q$-Ordnungen \emph{immer} zu einem Element summieren, dessen
+$q$-Ordnung gerade das Produkt der $q$-Ordnungen ist 
+(vgl. \thref{satz:zerlegungssatz_zykl_vektorraume}); mit anderen Worten 
+also die Summe von Erzeugern disjunkter Teilmoduln stets wieder einen Erzeuger
+liefert. Dies ist bei vollständigen Erzeugern nur bedingt gegeben, wie
+nachstehender Zerlegungssatz beschreibt.
 
 \begin{satz}[Zerlegungssatz für verallgemeinerte Kreisteilungsmoduln]
   \label{satz:zerlegungssatz}
@@ -112,14 +154,26 @@ so treffen wir folgende Definition und erkennen
   \[ r^a \nmid \ord_{\nu(kt')}(q) \]
   mit $a = \max\{ b\in \N: r^b \mid t\}$.
 \end{satz}
+\begin{proof}
+  \autocite[Decomposition Theorem, Section 19]{hachenberger1997finite}.
+\end{proof}
 
 
+Sicherlich kann man sich nun fragen, in welchen Fällen die kanonische Zerlegung
+von eines erweiterten Kreisteilungspolynoms in Kreisteilungspolynome noch
+verträglich ist. Nach \autocite[Theorem 19.10]{hachenberger1997finite} 
+ist die kanonische Zerlegung von $\Phi_{k,t}(x)^\pi$ verträglich über 
+$\F_q$, falls $\ord_{\nu(kt')}(q)$ und $t'$ teilerfremd sind. Dies motiviert
+dieser Klasse von Kreisteilungsmoduln einen eigenen Namen zu geben:
 
 \begin{definition}[regulär]
   \label{def:regulaer}
   Ein verallgemeinerter Kreisteilungsmodul $\C_{k,t}$ 
-  mit $\ggT(k,t)=1$ heißt \emph{regulär},
+  mit $\ggT(k,t)=1$ heißt \emph{regulär} über $\F_q$,
   falls $\ord_{\nu(k\,t')}(q)$ und $k\,t$ teilerfremd sind.
+
+  Eine Körpererweiterung $\F_{q^m} \mid \F_q$ heißt \emph{regulär}, falls
+  $\C_{1,m}$ regulär ist.
 \end{definition}
 
 
@@ -134,6 +188,18 @@ so treffen wir folgende Definition und erkennen
     \item $\ord_{2^c}(q) = 2$.
   \end{itemize}
 \end{definition}
+
+
+Hachenberger war es nun möglich, für reguläre Kreisteilungsmoduln zu beweisen,
+dass alle auftretenden Zwischenkörper, deren Betrachtung bei der Suche nach
+vollständigen Erzeugern notwendig ist, von einem einzigen 
+Zwischenkörper (oder zwei Zwischenkörpern) dominiert werden. Das bedeutet, dass
+ein Element eines regulären Kreisteilungsmoduls maximal zwei bestimmte
+$q^\bullet$-Ordnungen besitzen muss, um bereits den Kreisteilungsmodul
+vollständig zu erzeugen. Die
+geforderten $q^\bullet$-Ordnungen werden durch nachstehende Definition gegeben
+und wir schließen dieses Kapitel mit der Angabe dieses wahrlich beachtlichen
+Resultats.
 
 \begin{definition}[$\tau$-Teiler]
   Sei $\C_{k,p^b}$ ein regulärer verallgemeinerter Kreisteilungsmodul über
@@ -162,3 +228,6 @@ so treffen wir folgende Definition und erkennen
         \Ord_{q^{2\tau}}(u) \speq= \Phi_{\frac{k}{2\tau},\, p^b}\,.\]
   \end{enumerate}
 \end{satz}
+\begin{proof}
+  \autocite[Theorem 20.3]{hachenberger1997finite}.
+\end{proof}

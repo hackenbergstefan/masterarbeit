@@ -1,0 +1,206 @@
+\chapter{Enumeration primitiv vollständig normaler Elemente}
+
+In den vorangegangenen Kapiteln haben wir lediglich normale und vollständig
+normale Elemente in Erweiterungen endlicher Körper betrachtet. Es existiert
+jedoch eine weitere besondere Eigenschaft, die gerade in der Anwendung von
+großem Interesse ist: Primitivität (\thref{def:primitiv}). Zusammen haben wir
+nun drei Eigenschaften eines Elements $u \in E$ einer Erweiterung endlicher
+Körper $E\mid F$ kennengelernt, die von Interesse sind. Daher ist es nur
+sinnvoll sich der Frage zu widmen, \emph{wie viele} Elemente mit den jeweiligen
+Eigenschaften es gibt. Mit \thref{satz:zykl_gruppen} und 
+\thref{satz:mult_gruppe_endl_korper_zyklisch} ist sofort klar, dass es in
+$\F_q$ genau $\varphi(q-1)$ primitive Elemente gibt! Daher ist die
+Fragestellung nach der Anzahl primitiver Elemente schnell gelöst. Darüber
+hinaus wollen wir die folgenden Notationen treffen.
+
+\begin{definition}
+  Seien $\F_q$ ein endlicher Körper und $n \in \N^\ast$, so bezeichne
+  $\cal N(q,n)$, $\CN(q,n)$, $\PN(q,n)$ bzw. $\PCN(q,n)$ die Anzahl der 
+  normalen, vollständig normalen, primitiv normalen bzw. primitiv vollständig
+  normalen Elemente in $\F_{q^n}$ über $\F_q$, d.h.
+  \begin{align*}
+    \cal N(q,n) &\speq{:=} 
+      |\{ u \in \F_{q^n}:\ u\text{ ist normal über }\F_q\}| \\
+    \CN(q,n) &\speq{:=} 
+      |\{ u \in \F_{q^n}:\ u\text{ ist vollständig normal über }\F_q\}| \\
+    \PN(q,n) &\speq{:=} 
+      |\{ u \in \F_{q^n}:\ u\text{ ist primitiv und normal über }\F_q\}| \\
+    \PCN(q,n) &\speq{:=} 
+      |\{ u \in \F_{q^n}:\ u\text{ ist primitiv und vollständig 
+      normal über }\F_q\}| \\
+    \G &\speq{:=} 
+      \{ n\in \N^\ast, n\geq 2:\ 
+      \forall q\text{ Primzahlpotenz gilt } \PCN(q,n) > 0 \}
+  \end{align*}
+\end{definition}
+
+Vielleicht erscheint die Definition von $\G$ etwas überraschend, da für jedes
+Element in $\G$ schließlich \emph{unendlich viele} Körpererweiterungen auf die
+Existenz eines $\PCN$-Elements getestet werden müssen. Doch es sei an dieser
+Stelle vorweg genommen, dass wir in der Lage sind mit Hilfe eines
+asymptoptischen Resultats und der konkreten Angabe von endlich vielen
+$\PCN$-Elementen zu zeigen, dass $\G$ nicht leer ist!
+
+Nun können wir folgende Probleme definieren:
+
+\begin{problem}[$\cal N(q,n)=?$]
+  \label{prob:n=}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$. Was ist
+  $\cal N(q,n)$?
+\end{problem}
+\begin{problem}[$\CN(q,n)=?$]
+  \label{prob:cn=}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$. Was ist
+  $\CN(q,n)$?
+\end{problem}
+\begin{problem}[$\PN(q,n)=?$]
+  \label{prob:pn=}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$. Was ist
+  $\PN(q,n)$?
+\end{problem}
+\begin{problem}[$\PCN(q,n)=?$]
+  \label{prob:pcn=}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$. Was ist
+  $\PCN(q,n)$?
+\end{problem}
+
+Offensichtlich können wir die obigen Problemstellungen leicht abschwächen und
+uns zunächst fragen, ob überhaupt Elemente mit den geforderten Eigenschaften
+existieren. Auch dazu wollen wir passende Probleme formulieren.
+
+\begin{problem}[$\cal N(q,n)>0?$]
+  \label{prob:n>0}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$. Ist
+  $\cal N(q,n)>0$?
+\end{problem}
+\begin{problem}[$\CN(q,n)>0?$]
+  \label{prob:cn>0}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$. Ist
+  $\CN(q,n)>0$?
+\end{problem}
+\begin{problem}[$\PN(q,n)>0?$]
+  \label{prob:pn>0}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$. Ist
+  $\PN(q,n)>0$?
+\end{problem}
+\begin{problem}[$\PCN(q,n)>0?$]
+  \label{prob:pcn>0}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$. Ist
+  $\PCN(q,n)>0$?
+\end{problem}
+
+
+Zuletzt wollen wir natürlich auch für $\G$ eine Problemstellung 
+zu formulieren:
+
+\begin{problem}[$n\in \G ?$]
+  Finde möglichst viele $n\in \N^\ast$, $n\geq 2$ mit $n\in \G$.
+\end{problem}
+
+Bisher haben wir all diese Probleme nicht ausreichend geklärt. Doch im
+folgenden Abschnitt wollen wir uns jenen Fragestellungen zunächst theoretisch
+widmen, um in den darauffolgenden gezielte Enumerationen auf Basis der
+theoretischen Resultate, die über (vollständig) normale Elemente im bisherigen
+Verlauf erarbeitet wurden, durchzuführen, um für die offen bleibenden Fragen 
+
+
+\section{Theoretische Enumerationen}
+
+
+Wir starten mit einem wohlbekannten Resultat, das eine Antwort auf die Frage
+nach der Existenz von normalen Elementen (\thref{prob:n>0}) gibt:
+
+\begin{satz}[Satz von der Normalbasis]
+  Zu jedem endlichen Körper $F$ und jeder endlichen Erweiterung $E$ von $F$
+  existiert eine Normalbasis von $E$ über $F$.
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 2.35]{lidl1997finite}.
+\end{proof}
+
+Selbige Aussage können wir auch für vollständig normale Elemente treffen, was
+zuerst \citeyear{blessenohl1986} von \citeauthor{blessenohl1986}
+\autocite{blessenohl1986} bewiesen wurde.
+
+\begin{satz}[Verschärfung des Satzes von der Normalbasis]
+  Zu jedem endlichen Körper $F$ und jeder endlichen Erweiterung $E$ von $F$
+  existiert eine vollständige Normalbasis von $E$ über $F$.
+\end{satz}
+\begin{proof}
+  \autocite[Satz 1.2]{blessenohl1986}.
+\end{proof}
+
+
+Damit wäre auch \thref{prob:cn>0} beantwortet! Von den Existenzfragen bleibt
+damit noch die Existenz von primitiv normalen und primitiv vollständig normalen
+Elementen in beliebigen Erweiterungen offen. Erstere beantwortete
+\citeauthor{lenstra1987} \citeyear{lenstra1987} \autocite{lenstra1987}
+nach den Vorarbeiten von Carlitz und Davenport.
+
+\begin{satz}[Satz von der primitiven Normalbasis]
+  Zu jedem endlichen Körper $F$ und jeder endlichen Erweiterung $E$ von $F$
+  existiert eine primitive Normalbasis von $E$ über $F$.
+\end{satz}
+\begin{proof}
+  \autocite{lenstra1987}.
+\end{proof}
+
+
+Bleibt also nur noch die Frage nach der Existenz primitiver vollständig
+normaler Elemente. Auch wenn Hachenberger 
+\citeyear{hachenberger2001} \autocite{hachenberger2001} und 
+\citeyear{hachenberger2014} \autocite{hachenberger2014} die beiden
+nachstehenden bedeutsamen Resultate beweisen konnte, bleibt die Suche nach 
+$\PCN$-Elementen weiterhin ein offenes Problem, dem wir uns im weiteren Verlauf
+experimentell widmen wollen.
+
+\begin{satz}
+  Seien $q$ eine Primzahlpotenz und $n \in \N^\ast$, so dass
+  $\F_{q^n}$ über $\F_q$ eine reguläre Erweiterung ist. Sei ferner
+  $4\mid (q-1)$, falls $q$ ungerade und $n$ gerade ist. Dann existiert ein
+  primitives Element in $\F_{q^n}$, das vollständig normal über $\F_q$ ist.
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 1.4]{hachenberger2001}.
+\end{proof}
+
+
+\begin{satz}
+  Sei $n\in \N^\ast$ mit $n\geq 2$. Dann gilt:
+  Für Primzahlpotenzen $q$ mit $q \geq n^4$ existiert ein primitives Element in 
+  $\F_{q^n}$, das vollständig normal über $\F_q$ ist.
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 2]{hachenberger2014}.
+\end{proof}
+
+Wir können nun zusammenfassen, dass von obigen Existenzproblemen lediglich
+\thref{prob:pcn>0} überlebt hat und alle anderen durch theoretische Resultate
+abgedeckt werden konnten. Nun können wir versuchen die Zählprobleme anzugehen
+und starten mit einem allgemein bekannten Resultat.
+
+\begin{definition}
+  Sei $f(x) \in \F_q[x]$ ein Polynom über einem endlichen Körper. Definiere
+  \[ \phi_q(f) \speq{:=} |\{ g(x) \in \F_q[x]:\ 
+    \deg g < \deg f,\ \ggT(f,g) = 1\}|\,.\]
+\end{definition}
+
+\begin{bemerkung}
+  $\phi_q(f)$ ist das Analogon zur Eulerschen Phifunktion für Polynome, da
+   $\phi_q(f)$ gerade die Anzahl der Einheiten im Ring $\F_q[x]\big/(f(x))$
+   angibt.
+\end{bemerkung}
+
+\begin{satz}
+  Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$ mit $n\geq 2$, so existieren
+  in $\F_{q^n}$ genau 
+  \[ \phi_q(x^n-1) \speq= q^{n'(\pi-1)}\,\prod_{d\mid n}
+    \left( q^{\ord_d(q)} -1 \right)^{\frac{\varphi(d)}{\ord_d(q)}}\]
+  Elemente, die normal über $\F_q$ sind, wobei $n = n'\pi$ mit $\ggT(n',q) = 1$.
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 3.73]{lidl1997finite} oder 
+  \autocite[Theorem 10.5]{hachenberger1997finite}.
+\end{proof}
+
+Obiger Satz beantwortet also \thref{prob:n=} vollständig.

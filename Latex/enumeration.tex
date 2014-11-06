@@ -192,6 +192,7 @@ und starten mit einem allgemein bekannten Resultat.
 \end{bemerkung}
 
 \begin{satz}
+  \label{satz:anzahl_normal}
   Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$ mit $n\geq 2$, so existieren
   in $\F_{q^n}$ genau 
   \[ \phi_q(x^n-1) \speq= q^{n'(\pi-1)}\,\prod_{d\mid n}
@@ -203,4 +204,104 @@ und starten mit einem allgemein bekannten Resultat.
   \autocite[Theorem 10.5]{hachenberger1997finite}.
 \end{proof}
 
-Obiger Satz beantwortet also \thref{prob:n=} vollständig.
+Obiger Satz beantwortet also \thref{prob:n=} vollständig. Für die Anzahlen von 
+primitiv normalen und primitiv vollständig normalen Elementen einer gegebenen
+Körpererweiterung war es jedoch bisher nicht möglich Aussagen zu formulieren,
+die alle Paare $(q,n)$ erfassen.
+
+Ein kleiner Schritt in Richtung der Bestimmung der 
+Anzahl von vollständig normalen Elementen 
+besteht sicherlich in der Erkenntnis, dass für einfache Erweiterungen
+(\thref{def:einfach}) diese Frage von \thref{satz:anzahl_normal} beantwortet
+wird. Ferner war Hachenberger in \autocite[Section 21]{hachenberger1997finite}
+in der Lage diese Frage für reguläre Kreisteilungsmoduln (und damit für
+reguläre Erweiterungen) zu beantworten:
+
+\begin{satz}
+  \label{satz:anzahl_vollst_erzeuger}
+  Seien $\F_q$ ein endlicher Körper von Charakteristik $p$ und $m \in \N^\ast$
+  mit $\ggT(m,q)=1$. Ist dann $\C_{m,p^b}$ ein regulärer Kreisteilungsmodul
+  über $\F_q$, so ist die Anzahl der vollständigen Erzeuger von 
+  $\C_{m,p^b}$ gleich
+  \begin{enumerate}
+    \item $\displaystyle \left( q^{\frac{\ord_m(q)}{\tau}}-1 \right)%
+      ^{\frac{\tau\,\varphi(m)}{\ord_m(q)}} \cdot 
+      q^{(p^b-1)\varphi(m)}$,\quad falls $\C_{m,p^b}$ nicht ausfallend ist und
+    \item $\displaystyle \left( q^{\frac{2\ord_m(q)}{\tau}}
+      -4q^{\frac{\ord_m(q)}{\tau}}+3\right)%
+      ^{\frac{\tau\,\varphi(m)}{2\ord_m(q)}} \cdot 
+      q^{(p^b-1)\varphi(m)}$,\quad falls $\C_{m,p^b}$ ausfallend ist,
+  \end{enumerate}
+  wobei $\tau = \tau(q,n)$ aus \thref{def:tau}.
+\end{satz}
+\begin{proof}
+  \autocite[Proposition 21.1, Proposition 21.2]{hachenberger1997finite}.
+\end{proof}
+
+Ferner lässt sich daraus eine Abschätzung für die Anzahl von vollständig
+normalen Elementen einer regulären Körpererweiterung ableiten.
+
+\begin{satz}
+  Sei $\F_{q^m}$ über $\F_q$ eine reguläre Erweiterung endlicher Körper, so ist
+  die Anzahl der vollständig normalen Elemente in $\F_{q^m}\mid \F_q$
+  mindestens
+  \[ (q-1)^{m'}\cdot q^{m'(p^b-1)} \,,\]
+  wobei $m = m'\,p^b$ mit $\ggT(p,m')=1$ und $p$ der Charakteristik von $\F_q$.
+  Gleichheit gilt genau dann, wenn $m' \mid (q-1)$ und die Erweiterung damit 
+  einfach ist.
+\end{satz}
+\begin{proof}
+  \autocite[Theorem 21.3, Theorem 6.1]{hachenberger1997finite}.
+\end{proof}
+
+Bei primitiv normalen und primitiv vollständig normalen Elementen
+ist das Wissen über deren Anzahlen leider noch spärlicher gesät. 
+Für $\PCN$-Elemente existieren die folgenden Abschätzungen.
+
+\begin{satz}
+  Sei $p$ eine Primzahl und $q$ eine Potenz von $p$. Dann gilt:
+  \begin{enumerate}
+    \item $\PCN(q,2^l) \geq 4(q-1)^{2^{l-2}}$, falls $q\equiv 3 \bmod 4$
+      und $l\geq e+3$ für $e$ maximal, so dass $2^e\mid (q^2-1)$, oder
+      $q\equiv 1\bmod 4$ und $l\geq 5$.
+    \item $\PCN(q,r^l) \geq r^2(q-1)^{r^{l-2}}$, falls
+      $r\neq p$ eine ungerade Primzahl und $l\geq 2$.
+    \item $\PCN(q,r^l) \geq r(q-1)^{r^{l-1}}\varphi(q^{r^{l-1}}-1)$, falls
+      $r\geq 7$, $\geq p$ eine Primzahl und $l\geq 2$.
+    \item $\PCN(q,p^l) \geq p\,q^{p^{l-1}-1}\,(q-1)$, falls $l\geq 2$.
+    \item $\PCN(q,p^l)\geq p\,q^{p^{l-1}-1}\,(q-1)\,\varphi(q^{p^{l-1}}-1)$,
+      falls $p\geq 7$ und $l\geq 2$.
+  \end{enumerate}
+\end{satz}
+\begin{proof}
+  \autocite{hachenberger2010}.
+\end{proof}
+
+Wie man nun deutlich erkennen kann, besteht immer noch große Unklarheit über
+die Anzahl von primitiv (vollständig) normalen Elementen und selbst die Zahl
+vollständig normaler Elemente ist nicht hinreichend geklärt. Daher bietet es
+sich freilich an, eine computergestützte Enumeration durchzuführen, um den
+Nebel ein wenig mehr lichten zu können. 
+\citeauthor{morgan1996} \autocite{morgan1996} haben bereits 
+\citeyear{morgan1996} für $(q,n)$ aus 
+$\{ (2,2),\ldots,(2,18),\allowbreak\ 
+  (3,2),\ldots,(3,12),\allowbreak\ 
+  (4,2),\ldots,(4,9),\allowbreak\ 
+  (5,2),\ldots,(5,8),\allowbreak\ 
+  (7,2),\ldots,(7,6),\allowbreak\ 
+  (8,2),\ldots,(8,5),\allowbreak\ 
+  (9,2),\ldots,(9,5)\}$ die Werte $\CN(q,n)$ und $\PCN(q,n)$ bestimmen können.
+Betrachten wir einmal diese Zahlenkonstellationen und fragen uns, ob wir diese
+nicht durch obige theoretische Resultate abdecken kann, so müssen wir
+feststellen, dass die Anzahlen der vollständig normalen Elemente lediglich
+die Paare $(2,6), (2,10),(2,12),(2,18), (3,8), (3,10), (5,6)$ nicht einfach und
+nicht regulär sind, also $\CN(q,n)$ nicht bereits aus obigen Sätzen
+folgt.
+
+Daher setzen wir uns im Folgenden das Ziel, die Tabelle von 
+\citeauthor{morgan1996} einerseits zu verifizieren und andererseits zu
+erweitern, um ein weitaus breiteres Spektrum an Zahlwerten präsentieren zu
+können. Dabei sei angemerkt, dass in \autocite{morgan1996} die theoretischen
+Überlegungen aus \autoref{chap:vollst_normalbasen} gänzlich unbeachtet blieben.
+Wir wollen diese jedoch in nachfolgender Implementierung intensiv nutzen, um
+bestmögliche Ausbeute vorhanderer Rechenleistung zu erhalten.

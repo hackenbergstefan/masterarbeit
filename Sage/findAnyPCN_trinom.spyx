@@ -26,7 +26,22 @@ def findAnyPCN_polynom(p,r,n):
     primOrder = E.order()-1
     
     primitives = []
+    
+    #setup factors of x^n-1
+    divs = get_proper_subfield_divisors(p,r,n)
+    facsAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    for d in divs:
+        G = F.extension(Integer(d), 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facsAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facsAll[d]):
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
 
+    # list elements of F
     Flist = F.list()
     # correct list
     Flist = [F.zero()]
@@ -42,6 +57,7 @@ def findAnyPCN_polynom(p,r,n):
             for coeffN in xrange(1,q):
                 coeffNF = Flist[coeffN]
                 if coeffNF.multiplicative_order() != F.order()-1: continue
+                coeffNF *= (-1)**n
                 primitives += [coeffNF]
                 f = Fx.gen()**n + coeffTF*Fx.gen()**(n-1) + coeffNF
                 #print f
@@ -49,7 +65,8 @@ def findAnyPCN_polynom(p,r,n):
                 for fac,mul in Ex(f.map_coefficients(h)).factor():
                     if fac.degree() == 1:
                         x = -fac[0]
-                        if isCompletelyNormal(x,F) and \
+                        if isCompletelyNormal(x,E,q,divs,\
+                                    fieldsAll,facsAll,prodsAll) and \
                                 x.multiplicative_order() == primOrder:
                             #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                 #"prim: ", (x.multiplicative_order() == E.order()-1)
@@ -65,7 +82,8 @@ def findAnyPCN_polynom(p,r,n):
                 for fac,mul in Ex(f.map_coefficients(h)).factor():
                     if fac.degree() == 1:
                         x = -fac[0]
-                        if isCompletelyNormal(x,F) and \
+                        if isCompletelyNormal(x,E,q,divs,\
+                                    fieldsAll,facsAll,prodsAll) and \
                                 x.multiplicative_order() == primOrder:
                             #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                 #"prim: ", (x.multiplicative_order() == E.order()-1)
@@ -84,7 +102,8 @@ def findAnyPCN_polynom(p,r,n):
                     for fac,mul in Ex(f.map_coefficients(h)).factor():
                         if fac.degree() == 1:
                             y = -fac[0]
-                            if isCompletelyNormal(y,F) and \
+                            if isCompletelyNormal(y,E,q,divs,\
+                                    fieldsAll,facsAll,prodsAll) and \
                                     y.multiplicative_order() == primOrder:
                                 #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                     #"prim: ", (x.multiplicative_order() == E.order()-1)
@@ -106,7 +125,19 @@ def findAnyPCN_polynom_prime(p,n):
     
     primitives = []
 
-
+    #setup factors of x^n-1
+    divs = get_proper_subfield_divisors(p,1,n)
+    facsAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    for d in divs:
+        G = F.extension(Integer(d), 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facsAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facsAll[d]):
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
 
     firstRun = True
     # first test trinoms!
@@ -114,6 +145,7 @@ def findAnyPCN_polynom_prime(p,n):
         if firstRun:
             for coeffN in xrange(1,p):
                 if F(coeffN).multiplicative_order() != p-1: continue
+                coeffN *= (-1)**n
                 primitives += [coeffN]
                 f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
                 #print f
@@ -122,7 +154,8 @@ def findAnyPCN_polynom_prime(p,n):
                 E = GF(orderE, name='a', modulus=f)
 
                 if E.gen().multiplicative_order() == primOrder \
-                        and isCompletelyNormal(E.gen(),F):
+                        and isCompletelyNormal(E.gen(),E,p,\
+                            divs,fieldsAll,facsAll,prodsAll):
                     return E.gen(),f
             firstRun = False
         else:
@@ -133,7 +166,8 @@ def findAnyPCN_polynom_prime(p,n):
                 E = GF(orderE, name='a', modulus=f)
 
                 if E.gen().multiplicative_order() == primOrder \
-                        and isCompletelyNormal(E.gen(),F):
+                        and isCompletelyNormal(E.gen(),E,p,\
+                            divs,fieldsAll,facsAll,prodsAll):
                     return E.gen(),f
     # test rest
     for length in xrange(1,n-2):
@@ -144,123 +178,13 @@ def findAnyPCN_polynom_prime(p,n):
                     for j,j2 in enumerate(idcs):
                         f += xs[j+1] * Fx.gen() ** j2
                     if not f.is_irreducible(): continue
+                    #print f
                     E = GF(orderE, name='a', modulus=f)
 
                     if E.gen().multiplicative_order() == primOrder \
-                            and isCompletelyNormal(E.gen(),F):
+                            and isCompletelyNormal(E.gen(),E,p,\
+                                divs,fieldsAll,facsAll,prodsAll):
                         return E.gen(),f
-
-#def findAnyPCN_polynom_parallel(F,n):
-#    q = F.order();
-#    p = F.characteristic();
-#    r = q.log(p)
-#
-#    E = F.extension(n,'a')
-#    P = E.prime_subfield()
-#
-#    Px = PolynomialRing(P,'x')
-#    Fx = PolynomialRing(F,'x')
-#    Ex = PolynomialRing(E,'x')
-#    h = Hom(F,E)[0]
-#    primOrder = E.order()-1
-#    
-#    primitives = []
-#
-#    Flist = F.list()
-#    # correct list
-#    if r != 1:
-#        Flist = [F.zero()]
-#        for i in xrange(r):
-#            Flist += map(lambda f: F(list(f)), Px.polynomials(i))
-#
-#
-#    firstRun = True
-#    # first test trinoms!
-#    for coeffN in xrange(1,q):
-#        coeffNF = Flist[coeffN]
-#        if coeffNF.multiplicative_order() != F.order()-1: continue
-#        primitives += [coeffNF]
-#        f = Fx.gen()**n + Fx.gen()**(n-1) + coeffNF
-#        #print f
-#        if not f.is_irreducible(): continue
-#        for fac,mul in Ex(f.map_coefficients(h)).factor():
-#            if fac.degree() == 1:
-#                x = -fac[0]
-#                if isCompletelyNormal(x,F) and \
-#                        x.multiplicative_order() == primOrder:
-#                    #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
-#                        #"prim: ", (x.multiplicative_order() == E.order()-1)
-#                    return x,f
-#                else: break
-#            else: break
-#
-#    pool = Pool()
-#    for res in pool.imap(_testPoly,\
-#            ([n,q,primOrder,F,h,Fx,Ex,Flist, [], []]))
-#
-#
-#    for coeffT in xrange(1,q):
-#        coeffTF = Flist[coeffT]
-#            for coeffNF in primitives:
-#                f = Fx.gen()**n + coeffTF*Fx.gen()**(n-1) + coeffNF
-#                #print "not first:",f
-#                if not f.is_irreducible(): continue
-#                for fac,mul in Ex(f.map_coefficients(h)).factor():
-#                    if fac.degree() == 1:
-#                        x = -fac[0]
-#                        if isCompletelyNormal(x,F) and \
-#                                x.multiplicative_order() == primOrder:
-#                            #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
-#                                #"prim: ", (x.multiplicative_order() == E.order()-1)
-#                            return x,f
-#                        else: break
-#                    else: break
-#    # test rest
-#    myPolyIterator = polyIterator(n,q,primitives)
-#    for res in pool.imap(_testPoly, \
-#            ([n,q,primOrder,F,h,Fx, Ex, Flist, idcs,xs,x] \
-#            for idcs,xs, x in myPolyIterator),\
-#            chunksize=10):
-#        if res != False:
-#            pool.close()
-#            pool.join()
-#            return res
-#
-#    pool.close()
-#    pool.join()
-#    return res
-#
-#def polyIterator(n,q,primitives):
-#    for length in xrange(1,n-2):
-#        for idcs in itertools.combinations(xrange(1,n-1),length):
-#            for xs in itertools.product(xrange(1,q),repeat=length+1):
-#                for x in primitives:
-#                    yield idcs, xs, x
-#
-#
-#
-#
-#def _testPoly(data):
-#    n,q,primOrder,F,h,Fx, Ex, Flist, idcs, xs, x = data
-#
-#    f = Fx.gen()**n + Flist[xs[0]]*Fx.gen()**(n-1) + x
-#    for j,j2 in enumerate(idcs):
-#        f += Flist[xs[j+1]] * Fx.gen() ** j2
-#
-#    if not f.is_irreducible(): return False
-#
-#    for fac,mul in Ex(f.map_coefficients(h)).factor():
-#        if fac.degree() == 1:
-#            x = -fac[0]
-#            if isCompletelyNormal(x,F) and \
-#                    x.multiplicative_order() == primOrder:
-#                #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
-#                    #"prim: ", (x.multiplicative_order() == E.order()-1)
-#                return x,f
-#            else: break
-#        else: break
-#    return False
-
 
 
 def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
@@ -316,42 +240,18 @@ def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
 
 
 
-
-
-
-
 ##############################################################################
-## Slow Py Algorithms for testing ############################################
+## Slow Py Algorithms ########################################################
 ##############################################################################
 
 
-def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
-    if x == 0: return False
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    p = F.characteristic();
-    e = q.log(p)
-    divs = get_proper_subfield_divisors(p,e,n)
-    if facAll == []:
-        facAll = dict();
-        prodsAll = dict();
-        fieldsAll = dict();
-        for d in divs:
-            G = F.extension(Integer(d), 'c');
-            #G = getExtension(F,Integer(d))
-            Gx = PolynomialRing(G,'x');
-            fieldsAll[d] = G;
-            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-            prodsAll[d] = dict();
-            for idx,(f,mult) in enumerate(facAll[d]):
-                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+def isCompletelyNormal(x,E, q, divs, fieldsAll, facsAll, prodsAll):
+    if x == E.zero(): return False
     #test isNormal for each divisor
     pows = dict()
     for d in divs:
         h = Hom(fieldsAll[d],E)[0];
-        for idx,(f,mult) in enumerate(facAll[d]):
+        for idx,(f,mult) in enumerate(facsAll[d]):
             g = prodsAll[d][idx];
             ret = E.zero();
             iold = 0
@@ -369,18 +269,6 @@ def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
                 ret += h(gi)*xi
             if ret == 0: return False;
     return True
-
-
-def getExtension(F,d):
-    p = F.characteristic()
-    P = F.prime_subfield()
-    q = F.order()
-    e = q.log(p)
-    Fx = PolynomialRing(P,'x')
-    f = Fx.irreducible_element(d*e)
-    if f:
-        return GF(q**d, name='b', modulus=f)
-    return None
 
 
 ##############################################################################

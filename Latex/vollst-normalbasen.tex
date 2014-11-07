@@ -42,8 +42,8 @@ dieser Konstellation den Namen \emph{einfach}.
 
 \begin{satz}
   \label{satz:einfache_erweiterungen}
-  Sei $\F_{q^m} \mid \F_q$ eine Erweiterung endlicher Körper. Dann ist
-  äquivalent:
+  Sei $\F_{q^m} \mid \F_q$ eine Erweiterung endlicher Körper
+  von Charakteristik $p$. Dann sind äquivalent:
   \begin{enumerate}
     \item $\F_{q^m} \mid \F_q$ ist einfach.
     \item Für jeden Primteiler $r \mid m$ ist jedes normale Element in 
@@ -51,11 +51,25 @@ dieser Konstellation den Namen \emph{einfach}.
     \item Für jeden Primteiler $r \mid m$ teilt $r$ nicht
       $\ord_{(\frac m r)'}(q)$.
   \end{enumerate}
+  Dabei ist $\tfrac m r = (\tfrac m r)'\,p^b$ mit $\ggT((\tfrac m r)',p) = 1$.
 \end{satz}
 \begin{proof}
   \autocite[Corollary 15.8]{hachenberger1997finite}.
 \end{proof}
 
+\begin{kor}
+  \label{kor:einfache_erweiterungen}
+  Insbesondere ist $\F_{q^m}$ über $\F_q$ einfach, falls
+  \begin{enumerate}
+    \item $m = r$ oder $m=r^2$ für eine Primzahl $r$.
+    \item $m' \mid (q-1)$, wobei $m=m'p^b$ mit $\ggT(m',p) = 1$.
+    \item $m = p^b$ für $b\geq 0$.
+  \end{enumerate}
+\end{kor}
+\begin{proof}
+  (1) ist klar. Für (2) sei auf \autocite[Theorem 15.9]{hachenberger1997finite}
+  verwiesen und (3) ist eine Folgerung aus (2).
+\end{proof}
 
 Im Abschnitt über normale Elemente konnten wir herausarbeiten, dass die
 Zerlegung von $x^n-1$ in Kreisteilungspolynome eine guter Startpunkt ist, um

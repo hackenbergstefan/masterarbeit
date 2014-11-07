@@ -2757,3 +2757,241 @@ eine unwesentliche Menge an Arbeitsspeicher erfordert, wodurch weitere
 Ergebnisse problemlos produziert werden könnten, wenn man Rechenzeiten von über
 einer Woche pro Körpererweiterung in Kauf nimmt. Die längste hier in Kauf
 genommene Rechenzeit lag für $(q,n)=(243,4)$ bei $98$ Stunden und $4$ Minuten.
+
+
+\section{Existenz von primitiv vollständig normalen Elementen}
+
+\subsection{Theoretische Aspekte}
+
+Zu Beginn dieses Kapitels wurde die Bezeichnung $\G$ als die Menge der
+$n\in \N^\ast$ eingeführt, für die Erweiterungen von Grad $n$ über \emph{jedem}
+endlichen Köper ein $\PCN$-Element enthalten und in
+\thref{prob:g} haben wir uns das Ziel gesetzt, möglichst viele $n$
+anzugeben, die in $\G$ liegen. Zunächst können wir alle Erweiterungen
+aufnehmen, für die $n$ über jedem $q$ einfach ist,
+da hier die Existenz eines primitiv vollständig normalen Elementes
+der eines primitiv normalen entspricht, die nach 
+\thref{satz:primitive_normalbasis} gesichert ist. Wir folgern also:
+
+\begin{proposition}
+  Es gilt:
+  \[ \{ r, r^2:\ r \text{ Primzahl}\} \speq\subset \G\,. \]
+\end{proposition}
+\begin{proof}
+  Klar mit \thref{kor:einfache_erweiterungen}.
+\end{proof}
+
+Doch wie können wir $\G$ noch größer werden lassen? 
+Mit Hilfe von \thref{satz:pcn_schranke} brauchen wir für jedes $n$ 
+„nur” alle $q < n^4$ auf Existenz eines $\PCN$-Elements zu überprüfen. Daher
+bietet es sich an, an dieser Stelle erneut \sage zu bemühen, um letztlich
+nachstehenden Satz beweisen zu können:
+
+\begin{satz}
+  \label{satz:hauptsatz_g}
+  %Es gilt
+  %\[ \{ 2,3,4, \ldots, 40 \} \speq\subseteq \G \,.\]
+  Für alle $n\in \N^\ast$ mit $2 \leq n \leq 40$ gilt
+  $n \in \G$.
+\end{satz}
+
+
+\subsection{Implementierung einer $\PCN$-Suche}
+
+Im Gegensatz zur Enumeration einer einzigen Körpererweiterungen geht es nun
+darum, viele Körpererweiterungen mit immer gleichem Erweiterungsgrad zu
+betrachten. Beispielsweise für $n = 40$ haben wir 
+$187468$ Körpererweiterungen zu prüfen, wobei das größte auftauchende $q$
+gleich $2560021$ ist und damit der größte zu betrachtende Körper
+$21\,\allowbreak
+ 366\,\allowbreak
+ 880\,\allowbreak
+ 187\,\allowbreak
+ 906\,\allowbreak
+ 632\,\allowbreak
+ 687\,\allowbreak
+ 514\,\allowbreak
+ 074\,\allowbreak
+ 105\,\allowbreak
+ 613\,\allowbreak
+ 675\,\allowbreak
+ 429\,\allowbreak
+ 853\,\allowbreak
+ 637\,\allowbreak
+ 389\,\allowbreak
+ 181\,\allowbreak
+ 949\,\allowbreak
+ 057\,\allowbreak
+ 288\,\allowbreak
+ 253\,\allowbreak
+ 929\,\allowbreak
+ 247\,\allowbreak
+ 658\,\allowbreak
+ 456\,\allowbreak
+ 282\,\allowbreak
+ 382\,\allowbreak
+ 468\,\allowbreak
+ 815\,\allowbreak
+ 886\,\allowbreak
+ 964\,\allowbreak
+ 073\,\allowbreak
+ 599\,\allowbreak
+ 674\,\allowbreak
+ 916\,\allowbreak
+ 653\,\allowbreak
+ 373\,\allowbreak
+ 765\,\allowbreak
+ 754\,\allowbreak
+ 199\,\allowbreak
+ 896\,\allowbreak
+ 430\,\allowbreak
+ 060\,\allowbreak
+ 696\,\allowbreak
+ 944\,\allowbreak
+ 213\,\allowbreak
+ 682\,\allowbreak
+ 519\,\allowbreak
+ 652\,\allowbreak
+ 698\,\allowbreak
+ 462\,\allowbreak
+ 471\,\allowbreak
+ 628\,\allowbreak
+ 340\,\allowbreak
+ 522\,\allowbreak
+ 570\,\allowbreak
+ 646\,\allowbreak
+ 913\,\allowbreak
+ 923\,\allowbreak
+ 734\,\allowbreak
+ 591\,\allowbreak
+ 660\,\allowbreak
+ 041\,\allowbreak
+ 323\,\allowbreak
+ 668\,\allowbreak
+ 864\,\allowbreak
+ 602\,\allowbreak
+ 928\,\allowbreak
+ 439\,\allowbreak
+ 707\,\allowbreak
+ 352\,\allowbreak
+ 577\,\allowbreak
+ 304\,\allowbreak
+ 227\,\allowbreak
+ 818\,\allowbreak
+ 869\,\allowbreak
+ 137\,\allowbreak
+ 311\,\allowbreak
+ 550\,\allowbreak
+ 893\,\allowbreak
+ 478\,\allowbreak
+ 904\,\allowbreak
+ 281\,\allowbreak
+ 581\,\allowbreak
+ 752\,\allowbreak
+ 801$
+Elemente besitzt.
+Da in diesen Bereichen das Aufstellen von Frobenius-Matrizen, Additions- und
+Multiplikationstabellen nicht mehr praktikabel ist, haben wir uns entschieden,
+die gesamte Existenzsuche in \sage zu implementieren.
+
+
+Den Test auf vollständige Normalität organisieren wir anhand nachstehendem
+Lemma: 
+
+\begin{lemma}
+  Sei $E := \F_{q^n}$ über $F := \F_q$ eine Erweiterung endlicher Körper.
+  Sei $x^n-1 = \prod_{i=1}^l \Phi_{k_i,t_i}^\pi$
+  die feinst mögliche Zerlegung nach 
+  dem Zerlegunssatz (\thref{satz:zerlegungssatz}).
+  Notiere
+  \[ D_1 \speq{:=} \{ d\mid n:\ 
+    \nexists d'\mid d:\ \F_{q^n} \text{ über } \F_{q^{d'}}
+    \text{ einfach} \}\]
+  und 
+  \[ D_2 \speq{:=} \{ d\in \N^\ast:\ d \mid \tfrac{k_it_i\pi}{\nu(k_i)}
+    \text{ für ein } i=1,\ldots,l\}\,.\]
+  Dann sind für $u\in E$ äquivalent:
+  \begin{enumerate}
+    \item $u$ ist vollständig normal über $F$.
+    \item Für alle $d \in D := D_1 \cap D_2$ ist
+      $\Ord_{q^d}(u) = x^{\frac n d}-1$.
+    \item Für alle $d\in D$ gilt:
+      Seien $x^{\frac n d}-1 = \prod_{j=1}^{l_d} f_i(x)^{\nu_i}$ 
+      die vollständige Faktorisierung  von $x^{\frac n d}-1$ 
+      über $\F_{q^d}$ und 
+      $\bar f_i(x) = \tfrac{x^{\frac n d}-1}{f_i(x)}$ 
+      für $i=1,\ldots,l_d$ die jeweiligen
+      Kofaktoren, so gilt
+      \[ \bar f_i(\sigma^d)(u) \speq\neq 0 \]
+      für alle $i=1,\ldots,l_d$, wobei wie immer 
+      $\sigma: \bar F \to \bar F, x\mapsto x^q$ den Frobenius-Endomorphismus
+      von $F$ bezeichne.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  Die Äquivalenz von (2) und (3) ist klar mit der Definition der $q$-Ordnung,
+  wobei es klar ist, dass $(x^{\frac n d}-1)(\sigma^d)(u) = 0$ nicht mehr
+  überprüft werden muss, da es das Minimalpolynom von $\sigma^d$ über 
+  $\F_{q^d}$ ist.
+  Letztlich bleibt also nur ein Wort darüber zu verlieren, warum es ausreicht
+  nur Teiler aus $D$ zu betrachten: Hier stellen wir fest, dass es klar ist,
+  lediglich Teiler aus $D_1$ zu betrachten, da alle weiteren Teiler von $n$
+  bereits Zwischenkörper einer einfachen Erweiterung sind.
+  Bleibt $D_2$ zu klären. Dazu zerlege $u = u_1+\ldots+u_l$ mit
+  $u_i \in \C_{k_i,t_i\pi}$ für $i=1,\ldots,l$. Nun gilt
+  nach der Definition von vollständigen Erzeugern
+  (\thref{def:vollst_erzeuger}), dass
+  $u_i$ genau dann ein vollständiger Erzeuger von $\C_{k_i,t_i\pi}$ ist,
+  wenn $\Ord_{q^d}(u_i) = \Phi_{k_i,t_i}^\pi$ für alle
+  Teiler $d$ des Modulcharakters $\frac{k_it_i\pi}{\nu(k_i)}$.
+  Ist damit (3) erfüllt, so sind alle $u_i$ vollständige Erzeuger und nach
+  Definition verträglicher Zerlegungen (\thref{def:vertraeglich}) folgt
+  (1).
+\end{proof}
+
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
+def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
+    if x == 0: return False
+    E = x.parent();
+    q = F.order();
+    n = E.order().log(q);
+    p = F.characteristic();
+    e = q.log(p)
+    divs = get_proper_subfield_divisors(p,e,n)
+    if facAll == []:
+        facAll = dict();
+        prodsAll = dict();
+        fieldsAll = dict();
+        for d in divs:
+            G = F.extension(Integer(d), 'c');
+            Gx = PolynomialRing(G,'x');
+            fieldsAll[d] = G;
+            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
+            prodsAll[d] = dict();
+            for idx,(f,mult) in enumerate(facAll[d]):
+                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+    #test isNormal for each divisor
+    pows = dict()
+    for d in divs:
+        h = Hom(fieldsAll[d],E)[0];
+        for idx,(f,mult) in enumerate(facAll[d]):
+            g = prodsAll[d][idx];
+            ret = E.zero();
+            iold = 0
+            xiold = x
+            for i,gi in enumerate(list(g)):
+                if pows.has_key(i*d):
+                    xi = pows[i*d];
+                    iold = i*d
+                    xiold = xi
+                else:
+                    xi = xiold**(q**(d*i-iold));
+                    pows[i*d] = xi;
+                    xiold = xi
+                    iold = i*d
+                ret += h(gi)*xi
+            if ret == 0: return False;
+    return True
+\end{sagecode}
+
+

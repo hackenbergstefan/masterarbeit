@@ -668,13 +668,13 @@ def dickson(i,a, P):
 
 
 def gen_irred_dickson(n,P, a_special=True):
-   F = P.base_ring();
-   for a in F:
+    F = P.base_ring()
+    for a in F:
        if a_special and (a == 0 or a == 1): continue
        for b in F:
-           if a == 0 or b == 0: continue;
-           f = dickson(n,a,P) - b;
-           if f.is_irreducible(): return a, b, f;
+           if a == 0 or b == 0: continue
+           f = dickson(n,a,P) - b
+           if f.is_irreducible(): return a, b, f
     return gen_irred_dickson(n,P, a_special=False)
 
 

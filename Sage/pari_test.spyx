@@ -1,84 +1,17 @@
+include "/opt/sage/src/sage/libs/pari/decl.pxi"
+
 from sage.all import *
+
 import sage.libs.pari
-
-
+cimport sage.libs.pari
+#from sage.libs.pari.gen cimport gen as pari_gen
+#from sage.libs.pari.pari_instance cimport PariInstance
 
 
 def test():
-    p = 3
-    q = 3
-    e = 1
-    n = 20
-    F = GF(3)
-    E = F.extension(Integer(20),'a')
-    Fx = PolynomialRing(F,'x')
-    h = Hom(F,E)[0]
-    facs = []
-    cycl = Fx('x^20-1')
-    for f,power in cycl.factor():
-        facs += [map(lambda x: h(x),list(cycl.quo_rem(f)[0]))]
-    ##eval
+    cdef GEN x = <GEN>(pari(2).g)
+    #cdef GEN order
+    #cdef GEN *o
+    #pari_catch_sig_on()
+    #order = ffprimroot(
 
-    tmp = E.zero()
-    gen = E.gen()
-    for i in range(1000):
-        for f in facs:
-            for i,gi in enumerate(f):
-                gen**(q**i)
-    return tmp
-
-
-def test2():
-    p = Integer(3)
-    q = Integer(3)
-    e = Integer(1)
-    n = Integer(20)
-    F = GF(3)
-    E = F.extension(Integer(20),'a')
-    mipoPari = pari(E.modulus())
-    Fx = PolynomialRing(F,'x')
-    h = Hom(F,E)[0]
-    facs = []
-    cycl = Fx('x^20-1')
-    for f,power in cycl.factor():
-        facs += [map(lambda x: pari(h(x).polynomial()).Pol('x').Mod(mipoPari),\
-                list(cycl.quo_rem(f)[0]))]
-    mat = [pari(Mod(1,p)).Col(n)]
-    gen = E.gen()
-    for i in range(1,n):
-        mat += [ pari( list(((gen**i)**q).polynomial()) ).Col(n) ]
-    matPari = pari(mat).Mat()
-    pariMats = dict()
-    for i in range(n):
-        pariMats[i] = matPari**i
-    #eval
-    xP = pari([Mod(0,p),Mod(1,p)]).Col(n)
-    for i in range(1000):
-        for f in facs:
-            tmp = pari(0)
-            for i,gi in enumerate(f):
-                aP = pariMats[i]*xP
-                tmp += gi*aP.Polrev('x')
-    return tmp
-
-
-
-def testPrimitive():
-    #p = next_prime(6000)
-    p = 5
-    q = 5
-    e = 1
-    n = 20
-    F = GF(5)
-    E = F.extension(Integer(20),'a')
-    ##eval
-
-    gen = E.gen()
-    primOrder = E.order()-1
-    barFacs = []
-    for r in prime_factors(primOrder):
-        barFacs += [ primOrder/r ]
-    for i in range(10000):
-        for b in barFacs:
-            if gen**b == 1:
-                break

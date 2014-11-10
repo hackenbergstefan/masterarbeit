@@ -42,11 +42,13 @@ def findAnyPCN_polynom(p,r,n):
             prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
 
     # list elements of F
-    Flist = F.list()
-    # correct list
     Flist = [F.zero()]
-    for i in xrange(r):
-        Flist += map(lambda f: F(list(f)), Px.polynomials(i))
+    for i in xrange(1,r):
+        for idcs in itertools.combinations(xrange(0,r),i):
+            for koeffs in itertools.product(xrange(1,p),repeat=i):
+                Flist += [F(list(sum([e * Px.gen()**idcs[j] for \
+                        j,e in enumerate(koeffs)])))]
+
 
 
     firstRun = True
@@ -57,8 +59,11 @@ def findAnyPCN_polynom(p,r,n):
             for coeffN in xrange(1,q):
                 coeffNF = Flist[coeffN]
                 if coeffNF.multiplicative_order() != F.order()-1: continue
-                coeffNF *= (-1)**n
-                primitives += [coeffNF]
+                if is_even(n):
+                    primitives += [coeffNF]
+                else:
+                    coeffNF *= (-1)
+                    primitives = [coeffNF] + primitives
                 f = Fx.gen()**n + coeffTF*Fx.gen()**(n-1) + coeffNF
                 #print f
                 if not f.is_irreducible(): continue
@@ -68,8 +73,8 @@ def findAnyPCN_polynom(p,r,n):
                         if isCompletelyNormal(x,E,q,divs,\
                                     fieldsAll,facsAll,prodsAll) and \
                                 x.multiplicative_order() == primOrder:
-                            #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
-                                #"prim: ", (x.multiplicative_order() == E.order()-1)
+                            print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
+                                "prim: ", (x.multiplicative_order() == E.order()-1)
                             return x,f
                         else: break
                     else: break
@@ -145,8 +150,11 @@ def findAnyPCN_polynom_prime(p,n):
         if firstRun:
             for coeffN in xrange(1,p):
                 if F(coeffN).multiplicative_order() != p-1: continue
-                coeffN *= (-1)**n
-                primitives += [coeffN]
+                if is_even(n):
+                    primitives += [coeffN]
+                else:
+                    coeffN *= (-1)
+                    primitives = [coeffN] + primitives
                 f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
                 #print f
                 if not f.is_irreducible(): continue
@@ -159,6 +167,7 @@ def findAnyPCN_polynom_prime(p,n):
                     return E.gen(),f
             firstRun = False
         else:
+            print primitives
             for coeffN in primitives:
                 f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
                 #print "not first:",f
@@ -170,21 +179,27 @@ def findAnyPCN_polynom_prime(p,n):
                             divs,fieldsAll,facsAll,prodsAll):
                     return E.gen(),f
     # test rest
-    for length in xrange(1,n-2):
+    for length in xrange(1,n-1):
         for idcs in itertools.combinations(xrange(1,n-1),length):
+            #print idcs
             for xs in itertools.product(xrange(1,p),repeat=length+1):
+                #print xs
                 for x in primitives:
                     f = Fx.gen()**n + xs[0]*Fx.gen()**(n-1) + x
                     for j,j2 in enumerate(idcs):
-                        f += xs[j+1] * Fx.gen() ** j2
-                    if not f.is_irreducible(): continue
+                        f += xs[length-j-1] * Fx.gen() ** j2
                     #print f
+                    if not f.is_irreducible(): continue
                     E = GF(orderE, name='a', modulus=f)
 
-                    if E.gen().multiplicative_order() == primOrder \
-                            and isCompletelyNormal(E.gen(),E,p,\
-                                divs,fieldsAll,facsAll,prodsAll):
-                        return E.gen(),f
+                    if e.gen().multiplicative_order() == primorder \
+                            and iscompletelynormal(e.gen(),e,p,\
+                                divs,fieldsall,facsall,prodsall):
+                        return e.gen(),f
+
+
+def weigh(f,p):
+    return sum([Integer(e)*Integer(p)**idx for idx,e in enumerate(f)])
 
 
 def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \

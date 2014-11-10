@@ -2949,49 +2949,95 @@ Lemma:
   (1).
 \end{proof}
 
-\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
-def isCompletelyNormal(x,F, fieldsAll=[], facAll=[], prodsAll=[]):
-    if x == 0: return False
-    E = x.parent();
-    q = F.order();
-    n = E.order().log(q);
-    p = F.characteristic();
-    e = q.log(p)
-    divs = get_proper_subfield_divisors(p,e,n)
-    if facAll == []:
-        facAll = dict();
-        prodsAll = dict();
-        fieldsAll = dict();
-        for d in divs:
-            G = F.extension(Integer(d), 'c');
-            Gx = PolynomialRing(G,'x');
-            fieldsAll[d] = G;
-            facAll[d] = list((Gx.gen()**(n/d)-1).factor());
-            prodsAll[d] = dict();
-            for idx,(f,mult) in enumerate(facAll[d]):
-                prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
-    #test isNormal for each divisor
-    pows = dict()
-    for d in divs:
-        h = Hom(fieldsAll[d],E)[0];
-        for idx,(f,mult) in enumerate(facAll[d]):
-            g = prodsAll[d][idx];
-            ret = E.zero();
-            iold = 0
-            xiold = x
-            for i,gi in enumerate(list(g)):
-                if pows.has_key(i*d):
-                    xi = pows[i*d];
-                    iold = i*d
-                    xiold = xi
-                else:
-                    xi = xiold**(q**(d*i-iold));
-                    pows[i*d] = xi;
-                    xiold = xi
-                    iold = i*d
-                ret += h(gi)*xi
-            if ret == 0: return False;
-    return True
-\end{sagecode}
+Bereits \citeauthor{morgan1996} haben in \autocite{morgan1996} für alle 
+$p^n < 10^{50}$ mit $p\leq 97$ ein primitives, vollständig normales Polynom 
+von Grad $n$ über $\F_p$ angegeben. Betrachtet man diese Tabellen, so ist
+auffällig, dass sehr viele dieser Polynome Trinome sind. Man kann sich leicht
+überlegen, dass ein Binom nicht Minimalpolynom eines vollständig normalen
+Elements einer Körpererweiterung sein kann und bemerke, dass sich 
+zwei Koeffizienten des Minimalpolynoms eines primitiv vollständig normalen
+Elements etwas eingrenzen lassen:
 
+\begin{lemma}
+  Sei $u \in \F_{q^n}$ über $\F_q$ ein primitiv vollständig normales Element
+  und $f(x) \speq= x^n + a_{n-1}x^{n-1}+\ldots+a_0 \in \F_q[x]$ 
+  sein Minimalpolynom. Dann gilt
+  \begin{enumerate}
+    \item $a_{n-1} \speq= -\Tr_{\F_{q^n}\mid \F_q}(u) \speq\neq 0$ und 
+    \item $(-1)^na_0 \speq= \Nm_{\F_{q^n}\mid \F_q}(u)$ ist primitiv in $\F_q$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  Die beiden Identitäten sind klar durch Koeffizientenvergleich von
+  $f(x) = (x-u)(x-u^q)(x-u^{q^2})\cdot\ldots\cdot(x-u^{q^{n-1}})$.%
+  \footnote{Man kennt diesen Zusammenhang der 
+    Koeffizienten eines Polynoms mit seinen Nullstellen auch unter dem Namen
+    „elementarsymmetrische Funktionen”.}
+  Die Spur eines (vollständig) normalen Elements einer Körpererweiterungen ist
+  stets ungleich Null, da sie ja gerade die Summe aller Basiselemente der 
+  von jenem Element erzeugten Normalbasis ist und diese ja über dem Grundkörper
+  linear unabhängig sind. 
+  Die Primitivität der Norm erhalten wir sofort durch
+  \[ \Nm_{\F_{q^n}\mid \F_q}(u) \speq= u\cdot u^q\cdot \ldots\cdot u^{q^n-1}
+    u^{\frac{q^n-1}{q-1}}\,.\]
+  Aus der Primitivität von $u$ folgt nun $\ord(u^{\frac{q^n-1}{q-1}}) = q-1$
+  und damit $\ord((-1)^na_0) = q-1$.
+\end{proof}
+
+In der Hoffnung möglichst viele Trinome vorzufinden, haben wir uns das Ziel
+gesetzt für jede Primzahlpotenz $q$ mit $q < n^4$ für einen gegebenen
+Erweiterungsgrad $n$ das „kleinste” primitiv vollständig normale Polynom
+über $\F_q$ von Grad $n$ zu bestimmen. Das „kleinste” beziehe sich dabei auf
+folgende Ordnungsrelation:
+
+\begin{definition}
+  Seien $f(x) = x^n+a_{n-1}x^{n-1}+\ldots+a_0$ und
+  $g(x) = x^n + b_{n-1}x^{n-1}+\ldots+b_0$ zwei Polynome gleichen Grades über 
+  $\F_q$. Ferner bezeichne $i(f)$ dasjenige Wort über dem Alphabet
+  $\{ 0,\ldots,n\}$, das die Indizes der nicht verschwindenden 
+  Koeffizienten von $f$ in
+  aufsteigender Reihenfolge repräsentiert, d.h. ist $i(f) = i_1i_2\ldots i_k$,
+  so gilt $i_1<i_2<\ldots<i_k$ und $a_{i_j} \neq 0$ für alle 
+  $j \in \{i_1,\ldots,i_k\}$. Analog sei $a(f)$ das Wort über dem Alphabet 
+  $\F_q$, das die nicht verschwindenden Koeffizienten von $f$ 
+  ihrem Index aufsteigend nach repräsentiert, d.h. ist 
+  $a(f) = a_{i_1}a_{i_2}\ldots a_{i_k}$, so ist 
+  $i_1<i_2<\ldots<i_k$ und für alle $j \in \{i_1,\ldots,i_k\}$ gilt:
+  $a_{i_j}$ ist der nicht verschwindende Koeffizient
+  von $x^{i_j}$ in $f$.
+
+  Dann heißt $f$ \emph{kleiner oder gleich} $g$, 
+  geschrieben $f\preceq g$, falls gilt:
+  \begin{enumerate}
+    \item $i(f)$ ist lexikographisch kleiner oder gleich $i(g)$ und bei
+      Gleichheit gilt zusätzlich:
+    \item $a(f)$ ist kleiner oder gleich $a(g)$, wobei eine Ordnung
+      auf $\F_q$ gegeben ist ist wie folgt:
+      \begin{itemize}
+        \item Ist $q = p$ für eine Primzahl $p$, so wähle die natürliche Ordnung von
+          $\F_p \cong \{ 0,1,\ldots,p-1\}$.
+        \item Sonst wähle einmalig eine Repräsentation von 
+          $\F_q$ durch $\F_p[x]\big/(h(x))$ und definiere 
+          $u$ kleiner gleich $v$ für $u,v\in \F_q$ als
+          $a(x) \preceq b(x)$ via dieser Definition für
+          Repräsentanten $a(x)$ von $u$ und $b(x)$ von $v$ mit
+          $a(x),b(x) \in F_p[x]$ und $\deg(a),\deg(b) < \deg(h)$.
+      \end{itemize}
+  \end{enumerate}
+\end{definition}
+
+
+Wir haben uns für diese Definition einer Ordnung auf $\F_q[x]$ entschieden, da
+hier stets Polynome 
+\begin{itemize}
+  \item mit kleinerem Hamming-Gewicht, d.h. mit kleinerer Anzahl an 
+    nicht verschwindenden Koeffizienten, 
+  \item mit kleineren Exponenten,
+  \item mit kleineren Koeffizienten
+\end{itemize}
+bevorzugt werden.
+
+
+%\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
+%\end{sagecode}
 

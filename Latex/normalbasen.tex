@@ -548,16 +548,16 @@ Auch für reguläre Erweiterungen wollen wir ein Analogon von
 Die Dickson-Polynome erfüllen einige interessante Eigenschaften, 
 welche wir im Folgenden zitieren wollen.
 
-\begin{satz}
+\begin{proposition}
   \label{satz:dickson_1}
    Seien $n\in \N^\ast$ und $a,y\in \F_q$ beliebig, so gilt
   \[ D_n(y+ay\inv, a) \speq= y^n +a^ny^{-n}\,.\]
-\end{satz}
+\end{proposition}
 \begin{proof}
   \autocite[Gleichung (7.8)]{lidl1997finite}.
 \end{proof}
 
-\begin{satz}
+\begin{proposition}
   \label{satz:dickson_2}
   Sei $a \in F_q$. Die Dickson-Polynome erster und zweiter Art 
   erfüllen für alle $n\geq 2$ folgende Rekursionsgleichungen:
@@ -567,16 +567,16 @@ welche wir im Folgenden zitieren wollen.
   \end{align*}
   mit den Startwerten $D_0(x,a) = 2$ und $D_1(x,a)=x$ bzw.
   $E_0(x,a) = 1$ und $E_1(x,a) = x$. Ferner gilt
-  \[ D_mn(x,a) \speq= D_m(D_n(x,a),a^n)\]
-\end{satz}
+  \[ D_{mn}(x,a) \speq= D_m(D_n(x,a),a^n)\]
+\end{proposition}
 \begin{proof}
-  \autocite{??}
+  \autocite[??]{lidl1993dickson}
 \end{proof}
 
 Ferner können wir eine  relativ einfache Charakterisierung angeben, wann ein
 Polynom der Form $D_n(x,a)-b$ irreduzibel ist.
 
-\begin{satz}
+\begin{proposition}
   \label{satz:dickson_irred}
   Seien $n\geq 2$ eine ganze Zahl und $a,b \in \F_q$ mit $a \neq 0$.
   Seien
@@ -600,14 +600,14 @@ Polynom der Form $D_n(x,a)-b$ irreduzibel ist.
           aber nicht $\tfrac{q^2-1}{2e_i}$.
       \end{enumerate}
   \end{enumerate}
-\end{satz}
+\end{proposition}
 \begin{proof}
   \autocite[Theorem 4]{gao1994}
 \end{proof}
 
 Da die weiteren Aussagen lediglich für ungerade Erweiterungen bewiesen werden,
-wollen wir obigen Satz in einer handlicheren Form für unsere Zwecke noch einmal
-verfassen.
+wollen wir obige Proposition in einer handlicheren Form für unsere Zwecke 
+noch einmal verfassen.
 
 \begin{kor}
   \label{kor:dickson_irred}
@@ -658,7 +658,7 @@ betrachteten Erweiterungskörper, wie die beiden nachstehenden Sätze angeben.
   \speq= \langle D_l(\gamma,a)\rangle_q\]
 \end{satz}
 
-In \autocite{scheerhorn:1996}{scheerhorn:1997} werden die Beweise dieser
+In \autocites{scheerhorn:1996}{scheerhorn:1997} werden die Beweise dieser
 Resultate ohne Zuhilfenahme der allgemeinen Theorie über (stark) reguläre
 Erweiterungen geführt, wie wir sie im letzten Abschnitt kennengelernt haben.
 Wir wollen uns nun im Folgenden überlegen, dass die Theorie der vorherigen
@@ -737,7 +737,8 @@ und die Verwendung der Dickson-Polynome motivieren.
   \[ \F_q\ \ni\ D_n(\theta + a \theta\inv, a) \speq= 
     D_{\frac n l}\big( D_l(\theta+a\theta\inv,a),\, a^l\big) \speq=
     D_{\frac n l}\big(\theta^l + a^l \theta^{-l}, a^l\big)\,.\]
- \TODO
+  Für $\ggT(n,l) = 1$ hat $\theta^l + a^l\theta^{-l}$ weiterhin Grad $n$ über 
+  $F$, da $\theta^l + a^l\theta^{-l} = D_l(\theta+a\theta\inv,a)$ 
 \end{bemerkung}
 
 

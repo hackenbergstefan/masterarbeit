@@ -1,6 +1,9 @@
 import ast
 import re
 import string
+import subprocess
+import itertools
+import glob
 
 load("./enumeratePCNs.spyx")
 
@@ -224,6 +227,79 @@ def enumsPCN2Latex(filein):
         f.close()
     fout.close()
 
+def findPCN2Latex(fileins, border=lambda n: n**4):
+    print "process ",fileins
+    splitter = str.split(str.split(fileins[0],"/")[-1],"_")
+    n = Integer(splitter[2])
+    r = Integer(splitter[3])
+    fileout = "../Latex/tables/pcns_"+str(n)+"_"+str(r)+"__"
+
+    border = border(n)
+    primeList = []
+    p = 2
+    while p**r < border:
+        primeList += [p]
+        p = next_prime(p)
+
+    curFileNumber = 0
+    fout = open(fileout+str(curFileNumber)+".tex", 'w')
+    for filein in fileins:
+        lineCount = Integer(\
+                subprocess.check_output(["wc","-l",filein])\
+                .split(" ")[0]) - 1
+        with open(filein) as f:
+            for curLineNum,line in enumerate(f):
+                if all(c in string.whitespace for c in line): continue
+                splits = str.split(line,"\t")
+                try:
+                    p = Integer(splits[0])
+                    r = Integer(splits[1])
+                    poly = splits[2].strip()
+                except:
+                    continue
+                primeList.remove(p)
+                #print "p=",p," r=",r," poly='",poly,"'"
+                F = GF(p**r,'a')
+                Fx = PolynomialRing(F,'x')
+                polyF = Fx(poly)
+                polyList = list(polyF)
+
+                # check trinom
+                outString = "\\textbf{"+str(p)+":} "
+                if polyF.hamming_weight() == 3:
+                    outString += "$"+str(polyList[0]).replace("*","")+"$"
+                    # add (n-1)-th Coefficient if needed
+                    if polyList[n-1] != F.one():
+                        outString += ", $"\
+                                +str(polyList[n-1]).replace("*","")\
+                                +"$"
+                else:
+                    outString += ",\\ ".join([str(i)+":\\,$"\
+                            +str(c).replace("*","")+"$" \
+                            for i,c in enumerate(polyList[:-1]) if c != 0])
+
+                if curLineNum < lineCount:
+                    outString += ", "
+
+                #print curLineNum, outString
+                #COUNTER += 1
+                #if COUNTER > 5000: break
+                fout.write(outString+"\n")
+                if curLineNum > 0 and curLineNum%1000 == 0:
+                    fout.close()
+                    curFileNumber += 1
+                    fout = open(fileout+str(curFileNumber)+".tex", 'w')
+            fout.close()
+    f.close()
+    print "max file: ", curFileNumber
+    print "missing primes: ",primeList
+
+
+def findPCN2Latex_wrapper(basePath,n):
+    for r in itertools.count(1):
+        globs = glob.glob(basePath+'pcns_trinom_'+str(n)+'_'+str(r)+'_*')
+        if len(globs) == 0: return
+        findPCN2Latex(globs)
 
 
 

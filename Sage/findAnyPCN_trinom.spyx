@@ -43,12 +43,11 @@ def findAnyPCN_polynom(p,r,n):
 
     # list elements of F
     Flist = [F.zero()]
-    for i in xrange(1,r):
+    for i in xrange(1,r+1):
         for idcs in itertools.combinations(xrange(0,r),i):
             for koeffs in itertools.product(xrange(1,p),repeat=i):
                 Flist += [F(list(sum([e * Px.gen()**idcs[j] for \
                         j,e in enumerate(koeffs)])))]
-
 
 
     firstRun = True
@@ -73,8 +72,8 @@ def findAnyPCN_polynom(p,r,n):
                         if isCompletelyNormal(x,E,q,divs,\
                                     fieldsAll,facsAll,prodsAll) and \
                                 x.multiplicative_order() == primOrder:
-                            print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
-                                "prim: ", (x.multiplicative_order() == E.order()-1)
+                            #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
+                                #"prim: ", (x.multiplicative_order() == E.order()-1)
                             return x,f
                         else: break
                     else: break
@@ -148,7 +147,11 @@ def findAnyPCN_polynom_prime(p,n):
     # first test trinoms!
     for coeffT in xrange(1,p):
         if firstRun:
-            for coeffN in xrange(1,p):
+            if is_even(n):
+                prange = xrange(1,p)
+            else:
+                prange = xrange(p-1,0,-1)
+            for coeffN in prange:
                 if F(coeffN).multiplicative_order() != p-1: continue
                 if is_even(n):
                     primitives += [coeffN]
@@ -167,7 +170,7 @@ def findAnyPCN_polynom_prime(p,n):
                     return E.gen(),f
             firstRun = False
         else:
-            print primitives
+            #print primitives
             for coeffN in primitives:
                 f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
                 #print "not first:",f
@@ -192,10 +195,10 @@ def findAnyPCN_polynom_prime(p,n):
                     if not f.is_irreducible(): continue
                     E = GF(orderE, name='a', modulus=f)
 
-                    if e.gen().multiplicative_order() == primorder \
-                            and iscompletelynormal(e.gen(),e,p,\
-                                divs,fieldsall,facsall,prodsall):
-                        return e.gen(),f
+                    if E.gen().multiplicative_order() == primOrder \
+                            and isCompletelyNormal(E.gen(),E,p,\
+                                divs,fieldsAll,facsAll,prodsAll):
+                        return E.gen(),f
 
 
 def weigh(f,p):

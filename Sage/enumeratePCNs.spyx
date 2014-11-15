@@ -365,9 +365,8 @@ def squarefree(n):
 
 # computes ordn m(q) = min{ k: q ** k = 1 mod m }
 def ordn(m,q):
-    if m == 1: return 1
-    for i in range(1,m+1):
-        if (q ** i)%m == 1: return i;
+    Zn = IntegerModRing(m)
+    return Zn(q).multiplicative_order()
 
 # Application of the Decomposition Theorem (Section 19)
 # for x^n-1 over F_p^e

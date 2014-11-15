@@ -46,6 +46,11 @@ chapterprefix=true
 \usepackage[utf8]{inputenc}
 
 
+%% UTF8 Anpassungen
+\DeclareUnicodeCharacter{201E}{\glqq}
+\DeclareUnicodeCharacter{201D}{\grqqnospace}
+
+
 \usepackage{lmodern} %Type1-Schriftart für nicht-englische Texte
 
 \usepackage{amsmath,amssymb,MnSymbol}
@@ -182,6 +187,14 @@ chapterprefix=true
   counter parent=satz,
   postskip=20pt
   ]{problem}{Problem}
+
+\newtikztheorem[
+  style=elegantbreak,
+  color=mycol,
+  font header=\normalfont\sffamily\bfseries,
+  counter parent=satz,
+  postskip=20pt
+  ]{vermutung}{Vermutung}
 
 \newtikztheorem[
   style=elegantbreak,
@@ -509,7 +522,9 @@ chapterprefix=true
 
 
 \appendix
-\input{anhang}
+%\input{anhang}
+
+
 %\chapter{\texttt{Sage}-Quellcodes}
 %\lstset{language=python,
   %basicstyle = \footnotesize\normalfont\ttfamily,

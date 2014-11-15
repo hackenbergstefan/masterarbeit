@@ -266,13 +266,8 @@ def findPCN2Latex(fileins, border=lambda n: n**4):
 
                 # check trinom
                 outString = "\\textbf{"+str(p)+":} "
-                if polyF.hamming_weight() == 3:
+                if polyF.hamming_weight() == 3 and polyList[n-1] == F.one():
                     outString += "$"+str(polyList[0]).replace("*","")+"$"
-                    # add (n-1)-th Coefficient if needed
-                    if polyList[n-1] != F.one():
-                        outString += ", $"\
-                                +str(polyList[n-1]).replace("*","")\
-                                +"$"
                 else:
                     outString += ",\\ ".join([str(i)+":\\,$"\
                             +str(c).replace("*","")+"$" \

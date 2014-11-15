@@ -47,22 +47,29 @@ def findAnyPCN_polynom(p,r,n):
         for idcs in itertools.combinations(xrange(0,r),i):
             for koeffs in itertools.product(xrange(1,p),repeat=i):
                 Flist += [F(list(sum([e * Px.gen()**idcs[j] for \
-                        j,e in enumerate(koeffs)])))]
+                        j,e in enumerate(reversed(koeffs))])))]
 
+    if not is_even(n):
+        FprimList = [F.zero()]
+        for i in xrange(1,r+1):
+            for idcs in itertools.combinations(xrange(0,r),i):
+                for koeffs in itertools.product(xrange(p-1,0,-1),repeat=i):
+                    FprimList += [F(list(sum([e * Px.gen()**idcs[j] for \
+                            j,e in enumerate(reversed(koeffs))])))]
 
     firstRun = True
     # first test trinoms!
     for coeffT in xrange(1,q):
         coeffTF = Flist[coeffT]
         if firstRun:
-            for coeffN in xrange(1,q):
-                coeffNF = Flist[coeffN]
-                if coeffNF.multiplicative_order() != F.order()-1: continue
+            for coeffN in xrange(p,q):
                 if is_even(n):
-                    primitives += [coeffNF]
+                    coeffNF = Flist[coeffN]
                 else:
-                    coeffNF *= (-1)
-                    primitives = [coeffNF] + primitives
+                    coeffNF = FprimList[coeffN]
+                if coeffNF.multiplicative_order() != F.order()-1: continue
+                if not is_even(n): coeffNF *= (-1)
+                primitives += [coeffNF]
                 f = Fx.gen()**n + coeffTF*Fx.gen()**(n-1) + coeffNF
                 #print f
                 if not f.is_irreducible(): continue
@@ -101,7 +108,8 @@ def findAnyPCN_polynom(p,r,n):
                 for x in primitives:
                     f = Fx.gen()**n + Flist[xs[0]]*Fx.gen()**(n-1) + x
                     for j,j2 in enumerate(idcs):
-                        f += Flist[xs[j+1]] * Fx.gen() ** j2
+                        f += Flist[xs[length-j]] * Fx.gen() ** j2
+                    #print f
                     if not f.is_irreducible(): continue
                     for fac,mul in Ex(f.map_coefficients(h)).factor():
                         if fac.degree() == 1:
@@ -190,7 +198,7 @@ def findAnyPCN_polynom_prime(p,n):
                 for x in primitives:
                     f = Fx.gen()**n + xs[0]*Fx.gen()**(n-1) + x
                     for j,j2 in enumerate(idcs):
-                        f += xs[length-j-1] * Fx.gen() ** j2
+                        f += xs[length-j] * Fx.gen() ** j2
                     #print f
                     if not f.is_irreducible(): continue
                     E = GF(orderE, name='a', modulus=f)
@@ -201,13 +209,11 @@ def findAnyPCN_polynom_prime(p,n):
                         return E.gen(),f
 
 
-def weigh(f,p):
-    return sum([Integer(e)*Integer(p)**idx for idx,e in enumerate(f)])
-
 
 def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
         fileoutput=False, filepath="pcns_trinom_", \
-        startPrime=1, stopPrime=0, onlyR=None):
+        startPrime=1, stopPrime=0, onlyR=None, \
+        cpuNum=1):
     if fileoutput:
         st = datetime.datetime.\
                 fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
@@ -217,44 +223,69 @@ def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
     border = border(n)
     p = startPrime
     if onlyR != None and p**onlyR > border: return
+
+    gen = runGenerator(border,[startPrime,stopPrime],[onlyR,onlyR])
+    pool = Pool(cpuNum)
+    for p,r,n,(x,pol) in pool.imap( findAnyPCN_polynom__star, \
+            ((p,r,n) for p,r in gen) ):
+        print "(",p,", ",r,") = ", pol
+        if fileoutput:
+            with open(filepath,'a') as f:
+                f.write(str(p)+"\t"+str(r)
+                        +"\t"+str(pol)+"\n")
+            f.close();
+    pool.close()
+    pool.join()
+
+
+def findAnyPCN_polynom_wrapper_const_p(n, p, border=lambda n:n**4, \
+        fileoutput=False, filepath="pcns_trinom_", \
+        startR=2, \
+        cpuNum=1):
+    if fileoutput:
+        st = datetime.datetime.\
+                fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
+        filepath += str(n)+"_"
+    border = border(n)
+    
+    gen = runGenerator(border,[p-1,p], [startR,100])
+    pool = Pool(cpuNum)
+    for p,r,n,(x,pol) in pool.imap_unordered( findAnyPCN_polynom__star, \
+            ((p,r,n) for p,r in gen) ):
+        print "(",p,", ",r,") = ", pol
+        if fileoutput:
+            with open(filepath+str(r)+"_"+st,'a') as f:
+                f.write(str(p)+"\t"+str(r)
+                        +"\t"+str(pol)+"\n")
+            f.close();
+    pool.close()
+    pool.join()
+
+def findAnyPCN_polynom__star(prn):
+    return prn[0],prn[1],prn[2],findAnyPCN_polynom(*prn)
+
+
+def runGenerator(border,pRange=None,rRange=None):
+    if pRange == None:
+        p = 1
+    else:
+        p = pRange[0]
     while p < border :
-        if stopPrime != 0 and p > stopPrime: return
         p = next_prime(p)
-        # consider only one r
-        if onlyR != None:
-            r = onlyR
-            if p**r > border: continue
-            if r == 1:
-                x,pol = findAnyPCN_polynom_prime(p,n)
-            else: 
-                x,pol = findAnyPCN_polynom(p,r,n)
-            print "(",p,", ",r,") = ", pol
-            if fileoutput:
-                with open(filepath,'a') as f:
-                    f.write(str(p)+"\t"+str(r)
-                            +"\t"+str(pol)+"\n")
-                f.close();
-            continue
+        if p > pRange[1]: return
+        # consider only rs in rRange
+        if rRange != None:
+            for r in xrange(rRange[0],rRange[1]+1):
+                if p**r > border: break
+                yield p,r
         # consider all rs
-        r = 1
-        q = p**r
-        while q < border:
-            if r == 1:
-                x,pol = findAnyPCN_polynom_prime(p,n)
-            else: 
-                x,pol = findAnyPCN_polynom(p,r,n)
-            print "(",p,", ",r,") = ", pol
-            if fileoutput:
-                with open(filepath,'a') as f:
-                    f.write(str(p)+"\t"+str(r)
-                            +"\t"+str(pol)+"\n")
-                f.close();
-            #if not isCompletelyNormal(x,F) or \
-                   #x.multiplicative_order() != q**n-1:
-                #print "FATAL ERROR on p=",p," r=",r," x=",x.polynomial().list()
-                #break;
-            r += 1
+        else:
+            r = 1
             q = p**r
+            while q < border:
+                yield p,r
+                r += 1
+                q = p**r
 
 
 
@@ -263,6 +294,13 @@ def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
 ##############################################################################
 
 
+# Tests x as Element of E on complete normality, i.e. tests for each 
+# d in divs, if the corresponding polynomials in prodsAll over the corresponding
+# field in fieldsAll vanishes on frobenius evaluation of x.
+# fieldsAll and facsAll are dicts indexed by the divisors of divs, where
+# fieldsAll[d] is the corresponding intermediate field of order q^d
+# and facsAll[d] is the factorization of x^(n/d)-1 over GF(q^d).
+# prodsAll[d] is the list of all possible cofactors of above factorization.
 def isCompletelyNormal(x,E, q, divs, fieldsAll, facsAll, prodsAll):
     if x == E.zero(): return False
     #test isNormal for each divisor
@@ -312,9 +350,8 @@ def squarefree(n):
 
 # computes ordn m(q) = min{ k: q ** k = 1 mod m }
 def ordn(m,q):
-    if m == 1: return 1
-    for i in range(1,m+1):
-        if (q ** i)%m == 1: return i;
+    Zn = IntegerModRing(m)
+    return Zn(q).multiplicative_order()
 
 # Application of the Decomposition Theorem (Section 19)
 # for x^n-1 over F_p^e

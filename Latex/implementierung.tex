@@ -2771,17 +2771,61 @@ anzugeben, die in $\G$ liegen. Zunächst können wir alle Erweiterungen
 aufnehmen, für die $n$ über jedem $q$ einfach ist,
 da hier die Existenz eines primitiv vollständig normalen Elementes
 der eines primitiv normalen entspricht, die nach 
-\thref{satz:primitive_normalbasis} gesichert ist. Wir folgern also:
+\thref{satz:primitive_normalbasis} gesichert ist. 
+Des Weiteren sichert \thref{satz:pcn_in_regular}, dass wir auch 
+a priori alle ungeraden Erweiterung aufnehmen können, die regulär über jedem
+Grundkörper sind. Dazu geben wir einige Beispiele an 
+(vgl. \autocite[Abschnitt vor Section 2]{hachenberger2001}):
+
+\begin{lemma}
+  \label{lemma:regular_speziell}
+  Sei $n \in \N^\ast$. Dann gilt: $n$ ist regulär
+  über jeder Primzahlpotenz $q>1$, falls eine der nachstehenden
+  Bedingungen erfüllt ist:
+  \begin{enumerate}
+    \item $n$ ist Potenz einer beliebigen Primzahl.
+    \item $n = N^s$ für $s\geq 1$ und $N$ eine 
+      \emph{Carmichael Zahl} (Eine \emph{Carmichael Zahl} ist eine ungerade
+      natürliche Zahl $N$, sodass für jeden Primteiler $r$ von $N$ gilt: 
+      $r-1$ teilt $N-1$).
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \begin{enumerate}
+    \item Sei $n = r^s$ für eine Primzahl $r$ und 
+      $q = p^e$ für eine Primzahl $p$, so ist für  $r=p$ klar,
+      dass $\ord_{\nu(n)}(q) = \ord_{1}(q)=1$ gilt. Für $r \neq p$ haben wir
+      $\ord_{\nu(n)}(q) = \ord_r(q) \mid \varphi(r) = r-1$ nach
+      \thref{lemma:rechenregeln_ordn} und damit ist $(n,q)$ regulär, da
+      $\ggT(r,r-1) = 1$.
+    \item Schreibe $\nu(N^s) = \prod_{i=1}^k r_i$ für Primzahlen 
+      $r_1,\ldots,r_k$. Dann ist wie oben $\ord_{\nu(N^s)}(q)$ ein
+      Teiler von $\varphi(\nu(N^s)) = \prod_{i=1}^k\varphi(r_i) = 
+      \prod_{i=1}^k (r_i-1)$. Nun gilt jedoch $(r_i-1) \mid (N-1) \mid (N^s-1)$
+      und damit $\ggT(r_i-1, N^s) = 1$ für alle $i=1,\ldots,k$.
+  \end{enumerate}
+\end{proof}
+
+
+Damit können wir bereits eine große Teilmenge von $\G$ ausmachen:
 
 \begin{proposition}
+  \label{prop:G}
   Es gilt:
-  \[ \{ r, r^2:\ r \text{ Primzahl}\} \speq\subset \G\,. \]
+  \[ \{ N^s:\ N\text{ Carmichael Zahl},\ s\in \N^\ast\} \ \cup\ 
+    \{ r^s:\ r \text{ Primzahl},\ s\in \N^\ast\} \quad\subset\quad \G\,. \]
 \end{proposition}
 \begin{proof}
-  Klar mit \thref{kor:einfache_erweiterungen}.
+  Klar nach \thref{kor:einfache_erweiterungen} und 
+  \thref{lemma:regular_speziell}.
 \end{proof}
 
 Doch wie können wir $\G$ noch größer werden lassen? 
+Betrachten wir einmal alle $n\in \{ 2,3,\ldots,40\}$, so sehen wir mit
+obiger Proposition, dass lediglich für 
+\[ 6,\ 12,\ 14,\ 15,\ 18,\ 20,\ 21,\ 22,\ 24,\ 26,\ 28,\ 30,\ 
+  34,\ 35,\ 36,\ 38,\ 40\]
+diese Frage noch offen ist.
 Mit Hilfe von \thref{satz:pcn_schranke} brauchen wir für jedes $n$ 
 „nur” alle $q < n^4$ auf Existenz eines $\PCN$-Elements zu überprüfen. Daher
 bietet es sich an, an dieser Stelle erneut \sage zu bemühen, um letztlich
@@ -2796,7 +2840,7 @@ nachstehenden Satz beweisen zu können:
 \end{satz}
 
 
-\subsection{Implementierung einer $\PCN$-Suche}
+\subsection{Implementierung einer $\PCN$-Suche I}
 
 Im Gegensatz zur Enumeration einer einzigen Körpererweiterungen geht es nun
 darum, viele Körpererweiterungen mit immer gleichem Erweiterungsgrad zu
@@ -2949,6 +2993,74 @@ Lemma:
   (1).
 \end{proof}
 
+
+Konkret ist der Test auf vollständige Normalität wie folgt gegeben.
+
+
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
+# Tests x as Element of E on complete normality, i.e. tests for each 
+# d in divs, if the corresponding polynomials in prodsAll over the corresponding
+# field in fieldsAll vanishes on frobenius evaluation of x.
+# fieldsAll and facsAll are dicts indexed by the divisors of divs, where
+# fieldsAll[d] is the corresponding intermediate field of order q^d
+# and facsAll[d] is the factorization of x^(n/d)-1 over GF(q^d).
+# prodsAll[d] is the list of all possible cofactors of above factorization.
+def isCompletelyNormal(x,E, q, divs, fieldsAll, facsAll, prodsAll):
+    if x == E.zero(): return False
+    #test isNormal for each divisor
+    pows = dict()
+    for d in divs:
+        h = Hom(fieldsAll[d],E)[0];
+        for idx,(f,mult) in enumerate(facsAll[d]):
+            g = prodsAll[d][idx];
+            ret = E.zero();
+            iold = 0
+            xiold = x
+            for i,gi in enumerate(list(g)):
+                if pows.has_key(i*d):
+                    xi = pows[i*d];
+                    iold = i*d
+                    xiold = xi
+                else:
+                    xi = xiold**(q**(d*i-iold));
+                    pows[i*d] = xi;
+                    xiold = xi
+                    iold = i*d
+                ret += h(gi)*xi
+            if ret == 0: return False;
+    return True
+\end{sagecode}
+
+Hier wurde auf eine Anwendung der Frobenius-Auswertung durch
+Matrixmultiplikation verzichtet, da dies via purem \sage-Code wesentlich
+langsamer ist, als Potenzieren. Wie man jedoch erkennen kann, werden bereits
+berechnete Potenzen wiederverwendet, um hier unnötigen Rechenaufwand
+einzusparen.
+Die Parameter "divs", "fieldsAll", "facsAll" und "prodsAll" werden jeweils in
+den übergeordneten Funktionen "findAnyPCN_polynom" 
+(\autoref{lst:findAnyPCN_polynom}) und
+"findAnyPCN_polynom_prime" (\autoref{lst:findAnyPCN_polynom_prime})
+wie folgt generiert.
+
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
+    #setup factors of x^n-1
+    divs = get_proper_subfield_divisors(p,r,n)
+    facsAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    for d in divs:
+        G = F.extension(Integer(d), 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facsAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facsAll[d]):
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+\end{sagecode}
+
+
+
+
 Bereits \citeauthor{morgan1996} haben in \autocite{morgan1996} für alle 
 $p^n < 10^{50}$ mit $p\leq 97$ ein primitives, vollständig normales Polynom 
 von Grad $n$ über $\F_p$ angegeben. Betrachtet man diese Tabellen, so ist
@@ -2959,6 +3071,7 @@ zwei Koeffizienten des Minimalpolynoms eines primitiv vollständig normalen
 Elements etwas eingrenzen lassen:
 
 \begin{lemma}
+  \label{lemma:pcn_koeff}
   Sei $u \in \F_{q^n}$ über $\F_q$ ein primitiv vollständig normales Element
   und $f(x) \speq= x^n + a_{n-1}x^{n-1}+\ldots+a_0 \in \F_q[x]$ 
   sein Minimalpolynom. Dann gilt
@@ -2991,6 +3104,7 @@ Erweiterungsgrad $n$ das „kleinste” primitiv vollständig normale Polynom
 folgende Ordnungsrelation:
 
 \begin{definition}
+  \label{def:polynomordnung}
   Seien $f(x) = x^n+a_{n-1}x^{n-1}+\ldots+a_0$ und
   $g(x) = x^n + b_{n-1}x^{n-1}+\ldots+b_0$ zwei Polynome gleichen Grades über 
   $\F_q$. Ferner bezeichne $i(f)$ dasjenige Wort über dem Alphabet
@@ -3033,11 +3147,389 @@ hier stets Polynome
   \item mit kleinerem Hamming-Gewicht, d.h. mit kleinerer Anzahl an 
     nicht verschwindenden Koeffizienten, 
   \item mit kleineren Exponenten,
-  \item mit kleineren Koeffizienten
+  \item mit „kleineren“ Koeffizienten (vgl. obige Definition)
 \end{itemize}
 bevorzugt werden.
 
 
-%\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
-%\end{sagecode}
+Die konkrete Suche nach einem $\PCN$-Polynom für ein Paar $(n,q)$ 
+teilen wir in zwei verschiedene Funktionen auf, wobei wir
+"findAnyPCN_polynom_prime" nutzen wollen, falls $q$ eine Primzahl ist und
+"findAnyPCN_polynom", falls $q$ eine echte Primzahlpotenz ist. Der wesentliche
+Unterschied liegt dabei in der Enumeration des Grundkörpers $\F_q$, einmal
+simplerweise durch $\{0,1,\ldots,p-1\}$ darstellbar, falls $q = p$ eine
+Primzahl ist. Andernfalls müssen wir uns wieder des Polynomrings
+über dem Primkörper $\F_p$ bedienen, um die Elemente in
+$\F_q \cong \F_p[x]\big/(f(x))$ für $q=p^r$ für $r>1$ darstellen zu können.
+Konkret:
 
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}},
+  label=lst:findAnyPCN_polynom_prime]
+# special function for testing extensions of PrimeFields
+def findAnyPCN_polynom_prime(p,n):
+    p = Integer(p)
+    n = Integer(n)
+    F = GF(p)
+    
+    Fx = PolynomialRing(F,'x')
+    
+    orderE = p**n
+    primOrder = orderE-1
+    
+    primitives = []
+
+    #setup factors of x^n-1
+    divs = get_proper_subfield_divisors(p,1,n)
+    facsAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    for d in divs:
+        G = F.extension(Integer(d), 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facsAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facsAll[d]):
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+
+    firstRun = True
+    # first test trinoms!
+    for coeffT in xrange(1,p):
+        if firstRun:
+            if is_even(n):
+                prange = xrange(1,p)
+            else:
+                prange = xrange(p-1,0,-1)
+            for coeffN in prange:
+                if F(coeffN).multiplicative_order() != p-1: continue
+                if is_even(n):
+                    primitives += [coeffN]
+                else:
+                    coeffN *= (-1)
+                    primitives = [coeffN] + primitives
+                f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
+                if not f.is_irreducible(): continue
+                
+                E = GF(orderE, name='a', modulus=f)
+
+                if E.gen().multiplicative_order() == primOrder \
+                        and isCompletelyNormal(E.gen(),E,p,\
+                            divs,fieldsAll,facsAll,prodsAll):
+                    return E.gen(),f
+            firstRun = False
+        else:
+            for coeffN in primitives:
+                f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
+                if not f.is_irreducible(): continue
+                E = GF(orderE, name='a', modulus=f)
+
+                if E.gen().multiplicative_order() == primOrder \
+                        and isCompletelyNormal(E.gen(),E,p,\
+                            divs,fieldsAll,facsAll,prodsAll):
+                    return E.gen(),f
+    # test rest
+    for length in xrange(1,n-1):
+        for idcs in itertools.combinations(xrange(1,n-1),length):
+            for xs in itertools.product(xrange(1,p),repeat=length+1):
+                for x in primitives:
+                    f = Fx.gen()**n + xs[0]*Fx.gen()**(n-1) + x
+                    for j,j2 in enumerate(idcs):
+                        f += xs[length-j] * Fx.gen() ** j2
+                    if not f.is_irreducible(): continue
+                    E = GF(orderE, name='a', modulus=f)
+
+                    if E.gen().multiplicative_order() == primOrder \
+                            and isCompletelyNormal(E.gen(),E,p,\
+                                divs,fieldsAll,facsAll,prodsAll):
+                        return E.gen(),f
+\end{sagecode}
+
+Wie man erkennen kann stützen wir uns auf die Hoffnung Trinome vorzufinden und
+beginnen unsere Suche daher bei deren Enumeration. Ferner machen wir uns
+\thref{lemma:pcn_koeff} zu Nutze und bestimmen anfangs dynamisch die primitiven
+Elemente des Grundkörpers (vgl. Zeilen \texttt{37}-\texttt{43}).
+Um die Ordnung nach \thref{def:polynomordnung} beizubehalten, sind wir hier
+gewzungen eine Fallunterscheidung in $n$ gerade oder ungerade zu vollziehen
+(vgl. Zeile \texttt{38}). Ebenfalls ein Vorteil gegenüber 
+"findAnyPCN_polynom" ist die Tatsache, dass der Erweiterungskörper "E"
+durch das zu testende Polynom gegeben werden kann und so dieses nicht erst über
+"E" faktorisiert werden muss (vgl. Zeilen \texttt{46}, \texttt{48}).
+
+Es sei ferner angemerkt, dass \sage eine Funktion "is_primitive" für Polynome
+besitzt, die gerade testet, ob ein Polynom primitiv ist oder nicht. Jedoch hat
+sich herausgestellt, dass dies um ein Vielfaches länger dauert, als die hier
+beschriebene Methode in Zeile \texttt{48}.
+
+
+Falls der Grundkörper kein Primkörper ist, organisieren wir die Suche analog,
+wobei wir gewzungen sind, einige „Umwege“ zu gehen.
+
+
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}},
+  label=lst:findAnyPCN_polynom]
+def findAnyPCN_polynom(p,r,n):
+    if r == 1:
+        return findAnyPCN_polynom_prime(p,n)
+
+    q = p**r
+    F = GF(q,'a')
+
+    E = F.extension(n,'a')
+    P = E.prime_subfield()
+
+    Px = PolynomialRing(P,'x')
+    Fx = PolynomialRing(F,'x')
+    Ex = PolynomialRing(E,'x')
+    h = Hom(F,E)[0]
+    primOrder = E.order()-1
+    
+    primitives = []
+    
+    #setup factors of x^n-1
+    divs = get_proper_subfield_divisors(p,r,n)
+    facsAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    for d in divs:
+        G = F.extension(Integer(d), 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facsAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facsAll[d]):
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+
+    # list elements of F
+    Flist = [F.zero()]
+    for i in xrange(1,r+1):
+        for idcs in itertools.combinations(xrange(0,r),i):
+            for koeffs in itertools.product(xrange(1,p),repeat=i):
+                Flist += [F(list(sum([e * Px.gen()**idcs[j] for \
+                        j,e in enumerate(reversed(koeffs))])))]
+
+    if not is_even(n):
+        FprimList = [F.zero()]
+        for i in xrange(1,r+1):
+            for idcs in itertools.combinations(xrange(0,r),i):
+                for koeffs in itertools.product(xrange(p-1,0,-1),repeat=i):
+                    FprimList += [F(list(sum([e * Px.gen()**idcs[j] for \
+                            j,e in enumerate(reversed(koeffs))])))]
+
+    firstRun = True
+    # first test trinoms!
+    for coeffT in xrange(1,q):
+        coeffTF = Flist[coeffT]
+        if firstRun:
+            for coeffN in xrange(p,q):
+                if is_even(n):
+                    coeffNF = Flist[coeffN]
+                else:
+                    coeffNF = FprimList[coeffN]
+                if coeffNF.multiplicative_order() != F.order()-1: continue
+                if not is_even(n): coeffNF *= (-1)
+                primitives += [coeffNF]
+                f = Fx.gen()**n + coeffTF*Fx.gen()**(n-1) + coeffNF
+                if not f.is_irreducible(): continue
+                for fac,mul in Ex(f.map_coefficients(h)).factor():
+                    if fac.degree() == 1:
+                        x = -fac[0]
+                        if isCompletelyNormal(x,E,q,divs,\
+                                    fieldsAll,facsAll,prodsAll) and \
+                                x.multiplicative_order() == primOrder:
+                            return x,f
+                        else: break
+                    else: break
+            firstRun = False
+        else:
+            for coeffNF in primitives:
+                f = Fx.gen()**n + coeffTF*Fx.gen()**(n-1) + coeffNF
+                if not f.is_irreducible(): continue
+                for fac,mul in Ex(f.map_coefficients(h)).factor():
+                    if fac.degree() == 1:
+                        x = -fac[0]
+                        if isCompletelyNormal(x,E,q,divs,\
+                                    fieldsAll,facsAll,prodsAll) and \
+                                x.multiplicative_order() == primOrder:
+                            return x,f
+                        else: break
+                    else: break
+    # test rest
+    for length in xrange(1,n-2):
+        for idcs in itertools.combinations(xrange(1,n-1),length):
+            for xs in itertools.product(xrange(1,q),repeat=length+1):
+                for x in primitives:
+                    f = Fx.gen()**n + Flist[xs[0]]*Fx.gen()**(n-1) + x
+                    for j,j2 in enumerate(idcs):
+                        f += Flist[xs[length-j]] * Fx.gen() ** j2
+                    if not f.is_irreducible(): continue
+                    for fac,mul in Ex(f.map_coefficients(h)).factor():
+                        if fac.degree() == 1:
+                            y = -fac[0]
+                            if isCompletelyNormal(y,E,q,divs,\
+                                    fieldsAll,facsAll,prodsAll) and \
+                                    y.multiplicative_order() == primOrder:
+                                return y,f
+                            else: break
+                        else: break
+\end{sagecode}
+
+Man erkennt, dass wir hier die Elemente aus $F$ eigens generieren müssen, um
+den Bedingungen aus \thref{def:polynomordnung} gerecht zu werden.
+
+Sicherlich ist klar, dass man auch eine Funktion braucht, die gleich alle
+$q$ für gegebenes $n$ testet:
+
+
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
+def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
+        fileoutput=False, filepath="pcns_trinom_", \
+        startPrime=1, stopPrime=0, onlyR=None, \
+        cpuNum=1):
+    if fileoutput:
+        st = datetime.datetime.\
+                fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
+        filepath += str(n)+"_"
+        if onlyR != None: filepath += str(onlyR)+"_"
+        filepath += st
+    border = border(n)
+    p = startPrime
+    if onlyR != None and p**onlyR > border: return
+
+    gen = runGenerator(border,startPrime,stopPrime,onlyR)
+    pool = Pool(cpuNum)
+    for p,r,n,(x,pol) in pool.imap( findAnyPCN_polynom__star, \
+            ((p,r,n) for p,r in gen) ):
+        print "(",p,", ",r,") = ", pol
+        if fileoutput:
+            with open(filepath,'a') as f:
+                f.write(str(p)+"\t"+str(r)
+                        +"\t"+str(pol)+"\n")
+            f.close();
+    pool.close()
+    pool.join()
+\end{sagecode}
+
+Wie man erkennen kann, hat es sich als Vorteilhaft erwiesen die Argumente
+"startPrime", "stopPrime" und "onlyR" einzuführen, wobei letzteres lediglich
+Paare $(q,n)$ testet, bei denen $q = p^r$ mit $r=$ "onlyR". (Insbesondere eine
+Trennung zwischen "onlyR" $=1$ und dem Rest war hilfreich, da es stets sehr
+viele Primzahlen $p$ mit $p<n^4$ gibt, jedoch nur wenige, für die eine echte
+Potenz immernoch kleiner $n^4$ ist.)
+
+
+Wir schließen mit den beiden Hilfsfunktionen, die in obiger Funktion
+benutzt werden, um der Syntax von "Pool.imap" gerecht zu werden.
+
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
+def findAnyPCN_polynom__star(prn):
+    return prn[0],prn[1],prn[2],findAnyPCN_polynom(*prn)
+\end{sagecode}
+
+
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_trinom.spyx}}]
+def runGenerator(border,startPrime,stopPrime,onlyR):
+    p = startPrime
+    while p < border :
+        if stopPrime != 0 and p > stopPrime: return
+        p = next_prime(p)
+        # consider only one r
+        if onlyR != None:
+            r = onlyR
+            if p**r > border: continue
+            yield p,r
+        # consider all rs
+        else:
+            r = 1
+            q = p**r
+            while q < border:
+                yield p,r
+                r += 1
+                q = p**r
+\end{sagecode}
+
+In den Tabellen in \autoref{anh:pcns} findet man die Ergebnisse unsere
+computergestützten Suche.
+
+
+\subsection{Implementierung einer $\PCN$-Suche II}
+
+Leider waren wir nicht in der Lage für alle Paare $(p^r,n)$ obige Implementierung
+zu nutzen, da gerade für große $r$ in sinnvoller Rechenzeit kein $\PCN$-Polynom
+gefunden werden konnte. Um für diese Ausnahmen dennoch ein $\PCN$-Polynom
+präsentieren zu können, geben wir für diese Erweiterungen ein beliebiges
+$\PCN$-Polynom an (also nicht wie oben das beste im Sinne der Ordnung aus
+\thref{def:polynomordnung}). Dieses finden wir wie folgt: Für gegebenes $(q,n)$
+bestimmen wir ein primitives Element $u \in \F_{q^n}$ via der \sage-Funktion
+"primitive_element()". Anschließend iterieren wir aufsteigend über alle 
+$i\in\N^\ast$ mit $\ggT(i,q^n-1) = 1$ und beenden die Suche mit
+Ausgabe des Minimalpolynoms von $u^i$ über $\F_q$, falls
+$u^i$ vollständig normal ist. Nach \thref{satz:zykl_gruppen} (5) ist klar, dass
+wir $u^i$ nicht mehr auf Primitivität zu testen brauchen.
+In \sage sieht dieses Vorgehen konkret wie folgt aus.
+
+\begin{sagecode}[caption={Aus \url{../Sage/findAnyPCN_additional.spyx}}]
+def findAnyPCN(p,r,n):
+    q = p**r
+    F = GF(q,'a')
+
+    E = F.extension(n,'a')
+    P = E.prime_subfield()
+
+    Px = PolynomialRing(P,'x')
+    Fx = PolynomialRing(F,'x')
+    Ex = PolynomialRing(E,'x')
+    h = Hom(F,E)[0]
+    primOrder = E.order()-1
+    
+    primitives = []
+    
+    #setup factors of x^n-1
+    divs = get_proper_subfield_divisors(p,r,n)
+    facsAll = dict();
+    prodsAll = dict();
+    fieldsAll = dict();
+    for d in divs:
+        G = F.extension(Integer(d), 'c');
+        Gx = PolynomialRing(G,'x');
+        fieldsAll[d] = G;
+        facsAll[d] = list((Gx.gen()**(n/d)-1).factor());
+        prodsAll[d] = dict();
+        for idx,(f,mult) in enumerate(facsAll[d]):
+            prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
+    
+    # get one primitive element
+    x = E.primitive_element()
+    
+    lasti = 0
+    y = x
+    for i in itertools.count(1):
+        if gcd(i,E.order()-1) != 1: continue
+        y = y*x**(i-lasti)
+        lasti = i
+        if isCompletelyNormal(y,E,q,divs,fieldsAll,facsAll,prodsAll):
+            mipo = y.minpoly()
+            for f,i in Fx(mipo).factor():
+                if f(y) == E.zero():
+                    return f
+\end{sagecode}
+
+
+Die „unschönen“ Ergebnisse dieser Funktion wurden im Anhang speziell
+gekennzeichnet.
+
+
+\subsection{Auswertung der Ergebnisse}
+
+Wie man anhand der Tabellen im Anhang erkennen kann, konnten wir nachweisen,
+dass für sehr viele Erweiterungen primitiv vollständig normale Trinome
+existieren. Inbesondere kann man erkennen, dass wenn $q$ nur groß genug wird,
+offenbar stets ein $\PCN$-Trinom vorhanden ist. Dieses faszinierende Resultat 
+legt die folgende Vermutung nahe, die bisher gänzlich unklar bleibt und für die 
+zumindest im Rahmen dieser Arbeit keine Möglichkeit eines 
+Beweises gefunden werden konnte.
+
+\begin{vermutung}
+  Für jedes $n\in \N^\ast$ existiert ein $P\in \N^\ast$, so dass für alle
+  Primzahlpotenz $q \geq p$ ein primitiv vollständig normales Trinom von Grad
+  $n$ über $\F_q$ existiert.
+\end{vermutung}

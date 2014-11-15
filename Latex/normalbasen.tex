@@ -121,6 +121,32 @@ als Reihe von Aussagen formulieren:
   $n \in \S_q$.
 \end{definition}
 
+\begin{lemma}
+  \label{lemma:ordn_1}
+  Seien $q,m \in \N^\ast$ mit $q,m > 1$ und $\nu(m) \mid \nu(q-1)$. Dann gilt:
+  \begin{enumerate}
+    \item Ist $m$ ungerade oder $q\equiv 1 \bmod 4$, so gilt
+      \[ \ord_m(q) \speq= \frac{m}{\ggT(\pi_m(q-1),m)}\,.\]
+    \item Ist $m\equiv 0\bmod 4$ und $q\equiv 2 \bmod 4$, so gilt
+      \[ \ord_m(q) \speq= 2\,\frac{m}{\ggT(\pi_m(q^2-1),m)}\,.\]
+    \item Ist $m\equiv 2\bmod 4$ und $q\equiv 2 \bmod 4$, so gilt
+      \[ \ord_m(q) \speq= \ord_{\frac m 2}(q) \speq=
+        \frac{m}{\ggT(\pi_m(q-1),m)}\,.\]
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \autocite[Lemma 19.6]{hachenberger1997finite}.
+\end{proof}
+
+\begin{lemma}
+  \label{lemma:ordn_2}
+  Seien $q,m>1$ zwei teilerfremde ganze Zahlen. Setze 
+  $s :=\ord_{\nu(m)}(q)$, so gilt
+  \[ \ord_m(q) \speq= s\,\ord_m(q^s)\,.\]
+\end{lemma}
+\begin{proof}
+  \autocite[Lemma 19.7]{hachenberger1997finite}.
+\end{proof}
 
 \begin{satz}
   \label{satz:konstruktion_q_ordnung}
@@ -137,7 +163,11 @@ als Reihe von Aussagen formulieren:
   \begin{enumerate}
   \item Aus \thref{lemma:cl_2} haben wir 
    $\pi_m(q^m-1) = m\pi_m(q-1) = ml$ und
-    damit $[F(u):F] = \ord_{ml}(q) = m$. 
+    damit nach \thref{lemma:ordn_1} 
+    \[ [F(u):F] \speq= \ord_{ml}(q) \speq= 
+      \frac{ml}{\ggT(\pi_{ml}(q-1), ml} \speq=
+      \frac{ml}{l} \speq= m\,,\]
+    da $\nu(ml) = \nu(m)$, wegen $l = \pi_m(q-1)$.
   \item Sei nun $\zeta \in F^\ast$ eine primitive $a$-te Einheitswurzel. Dann
     ist nach \thref{satz:kreisteilungspolynome_binome}
     \[ \Phi_m(x) \speq= \prod_{i\in I_a} (x^{\frac m a} - \zeta^i).\]
@@ -360,8 +390,40 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
   \end{enumerate}
 \end{satz}
 \begin{proof}
+  Wie zu beginn dieses Abschnitts erwähnt, sieht man leicht, dass
+  $m \in \S_{q^s}$.
   \begin{enumerate}
-    \item Zunächst stellen wir fest, dass 
+    \item Analog zum Beweis von \thref{satz:konstruktion_q_ordnung} 
+      folgern wir $\ord_{ml}(q) = sm$.
+    \item Nach \thref{satz:konstruktion_q_ordnung} ist nun
+      $g(x) := \Ord_{q^s}$ ein über $K := \F_{q^s}$ irreduzibler Teiler von
+      $\Phi_m(x)$. Sei nun $\zeta\in K$ eine primitive $b$-te Einheitswurzel,
+      so gilt ohne Einschränkung
+      \[ g(x) \speq= x^{\frac m b} -\zeta\]
+      Definiere nun $f(x) := \prod_{i=0}^{s-1} (x^{\frac m b} - \zeta^{q^i})$, 
+      so ist $f(x)$ ein irreduzibler monischer Teiler von $\Phi_m(x)$ über $F$,
+      wie man sich leicht überlegt, betrachtet man den Zerfall von
+      $\Phi_m(x)$ über $F$. Per definitionem von $g(x)$ ist auch
+      $f(\sigma^s)(u) = 0$. Also $\Ord_q(u) \mid f(x^s)$.
+      Es bleibt nun zu zeigen, dass $\Ord_q(u) = f(x^s)$:
+      Schreibe dazu $h(x) := \Ord_q(u)$. 
+      Betrachten wir nun 
+      \[ \Omega_F:\funcdef{ F[x] &\to& E':= \F_{q^{ms}}, \\
+        p(x) &\mapsto& p(\sigma^s)(u),}\]
+      so stellen wir fest, dass $\ker\Omega_F = (f(x))$, da $f(x)$ ist irreduzibel
+      über $F$ ist.
+      Bezeichne nun $M := \im\Omega_F$. Dann ist 
+      \[ \dim_F(M) \speq= \deg f \speq= \ord_m(q) \speq= s\ \frac m b\,,\]
+      wobei letzte Gleichheit aus \thref{lemma:ordn_1} und \thref{lemma:ordn_2}
+      folgt. Analog sehen wir ein, dass für
+      $\Omega_K: K[x] \to E',\ p(x) \mapsto p(\sigma^s)(u)$ wegen der
+      Irreduzibiltät von $g(x)$ über $K$
+      \[ \ker\Omega_K = (g(x)) \quad\text{und}\quad
+        \dim_F(N)= [K:F]\dim_K(N) \speq= s\ \frac m b\,,\]
+      für $N := \im\Omega_K$. Ferne ist klar, dass $M\subseteq N$, da
+      $\Omega_F = \Omega_K\mid_{F[x]}$, womit wir durch Gleichheit der
+      $F$-Dimensionen $M=N$ schließen können.
+      \TODO
   \end{enumerate}
 \end{proof}
 

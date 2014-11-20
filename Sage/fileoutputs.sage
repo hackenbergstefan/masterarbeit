@@ -234,7 +234,7 @@ def findPCN2Latex(fileins, border=lambda n: n**4, pairsToCheck=None):
     n = Integer(splitter[2])
     r = Integer(splitter[3])
     fileout = "../Latex/tables/pcns_"+str(n)+"_"+str(r)+"__"
-    fileout2 = "../Tables/pcns_"+str(n)+"_"+str(r)+".txt"
+    fileout2 = "../Tables/pcns_"+str(n)+"_"+str(r)+".csv"
 
     if pairsToCheck == None:
         primeList = map(lambda pr: pr[0], \

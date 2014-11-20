@@ -20,9 +20,9 @@ Wir wiederholen kurz die Definition einer \emph{Normalbasis}.
   Sei $F$ ein Körper und $E \mid F$ eine endliche Galoiserweiterung von Grad
   $n$. Sei ferner $w\in E$ mit $F(w) = E$. $w$ heißt \emph{normal über $F$},
   falls
-  \[ \{ \gamma(w) \mid \gamma \in \Gal(E\mid F) \}\]
+  \[ \{ \gamma(w):\ \gamma \in \Gal(E\mid F) \}\]
   eine $F$-Basis von $E$ ist. 
-  $\{ \gamma(w) \mid \gamma \in \Gal(E\mid F)\}$ heißt entsprechend 
+  $\{ \gamma(w):\ \gamma \in \Gal(E\mid F)\}$ heißt entsprechend 
   \emph{Normalbasis} und $g(x) \in F[x]$ mit 
   \[ g(x) = \prod_{\gamma \in \Gal(E\mid F)}(x - \gamma(w))\]
   heißt \emph{normales Polynom}.
@@ -60,6 +60,46 @@ Modulstruktur einer Körpererweiterung lesen lässt.
   %$\Ord_q(u) = \prod_{i=1}^s \Ord_q(u_i) = \prod_{i=1}^s r_i(x) = x^n -1$.
   \thref{satz:zerlegungssatz_zykl_vektorraume}.
 \end{proof}
+
+Darüber hinaus können wir  eine
+Formel präsentieren, die die Anzahl aller Elemente mit gegebener $q$-Ordnung
+liefert. Insbesondere gewinnen wir so eine Formel für die Anzahl aller
+normalen Elemente.
+
+\begin{definition}
+  Sei $f(x) \in \F_q[x]$ ein Polynom über einem endlichen Körper. Definiere
+  \[ \phi_q(f) \speq{:=} |\{ g(x) \in \F_q[x]:\ 
+    \deg g < \deg f,\ \ggT(f,g) = 1\}|\,.\]
+\end{definition}
+
+\begin{satz}
+  \label{satz:anzahl_normal}
+  Seien $\F_{q^n}$ über $F:=\F_q$ eine Erweiterung endlicher
+  Körper und $g(x) \mid x^n-1$ monisch mit $g(x) = \prod_{i=1}^k
+  g_i(x)^{\nu_i}$ seiner vollständigen Faktorisierung über $F$. Dann 
+  existieren genau
+  \[\phi_q(g) \speq= \prod_{i=1}^k \big( q^{\nu_i\deg g_i} - q^{(\nu_i-1)\deg
+    g_i}\big)\]
+  Elemente in $E$ mit $q$-Ordnung $g(x)$.
+  Insbesondere existieren
+  \[ \phi_q(x^n-1) \speq= q^{n'(\pi-1)}\,\prod_{d\mid n}
+    \left( q^{\ord_d(q)} -1 \right)^{\frac{\varphi(d)}{\ord_d(q)}}\]
+  Elemente, die normal über $\F_q$ sind, wobei $n = n'\pi$ mit $\ggT(n',q) = 1$.
+\end{satz}
+\begin{proof}
+  Mit \thref{kor:anzahl_erzeuger} müssen wir lediglich argumentieren, warum
+  es $q^{\nu_i\deg g_i}$ viele Elemente von $q$-Ordnung $g_i^{\nu_i}$ und
+  $q^{(\nu_i-1)\deg g_i}$ viele von $q$-Ordnung $g_i^{\nu_i-1}$ gibt. Dies ist
+  jedoch klar mit \thref{lemma:modul_dim_deg}: Ist $v\in E$ mit 
+  $\Ord_q(v) = g_i^{\nu_i}$, so gilt
+  \[ \dim_F(F[x]\cdot v) \speq= \deg(\Ord_q(v))\speq= \deg(g_i^{\nu_i})
+    \speq= \nu_i \deg(g_i)\,.\]
+  Damit ist auch die Gleichheit mit $\phi_q(g)$ klar.
+  Die Anzahl der normalen Elemente erhalten wir aus dem bekannten
+  Zerfall von $x^n-1$ über $F$ nach 
+  \thref{satz:zerfall_xn_1} und \thref{satz:zerfall_kreisteilungspolys}.
+\end{proof}
+
 
 \section{Stark reguläre Erweiterungen}
 \label{sec:stark_regulare_erweiterungen}
@@ -423,7 +463,30 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
       für $N := \im\Omega_K$. Ferne ist klar, dass $M\subseteq N$, da
       $\Omega_F = \Omega_K\mid_{F[x]}$, womit wir durch Gleichheit der
       $F$-Dimensionen $M=N$ schließen können.
-      \TODO
+      Schließlich sei $\Gamma_u: F[x]\to E',\ p(x) \mapsto p(\sigma)(u)$., so
+      ist $\ker\Gamma_u = (h(x))$ per Definition von $h(x)= \Ord_q(u)$. 
+      Nach \thref{satz:moduln_ueber_v_g} (3) folgt sofort
+      $\im\Gamma_u = V_h$ mit $V_h := \{ w\in E':\ h(\sigma)(w) = 0 \}$
+      und wegen $\Omega_F = \Gamma_u \circ (p(x)\mapsto p(x^s))$ ist
+      $N = M = \im\Omega_F \subseteq \im \Gamma_h$. Nach 
+      \thref{satz:moduln_ueber_v_g} (4) ist $V_h$ zyklisch, also invariant
+      unter $\sigma$ und ergo können wir folgern, dass
+      $N_i := \sigma^i(N) \subseteq V_h$ für alle $i\in \N$ gilt, wobei klar
+      ist, dass $N_i$ von $x^{\frac m b}-\zeta^{q^i} \in K[x]$ anihiliert wird.
+      Für $i=0,\ldots,s-1$ sind diese jedoch über $K$ paarweise teilerfremd
+      und wir folgern
+      \[ \sum_{i=0}^{s-1} N_i \speq= \bigoplus_{i=0}^{s-1} N_i 
+        \speq= \{ w \in E':\ f(\sigma^s)(w) = 0 \} := V_{f(x^s)} 
+        \speq\subseteq V_h\,.\]
+      Ergo $h(x) \mid f(x^s)$, mithin $h(x) = f(x^s)$.
+    \item Nach Definition von $R_q(m)$ (vgl. auch 
+      \thref{beispiel:zerfall_x21_1_1}) bestimmt $R_q(m)$ den Zerfall
+      von $x^m-1$ über $\F_q$. Für $j\in R_q(m)$ mit $\ggT(j,m) = 1$ 
+      ist damit nach (2) $\Ord_q(u^j) = f_j(x^s)$ für einen irreduziblen Teiler
+      $f_j(x)$ von $\Phi_m(x)$ über $F$. Für $i,j\in R_q(m)$ mit 
+      $\ggT(i,m) = \ggT(j,m) = 1$ und $i\neq j$ sind jene Teiler auch
+      verschieden und damit teilerfremd. Mithin gilt die Behauptung
+      nach \thref{lemma:eigenschaften_tau_ordnung} (2).
   \end{enumerate}
 \end{proof}
 

@@ -181,32 +181,16 @@ experimentell widmen wollen.
 Wir können nun zusammenfassen, dass von obigen Existenzproblemen lediglich
 \thref{prob:pcn>0} überlebt hat und alle anderen durch theoretische Resultate
 abgedeckt werden konnten. Nun können wir versuchen die Zählprobleme anzugehen
-und starten mit einem allgemein bekannten Resultat.
-
-\begin{definition}
-  Sei $f(x) \in \F_q[x]$ ein Polynom über einem endlichen Körper. Definiere
-  \[ \phi_q(f) \speq{:=} |\{ g(x) \in \F_q[x]:\ 
-    \deg g < \deg f,\ \ggT(f,g) = 1\}|\,.\]
-\end{definition}
-
-\begin{bemerkung}
-  $\phi_q(f)$ ist das Analogon zur Eulerschen Phifunktion für Polynome, da
-   $\phi_q(f)$ gerade die Anzahl der Einheiten im Ring $\F_q[x]\big/(f(x))$
-   angibt.
-\end{bemerkung}
+und starten mit der Wiederholung der Formel für normale Elemente aus
+\thref{satz:anzahl_normal}.
 
 \begin{satz}
-  \label{satz:anzahl_normal}
   Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$ mit $n\geq 2$, so existieren
   in $\F_{q^n}$ genau 
   \[ \phi_q(x^n-1) \speq= q^{n'(\pi-1)}\,\prod_{d\mid n}
     \left( q^{\ord_d(q)} -1 \right)^{\frac{\varphi(d)}{\ord_d(q)}}\]
   Elemente, die normal über $\F_q$ sind, wobei $n = n'\pi$ mit $\ggT(n',q) = 1$.
 \end{satz}
-\begin{proof}
-  \autocite[Theorem 3.73]{lidl1997finite} oder 
-  \autocite[Theorem 10.5]{hachenberger1997finite}.
-\end{proof}
 
 Obiger Satz beantwortet also \thref{prob:n=} vollständig. Für die Anzahlen von 
 primitiv normalen und primitiv vollständig normalen Elementen einer gegebenen

@@ -4,6 +4,7 @@ import string
 import subprocess
 import itertools
 import glob
+import datetime
 
 load("./enumeratePCNs.spyx")
 
@@ -227,27 +228,25 @@ def enumsPCN2Latex(filein):
         f.close()
     fout.close()
 
-def findPCN2Latex(fileins, border=lambda n: n**4):
+def findPCN2Latex(fileins, border=lambda n: n**4, pairsToCheck=None):
     print "process ",fileins
     splitter = str.split(str.split(fileins[0],"/")[-1],"_")
     n = Integer(splitter[2])
     r = Integer(splitter[3])
     fileout = "../Latex/tables/pcns_"+str(n)+"_"+str(r)+"__"
+    fileout2 = "../Tables/pcns_"+str(n)+"_"+str(r)+".txt"
 
-    border = border(n)
-    primeList = []
-    p = 2
-    while p**r < border:
-        primeList += [p]
-        p = next_prime(p)
+    if pairsToCheck == None:
+        primeList = map(lambda pr: pr[0], \
+                list(runGenerator(border(n), rRange=[r,r])))
 
-    curFileNumber = 0
-    fout = open(fileout+str(curFileNumber)+".tex", 'w')
+    processedPairs = []
+
     for filein in fileins:
-        lineCount = Integer(\
-                subprocess.check_output(["wc","-l",filein])\
-                .split(" ")[0]) - 1
         with open(filein) as f:
+            splitter = str.split(str.split(filein,"/")[-1],"_")
+            dt = datetime.datetime.strptime(splitter[-2]+"_"+splitter[-1],\
+                    "%Y-%m-%d_%H:%M:%S")
             for curLineNum,line in enumerate(f):
                 if all(c in string.whitespace for c in line): continue
                 splits = str.split(line,"\t")
@@ -257,46 +256,108 @@ def findPCN2Latex(fileins, border=lambda n: n**4):
                     poly = splits[2].strip()
                 except:
                     continue
-                primeList.remove(p)
-                #print "p=",p," r=",r," poly='",poly,"'"
-                F = GF(p**r,'a')
-                Fx = PolynomialRing(F,'x')
-                polyF = Fx(poly)
-                polyList = list(polyF)
-
-                # check trinom
-                outString = "\\textbf{"+str(p)+":} "
-                if polyF.hamming_weight() == 3 and polyList[n-1] == F.one():
-                    outString += "$"+str(polyList[0]).replace("*","")+"$"
+                if pairsToCheck == None:
+                    primeList.remove(p)
                 else:
-                    outString += ",\\ ".join([str(i)+":\\,$"\
-                            +str(c).replace("*","")+"$" \
-                            for i,c in enumerate(polyList[:-1]) if c != 0])
+                    try:
+                        pairsToCheck.remove((p,r))
+                    except:
+                        #print "cannot remove (p,r) = ",(p,r)
+                        # assume it is already processed
+                        for idx, (p1, r1, poly1, dt1) in enumerate(processedPairs):
+                            if p1 == p and r1 == r and dt1 < dt:
+                                #print "found newer one!"
+                                processedPairs[idx] = (p,r,poly,dt)
+                                break
+                        continue
+                processedPairs += [(p,r,poly, dt)]
+        f.close()
 
-                if curLineNum < lineCount:
-                    outString += ", "
+    processedPairs = sorted(processedPairs, key=lambda prpoly: prpoly[0])
 
-                #print curLineNum, outString
-                #COUNTER += 1
-                #if COUNTER > 5000: break
-                fout.write(outString+"\n")
-                if curLineNum > 0 and curLineNum%1000 == 0:
-                    fout.close()
-                    curFileNumber += 1
-                    fout = open(fileout+str(curFileNumber)+".tex", 'w')
+
+
+    curFileNumber = 0
+    fout = open(fileout+str(curFileNumber)+".tex", 'w')
+    fout2 = open(fileout2, 'w')
+    for idx, prpoly in enumerate(processedPairs):
+        p,r,poly,dt = prpoly
+        #print "p=",p," r=",r," poly='",poly,"'"
+        F = GF(p**r,'a')
+        Fx = PolynomialRing(F,'x')
+        polyF = Fx(poly)
+        polyList = list(polyF)
+
+        # write to Tables txt file
+        if r == 1:
+            fout2.write(str(p)+",\t"+str(polyF)+"\n")
+        else:
+            fout2.write(str(p)+",\t"+str(polyF)+",\t"+str(F.modulus())+"\n")
+
+        
+
+        # write to Latex
+        # check trinom
+        outString = "\\textsf{\\bfseries "+str(p)+":} "
+        if polyF.hamming_weight() == 3 and polyList[n-1] == F.one():
+            outString += "$"+str(polyList[0]).replace("*","")+"$"
+        else:
+            outString += ",\\ ".join([str(i)+":\\,$"\
+                    +str(c).replace("*","")+"$" \
+                    for i,c in enumerate(polyList[:-1]) if c != 0])
+
+        if idx < len(processedPairs)-1:
+            outString += ", "
+
+        #print curLineNum, outString
+        #COUNTER += 1
+        #if COUNTER > 5000: break
+        if idx > 0 and idx%100 == 0: outString += "\n"
+        fout.write(outString)
+        if idx > 0 and idx%1000 == 0:
             fout.close()
-    f.close()
+            curFileNumber += 1
+            fout = open(fileout+str(curFileNumber)+".tex", 'w')
+    fout.close()
+    fout2.close()
     print "max file: ", curFileNumber
-    print "missing primes: ",primeList
+    if pairsToCheck == None:
+        print "missing primes: ",primeList
 
 
 def findPCN2Latex_wrapper(basePath,n):
+    pairsToCheck = list(runGenerator(n**4))
     for r in itertools.count(1):
         globs = glob.glob(basePath+'pcns_trinom_'+str(n)+'_'+str(r)+'_*')
-        if len(globs) == 0: return
-        findPCN2Latex(globs)
+        if len(globs) == 0: break
+        findPCN2Latex(globs,pairsToCheck=pairsToCheck)
+    print "missing pairs: ", pairsToCheck
+    with open(basePath+"missing_pairs_"+str(n),'w') as f:
+        f.write(str(pairsToCheck))
+    f.close()
 
 
+def runGenerator(border,pRange=None,rRange=None):
+    if pRange == None:
+        p = 1
+    else:
+        p = pRange[0]
+    while p < border :
+        p = next_prime(p)
+        if pRange != None and p > pRange[1]: return
+        # consider only rs in rRange
+        if rRange != None:
+            for r in xrange(rRange[0],rRange[1]+1):
+                if p**r > border: break
+                yield p,r
+        # consider all rs
+        else:
+            r = 1
+            q = p**r
+            while q < border:
+                yield p,r
+                r += 1
+                q = p**r
 
 ###############################################################################
 ###############################################################################

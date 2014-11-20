@@ -1,0 +1,35 @@
+\section{$\PCN$-Polynome}
+
+\newcommand{\insertPCNS}[3]{%
+  \subsection{$\PCN$-Polynome für $n=#1$}
+  \begin{description}[leftmargin=0pt,labelindent=20pt,font=\normalsize]
+    \foreach \r/\max in {#2} {%
+      \item[$r=\r$:]
+        \foreach \num in {0,...,\max} {%
+          \input{./tables/pcns_#1_\r__\num.tex}
+        }
+    }
+    \foreach \r in {#3} {%
+      \item[$r=\r$:] \input{./tables/pcns_#1_\r__0.tex}
+    }
+  \end{description}}
+
+
+
+%\tiny
+\fontsize{4}{5}\selectfont
+
+
+\insertPCNS{6}{}{1,...,10}
+\insertPCNS{10}{1/1}{2,...,8}
+\insertPCNS{12}{1/2}{2,...,7}
+\insertPCNS{14}{1/4}{2,...,11}
+\insertPCNS{15}{1/5}{2,3}
+\insertPCNS{18}{1/10}{2,...,8}
+\insertPCNS{20}{1/14}{2,...,5}
+\insertPCNS{21}{1/17}{2,...,5}
+\insertPCNS{22}{1/20}{2,...,4}
+\insertPCNS{24}{1/28}{2,...,4}
+\insertPCNS{26}{1/36}{2,...,3}
+\insertPCNS{28}{1/50}{2,...,9}
+

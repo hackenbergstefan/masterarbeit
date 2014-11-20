@@ -8,9 +8,9 @@ $x^n-1 \in K[x]$ über $K$ zerfällt. Dazu orientieren wir uns
 an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 
 \begin{definition}[Kreisteilungskörper, Einheitswurzeln]
-  Sei $n\in\N^\ast$. Der Zerfällungskörper von $X^n-1 \in K[X]$ heißt
+  Sei $n\in\N^\ast$. Der Zerfällungskörper von $x^n-1 \in K[x]$ heißt
   der \emph{$n$-te Kreisteilungskörper} und wird mit $K\kl n$ notiert.
-  Die Nullstellen von $X^n-1$ in $K\kl n$ heißen \emph{$n$-ten
+  Die Nullstellen von $x^n-1$ in $K\kl n$ heißen \emph{$n$-ten
   Einheitswurzeln} und die Menge derer wird mit $E\kl n$ bezeichnet.
 \end{definition}
 
@@ -23,7 +23,7 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
     \item Ist $p \mid n$ und schreibt man $n = p^e m$ 
       für positive ganze Zahlen $m$ und $e$ mit $p\nmid m$, so
       ist $K\kl n = K\kl m$ und $E\kl n= E\kl m$ und die Nullstellen von
-      $X^n-1 \in K[X]$ sind gerade die Elemente in $E\kl m$ jedoch jeweils mit
+      $x^n-1 \in K[x]$ sind gerade die Elemente in $E\kl m$ jedoch jeweils mit
       Multiplizität $p^e$.
   \end{enumerate}
 \end{satz}
@@ -42,7 +42,7 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 
 \begin{definition}[Kreisteilungspolynom]
   Seien $n \in \N^\ast$, $p\nmid n$. Das Polynom 
-  \[ \Phi_n(X) \speq{:=} \prod_{\zeta \in C\kl n} (X - \zeta)\]
+  \[ \Phi_n(x) \speq{:=} \prod_{\zeta \in C\kl n} (x - \zeta)\]
   heißt \emph{$d$-tes Kreisteilungspolynom}.
 \end{definition}
 
@@ -51,9 +51,8 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
   Seien $K$ ein Körper der Charakteristik $p$ und $n \in \N^\ast$ mit $p\nmid
   n$. Dann gilt:
   \begin{enumerate}
-    \item $X^n-1 = \prod_{d\mid n} \Phi_d(X)$.
-    \item $\Phi_n(X) \in P[X]$, wobei $P\subset K$ den Unterkörper mit $p$
-      Elementen notiert.
+    \item $x^n-1 = \prod_{d\mid n} \Phi_d(x)$.
+    \item $\Phi_n(x) \in P[x]$, wobei $P$ den Primkörper von $K$ notiere.
   \end{enumerate}
 \end{satz}
 \begin{proof}
@@ -110,20 +109,20 @@ uns über die gesamte Arbeit hinweg begleiten wird.
 \begin{satz}
   \label{satz:zerfall_kreisteilungspolys}
   Seien $q$ eine Primzahlpotenz und $n\in \N^\ast$ mit $\ggT(q,n)=1$. Dann
-  zerfällt das $n$-te Kreisteilungspolynom $\Phi_n(X)$ über $\F_q$ in
+  zerfällt das $n$-te Kreisteilungspolynom $\Phi_n(x)$ über $\F_q$ in
   \[ \frac{\varphi(n)}{\ord_n(q)}\]
   irreduzible paarweise teilerfremde Polynome von jeweils Grad $\ord_n(q)$.
 \end{satz}
 \begin{proof}
-  Sei $f(X) \mid \Phi_n(X)$ ein irreduzibler Teiler über $\F_q$. Ist dann
-  $\zeta \in C\kl n$ eine Nullstelle von $f(X)$, so sind 
+  Sei $f(x) \mid \Phi_n(x)$ ein irreduzibler Teiler über $\F_q$. Ist dann
+  $\zeta \in C\kl n$ eine Nullstelle von $f(x)$, so sind 
   nach \thref{satz:nst_irred_polys} auch
-  \[ \zeta^q, \zeta^{q^2}, \ldots, \zeta^{q^n} \]
-  Nullstellen von $f(X)$. Jedoch sind offenbar nur $\ord_n(q)$ dieser 
+  \[ \zeta^q, \zeta^{q^2}, \ldots, \zeta^{q^{n-1}} \]
+  Nullstellen von $f(x)$. Jedoch sind offenbar nur $\ord_n(q)$ dieser 
   verschieden und da $f$ als irreduzibles Polynom wieder nach 
   \thref{satz:nst_irred_polys} nur einfache Nullstellen besitzt,
   können wir folgern, dass $\deg f = \ord_n(q)$.
-  Da $f(X)$ als beliebiger irreduzibler Teiler von $\Phi_n(X)$ gewählt wurde,
+  Da $f(x)$ als beliebiger irreduzibler Teiler von $\Phi_n(x)$ gewählt wurde,
   folgt sofort die Behauptung, wenn man sich überlegt, dass der Grad des
   $n$-ten Kreisteilungspolynoms per definitionem gerade $\varphi(n)$ ist.
 \end{proof}
@@ -147,8 +146,8 @@ Dies motiviert nachstehende Definition.
 %\begin{lemma}
   %\label{lemma:uber-pi-m-2}
   %Für natürliche Zahlen $m$, $k$ gilt
-  %\[ k \speq= \pi_m(k)\cdot l \]
-  %mit $\ggT(m \pi_m(k), l) = 1$.
+  %\[ k \speq= \cl_m(k)\cdot l \]
+  %mit $\ggT(m \cl_m(k), l) = 1$.
 %\end{lemma}
 %\begin{proof}
   %Dies sieht man sehr leicht, wenn man sich die Primfaktorzerlegungen der
@@ -161,20 +160,21 @@ Dies motiviert nachstehende Definition.
   %\end{align*}
   %für geeignete $\nu_\cdot,\nu'_\cdot,\eta_\cdot,\eta'_\cdot > 0$, wobei
   %natürlich $\ggT(r_1\cdot\ldots\cdot r_t, r'_1\cdot\ldots\cdot r'_{t'}) = 1$.
-  %Dann ist $\pi_m(k)$ der größte Teiler von $k$, dessen quadratfreier Teil, den
+  %Dann ist $\cl_m(k)$ der größte Teiler von $k$, dessen quadratfreier Teil, den
   %quadratfreien Teil von $m$ teilt, also
-  %\[ \pi_m(k) \speq= p_1^{\nu'_1}\cdot\ldots\cdot p_s^{\nu'_s}\,.\]
+  %\[ \cl_m(k) \speq= p_1^{\nu'_1}\cdot\ldots\cdot p_s^{\nu'_s}\,.\]
   %Damit ist $l = {r'}_1^{{\eta'}_1}\cdot\ldots\cdot {r'}_{t'}^{{\eta'}_{t'}}$ 
   %und die Behauptung folgt sofort.
 %\end{proof} 
 
 \begin{definition}
   \label{def:nebenklassen_mod_m}
-  Für $m,q\in\N$ mit $\ggT(m,q) = 1$ und $j \in \Z_m$ definieren wir
+  Für $m,q\in\N$ mit $\ggT(m,q) = 1$ und $j \in \{0,\ldots,m-1\}$ definieren wir
   \[ M_q(j\bmod m) \speq{:=} \{ j\,q^i \bmod m:\ i\in\N\} \speq= 
     \{j,\ jq,\ jq^2,\ jq^3,\ldots\ \bmod m\}\]
-  Ein vollständiges Repräsentantensystem von Nebenklassen von $M_q(1\bmod m)$
-  in $\Z_m$ sei mit $R_q(m)$ bezeichnet. Für $l \in M_q(j\bmod m)$ 
+  Ein vollständiges Repräsentantensystem von Nebenklassen 
+  der Untergruppe $M_q(1\bmod m)$
+  in $\Z_m$ sei mit $R_q(m)$ bezeichnet. Für $l=1,\ldots,m-1$
   bezeichne ferner
   $r_q(l \bmod m) := |\{lq^i:\ i\in \N \}|$ die Länge der zugehörigen Bahn.
 \end{definition}
@@ -187,8 +187,8 @@ Dies motiviert nachstehende Definition.
 
 \begin{beispiel}
   \label{beispiel:zerfall_x21_1_1}
-  Wollen wir den Zerfall von $X^{21}-1$ über $\F_2$ untersuchen, so berechnen
-  wir erst ein Vertretersystem von Restklassen $\bmod{21}$:
+  Wollen wir den Zerfall von $x^{21}-1$ über $\F_2$ untersuchen, so berechnen
+  wir erst ein Vertretersystem von Restklassen modulo 21:
   \[\begin{array}[t]{r|l}
     l \in R_2(21) & M_2(l \bmod{21}) \\\hline
     0 & 0 \\
@@ -199,37 +199,37 @@ Dies motiviert nachstehende Definition.
     9 & 9, 15, 18
   \end{array}\]
   Nun wissen wir aus \thref{satz:zerfall_xn_1}, dass 
-  \[ X^{21} -1 = \Phi_1(X) \cdot \Phi_3(X) \cdot \Phi_7(X) \cdot
-  \Phi_{21}(X)\,.\]
-  Die Nullstellen von $\Phi_{21}(X)$ partitionieren sich gerade in
+  \[ x^{21} -1 = \Phi_1(x) \cdot \Phi_3(x) \cdot \Phi_7(x) \cdot
+  \Phi_{21}(x)\,.\]
+  Die Nullstellen von $\Phi_{21}(x)$ partitionieren sich gerade in
   diejenigen $M_2(l\bmod{21})$ für die $l=1,5$.
   Also haben wir 
   \[\footnotesize\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
     \begin{array}{rcccc} 
-      \Phi_{21}(X) &=& (X^{6} + X^{4} + X^{2} + X + 1) 
-        &\cdot& (X^{6} + X^{5} + X^{4} + X^{2} + 1) \\
-      &=& (X-\zeta)(X-\zeta^2)(X-\zeta^4)(X-\zeta^8)(X-\zeta^{11})
-        (X-\zeta^{16}) &\cdot&
-        (X-\zeta^5)(X-\zeta^{10})(X-\zeta^{13})(X-\zeta^{17})
-        (X-\zeta^{19})(X-\zeta^{20})\,
+      \Phi_{21}(x) &=& (x^{6} + x^{4} + x^{2} + x + 1) 
+        &\cdot& (x^{6} + x^{5} + x^{4} + x^{2} + 1) \\
+      &=& (x-\zeta)(x-\zeta^2)(x-\zeta^4)(x-\zeta^8)(x-\zeta^{11})
+        (x-\zeta^{16}) &\cdot&
+        (x-\zeta^5)(x-\zeta^{10})(x-\zeta^{13})(x-\zeta^{17})
+        (x-\zeta^{19})(x-\zeta^{20})\,
     \end{array}\]
   falls wir $\zeta \in C\kl{21}$ als Nullstelle von
-  $X^6+X^4+X^2+X+1$ setzen.
-  Analog erhalten wir den Zerfall von $\Phi_7(X)$ durch Betrachtung der
+  $x^6+x^4+x^2+x+1$ setzen.
+  Analog erhalten wir den Zerfall von $\Phi_7(x)$ durch Betrachtung der
   $M_2(l\bmod{21})$ für $l=3,9$. 
   \[\footnotesize\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
     \begin{array}{rcccc} 
-      \Phi_7(X)&=& (X^{3} + X + 1) &\cdot& (X^{3} + X^{2} + 1) \\
-      &=& (X-\zeta^3)(X-\zeta^{3\cdot 2})(X-\zeta^{3\cdot 4}) &\cdot&
-        (X-\zeta^{3\cdot 3})(X-\zeta^{3\cdot 5})(X-\zeta^{3\cdot 6}) 
+      \Phi_7(x)&=& (x^{3} + x + 1) &\cdot& (x^{3} + x^{2} + 1) \\
+      &=& (x-\zeta^3)(x-\zeta^{3\cdot 2})(x-\zeta^{3\cdot 4}) &\cdot&
+        (x-\zeta^{3\cdot 3})(x-\zeta^{3\cdot 5})(x-\zeta^{3\cdot 6}) 
     \end{array}\]
   Sammeln wir den Rest auf, erhalten wir die Partitionierung für
-  $\Phi_3(X)$ und den trivialen Fall $\Phi_1(X)$.
+  $\Phi_3(x)$ und den trivialen Fall $\Phi_1(x)$.
   \[ \begin{array}{rcc} 
-    \Phi_3(X) &=& X^2 + X + 1\\
-              &=& (X-\zeta^7)(X-\zeta^{14})\,,\\[10pt]
-    \Phi_1(X) &=& X-1\\
-             &=& X-\zeta^0\,.
+    \Phi_3(x) &=& x^2 + x + 1\\
+              &=& (x-\zeta^7)(x-\zeta^{14})\,,\\[10pt]
+    \Phi_1(x) &=& x-1\\
+             &=& x-\zeta^0\,.
     \end{array}\]
 \end{beispiel}
 
@@ -242,7 +242,7 @@ einige Eigenschaften.
 
 \begin{definition}
   Seien $r,n\in \N$, so definiere
-  \[ \pi_r(n) \speq{:=} \max\{k \in \N^\ast:\ k \mid n,\ \nu(k) \mid \nu(r)
+  \[ \cl_r(n) \speq{:=} \max\{k \in \N^\ast:\ k \mid n,\ \nu(k) \mid \nu(r)
   \}\,.\]
 \end{definition}
 
@@ -253,9 +253,9 @@ einige Eigenschaften.
   Dann gilt:
   \begin{enumerate}
     \item Ist $r\neq 2$ oder $q\equiv 1 \bmod 4$, so gilt
-      \[ \pi_r(q^{r^n}-1) \speq= r^n\, \pi_r(q-1) \,.\]
+      \[ \cl_r(q^{r^n}-1) \speq= r^n\, \cl_r(q-1) \,.\]
     \item Ist $q \equiv 3 \bmod 4$, so gilt
-      \[ \pi_2(q^{2^n}-1) \speq= 2^{n-1}\, \pi_2(q^2-1)\,.\]
+      \[ \cl_2(q^{2^n}-1) \speq= 2^{n-1}\, \cl_2(q^2-1)\,.\]
   \end{enumerate}
 \end{lemma}
 \begin{proof}
@@ -269,9 +269,9 @@ einige Eigenschaften.
   \begin{enumerate}
     \item Ist $m$ ungerade oder $q \equiv 1 \bmod 4$ oder $k$ ungerade, so
       gilt
-      \[ \pi_m(q^k-1) \speq= k\,\pi_m(q-1)\,. \]
+      \[ \cl_m(q^k-1) \speq= k\,\cl_m(q-1)\,. \]
     \item Ist $m$ gerade, $q \equiv 3 \bmod 4$ und $k$ gerade, so ist
-      \[ \pi_m(q^k-1) \speq= \tfrac k 2\, \pi_m(q^2-1)\,.\]
+      \[ \cl_m(q^k-1) \speq= \tfrac k 2\, \cl_m(q^2-1)\,.\]
   \end{enumerate}
 \end{lemma}
 \begin{proof}
@@ -281,18 +281,18 @@ einige Eigenschaften.
 
 \begin{satz}
   \label{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}
-  Seien $t,k \in \N^\ast$.
+  Seien $t,k \in \N^\ast$ und $K$ ein Körper der Charakteristik $p$.
   \begin{enumerate}
     \item Ist $\nu(t) \mid k$, so gilt
-      \[ \Phi_k(X^t) \speq= \Phi_{kt}(X) \ \in K[X]\,.\]
+      \[ \Phi_k(x^t) \speq= \Phi_{kt}(x) \ \in K[x]\,.\]
     \item Sind $t$ und $k$ teilerfremd, so gilt
-      \[ \Phi_k(X^t) \speq= \prod_{d\mid t} \Phi_{kd}(X)\ \in K[X]\,.\]
+      \[ \Phi_k(x^t) \speq= \prod_{d\mid t} \Phi_{kd}(x)\ \in K[x]\,.\]
     \item Insbesondere gilt: Ist $q = p^r$ eine Primzahlpotenz,
       $t,k\in\N^\ast$ mit $p\nmid t,k$ und $\pi$ eine Potenz von $p$. Sei ferner
-      $t = \pi_k(t)\cdot \bar t$, so gilt
-      \[ \Phi_k(X^{t\pi}) \speq= 
-        \left(\prod_{d\mid \bar t} \Phi_{k\,d\,\pi_k(t)} (X)\right)^\pi
-        \ \in \F_q[X]\,. \]
+      $t = \cl_k(t)\cdot \bar t$, so gilt
+      \[ \Phi_k(x^{t\pi}) \speq= 
+        \left(\prod_{d\mid \bar t} \Phi_{k\,d\,\cl_k(t)} (x)\right)^\pi
+        \ \in \F_q[x]\,. \]
   \end{enumerate}
 \end{satz}
 \begin{proof}
@@ -306,7 +306,7 @@ einige Eigenschaften.
   Gruppenhomomorphismus
   \[ \psi_n:\ \bar K^\ast \to \bar K^\ast,\ x \mapsto x^n\]
   für $p\nmid n$. Denn nun ist offensichtlich, dass die Nullstellen von 
-  $\Phi_k(X^t)$ gerade alle Elemente in $\bar K^\ast$, deren $t$-te Potenz
+  $\Phi_k(x^t)$ gerade alle Elemente in $\bar K^\ast$, deren $t$-te Potenz
   eine primitive $k$-te Einheitswurzel ist, sind, also $\psi_t\inv(C\kl k)$.
   Ergo formulieren sich die Aussagen wie folgt um:
   \begin{enumerate}[label=(\arabic*')]
@@ -314,17 +314,17 @@ einige Eigenschaften.
       $\psi_t\inv(C\kl k) \speq= C\kl{kt}$.
     \item Ist $\ggT(t,k)=1$, so gilt
       $\psi_t\inv(C\kl k) \speq= \bigcupdot_{d\mid t} C\kl{kd}$.
-    \item Ist $k,t\in \N^\ast$ mit $p\nmid t,k$ und $k = \pi_k(t) \bar t$,
+    \item Ist $k,t\in \N^\ast$ mit $p\nmid t,k$ und $k = \cl_k(t) \bar t$,
       so gilt
       \[ \psi_t\inv(C\kl k) \speq= 
-        \bigcupdot_{d\mid \bar t} C\kl{k\,d\,\pi_k(t)}\]
+        \bigcupdot_{d\mid \bar t} C\kl{k\,d\,\cl_k(t)}\]
   \end{enumerate}
   Nun ist offensichtlich, dass es reicht (3') zu zeigen. 
-  Dazu notiere $t_0 := \pi_k(t)$ und seien $d\mid \bar t$ 
+  Dazu notiere $t_0 := \cl_k(t)$ und seien $d\mid \bar t$ 
   und $\zeta \in C\kl{kd t_0}$ beliebig. Dann ist 
   \[ \ord(\zeta^t) = \ord((\zeta^{t_0d})^{\frac{\bar t}{d}})
     = k\,,\]
-  da per definitionem von $\pi_k(t)$ gerade $\ggT(\bar t, kt_0) = 1$.
+  da per definitionem von $\cl_k(t)$ gerade $\ggT(\bar t, kt_0) = 1$.
   Also gilt $\psi_t(C\kl{kdt_0}) \subseteq C\kl k$
   und damit
   \[ \bigcupdot_{d\mid \bar t} C\kl{kdt_0} \speq\subseteq 
@@ -368,7 +368,7 @@ Binom $x^n-\beta \in \F_q[x]$ irreduzibel ist.
   $u \in \psi_n\inv(C\kl{e})$. Damit gilt nach
   \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys} (3)
   \[ x^n-\beta \speq= \prod_{d\mid \bar n} \ggT(x^n-\beta, \Phi_{en_0d}(x))\]
-  für $n = \pi_{e}(n) \bar n$ und diese Zerlegung ist, wie man sich analog zum
+  für $n = \cl_{e}(n) \bar n$ und diese Zerlegung ist, wie man sich analog zum
   Beweis von \thref{satz:zerfall_kreisteilungspolys} überlegen kann, 
   nicht trivial (vgl. \autocite[Theorem \ldots]{hachenberger2015}). 
   Damit ist (2) der Behauptung
@@ -389,7 +389,7 @@ Für die letzte Bedingung in obigem Satz existieren noch verschiedene weitere
     \item $\ord_{ne}(q)  = n$,
     \item $\ggT(\tfrac{q-1}{e},n)=1$ und $q\equiv 1 \bmod 4$, falls $4\mid n$,
       und
-    \item $\pi_n(q-1) \mid e$ und $q\equiv 1 \bmod 4$, falls $4\mid n$.
+    \item $\cl_n(q-1) \mid e$ und $q\equiv 1 \bmod 4$, falls $4\mid n$.
   \end{enumerate}
 \end{satz}
 \begin{proof}
@@ -414,7 +414,7 @@ von Normalbasen spielen.
   \label{satz:kreisteilungspolynome_binome}
   Seien $\F_q$ ein endlicher Körper von Charakteristik $p$ und $m \in \N^\ast$.
   Es gelte $p\nmid m$, $\nu(m)\mid q-1$ und $4\mid q-1$, falls $2\mid m$.
-  Setze $l := \pi_m(q-1)$, $a := \ggT(l,m)$ und $I_a := \{ j\in \N^\ast:\ 
+  Setze $l := \cl_m(q-1)$, $a := \ggT(l,m)$ und $I_a := \{ j\in \N^\ast:\ 
   j\geq a,\ \ggT(j,a)=1\}$. Ist $\zeta \in \F_q^\ast$ eine primitive 
   $a$-te Einheitswurzel, so ist
   \[ \Phi_m(x) \speq= \prod_{j\in I_a} \big( x^\frac m a - \zeta^j\big) \]
@@ -433,12 +433,12 @@ von Normalbasen spielen.
   ohne Einschränkung $j=1$ wählen können: Klar ist, dass $p\nmid \frac m a$, da
   $p \nmid m$ nach Voraussetzungen. Ferner ist $\nu(l) = \nu(m)$, da wegen
   $\nu(m) \mid q-1$ gilt:
-  \[ \pi_m(q-1) = \max\{k\in \N^\ast:\ k\mid q-1,\ \nu(k)= \nu(m) \}\,. \]
+  \[ \cl_m(q-1) = \max\{k\in \N^\ast:\ k\mid q-1,\ \nu(k)= \nu(m) \}\,. \]
   Also ist auch $\nu(a) = \nu(\ggT(l,m)) = \nu(m)$ und damit folgt
   $\nu(\tfrac m a) \mid \nu(m) = \nu(a) \mid a$, womit auch (2) in 
   \thref{satz:binom_irreduzibel} erfüllt wäre.
-  Da $\nu(m)\mid q-1$ ist $\pi_{\frac m a}(q-1) \mid m$, also auch
-  $\pi_{\frac m a}(q-1)\mid a$. Damit wäre durch die Bedingung $q\equiv 1 \bmod
+  Da $\nu(m)\mid q-1$ ist $\cl_{\frac m a}(q-1) \mid m$, also auch
+  $\cl_{\frac m a}(q-1)\mid a$. Damit wäre durch die Bedingung $q\equiv 1 \bmod
   4$, falls $2\mid m$, auch (3) in \thref{satz:binom_irreduzibel_aquiv}
   erfüllt.
 \end{proof}
@@ -464,7 +464,7 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   \label{satz:zerfall_f_x_s}
   Seien $q=p^r$ eine Primzahlpotenz und
   $m,t\in \N$ mit $p\nmid m$, $p\nmid t$ und $\ggT(m,t) = 1$.
-  Definieren wir ferner
+  Definieren wir für $d\mid t$ ferner
   \[ \Delta_q(m,d) \speq{:=} \frac{\varphi(d) \ord_m(q)}{\ord_{md}(q)}\,,\]
   so gilt:
   \begin{enumerate}
@@ -514,7 +514,7 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   %Wir bemerken kurz, dass $\alpha$ nicht in obiger Nullstellenmenge liegt, da
   %$q^i \neq t$ für alle $i=1,\ldots,\delta-1$ und damit 
   %$\beta^{q^i} \neq \alpha$ für alle $i=1,\ldots,\delta-1$, was
-  %$f(X)\nmid f(X^t)$ zeigt.
+  %$f(x)\nmid f(x^t)$ zeigt.
   Wollen wir nun einsehen, wie $f(x^t)$ über $\F_q$ zerfällt, so müssen wir
   überlegen, wie obige Nullstellenmenge in $\sigma$-invariante Teilmengen
   zerfällt. Für jedes $d\mid t$ und jedes $j\in\{0,\ldots,\delta -1\}$ ist

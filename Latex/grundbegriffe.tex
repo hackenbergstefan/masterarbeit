@@ -1,9 +1,9 @@
 \chapter{Grundbegriffe}
 \label{chap:grundbegriffe}
 
-In diesem Kapitel wollen wir ein paar grundlegende Resultate wiederholen, die
-dem Leser sicherlich bekannt sind. Daher werden wir die meisten Aussagen ohne
-Beweis lediglich zitieren. Wir beginnen dabei bei der Gruppentheorie und
+In diesem Kapitel wollen wir einige grundlegende Resultate wiederholen, die
+dem Leser sicherlich bekannt sind. Daher werden wir die meisten Aussagen 
+lediglich ohne Beweis zitieren. Wir beginnen dabei bei der Gruppentheorie und
 zitieren einige Aussagen über zyklische Gruppen. Diese werden uns später
 helfen, die Untergruppe der (primitiven) Einheitswurzeln
 in \autoref{chap:kreisteilungspolynome} zu verstehen. Im anschließend Abschnitt
@@ -27,18 +27,18 @@ zusammen.
       so erzeugt $a^k$ eine Untergruppe der Ordnung $\frac{m}{\ggT(m,k)}$.
     \item Sei $\langle a\rangle$ eine zyklische Gruppe der Ordnung $m$ und
       $d \mid m$, so enthält $\langle a \rangle$ genau eine Untergruppe der
-  u    Ordnung $d$.
+      Ordnung $d$.
      \item Sei $f$ ein positiver Teiler der Gruppenordnung einer endlichen
         zyklischen Gruppe $\langle a \rangle$. Dann enthält $\langle a \rangle$
         genau $\varphi(f)$ Elemente der Ordnung $f$.
-     \item Eine zyklische Gruppe der Ordnung $m$ enthält genau $\varphi(m)$
         ($\varphi$ bezeichne die Eulersche Phifunktion)
+     \item Eine zyklische Gruppe der Ordnung $m$ enthält genau $\varphi(m)$
         Erzeuger. Ist $a$ ein Erzeuger, so sind alle Erzeuger der Form
         $a^r$ mit $\ggT(r,m) = 1$.
   \end{enumerate}
 \end{satz}
 
-Da wir später ein paar Eigenschaften der Eulerschen Phifunktion benötigen
+Da wir später ein paar Eigenschaften benötigen
 werden, wiederholen wir die wohlbekannte Definition der Eulerschen
 Phifunktion und geben wir dann die wichtigsten Rechenregeln an.
 
@@ -60,10 +60,10 @@ Phifunktion und geben wir dann die wichtigsten Rechenregeln an.
 
 \begin{lemma}[Rechenregeln der Eulerschen Phifunktion]
   \label{lemma:rechenregeln_phifunktion}
-  Sei $a,b\in\N^\ast$, so gilt
+  Seien $a,b\in\N^\ast$, so gilt
   \begin{enumerate}
     \item $\varphi(ab) = \varphi(a)\varphi(b)$, falls $\ggT(a,b) = 1$,
-    \item $\varphi(a) = \sum_{d\mid a} \varphi(d)$ und
+    \item $a = \sum_{d\mid a} \varphi(d)$ und
     \item $\varphi(a) = \tfrac{a}{\nu(a)}\varphi(\nu(a))$.
   \end{enumerate}
 \end{lemma}
@@ -102,8 +102,8 @@ eines endlichen Körpers einen Namen zu geben.
 
 \begin{satz}
   \label{satz:frob_auto}
-  Seien $F$ ein endlicher Körper der Charakteristik $p\neq 0$ und 
-  $n\in \N_{>0}$. Dann ist
+  Seien $F = \F_q$ ein endlicher Körper der Charakteristik $p\neq 0$ und 
+  $n\in \N^\ast$. Dann ist
   \[ \sigma_n: \funcdef{F &\to& F\\
     a &\mapsto& a^{p^n}}\]
   ein Automorphismus auf $F$.
@@ -119,7 +119,7 @@ eines endlichen Körpers einen Namen zu geben.
 
 \begin{satz}
   \label{satz:frob_fix}
-  Sei $q$ eine Primpotenz und $n\in \N_{>0}$. Der Automorphismus
+  Sei $q$ eine Primzahlpotenz und $n\in \N^\ast$. Der Automorphismus
   \[ \sigma: \funcdef{\F_{q^n} &\to& \F_{q^n}\\
     a &\mapsto& a^q}\]
   hält die Elemente von $\F_q$ fest, also 
@@ -127,6 +127,8 @@ eines endlichen Körpers einen Namen zu geben.
   Ferner ist $\sigma^k \neq \id_{\F_{q^n}}$ für $k=1,\ldots,n-1$, alle
   $\sigma^k$s sind paarweise verschiedene Automorphismen und 
   $\sigma^n = \id_{\F_{q^n}}$.
+  $\sigma$ heißt auch \emph{Frobenius-Endomorphismus} oder
+  \emph{Frobenius-Automorphismus}.
 \end{satz}
 
 
@@ -137,21 +139,22 @@ $F$, so können wir das folgende zentrale Resultat zitieren:
   \label{satz:frob_sind_alle_autos}
   Es gilt
   \[ \Gal(\F_{q^n}\mid \F_q) \speq= \langle \sigma\rangle\,.\]
-  Das bedeutet, dass es neben $\sigma,\ldots,\sigma^{n-1}$ keine weiteren
+  Das bedeutet, dass es neben $\sigma^0,\sigma,\ldots,\sigma^{n-1}$ keine weiteren
   Automorphismen von $\F_{q^n}$ gibt, die $\F_q$ fixieren.
 \end{satz}
 \begin{proof}
   \autocite[Theorem 7.3]{wan2003lectures}.
 \end{proof}
 
-Neben der Tatsache, dass der Frobenius alle Endomorphismen erzeugt, können wir
-auch zeigen, dass alle Potenzen des Frobenius von $\F_q$ über $\F_{q^n}$ linear
+Neben der Tatsache, dass der Frobenius-Automorphismus 
+alle Elemente der Galoisgruppe erzeugt, können wir
+auch zeigen, dass alle Potenzen des Frobenius von $\F_q^n$ über $\F_q$ linear
 unabhängig sind. Dies gilt sogar in einem größeren Kontext:
 
 \begin{satz}[Dedekindsches Lemma]
   \label{satz:dedekindsches_lemma}
   Seinen $K,L$ zwei Körper, $n \in \N$ und $\tau_1,\ldots,\tau_n: K\to L$
-  injektive Körperhomorphismen. Dann ist für jedes $x \in K$
+  verschiedene injektive Körperhomorphismen. Dann ist für jedes $x \in K$
   \[ \{\tau_1(x),\ldots,\tau_n(x) \}\]
   linear unabhängig über $L$.
 \end{satz}
@@ -163,18 +166,16 @@ unabhängig sind. Dies gilt sogar in einem größeren Kontext:
 Mit \thref{satz:frob_sind_alle_autos} wird klar, dass für ein
 irreduzibles Polynom $f(x) \in \F_q[x]$, das in $\F_{q^n}$ eine Nullstelle 
 $\alpha$ besitzt, auch $\sigma^i(\alpha)$ für alle $i=1,\ldots,n-1$
-Nullstellen sind. 
-Ferner kann man sich relativ einfach überlegen, dass
-für ein irreduzibles Polynom $f(x)\in \F_q[x]$ eine Nullstelle 
-in $\F_{q^n}$ zu besitzen hinreichend ist, dass $f(x)$ vom Grad $n$ ist. 
-Beides fasst nachstehender Satz zusammen.
+Nullstellen sind. Ferner kann man sich auch relativ leicht überlegen, dass auch
+jedes Polynom $f(x) \in \F_q[x]$ vom Grad $n$ eine Nullstelle in 
+$\F_{q^n}$ besitzt. Beides fasst nachstehender Satz zusammen.
 
 \begin{satz}
   \label{satz:nst_irred_polys}
   Ist $f(x) \in \F_q[x]$ ein irreduzibles Polynom vom Grad $n$. Dann 
   existiert eine Nullstelle $\alpha$ von $f(x)$ in $\F_{q^n}$, alle 
   Nullstellen von $f(x)$ sind einfach und gegeben durch
-  \[ \alpha, \alpha^{q^2}, \ldots, \alpha^{q^{n-1}}\ \in \F_{q^n}\,.\]
+  \[ \alpha, \alpha^q, \alpha^{q^2}, \ldots, \alpha^{q^{n-1}}\ \in \F_{q^n}\,.\]
 \end{satz}
 \begin{proof}
   \autocite[Theorem 2.14]{lidl1997finite}.

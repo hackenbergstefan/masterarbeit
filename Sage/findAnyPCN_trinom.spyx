@@ -272,7 +272,7 @@ def runGenerator(border,pRange=None,rRange=None):
         p = pRange[0]
     while p < border :
         p = next_prime(p)
-        if p > pRange[1]: return
+        if pRange != None and p > pRange[1]: return
         # consider only rs in rRange
         if rRange != None:
             for r in xrange(rRange[0],rRange[1]+1):

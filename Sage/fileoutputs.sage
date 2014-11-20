@@ -279,7 +279,13 @@ def findPCN2Latex(fileins, border=lambda n: n**4, pairsToCheck=None):
 
     curFileNumber = 0
     fout = open(fileout+str(curFileNumber)+".tex", 'w')
+    #prepare output to Tables csv
     fout2 = open(fileout2, 'w')
+    if r == 1:
+        fout2.write("p,\tpoly\n")
+    else:
+        fout2.write("p,\tpoly,\tmodulus\n")
+
     for idx, prpoly in enumerate(processedPairs):
         p,r,poly,dt = prpoly
         #print "p=",p," r=",r," poly='",poly,"'"

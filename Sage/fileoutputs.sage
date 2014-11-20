@@ -298,7 +298,8 @@ def findPCN2Latex(fileins, border=lambda n: n**4, pairsToCheck=None):
         if r == 1:
             fout2.write(str(p)+",\t"+str(polyF)+"\n")
         else:
-            fout2.write(str(p)+",\t"+str(polyF)+",\t"+str(F.modulus())+"\n")
+            fout2.write(str(p)+",\t"+str(polyF)+",\t"\
+                    +str(F.modulus().change_variable_name('a'))+"\n")
 
         
 

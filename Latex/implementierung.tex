@@ -3490,7 +3490,6 @@ def findAnyPCN_polynom_wrapper(n, border=lambda n:n**4, \
     pool = Pool(cpuNum)
     for p,r,n,(x,pol) in pool.imap( findAnyPCN_polynom__star, \
             ((p,r,n) for p,r in gen) ):
-        print "(",p,", ",r,") = ", pol
         if fileoutput:
             with open(filepath,'a') as f:
                 f.write(str(p)+"\t"+str(r)

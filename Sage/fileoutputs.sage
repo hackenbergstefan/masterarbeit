@@ -228,6 +228,206 @@ def enumsPCN2Latex(filein):
         f.close()
     fout.close()
 
+
+def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
+    globs = glob.glob(basePath+'mullenTableC_struct_*')
+    allinfo = dict()
+    
+    for f in globs:
+        with open(f) as fin:
+            filename = f.split("/")[-1]
+            isOnlyNormal = ( re.search("_norm_",filename) != None )
+            
+            dt = datetime.datetime.strptime(\
+                    re.search("_(\d.*).txt",filename).groups()[0],\
+                    "%Y-%m-%d_%H:%M:%S")
+            print filename, " isOnlyNormal?", isOnlyNormal, " dt = ",dt
+            for line in fin:
+                if all(c in string.whitespace for c in line): continue
+                try:
+                    s = re.search("\((\d+), (\d+)\) -> .* = \((-?\d+), (-?\d+), \{(.*)\}", line)\
+                            .groups()
+                    q = Integer(s[0])
+                    n = Integer(s[1])
+                    cn = Integer(s[2])
+                    pcn = Integer(s[3])
+                    if pcn == 0: pcn = "--"
+                except:
+                    #print "FATAL ERROR on file ", f, " in line"
+                    #print line
+                    continue
+                gens = re.findall("\((\d+), (\d+), (\d+)\): (\d+)", s[4])
+                gens = sorted(gens,\
+                        key=lambda t: Integer(t[0]))
+
+                p,r = q.factor()[0]
+
+                if cn < 0:
+                    cn = prod(map(lambda gns: Integer(gns[3]), gens))
+
+                key = (p,r,n)
+                mustUpdate = True
+                if allinfo.has_key(key):
+                    mustUpdate = False
+                    print "already done: ", p,r,n
+                    info = allinfo[key]
+                    if isOnlyNormal and not info.has_key("norm"):
+                        info["norm"] = cn
+                        info["pnorm"] = pcn
+                        print "\tupdate norm!",info
+                    elif not isOnlyNormal and not info.has_key("cn"):
+                        info["cn"] = cn
+                        info["pcn"] = pcn
+                        print "\tupdate cn!", info
+                    elif dt > info["date"]: 
+                        info["date"] = dt
+                        if isOnlyNormal:
+                            info["norm"] = cn
+                            info["pnorm"] = pcn
+                        else:
+                            info["cn"] = cn
+                            info["pcn"] = pcn
+                            info["gens"] = gens
+                if mustUpdate:
+                    info = dict()
+                    info["p"] = p
+                    info["r"] = r
+                    info["q"] = q
+                    info["n"] = n
+                    info["gens"] = gens
+                    info["date"] = dt
+                    if isOnlyNormal:
+                        info["norm"] = cn
+                        info["pnorm"] = pcn
+                    else:
+                        info["cn"] = cn
+                        info["pcn"] = pcn
+                    allinfo[key] = info
+                
+                if p == 2 and r == 1 and n == 6:
+                    print "p=",p, "r=",r, " q=",q," n=",n," cn=",cn," pcn=",pcn," gens=",gens,dt
+                    print "\t",allinfo[key]
+    #print sorted(allinfo.keys())
+    # do outputs
+    # first remove all old files
+    purge("../Latex/tables/", "enumerations.*")
+
+    #do P outputs
+    psDone = []
+    pFilesCreated = []
+    keysSorted = sorted(allinfo.keys())
+    for idx,(p,r,n) in enumerate(keysSorted):
+        #print "p=",p," r=",r," n=",n
+        # continue if we have only one value for this p
+        if not has_more_than(2, keysSorted, 0, p): continue
+        info = allinfo[(p,r,n)]
+        #print "info = ",info
+        fileout = "../Latex/tables/enumerationsPCN_P_"+str(info["p"])+".tex"
+        fileoutNorm = "../Latex/tables/enumerationsPN_P_"+str(info["p"])+".tex"
+        if info["p"] in psDone:
+            fout = open(fileout,'a')
+            if info.has_key("norm"):
+                foutNorm = open(fileoutNorm,'a')
+        else:
+            fout = open(fileout,'w')
+            if info.has_key("norm"):
+                foutNorm = open(fileoutNorm,'w')
+            psDone += [p]
+        gensString = ""
+        for idx, (k,t,pi,count) in enumerate(info["gens"]):
+            gensString += "$("+k+","+t+","+pi+")"
+            k = Integer(k)
+            t = Integer(t)
+            pi = Integer(pi)
+            if isRegular(p,r,k,t,pi):
+                gensString += "^\\dagger"
+            gensString += "$: "+count
+            if idx < len(info["gens"])-1: gensString += ",\\ "
+
+        isBasicString = ""
+        if isCompletelyBasic(info["p"],info["r"],info["n"]):
+            isBasicString = "$^\\ast$"
+
+        outString = str(info["q"])\
+                +" & "+str(info["p"])\
+                +" & "+str(info["r"])\
+                +" & "+str(info["n"])\
+                +" & "+str(info["cn"])+isBasicString\
+                +" & "+str(info["pcn"])\
+                +" & "+gensString\
+                +"\\\\"
+        
+        #print outString
+        fout.write(outString+"\n")
+        fout.close()
+
+        if not p in pFilesCreated: pFilesCreated += [p]
+        
+        if info.has_key("norm"):
+            outString = str(info["q"])\
+                    +" & "+str(info["p"])\
+                    +" & "+str(info["r"])\
+                    +" & "+str(info["n"])\
+                    +" & "+str(info["norm"])\
+                    +" & "+str(info["pnorm"])\
+                    +"\\\\"
+            foutNorm.write(outString+"\n")
+            foutNorm.close()
+    print "pFilesCreated = ",pFilesCreated
+    
+    #do N outputs
+    nsDone = []
+    nFilesCreated = []
+    keysSorted = sorted(allinfo.keys(), key=lambda prn: (prn[2],prn[0]**prn[1]))
+    for idx,(p,r,n) in enumerate(keysSorted):
+        #print "p=",p," r=",r," n=",n
+        # continue if we have only one value for this n
+        if ( not has_more_than(2, keysSorted, 2, n) ) \
+                or ( onlyNList != None and len(onlyNList) > 0 and \
+                       not n in onlyNList ): continue
+        info = allinfo[(p,r,n)]
+        #print "info = ",info
+        fileout = "../Latex/tables/enumerationsPCN_N_"+str(info["n"])+".tex"
+        fileoutNorm = "../Latex/tables/enumerationsPN_N_"+str(info["n"])+".tex"
+        if info["n"] in nsDone:
+            fout = open(fileout,'a')
+        else:
+            fout = open(fileout,'w')
+            nsDone += [n]
+        gensString = ""
+        for idx, (k,t,pi,count) in enumerate(info["gens"]):
+            gensString += "$("+k+","+t+","+pi+")"
+            k = Integer(k)
+            t = Integer(t)
+            pi = Integer(pi)
+            if isRegular(p,r,k,t,pi):
+                gensString += "^\\dagger"
+            gensString += "$: "+count
+            if idx < len(info["gens"])-1: gensString += ",\\ "
+
+        isBasicString = ""
+        if isCompletelyBasic(info["p"],info["r"],info["n"]):
+            isBasicString = "$^\\ast$"
+
+        outString = str(info["q"])\
+                +" & "+str(info["p"])\
+                +" & "+str(info["r"])\
+                +" & "+str(info["n"])\
+                +" & "+str(info["cn"])+isBasicString\
+                +" & "+str(info["pcn"])\
+                +" & "+gensString\
+                +"\\\\"
+        
+        #print outString
+        fout.write(outString+"\n")
+        fout.close()
+
+        if not n in nFilesCreated: nFilesCreated += [n]
+    
+    print "nFilesCreated = ",nFilesCreated
+    return allinfo
+
+
 def findPCN2Latex(fileins, border=lambda n: n**4, pairsToCheck=None):
     print "process ",fileins
     splitter = str.split(str.split(fileins[0],"/")[-1],"_")
@@ -370,6 +570,17 @@ def runGenerator(border,pRange=None,rRange=None):
 ###############################################################################
 ###############################################################################
 ###############################################################################
+
+# tests if l has more than n values of type l[..][idx] == value
+def has_more_than(n, l, idx, value):
+    return len(filter(lambda item: item[idx] == value, l)) > n
+
+
+def purge(dir, pattern):
+    for f in os.listdir(dir):
+    	if re.search(pattern, f):
+    		os.remove(os.path.join(dir, f))
+
 
 def checkWrongComplBasics():
     for f in os.listdir("./outputs"):

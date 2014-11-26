@@ -33,7 +33,8 @@ headsepline,
 openany,
 BCOR=0.5cm,
 pointlessnumbers,        %keine Punkte nach Überschriften
-chapterprefix=true
+chapterprefix=true,
+openright
 ]
 {scrbook}
 \synctex=1
@@ -274,14 +275,15 @@ chapterprefix=true
 \clearscrheadfoot
 \setheadsepline{0pt}
 \chead{\headmark}
-\ohead[\myheadcmd]{\myheadcmd}
+\ohead[\myheadcmdempty]{\myheadcmd}
 \ofoot{}
 
 \def\myheadcmd{\tikz[remember picture]{
   \node[outer xsep=1pt, outer ysep=3pt, inner ysep=0pt,
     inner xsep=5pt, font=\sffamily] (a) {\pagemark};}%
     \tikz[remember picture, overlay]{
-    \ifthenelse{\isodd{\thepage}}{
+    %\ifthenelse{\isodd{\thepage}}{
+    \ifthispageodd{
       \draw[gray,line width=1pt]
         ($(a.north west)+(0pt,0)$) |- ($(a.south east)+(-3pt,-3pt)$);
       \draw[gray] ($(a.south west)+(0pt,0pt)$)  -- 
@@ -295,14 +297,17 @@ chapterprefix=true
   }%
 }
 
-\def\myheadcmdempty{\tikz[remember picture]{\node[outer sep=4pt,inner sep=0pt] (a) {\sffamily\pagemark};}
+\def\myheadcmdempty{\tikz[remember picture]{
+  \node[outer xsep=1pt, outer ysep=3pt, inner ysep=0pt,
+    inner xsep=5pt, font=\sffamily] (a) {\pagemark};}%
     \tikz[remember picture, overlay]{
-    \ifthenelse{\isodd{\thepage}}{
+    %\ifthenelse{\isodd{\thepage}}{
+    \ifthispageodd{
       \draw[gray,line width=1pt]
-        ($(a.north west)+(0pt,0)$) |- ($(a.south east)+(0,-3pt)$);
+        ($(a.north west)+(0pt,0)$) |- ($(a.south east)+(-3pt,-3pt)$);
     }{
       \draw[gray,line width=1pt]
-        ($(a.north east)+(0pt,0)$) |- ($(a.south west)+(0pt,-3pt)$);
+        ($(a.north east)+(0pt,0)$) |- ($(a.south west)+(3pt,-3pt)$);
     }
   }
 }
@@ -677,8 +682,9 @@ chapterprefix=true
 
 
 %% Der Text %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\cleardoubleemptypage
 
-%\include{intro.tex}
+\input{intro}
 \mainmatter
 \input{grundbegriffe}
 \input{kreisteilungspolynome}

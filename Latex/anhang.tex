@@ -12,10 +12,12 @@ berechneten Werte vor. Dabei ist folgende Legende zu beachten:
   \item[$\CN(q,n)$] gibt die Anzahl der vollständig normalen Elemente
     der Erweiterung von Grad $n$ über $\F_q$ an.
   \item[$\PCN(q,n)$] gibt die Anzahl der primitiv vollständig normalen Elemente 
-    der Erweiterung von Grad $n$ über $\F_q$ an.
+    der Erweiterung von Grad $n$ über $\F_q$ an. Ist in dieser Spalte ein
+    -- vorzufinden, so konzentrierte sich diese Berechnung lediglich auf 
+    die Daten für $\CN(q,n)$.
   \item[$\PN(q,n)$] gibt die Anzahl der primitiv normalen Elemente 
     der Erweiterung von Grad $n$ über $\F_q$ an.
-  \item[\normalfont vollst. Erzeuger.] Hier ist die Anzahl der vollständigen Erzeuger
+  \item[\normalfont Erzeuger.] Hier ist die Anzahl der vollständigen Erzeuger
     der Zerlegung nach \thref{satz:zerlegungssatz} gegeben, wobei ein Datum
     $(k,t,\pi):\, N$ bedeutet, dass für den Kreisteilungsmodul 
     $\C_{k,t\pi}$ gerade $N$ vollständige Erzeuger in $\F_q$ existieren.
@@ -29,68 +31,38 @@ berechneten Werte vor. Dabei ist folgende Legende zu beachten:
     an, ob dieser regulär ist (\thref{def:regulaer}).
 \end{description}
 
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $p=2$}\\
-  $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
-  \endhead
-  \input{./tables/enumerationsPCN_P_2.tex}
-\end{longtable}
+\newcommand{\createPTables}[2]{%
+  \foreach \x in {#1}{%
+    \begin{longtable}[h]{llllllp{7cm}}
+      \caption{Enumerationen $p=\x$}\\
+      $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
+      \endhead
+      \input{./tables/enumerationsPCN_P_\x.tex}
+    \end{longtable}
 
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $p=2$}\\
-  $q$ & $p$ & $r$ & $n$ & $\cal N(q,n)$ & $\PN(q,n)$ & Erzeuger \\\hline
-  \endhead
-  \input{./tables/enumerationsPN_P_2.tex}
-\end{longtable}
+    \begin{longtable}[h]{llllll}
+      \caption{Enumerationen $p=\x$}\\
+      $q$ & $p$ & $r$ & $n$ & $\cal N(q,n)$ & $\PN(q,n)$ \\\hline
+      \endhead
+      \input{./tables/enumerationsPN_P_\x.tex}
+    \end{longtable}\par}
 
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $p=3$}\\
-  $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
-  \input{./tables/enumerationsPCN_P_3.tex}
-\end{longtable}
+  \foreach \x in {#2}{%
+    \begin{longtable}[h]{llllllp{7cm}}
+      \caption{Enumerationen $p=\x$}\\
+      $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
+      \input{./tables/enumerationsPCN_P_\x.tex}
+    \end{longtable}\goodbreak\par}}
 
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $p=3$}\\
-  $q$ & $p$ & $r$ & $n$ & $\cal N(q,n)$ & $\PN(q,n)$ & Erzeuger \\\hline
-  \endhead
-  \input{./tables/enumerationsPN_P_3.tex}
-\end{longtable}
-
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $p=5$}\\
-  $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
-  \endhead
-  \input{./tables/enumerationsPCN_P_5.tex}
-\end{longtable}
-
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $p=7$}\\
-  $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
-  \endhead
-  \input{./tables/enumerationsPCN_P_7.tex}
-\end{longtable}
-
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $n=3$}\\
-  $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
-  \endhead
-  \input{./tables/enumerationsPCN_N_3.tex}
-\end{longtable}
-
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $n=4$}\\
-  $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
-  \endhead
-  \input{./tables/enumerationsPCN_N_4.tex}
-\end{longtable}
-
-\begin{longtable}[h]{llllllp{7cm}}
-  \caption{Enumerationen $n=6$}\\
-  $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
-  \endhead
-  \input{./tables/enumerationsPCN_N_6.tex}
-\end{longtable}
+\newcommand{\createNTables}[1]{%
+  \foreach \x in {#1}{%
+    \begin{longtable}[h]{llllllp{7cm}}
+      \caption{Enumerationen $n=\x$}\\
+      $q$ & $p$ & $r$ & $n$ & $\CN(q,n)$ & $\PCN(q,n)$ & Erzeuger \\\hline
+      \input{./tables/enumerationsPCN_N_\x.tex}
+    \end{longtable}\par}}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\createPTables{2,3}{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43}
+
+\createNTables{3,4,6}

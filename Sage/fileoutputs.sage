@@ -427,27 +427,22 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
     print "nFilesCreated = ",nFilesCreated
     return allinfo
 
+def findPCN2CSV_allinone(basePath,n):
+    fileins = []
+    pairsToCheck = list(runGenerator(n**4))
+    fileins += glob.glob(basePath+'pcns_trinom_'+str(n)+'_*')
+    fileins += glob.glob(basePath+'pcns_additional_'+str(n)+'_*')
 
-def findPCN2Latex(fileins, border=lambda n: n**4, pairsToCheck=None):
-    print "process ",fileins
-    splitter = str.split(str.split(fileins[0],"/")[-1],"_")
-    n = Integer(splitter[2])
-    r = Integer(splitter[3])
-    fileout = "../Latex/tables/pcns_"+str(n)+"_"+str(r)+"__"
-    fileout2 = "../Tables/pcns_"+str(n)+"_"+str(r)+".csv"
 
-    if pairsToCheck == None:
-        primeList = map(lambda pr: pr[0], \
-                list(runGenerator(border(n), rRange=[r,r])))
-
-    processedPairs = []
+    processedPairs = dict()
 
     for filein in fileins:
         with open(filein) as f:
-            splitter = str.split(str.split(filein,"/")[-1],"_")
-            dt = datetime.datetime.strptime(splitter[-2]+"_"+splitter[-1],\
+            dt = datetime.datetime.strptime(
+                    re.search("_(\d+\-\d+\-\d+_\d+:\d+:\d)",filein).groups()[0],\
                     "%Y-%m-%d_%H:%M:%S")
-            for curLineNum,line in enumerate(f):
+            isAdditional = ( re.search("additional", filein) != None )
+            for line in f:
                 if all(c in string.whitespace for c in line): continue
                 splits = str.split(line,"\t")
                 try:
@@ -456,80 +451,53 @@ def findPCN2Latex(fileins, border=lambda n: n**4, pairsToCheck=None):
                     poly = splits[2].strip()
                 except:
                     continue
-                if pairsToCheck == None:
-                    primeList.remove(p)
+                if not processedPairs.has_key((p,r)):
+                    processedPairs[(p,r)] = (p,r,poly,dt,isAdditional)
+                    pairsToCheck.remove((p,r))
                 else:
-                    try:
-                        pairsToCheck.remove((p,r))
-                    except:
-                        #print "cannot remove (p,r) = ",(p,r)
-                        # assume it is already processed
-                        for idx, (p1, r1, poly1, dt1) in enumerate(processedPairs):
-                            if p1 == p and r1 == r and dt1 < dt:
-                                #print "found newer one!"
-                                processedPairs[idx] = (p,r,poly,dt)
-                                break
-                        continue
-                processedPairs += [(p,r,poly, dt)]
+                    # only update if newer and this file is not "additional"
+                    if ( not isAdditional and processedPairs[(p,r)][4] )\
+                            or ( isAdditional == processedPairs[(p,r)][4] and \
+                            processedPairs[(p,r)][3] < dt ):
+                        processedPairs[(p,r)] = (p,r,poly,dt,isAdditional)
         f.close()
 
-    processedPairs = sorted(processedPairs, key=lambda prpoly: prpoly[0])
+    # do output
+    # first clear old files
+    purge("../Tables/", "pcns_"+str(n)+"_*")
 
-
-
-    curFileNumber = 0
-    fout = open(fileout+str(curFileNumber)+".tex", 'w')
-    #prepare output to Tables csv
-    fout2 = open(fileout2, 'w')
-    if r == 1:
-        fout2.write("p,\tpoly\n")
-    else:
-        fout2.write("p,\tpoly,\tmodulus\n")
-
-    for idx, prpoly in enumerate(processedPairs):
-        p,r,poly,dt = prpoly
-        #print "p=",p," r=",r," poly='",poly,"'"
+    keysSorted = sorted(processedPairs.keys(), \
+            key=lambda prpoly: (prpoly[1],prpoly[0]))
+    for idx,key in enumerate(keysSorted):
+        p,r,poly,dt,isAdditional = processedPairs[key]
         F = GF(p**r,'a')
         Fx = PolynomialRing(F,'x')
         polyF = Fx(poly)
         polyList = list(polyF)
-
-        # write to Tables txt file
+        
+        fout = open("../Tables/pcns_"+str(n)+"_"+str(r)+".csv",'a')
+        # if new r or p write fileheader
+        if idx == 0 or r != processedPairs[keysSorted[idx-1]][1]:
+            if r == 1:
+                fout.write("p,\tpoly\n")
+            else:
+                fout.write("p,\tpoly,\tmodulus\n")
+        # write to ../Tables csv file
+        isAdditionalString = ""
+        if isAdditional: isAdditionalString += "!"
         if r == 1:
-            fout2.write(str(p)+",\t"+str(polyF)+"\n")
+            fout.write(str(p)+isAdditionalString+",\t"+str(polyF)+"\n")
         else:
-            fout2.write(str(p)+",\t"+str(polyF)+",\t"\
+            fout.write(str(p)+isAdditionalString+",\t"+str(polyF)+",\t"\
                     +str(F.modulus().change_variable_name('a'))+"\n")
 
-        
-
-        # write to Latex
-        # check trinom
-        outString = "\\textsf{\\bfseries "+str(p)+":} "
-        if polyF.hamming_weight() == 3 and polyList[n-1] == F.one():
-            outString += "$"+str(polyList[0]).replace("*","")+"$"
-        else:
-            outString += ",\\ ".join([str(i)+":\\,$"\
-                    +str(c).replace("*","")+"$" \
-                    for i,c in enumerate(polyList[:-1]) if c != 0])
-
-        if idx < len(processedPairs)-1:
-            outString += ", "
-
-        #print curLineNum, outString
-        #COUNTER += 1
-        #if COUNTER > 5000: break
-        if idx > 0 and idx%100 == 0: outString += "\n"
-        fout.write(outString)
-        if idx > 0 and idx%1000 == 0:
-            fout.close()
-            curFileNumber += 1
-            fout = open(fileout+str(curFileNumber)+".tex", 'w')
     fout.close()
-    fout2.close()
-    print "max file: ", curFileNumber
-    if pairsToCheck == None:
-        print "missing primes: ",primeList
+    #print "max file: ", curFileNumber
+    print "missing pairs: ", pairsToCheck
+    with open(basePath+"missing_pairs_"+str(n),'w') as f:
+        f.write(str(pairsToCheck))
+    f.close()
+
 
 
 def findPCN2Latex_wrapper(basePath,n):
@@ -538,6 +506,10 @@ def findPCN2Latex_wrapper(basePath,n):
         globs = glob.glob(basePath+'pcns_trinom_'+str(n)+'_'+str(r)+'_*')
         if len(globs) == 0: break
         findPCN2Latex(globs,pairsToCheck=pairsToCheck)
+    globs = glob.glob(basePath+'pcns_additional_'+str(n)+'_*')
+    if len(globs) != 0: 
+        findPCN2Latex(globs,pairsToCheck=pairsToCheck)
+
     print "missing pairs: ", pairsToCheck
     with open(basePath+"missing_pairs_"+str(n),'w') as f:
         f.write(str(pairsToCheck))

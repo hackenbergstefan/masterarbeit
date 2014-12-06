@@ -418,7 +418,7 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
   Seien $F := \F_q$ ein endlicher Körper für eine Primzahlpotenz $q = p^r$ 
   und $m\in\N$ ungerade mit $p\nmid m$.
   Setze $s := \ord_{\nu(m)}(q)$, 
-  $l := \pi_m(q^s-1)$, $b:= b(q,m) = \ggT(l,m)$, $E := \F_{q^m}$ und
+  $l := \cl_m(q^s-1)$, $b:= b(q,m) = \ggT(l,m)$, $E := \F_{q^m}$ und
   $E' = \F_{q^{sm}}$. Ist dann
   $u$ eine primitive $(ml)$-te Einheitswurzel, so gilt
   \begin{enumerate}
@@ -502,7 +502,7 @@ sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$
   Bezeichne ferner 
   $\sigma_E: E'\to E',\ x \mapsto x^{q^m}$ den Frobenius von $E'$ auf $E$.
   Ist dann $u$ eine primitive $(ml)$-te Einheitswurzel
-  und $v = \sum_{j\in R_q(m)} u^j$, so gilt:
+  und $v := \sum_{j\in R_q(m)\atop \ggT(j,m)=1} u^j$, so gilt:
   \begin{enumerate}
     \item $H(\sigma_E)(v)$ hat $q$-Ordnung $\Phi_m(x)$ für 
       $H(x) := \frac{\Phi_m(x^s)}{\Phi_m(x)}$.
@@ -550,39 +550,6 @@ sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$
     \speq= 1\,.\]
 \end{proof}
 
-
-Wir können in gewisser Weise sogar eine Verschärfung obiges Satzes angeben und
-die Verwendung der Spurfunktion etwas erweitern. Wir müssen lediglich dafür
-sorgen, dass wir ein Element des Körpers erhalten, für den wir Erzeuger (und
-letztendlich normale Elemente) konstruieren wollen.
-
-\begin{satz}
-  \label{satz:q_ordnung_von_zusammensetzen}
-  Seien die Voraussetzungen wie in \thref{satz:q_ordnung_von_trace} und 
-  sei wiederum $u$ eine primitive $(ml)$-te Einheitswurzel. 
-  Für $g(x) \in F[x]$ gilt:
-  Ist $[F(g(x)\cdot u) : F] = m$, so gilt
-  \[ \Ord_q(g(x)\cdot u) \text{ ist ein monischer irreduzibler Teiler von }
-    \Phi_m(x)\,. \]
-\end{satz}
-\begin{proof}
-  Auf der einen Seite haben wir 
-  \[ \Ord_q(g(x)\cdot u) \speq\mid x^m-1 \speq= \prod_{d\mid m} \Phi_m(x)\,, \]
-  da $g(x) \cdot u$ nach Voraussetzung Grad $m$ über $F$ hat und auf der
-  anderen Seite gilt nach \thref{lemma:eigenschaften_tau_ordnung}
-  \[ \Ord_q(g(x)\cdot u) \speq= \frac{f(x^s)}{\ggT(f(x^s), g(x))} 
-    \speq\mid f(x^s) \,.\]
-  Wir wissen jedoch aus \thref{satz:zerfall_f_x_s} (vgl. auch den Beweis von
-  \thref{satz:q_ordnung_von_trace}), dass 
-  \[ f(x^s) \speq= \prod_{d\mid \bar s} 
-    \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x)^{p^\beta}\]
-  für $s = \bar sp^\beta$ mit $p\nmid \bar s$ und
-  $f_{d,i}(x)$ monische, irreduzible Teiler von $\Phi_{md}(x)$. Da 
-  $p\nmid m$ nach Voraussetzung, kommt $\Phi_m(x)$ in $x^m-1$ lediglich in
-  einfacher Vielfachheit vor und damit folgt
-  \[ \Ord_q(g(x)\cdot u) \speq= f_{1,1}(x)\]
-  für den einzigen monischen irreduziblen Teiler in $f(x^s)$ von $\Phi_m(x)$.
-\end{proof}
 
 %Wir können sogar noch in gewisser Weise eine Verschärfung dieses Satzes
 %angeben, die genauer charakterisiert, warum die Spurfunktion in diesem Fall
@@ -647,7 +614,62 @@ Auch für reguläre Erweiterungen wollen wir ein Analogon von
 \end{proof}
 
 
+Wir können in gewisser Weise sogar eine Erweiterung von 
+\thref{satz:q_ordnung_von_trace} angeben und
+gleichzeitig die Verwendung der Spurfunktion rechtfertigen. 
+Wir müssen lediglich dafür
+sorgen, dass wir ein Element dasjenigen Körpers erhalten, 
+für den wir Erzeuger (und letztendlich normale Elemente) konstruieren wollen.
+
+\begin{satz}
+  \label{satz:q_ordnung_von_zusammensetzen}
+  Seien die Voraussetzungen wie in \thref{satz:q_ordnung_von_trace} und 
+  sei wiederum $u$ eine primitive $(mf)$-te Einheitswurzel für
+  $l\mid f \mid q^s-1$.
+  Für $g(x) \in F[x]$ gilt:
+  %Ist $[F(g(x)\cdot u) : F] = m$, so gilt:
+  Ist $g(x)\cdot u \in \F_{q^m}^\ast$ so gilt:
+  \[ \Ord_q(g(x)\cdot u) \text{ ist ein monischer irreduzibler Teiler von }
+    \Phi_d(x)\,. \]
+\end{satz}
+\begin{proof}
+  Auf der einen Seite haben wir 
+  \[ \Ord_q(g(x)\cdot u) \speq\mid x^m-1 \speq= \prod_{d\mid m} \Phi_m(x)\,, \]
+  da $g(x)\cdot u$ nach Voraussetzung in $\F_{q^m}$ liegt.
+  %da $g(x) \cdot u$ nach Voraussetzung Grad $m$ über $F$ hat und auf der
+  anderen Seite gilt nach \thref{lemma:eigenschaften_tau_ordnung}
+  \[ \Ord_q(g(x)\cdot u) \speq= \frac{f(x^s)}{\ggT(f(x^s), g(x))} 
+    \speq\mid f(x^s) \,.\]
+  Wir wissen jedoch aus \thref{satz:zerfall_f_x_s} (vgl. auch den Beweis von
+  \thref{satz:q_ordnung_von_trace}), dass 
+  \[ f(x^s) \speq= \prod_{d\mid \bar s} 
+    \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x)^{p^\beta}\]
+  für $s = \bar sp^\beta$ mit $p\nmid \bar s$ und
+  $f_{d,i}(x)$ monische, irreduzible Teiler von $\Phi_{md}(x)$. Da 
+  $p\nmid m$ nach Voraussetzung, kommt $\Phi_m(x)$ in $x^m-1$ lediglich in
+  einfacher Vielfachheit vor und damit folgt
+  \[ \Ord_q(g(x)\cdot u) \speq= f_{1,1}(x)\]
+  für den einzigen monischen irreduziblen Teiler in $f(x^s)$ von $\Phi_m(x)$.
+\end{proof}
+
+\begin{bemerkung}
+  Wir hätten den Beweis von \thref{satz:q_ordnung_von_trace} auch mit obigem
+  Satz führen können, da 
+  \[ \Tr_{E'\mid E}(u) \speq= (1+x^m+\ldots + x^{m(s-1)})\cdot u \]
+  und nach Definition der Spurfunktion von 
+  $E'$ auf $E$ diese ein Element in $E$ liefert. 
+\end{bemerkung}
+
+
+
 \section{Normalbasen mit Dickson-Polynomen}
+
+Im vorangegangenen Abschnitt haben wir uns primitiver Einheitswurzeln,
+also Nullstellen der Kreisteilungspolynomen, bedient,
+um normale Elemente in (stark) regulären Erweiterungen zu konstruieren. Im
+Folgenden werden wir erkennen, dass sich auch Nullstellen gewisser anderer
+Polynome, namentlich Dickson-Polynome, nutzen lassen, um in speziellen
+regulären Erweiterungen normale Elemente zu konstruieren.
 
 \begin{definition}[Dickson-Polynom]
   Sei $n \in \N^\ast$. Für $a \in \F_q$ definieren wir das
@@ -770,8 +792,8 @@ betrachteten Erweiterungskörper, wie die beiden nachstehenden Sätze angeben.
 \end{satz}
 
 \begin{satz}[{\autocite[Theorem 3]{scheerhorn:1997}}] 
-  \marginpar{Genauere Betrachtung, warum $x^2+bx+a^n$ hier nicht irreduzibel
-  ist!?}
+  %\marginpar{Genauere Betrachtung, warum $x^2+bx+a^n$ hier nicht irreduzibel
+  %ist!?}
   \label{satz:scheerhorn2}
   Seien $n\geq 3$ ein Produkt ungerader Primzahlen von $(q-1)$ und
   $a,b \in \F_q =: F$, so dass $D_n(x,a)-b\in F[x]$ irreduzibel ist.
@@ -827,8 +849,8 @@ und die Verwendung der Dickson-Polynome motivieren.
   mit \thref{satz:dickson_1} sehen wir, dass
   \[ D_n(\theta + a\theta\inv,a) -b \speq= \theta^n + a^n\theta^{-n} -b
     \speq= \beta +a^n\beta\inv -b \speq= b - b\speq= 0\]
-  und da $D_n(x,a)-b \in F[x]$ irreduzibel nach Voraussetzung, hat
-  $\theta + a\theta\inv$ Grad $n$ über $F$.
+  %und da $D_n(x,a)-b \in F[x]$ irreduzibel nach Voraussetzung, hat
+  %$\theta + a\theta\inv$ Grad $n$ über $F$.
   %Da mit $\theta^l$ für $l \in R_q(n)$ alle irreduziblen Teilmoduln
   %%
   %\footnote{hier vielleicht noch ein Satz/Lemma/Bemerkung im vorherigen 
@@ -842,29 +864,77 @@ und die Verwendung der Dickson-Polynome motivieren.
   %(für $l=0$ hat $\theta^l+a^l\theta^{-l}$ natürlich Grad $0$ über $F$).
   %$\gamma := \theta + a\theta\inv$ und $D_l(\gamma,a) =
   %\theta^l+a^l\theta^{-l}$ schließt den Beweis ab.
-  Wählen wir $1 \neq l \in R_q(n)$, so entspricht 
-  $\Ord_q(\theta^l) = g(x^s)$ für einen monischen irreduziblen Teiler 
-  $g(x) \mid \Phi_m(x)$ mit $m\mid n$ und $\ggT(f,g) = 1$. 
-  Wegen $\theta^l+a^l\theta^{-l} = D_l(\theta+a\theta\inv,a)$ hat 
-  $\theta^l+a^l\theta^{-l}$ Grad kleiner oder gleich $n$ über $F$ 
-  (vgl. \thref{bem:grad_phi_l})
-  und damit sind auch
-  $\Ord_q(\theta+a\theta\inv)$ und $\Ord_q(\theta^l+a^l\theta^{-l})$ 
-  nach \thref{satz:zerfall_f_x_s} (2) teilerfremd.
+  %Wählen wir $1 \neq l \in R_q(n)$, so entspricht 
+  %$\Ord_q(\theta^l) = g(x^s)$ für einen monischen irreduziblen Teiler 
+  %$g(x) \mid \Phi_m(x)$ mit $m\mid n$ und $\ggT(f,g) = 1$. 
+  %Wegen $\theta^l+a^l\theta^{-l} = D_l(\theta+a\theta\inv,a)$ hat 
+  %$\theta^l+a^l\theta^{-l}$ Grad kleiner oder gleich $n$ über $F$ 
+  %(vgl. \thref{bem:grad_phi_l})
+  %und damit sind auch
+  %$\Ord_q(\theta+a\theta\inv)$ und $\Ord_q(\theta^l+a^l\theta^{-l})$ 
+  %nach \thref{satz:zerfall_f_x_s} (2) teilerfremd.
+  %Wegen $\theta^l+a^l\theta^{-l} = D_l(\theta+a\theta\inv,a)$ liegt 
+  %$\theta^l+a^l\theta^{-l}$ immernoch in $\F_{q^n}$ und damit sind auch
+  %$\Ord_q(\theta+a\theta\inv)$ und $\Ord_q(\theta^l+a^l\theta^{-l})$ 
+  %teilerfremd (für $m \neq n$ klar und für $m=n$ wegen 
+  %\thref{satz:zerfall_f_x_s} (2)).
+  Also liegt $\theta +a\theta\inv$ in $E$ (mithin ist $D_n(x,a)-b$ sein
+  Minimalpolynom über $F$). Die weiteren irreduziblen Teiler von $\Phi_n(x)$
+  erhalten wir analog zu \thref{satz:konstruktion_q_ordnung_reg}: Für 
+  $l \in R_q(n)\setminus \{ 0\}$ mit $\ggT(l,n) = 1$ ist
+  $\Ord_q(\theta^l) = g(x^s)$ für einen irreduziblen monischen Teiler 
+  $g(x)$ von $\Phi_n(x)$ mit $f(x) \neq g(x)$. 
+  Nun vollführen wir erneut obigen Kniff und erhalten 
+  \[ \Ord_q(D_l(\theta+a\theta\inv,a)) \speq=
+    \Ord_q(\theta^l+a^l\theta^{-l}) \speq= 
+    \Ord_q( (1+a^lx^n)\cdot \theta^l ) \speq= g_{1,1}(x)\]
+  mit $\ggT(f_{1,1}(x), g_{1,1}(x)) = 1$ nach \thref{satz:zerfall_f_x_s} (2).
+  Auf diese Weise lassen sich für jeden irreduziblen Teilmodul von 
+  $V_{\Phi_n}$ Erzeuger angeben:
+  \[ V_{\Phi_n} \speq= \bigoplus_{i\in R_q(n)\atop \ggT(i,n)=1} 
+    \big( F[x] \cdot D_l(\theta+a\theta\inv,a)\big) \speq=
+    \bigoplus_{i\in R_q(n)\atop \ggT(i,n)=1} 
+    \big( F[x]\cdot (\theta^l+a^l\theta^{-l}) \big)\,. \]
+  Für alle $i \in M_q(l\mod n)$ erhalten wir 
+  selbstverständlich immer Erzeuger des
+  gleichen irreduziblen Teilmoduls: Für alle 
+  $i\in M_q(l\mod n)$ für ein festes $l\in R_q(n)$ mit 
+  $\ggT(l,n)=1$ gilt: $\Ord_q(\theta^i) = h(x^s)$ für einen
+  irreduziblen Teiler $h(x)$ von $\Phi_n(x)$. (Genauer gesagt haben wir 
+  im Beweis von \thref{satz:konstruktion_q_ordnung_reg} gesehen,
+  dass sich die $q^s$-Ordnungen von $\theta^i$ und $\theta^j$ für 
+  $i,j \in M_q(l\mod n)$ für $i\neq j$ unterscheiden; jedoch nicht ihre
+  $q$-Ordnungen.) 
+
+  Alle weiteren Teiler $\Phi_m(x)$ von $x^n-1$ für $m\mid n$ decken wir mit
+  obiger Argumentation analog ab: Für $l \in R_q(n)$ mit 
+  $r_q(l\mod n) = \ord_m(q)$ ist 
+  $\Ord_q(\theta^l+a^l\theta^{-l})$ ein irreduzibler monischer Teiler
+  von $\Phi_m(x)$.
+
+  Letztlich haben wir bisher nur Erzeuger der irreduziblen Teilmoduln 
+  im Sinne der Modulstruktur angegeben, jedoch keine $F$-Basis wie gefordert.
+  Dazu müssen wir uns nur noch kurz überlegen, dass
+  \[\{1\}\cup \{ D_i(\theta+a\theta\inv,a):\ i=1,\ldots,n-1\} \]
+  eine $F$-Basis von $\F_{q^n}$ ist, da alle $D_i(x,a)$ für
+  $i\geq 1$ linear unabhängig über $F$ nach 
+  \autocite[???]{lidl1993dickson} sind. Diese Basis lässt sich nach Erzeugern
+  wie oben gezeigt partitionieren.
 \end{proof}
 
-\begin{bemerkung}
-  \label{bem:grad_phi_l}
-  In der Tag können wir sogar genau angeben, welchen Grad 
-  $\theta^l+a^l\theta^{-l}$ über $F$ hat: Ist $l\mid n$, 
-  so hat $\theta^l+a^l\theta^{-l}$ Grad $\tfrac n l$ über $F$, denn nach
-  \thref{satz:dickson_2} ist
-  \[ \F_q\ \ni\ D_n(\theta + a \theta\inv, a) \speq= 
-    D_{\frac n l}\big( D_l(\theta+a\theta\inv,a),\, a^l\big) \speq=
-    D_{\frac n l}\big(\theta^l + a^l \theta^{-l}, a^l\big)\,.\]
-  Für $\ggT(n,l) = 1$ hat $\theta^l + a^l\theta^{-l}$ weiterhin Grad $n$ über 
-  $F$, da $\theta^l + a^l\theta^{-l} = D_l(\theta+a\theta\inv,a)$ 
-\end{bemerkung}
+%\begin{bemerkung}
+  %\label{bem:grad_phi_l}
+  %In der Tag können wir sogar genau angeben, welchen Grad 
+  %$\theta^l+a^l\theta^{-l}$ über $F$ hat: Ist $l\mid n$, 
+  %so hat $\theta^l+a^l\theta^{-l}$ Grad $\tfrac n l$ über $F$, denn nach
+  %\thref{satz:dickson_2} ist
+  %\[ \F_q\ \ni\ D_n(\theta + a \theta\inv, a) \speq= 
+    %D_{\frac n l}\big( D_l(\theta+a\theta\inv,a),\, a^l\big) \speq=
+    %D_{\frac n l}\big(\theta^l + a^l \theta^{-l}, a^l\big)\,.\]
+  %Für $\ggT(n,l) = 1$ hat $\theta^l + a^l\theta^{-l}$ weiterhin Grad $n$ über 
+  %$F$, da $\theta^l + a^l\theta^{-l} = D_l(\theta+a\theta\inv,a)$ 
+  %\TODO
+%\end{bemerkung}
 
 
 \begin{proof}[von \thref{satz:scheerhorn2}]
@@ -904,7 +974,7 @@ Zusatzvoraussetzungen) ein normales Element zu konstruieren.
     \item Ist $\nu(n)\mid (q+1)$, so gilt:
       Für alle $l\in R_q(n)$ mit $r_q(l\bmod n) = \ord_q(m)$ 
       für einen Teiler $m$ von $n$ ist 
-      $\Ord_q(D_l(\gamma,a))$ ist ein irreduzibler Teiler von
+      $\Ord_q(D_l(\gamma,a))$ ist ein irreduzibler monischer Teiler von
       $\Phi_m(x)$.
     \item Setze 
       \[ v := \sum_{l\in R_q(n)} D_l(\gamma,a)\,. \]
@@ -914,8 +984,7 @@ Zusatzvoraussetzungen) ein normales Element zu konstruieren.
 \end{satz}
 \begin{proof}
   Für $\nu(n)\mid (q+1)$ liegt gerade \thref{satz:scheerhorn1} vor und es gibt
-  nichts mehr zu zeigen. Aussage (2) haben wir uns bereits in
-  \thref{bem:grad_phi_l} überlegt.
+  nichts mehr zu zeigen. 
   Für $\nu(n)\mid (q-1)$ bleibt anzugeben, warum $v$ normal über $F$ ist, wenn
   $a^l\neq -1$ für alle $l\in R_q(n)$. 
   Da in $v$ gerade je zwei Erzeuger pro irreduziblem Teilmodul von $E$
@@ -926,7 +995,7 @@ Zusatzvoraussetzungen) ein normales Element zu konstruieren.
 
 
 \subsection{Normale und vollständig normale Polynome mit
-  Dickson-Polynomen}
+  Dickson-Poly\-nomen}
 
 Mit Hilfe dieser Resultate lassen sich nun relativ einfach vollständig normale
 Polynome angeben, wie sie in \autocite[Section 3]{scheerhorn:1997} und 
@@ -979,7 +1048,7 @@ die Nullstellen desselbigen invertiert.
   (siehe \autocite[Beweis zu Theorem 4]{scheerhorn:1997} für die konkrete
   Rechnung). Damit ist $\alpha(\theta-t+a\theta\inv) \in \F_q^\ast$, falls
   \[ \alpha \speq= E_{n-1}(t,a) + \sum_{i=1}^{n-1} E_{n-1-i}(t,a)
-    (\theta^ia^i\theta^{-i})\,.\]
+    (\theta^ia^i+\theta^{-i})\,.\]
   Die Aussage folgt dann sofort mit \thref{satz:scheerhorn1} 
   (oder \thref{satz:scheerhorn_erweitert})
 \end{proof}
@@ -1000,9 +1069,9 @@ Polynome, also solche, die über jedem Zwischenkörper normal sind, anzugeben.
   $E_{\frac n d -1-i}(t,a)\neq 0$.
 \end{satz}
 \begin{proof}
-  Wie wir uns bereits in \thref{bem:grad_phi_l} überlegt haben, hat
-  $\theta^{\frac n d}+a^{\frac n d} \theta^{-\frac n d}$ Grad $\tfrac n d$ über 
-  $\F_q$ und das Minimalpolynom von 
+  Wie man sich leicht überlegt, ist 
+  $\theta^{\frac n d}+a^{\frac n d} \theta^{-\frac n d} \in \F_{q^d}$ 
+  und das Minimalpolynom von 
   $(\theta -t+a\theta\inv)$ über $F_{q^d}$ ist 
   $D_{\frac n d}(x+t,a) - (\theta^{\frac n d}+a^{\frac n d}\theta^{-\frac n
   d})$. Dann folgt die Aussage analog zu vorherigem Satz.

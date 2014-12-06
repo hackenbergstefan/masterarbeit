@@ -134,6 +134,8 @@ def findAnyPCN_polynom_prime(p,n):
     orderE = p**n
     primOrder = orderE-1
 
+    polyList = []
+
     
     primitives = []
 
@@ -167,7 +169,9 @@ def findAnyPCN_polynom_prime(p,n):
                     coeffN *= (-1)
                     primitives = [coeffN] + primitives
                 f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
-                #print f
+                print f,"\t\t",numsf(f)
+                polyList += [f]
+                continue
                 if not f.is_irreducible(): continue
                 
                 E = GF(orderE, name='a', modulus=f)
@@ -182,6 +186,9 @@ def findAnyPCN_polynom_prime(p,n):
             for coeffN in primitives:
                 f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
                 #print "not first:",f
+                print f,"\t\t",numsf(f)
+                polyList += [f]
+                continue
                 if not f.is_irreducible(): continue
                 E = GF(orderE, name='a', modulus=f)
 
@@ -199,7 +206,9 @@ def findAnyPCN_polynom_prime(p,n):
                     f = Fx.gen()**n + xs[0]*Fx.gen()**(n-1) + x
                     for j,j2 in enumerate(idcs):
                         f += xs[length-j] * Fx.gen() ** j2
-                    #print f
+                    print f,"\t\t",numsf(f)
+                    polyList += [f]
+                    continue
                     if not f.is_irreducible(): continue
                     E = GF(orderE, name='a', modulus=f)
 
@@ -207,6 +216,38 @@ def findAnyPCN_polynom_prime(p,n):
                             and isCompletelyNormal(E.gen(),E,p,\
                                 divs,fieldsAll,facsAll,prodsAll):
                         return E.gen(),f
+    return polyList
+
+def numsf(f):
+    #i_f = [ i for (i,a) in enumerate(list(f)) if a != 0 ]
+    #a_f = [ a for ]
+    #return str(i_f)
+    p = f.base_ring().characteristic()
+    return f.hamming_weight(),sum([ p**i*Integer(a) for (i,a) in enumerate(list(f)) ])
+
+
+def leq(f,g):
+    i_f = [ i for (i,a) in enumerate(list(f)) if a != 0 ]
+    i_g = [ i for (i,a) in enumerate(list(g)) if a != 0 ]
+    if len(i_f) < len(i_g): return True
+    elif len(i_f) > len(i_g): return False
+
+    # lex order on i_f
+    if i_f < i_g: return True
+    elif i_f > i_g: return False
+
+
+    # i_f == i_g
+    a_f = [ a for (i,a) in enumerate(reversed(list(f))) if a != 0 ]
+    a_g = [ a for (i,a) in enumerate(reversed(list(g))) if a != 0 ]
+    if len(a_f) < len(a_g): return True
+    elif len(a_f) > len(a_g): return False
+
+    # lex order on a_f
+    if a_f < a_g: return True
+    elif a_f > a_g: return False
+    return "ERROR"
+
 
 
 

@@ -71,8 +71,7 @@ Indizes speichert, deren zugehörige Koeffizienten nicht verschwinden. Letztlich
 fehlt noch, wie es in \Clang üblich und notwendig ist, die Länge des
 Indexarrays zu speichern und wir erhalten den Datentyp @struct FFElem@.
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=15]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 /**
  * Finite Field Element. 
  * 
@@ -144,8 +143,7 @@ Da \Clang ohne \emph{Garbage-Collection} auskommt, muss man selbst für die
 entsprechende Speicherverwaltung sorgen. Dies erleichtern die Funktionen
 @mallocFFElem@ und @freeFFElem@.
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=30]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 inline struct FFElem *mallocFFElem(int m){
     struct FFElem *ff = malloc(sizeof(struct FFElem));
     ff->el = malloc(m*sizeof(int));
@@ -155,8 +153,7 @@ inline struct FFElem *mallocFFElem(int m){
 }
 \end{ccode}
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=37]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 inline void freeFFElem(struct FFElem *ff){
     free(ff->el);
     free(ff->idcs);
@@ -168,8 +165,7 @@ Schließlich führen wir noch eine Funktion ein, die den Inhalt eines
 @struct FFElem@s in ein neues kopiert. Dieses muss aber bereits allokiert sein!
 
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=50]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 /**
  * Copies the content of ff1 into ff2
  *
@@ -242,8 +238,7 @@ Aufgrund der effizienteren Darstellung der Elemente endlicher Körper durch
 Speicherung ihrer Indizes, ist die Addition nicht lediglich gegeben durch
 komponentenweise Betrachtung, sondern erfordert etwas mehr Aufwand.
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=226]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 /**
  * Adds two FFElems.
  *
@@ -326,8 +321,7 @@ Wir haben uns entschieden, keine speziellen Multiplikationsalgorithmen
 die hier betrachteten Erweiterungen nicht von Graden sind, in denen jene
 Algorithmen ihre Vorteile ausspielen könnten.
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=302]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 /**
  * Multiplies two FFElems and reduces the result by mipo.
  *
@@ -430,8 +424,7 @@ Im Hinblick auf das Testen von @struct FFElem@s auf Primitivität und dem damit
 verbundenen Potenzieren, existiert eine separate Funktion zur Quadrierung eines 
 @FFElem@s. Es ist klar, dass beim Quadrieren weniger Produkte und Summen
 berechnet werden müssen als bei einer allgemeinen Multiplikation.
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=404]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 /**
  * Squares an FFElem
  *
@@ -535,8 +528,7 @@ endlichen Körpern eine lineare Abbildung. Dies wollen wir Nutzen und haben
 daher als Darstellung von Matrizen über endlichen Körpern naheliegenderweise
 ein Array aus @FFElem@s gewählt.
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=515]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 /**
  * Matrix multiplication
  *
@@ -587,8 +579,7 @@ aufgeführte Verfahren funktioniert.
 
 Ferner existiert eine Funktion, die das Freigeben von Matrizen erleichtert.
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=43]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 inline void freeFFElemMatrix(struct FFElem **mat, int len){
     if(mat==0) return;
     int i;
@@ -604,8 +595,7 @@ Im Hinblick auf das Testen von @FFElem@s auf vollständige Normalität
 über endlichen Körpern darzustellen; also Polynome deren Koeffizienten 
 @FFElem@s sind. Dazu führen wir ein eigenes @struct@ ein.
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=144]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 struct FFPoly{
     struct FFElem **poly;
     int lenPoly;
@@ -613,8 +603,7 @@ struct FFPoly{
 \end{ccode}
 
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=149]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 inline struct FFPoly *mallocFFPoly(int m, int lenPoly){
     struct FFPoly *poly = malloc(lenPoly*sizeof(struct FFElem*));
     poly->lenPoly = lenPoly;
@@ -624,8 +613,7 @@ inline struct FFPoly *mallocFFPoly(int m, int lenPoly){
 }
 \end{ccode}  
 
-\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=157]
+\begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}}]
 inline void freeFFPoly(struct FFPoly *poly){
     int i;
     for(i=0;i<poly->lenPoly;i++) freeFFElem(poly->poly[i]);
@@ -681,7 +669,7 @@ des maximal auftretenden $0$-Intervalls in der $p$-adischen Darstellung meint
 
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=562, label=lst:powerffelem]
+  label=lst:powerffelem]
 /**
  * Square and multiply in charac
  * mat is powering by charac
@@ -721,7 +709,7 @@ Als nächstes folgt die standardmäßige binäre Exponentiation. Auch hier wird 
 Potenz bereits in Binärdarstellung erwartet.
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=602, label=lst:powerffelemsqm]
+  label=lst:powerffelemsqm]
 /**
  * Square and multiply
  *
@@ -885,7 +873,7 @@ falls @matCharac@ ungleich @0@ ist, ansonsten binär
 die Potenzen in passender Darstellung vorliegen.
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=666, label=lst:isPrimitive]
+  label=lst:isPrimitive]
 /**
  * Test if element is primitive.
  *
@@ -1079,7 +1067,7 @@ vom Grad $k$, so muss @mats@ als Array bestehend aus @FFElem*@ von Länge
 $m\cdot k$ sein, wobei $m$ wiederum den Grad der Erweiterung von $E$ über dem
 Primkörper meint. Das bedeutet insbesondere, dass die erste Matrix in @mats@
 die Darstellungsmatrix zu $\sigma^1$ ist und der Fall $\sigma^0 = \id$ separat
-betrachtet werden muss (vgl. Zeile \texttt{791} in \autoref{lst:applyFrob}).
+betrachtet werden muss (vgl. Zeile \texttt{19} in \autoref{lst:applyFrob}).
 
 Im Hinblick auf das Berechnen von $q$-Ordnungen, wo ein Körperelement meist
 mehr als einmal einer Frobenius-Auswertung unterzogen werden muss, haben wir
@@ -1089,7 +1077,7 @@ Stellen in @matmulCache@ bereits berechnet wurden. Selbstredend wird dieser
 Zwischenspeicher durch die Ausführung von @applyFrob@ fortwährend aktualisiert.
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=773, label=lst:applyFrob]
+  label=lst:applyFrob]
 /*
  * calculates g(sigma^frobPower)(x) where g is a polynomial 
  * and sigma the frobenius
@@ -1137,7 +1125,7 @@ Frobenius-Auswertung vollzogen wird, so ist der @matmulCache@ überflüssig und
 führt zur Variante @applyFrob_noCache@, die ansonsten identisch zu obigem ist.
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=827, label=lst:applyFrob_noCache]
+  label=lst:applyFrob_noCache]
 /*
  * calculates g(sigma^frobPower)(x) where g is a polynomial 
  * and sigma the frobenius
@@ -1215,7 +1203,7 @@ ein vollständiger Erzeuger dieses Kreisteilungsmoduls ist (@true@) oder nicht
 (@false@).
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=912, label=lst:testSubmod]
+  label=lst:testSubmod]
 inline bool testSubmod(struct FFElem *ff, struct FFElem *mipo, 
         struct FFPoly **polys,
         int polysCount, bool *evalToZero, 
@@ -1262,7 +1250,7 @@ Erzeuger ist, da es klar sein sollte, dass diese Eigenschaft lediglich für
 \emph{einen} verallgemeinerten Kreisteilungsmodul zutreffen kann.
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=861, label=lst:testAllSubmods]
+  label=lst:testAllSubmods]
 inline int testAllSubmods(struct FFElem *ff, struct FFElem *mipo, 
         int decompCount, struct FFPoly **polys,
         int *polysCountPerDecomp, bool *evalToZero, 
@@ -1346,11 +1334,11 @@ Erzeuger starten. Es ist sicherzustellen, dass sich dieser am aktuellen Knoten
 der Liste @struct Node *root@ befindet.
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=953, label=lst:calcSubmoduleElements]
+  label=lst:calcSubmoduleElements]
 inline void calcSubmoduleElements(struct Node *root,
         struct FFElem *mipo,
         int maxLenPoly, 
-        int *genCounts, int curGen,
+        unsigned long long *genCounts, int curGen,
         struct FFPoly **polys, int polysCount, bool *evalToZero,
         struct FFElem **mats, int matLen, int *frobPowers,
         struct FFElem **elementsF,
@@ -1366,7 +1354,7 @@ inline void calcSubmoduleElements(struct Node *root,
     struct FFPoly *curFPoly = malloc( sizeof(struct FFPoly) );
     curFPoly->poly = malloc( maxLenPoly*sizeof(struct FFElem*) );
     curFPoly->lenPoly = 0;
-
+    
     initPoly(curPoly,maxLenPoly);
     curPoly[0] = 2;
     int curLenPoly = 1;
@@ -1443,7 +1431,7 @@ Erzeuger}
 Die verkettete Liste ist dabei wie folgt aufgebaut.
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=175, label=lst:structNode]
+  label=lst:structNode]
 struct Node {
     struct FFElem *ff;
     struct Node *next;
@@ -1458,7 +1446,7 @@ anschließend weiterverwendet werden kann und die Liste unverändert bleibt
 (vgl. Anwendung in \autoref{lst:calcSubmoduleElements}).
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=180, label=lst:appendToEnd]
+  label=lst:appendToEnd]
 /**
  * appends element to end of root, where element is copied to new FFElem.
  */
@@ -1488,7 +1476,7 @@ Wie üblich in \Clang, ist es hilfreich das Freigeben von Speicher in eine
 eigene Funktion zu setzen.
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=203, label=lst:freeNode]
+  label=lst:freeNode]
 inline void freeNode(struct Node* head){
     struct Node *next_n = NULL;
     struct Node *tmp_n = NULL;
@@ -1529,26 +1517,19 @@ Funktionen erklärt, wobei noch bemerkt werden sollte, dass diesmal die
 Erzeugung der Polynome bei $1 \in F[x]$ startet, da der bereits gefundene
 Erzeuger des größten Kreisteilungsmoduls auch Teil einer gültigen Kombination
 zu einem vollständig normalen Element ist. Dieser „Fehler” in der Berechnung
-der Anzahl @genCounts@ wird in Zeile \texttt{1156} am Ende der Funktion
+der Anzahl @genCounts@ wird in Zeile \texttt{120} am Ende der Funktion
 korrigiert. Der Erzeuger selbst befindet sich wieder am aktuellen Knoten der
 der letzten Liste des Arrays @roots@, da die Datenstrukturen so
 aufgebaut werden, dass dieser größte verallgemeinerte Kreisteilungsmodul der
-letzte ist (siehe Zeilen \texttt{1062} und \texttt{1064}).
+letzte ist (siehe Zeilen \texttt{26} und \texttt{28}).
 
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=1030, label=lst:processLastSubmodule]
-/**
- * Processes last submodule as others before, but does not save generated
- * elements. Cycles through already generated elements and tests for 
- * primitivity:
- *
- * !! all temporary variables are generated inside !!
- */
+  label=lst:processLastSubmodule]
 unsigned long long processLastSubmoduleAndTestPrimitivity(struct Node **roots,
         struct FFElem *mipo, int decompCount,
         int maxLenPoly, 
-        int *genCounts, 
+        unsigned long long *genCounts, 
         struct FFPoly **polys, int polysCount, bool *evalToZero,
         struct FFElem **mats, int matLen, int *frobPowers,
         struct FFElem **elementsF,
@@ -1672,7 +1653,7 @@ unsigned long long processLastSubmoduleAndTestPrimitivity(struct Node **roots,
 
 \begin{bemerkung}
   \label{bem:kein_test_auf_primitivitaet}
-  Wie Zeile \texttt{1105} zu erkennen gibt, kann man durch das Setzen von
+  Wie Zeile \texttt{69} zu erkennen gibt, kann man durch das Setzen von
   @countBarFactors = 0@ den Test auf Primitivität überspringen. Dies ist
   sinnvoll, wenn man nur an der Anzahl der vollständig normalen Elemente
   interessiert ist.
@@ -1692,12 +1673,12 @@ Parameter werden in \sage erzeugt und wurden bereits erklärt.
 
 
 \begin{ccode}[caption={Aus \url{../Sage/enumeratePCNs.c}},
-  firstnumber=1173, label=lst:processFiniteField]
+  label=lst:processFiniteField]
 unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
         struct FFPoly **polys, int *polysCountPerDecomp,
-        bool *evalToZero, 
+        bool *evalToZero, int *maxLenPolysPerDecomp,
         struct FFElem **mats, int matLen, int *frobPowers,
-        int *genCounts, int m, int charac, int q,
+        unsigned long long *genCounts, int m, int charac, int q,
         int *barFactors, int *lenBarFactors, int countBarFactors,
         int *commonBarFactor, int lenCommonBarFactor,
         int *commonBiggestBarFactor, int lenCommonBiggestBarFactor,
@@ -1733,7 +1714,7 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
     //------------------------------------------------------------------------
     
     int foundCounter = 0;
-    initPoly(genCounts,decompCount);
+    for(i=0;i<decompCount;i++) genCounts[i] = 0;
 
     // chase for elements ----------------------------------------------------
     while(true){
@@ -1780,7 +1761,7 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
     int curDecompPosition = 0;
     for(i=0;i<decompCount-1;i++){
         calcSubmoduleElements(roots[i], mipo,
-                polys[curDecompPosition]->lenPoly-1, // *** == maxLenPoly
+                maxLenPolysPerDecomp[i],  // *** == maxLenPoly
                 genCounts,i, // *** i == curGen
                 polys+curDecompPosition, polysCountPerDecomp[i],
                 evalToZero+curDecompPosition,
@@ -1799,7 +1780,7 @@ unsigned long long processFiniteField(struct FFElem *mipo, int decompCount,
     int curGen = decompCount-1;
     unsigned long long pcn = 
         processLastSubmoduleAndTestPrimitivity(roots,mipo,decompCount,
-            polys[curDecompPosition]->lenPoly-1, // *** == maxLenPoly
+            maxLenPolysPerDecomp[curGen],  // *** == maxLenPoly
             genCounts,
             polys+curDecompPosition,polysCountPerDecomp[curGen],
             evalToZero+curDecompPosition,
@@ -1865,7 +1846,7 @@ Zerlegungssatzes (\thref{satz:zerlegungssatz}) steht.
 
 
 \begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=544, label=lst:decompose]
+  label=lst:decompose]
 # Application of the Decomposition Theorem (Section 19)
 # for x^n-1 over F_p^e
 def decompose(p,e, n):
@@ -1875,7 +1856,7 @@ def decompose(p,e, n):
 
 
 \begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=571, label=lst:decompose_cycl_module]
+  label=lst:decompose_cycl_module]
 # internal application of the Decomposition Theorem
 # for Phi_k(x^(t*pi)) over F_p^e
 def decompose_cycl_module(p,e, k,t,pi):
@@ -1910,8 +1891,7 @@ def decompose_cycl_module(p,e, k,t,pi):
 Die benutzten Funktionen "largestDiv", "ordn" und "squarefree" sind dabei 
 wie folgt gegeben.
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=586]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 # returns the largest power of p dividing n
 def largestDiv(p,n):
     l = 0
@@ -1921,17 +1901,14 @@ def largestDiv(p,n):
 \end{sagecode}
 
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=538]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 # computes ordn m(q) = min{ k: q ** k = 1 mod m }
 def ordn(m,q):
-    if m == 1: return 1
-    for i in range(1,m+1):
-        if (q ** i)%m == 1: return i;
+    Zn = IntegerModRing(m)
+    return Zn(q).multiplicative_order()
 \end{sagecode}  
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=534]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 # computes the quadratic free part of an integer
 def squarefree(n):
     return prod(map(lambda x: x[0], factor(Integer(n))))
@@ -1960,21 +1937,24 @@ gerade zu betrachtenden Teiler einer Erweiterung liefert.
 %(und deren Benennung vielleicht etwas kontraintuitiv gewählt wurde).
 
 \begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=594, label=lst:get_completely_basic_divisors]
+  label=lst:get_completely_basic_divisors]
 # returns the NOT completely basic divisors of an 
 # extension n over GF(p^e)
-def get_completely_basic_divisors(p,e,n):
+def get_not_completely_basic_divisors(p,e,n):
     n = Integer(n)
     q = Integer(p**e)
     divs = []
-    for d in divisors(n):
+    divsN = divisors(n)
+    while len(divsN) > 0:
+        d = divsN.pop(0)
         isComplBasic = True
         for r in prime_divisors(n/d):
             if r.divides(ordn(p_free_part(n/d/r,p),q**d)):
                 isComplBasic = False
                 break
         divs += [d]
-        if isComplBasic: return divs
+        if isComplBasic: 
+            divsN = filter(lambda k: not d.divides(k), divsN)
     return divs
 \end{sagecode}
 
@@ -1984,8 +1964,7 @@ dem zweiten Argument, teilbar ist. Es wird dabei nicht überprüft, ob das zweit
 Argument eine Primzahl ist.
 
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=612]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 # p-free part of t
 def p_free_part(t,p):
     while p.divides(t):
@@ -2002,8 +1981,7 @@ Sicherlich wollen wir auch Regularität (\thref{def:regulaer}) nicht unbeachtet
 lassen, um uns die Suche nach vollständig normalen Elementen zu erleichtern.
 Also haben wir auch einen Test auf Regularität nach \sage übersetzt.
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=431]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 # tests if cyclotomic module C_k,t is regular over F_p^e
 def isRegular(p,e, k,t,pi):
     return gcd( ordn( squarefree(k*p_free_part(t,p)), p**e ),  k*t*pi) == 1
@@ -2020,8 +1998,7 @@ im ausfallenden Fall realisiert, wie die Funktion
 $q = p^e$ und der Daten $(k,t,\pi)$ des zu betrachtenden Kreisteilungsmoduls 
 $\C_{k,\,t\pi}$ über $\F_q$.
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=436]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 # returns tau-divisors for complete generator test of 
 # the cyclotomic module C_k,t*pi over F_p^e
 def get_tau_divisors(p,e, k,t,pi):
@@ -2047,8 +2024,7 @@ $m \neq p^b$ für ein $b\geq 0$.
 Es bleibt natürlich noch ein Test anzugeben, der überprüft, ob 
 die Parameter $(p,e,k)$ ausfallend sind (vgl. \thref{def:ausfallend}).
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=452]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 # tests if n is exceptional over F_p^e
 def isExceptional(p,e, n):
     q = p**e
@@ -2093,10 +2069,10 @@ in @testAllSubmods@ (\autoref{lst:testAllSubmods}) bzw. @testSubmod@
 (\autoref{lst:testSubmod}) benötigt werden.
 
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=88]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
-        testPrimitivity=True):
+        testPrimitivity=True,\
+        onlyNormal=False):
     TIME = time.time()
     p = F.characteristic()
     q = F.order();
@@ -2108,12 +2084,20 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
     polysCount = []
     evalToZero = []
     frobPowers = []
-    notComplBasicDivisors = get_completely_basic_divisors(p,e,n)
+    maxLenPolysPerDecomp = []
+    notComplBasicDivisors = get_not_completely_basic_divisors(p,e,n)
     decomposition = decompose(p,e,n)
     for decomp in decomposition:
         k,t,pi = decomp
-        divs = divisors(get_module_character(*decomp))
-        divs = filter(lambda x: x in notComplBasicDivisors, divs)
+        if onlyNormal:
+            divs = [1]
+        else:
+            divs = divisors(get_module_character(*decomp))
+            divs = filter(lambda x: x in notComplBasicDivisors, divs)
+            if isRegular(p,e,k,t,pi):
+                if get_tau_divisors(p,e, k,t,pi) != divs:
+                    divs = get_tau_divisors(p,e, k,t,pi)
+        maxLenPolysPerDecomp += [ euler_phi(k)*t*pi ]
         countPolysForThisDecomp = 0
         for d in divs:
             G = F.extension(Integer(d), 'c');
@@ -2121,11 +2105,12 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
             h = Hom(G,E)[0]
             cycl = Gx.cyclotomic_polynomial(squarefree(k))\
                     (Gx.gen()**(k*t*pi/squarefree(k)/d))
-            polys += [map(lambda x: x.polynomial().list(),
-                cycl.map_coefficients(h).list())]
-            frobPowers += [d]
-            evalToZero += [1]
-            countPolysForThisDecomp += 1
+            if countPolysForThisDecomp == 0:
+                polys += [map(lambda x: x.polynomial().list(),
+                    cycl.map_coefficients(h).list())]
+                frobPowers += [d]
+                evalToZero += [1]
+                countPolysForThisDecomp += 1
             # add Co-Factors
             for f,mult in cycl.factor():
                 g = cycl.quo_rem(f)[0]
@@ -2138,22 +2123,21 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
 \end{sagecode}
 
 Wie man gut erkennen kann, werden einfache Zerlegungen in den Zeilen
-\texttt{101} und \texttt{106} ausgenutzt.
+\texttt{16} und \texttt{24} ausgenutzt.
 
 Anschließend berechnen wir, falls "testPrimitivity=True",
 die Kofaktoren, wie sie beim Test auf Primitivität
 in @isPrimitive@ (\autoref{lst:isPrimitive}) verwendet werden. Dabei ist zu
-unterscheiden, ob die Faktoren in binärer (ab Zeile \texttt{151})
-oder $p$-adischer Form (ab Zeile \texttt{156}) genutzt werden
+unterscheiden, ob die Faktoren in binärer (ab Zeile \texttt{23})
+oder $p$-adischer Form (ab Zeile \texttt{28}) genutzt werden
 sollen. Bei $p$-adischer Darstellung muss, wie in dem Absatz vor 
 @powerFFElem@ (\autoref{lst:powerffelem}) erwähnt, die Länge des maximal
-auftretenden $0$-Intervalls berechnet werden (ab Zeile \texttt{164}).
+auftretenden $0$-Intervalls berechnet werden (ab Zeile \texttt{36}).
 
 \begin{sagecode}[caption={\texttt{countCompleteSubmoduleGenerators}
-  Fortsetzung (I)}, 
-  firstnumber=128]
+  Fortsetzung (I)}]
     charac = int(E.characteristic())
-        #mipo
+        #mipo, idcsMipo
     mipo = E.modulus().list()
     m = len(mipo)-1
 
@@ -2174,7 +2158,6 @@ auftretenden $0$-Intervalls berechnet werden (ab Zeile \texttt{164}).
             barFactors_tmp += [ b/commonBiggestBarFactor - curF]
             curF = b/commonBiggestBarFactor
         barFactors = barFactors_tmp
-        
         if binaryPowers:
             barFactors = map(lambda b: get_padic_representation(b,2),barFactors)
             commonBarFactor = get_padic_representation(commonBarFactor,2)
@@ -2220,8 +2203,7 @@ Additions- und Multiplikationstabellen nach
 \autoref{sub:arithmetik_in_endlichen_körpern} auf.
 
 \begin{sagecode}[caption={\texttt{countCompleteSubmoduleGenerators}
-  Fortsetzung (II)}, 
-  firstnumber=183]
+  Fortsetzung (II)}]
         #generate F elements in E
     elementsF = []
     if e == 1:
@@ -2254,8 +2236,7 @@ von \python und \Clang erlaubt, schieben wir die hierfür erstellten Funktionen
 der Übersetzung von \python-Listen in die jeweilige \Clang-Datenstruktur kurz
 ein.
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=55]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 cdef FFElem *pyList2FFElem(element,int m):
     cdef FFElem *ff = mallocFFElem(<int>m)
     initPoly(ff.el,m)
@@ -2265,8 +2246,7 @@ cdef FFElem *pyList2FFElem(element,int m):
     return ff
 \end{sagecode}  
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=63]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 cdef FFElem **pyList2PointFFElem(pyList, int m):
     lenList = len(pyList)
     cdef FFElem **ffs = <FFElem**>malloc(lenList*sizeof(FFElem*))
@@ -2275,8 +2255,7 @@ cdef FFElem **pyList2PointFFElem(pyList, int m):
     return ffs
 \end{sagecode}
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=70]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 cdef FFPoly *pyList2FFPoly(listPoly, int m):
     lenPoly = len(listPoly)
     cdef FFPoly *poly = <FFPoly*>malloc(sizeof(FFPoly))
@@ -2287,8 +2266,7 @@ cdef FFPoly *pyList2FFPoly(listPoly, int m):
     return poly
 \end{sagecode}
 
-\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}},
-  firstnumber=79]
+\begin{sagecode}[caption={Aus \url{../Sage/enumeratePCNs.spyx}}]
 cdef FFPoly **pyList2PointFFPoly(listPolys, int m):
     countPolys = len(listPolys)
     cdef FFPoly **polys = <FFPoly**>malloc(countPolys*sizeof(FFPoly*))
@@ -2303,8 +2281,7 @@ fortsetzen und erkennen sofort die gerade vorgestellten Funktionen der
 Übersetznug sowie die Benutzung der \texttt{numpy}-Arrays.
 
 \begin{sagecode}[caption={\texttt{countCompleteSubmoduleGenerators}
-  Fortsetzung (III)}, 
-  firstnumber=196]
+  Fortsetzung (III)}]
     # SETUP C DATA ===========================================================
     maxMatPower = max(map(lambda d: euler_phi(d[0])*d[1]*d[2], decomposition))
         # multiplication and addition table
@@ -2338,6 +2315,8 @@ fortsetzen und erkennen sofort die gerade vorgestellten Funktionen der
     cdef np.ndarray[int,ndim=1,mode="c"] polysCountC\
             = np.array(polysCount, dtype=np.int32)
     cdef FFPoly **polysC = pyList2PointFFPoly(polys,m)
+    cdef np.ndarray[int,ndim=1,mode="c"] maxLenPolysPerDecompC\
+            = np.array(maxLenPolysPerDecomp, dtype=np.int32)
         # bar Factors
     cdef np.ndarray[int,ndim=1,mode="c"] barFactorsC \
         = np.array(list(itertools.chain(*barFactors)), dtype=np.int32)
@@ -2362,7 +2341,7 @@ geschieht, wobei die maximal zu berechnende
 Matrixpotenz gerade durch den Grad des größten auftretenden Polynoms der
 Zerlegung gegeben ist. Wir wissen jedoch genau, wie der Grad eines
 verallgemeinerten Kreisteilungspolynoms zu berechnen ist, wie Zeile
-\texttt{197} erkennen lässt.
+\texttt{2} erkennen lässt.
 
 In einem letzten Schritt können wir (nun endlich) die bereitgestellte
 \Clang-Funktion @processFiniteField@ (\autoref{lst:processFiniteField}) 
@@ -2372,18 +2351,18 @@ wird und nicht als expliziter Rückgabewert erkennbar ist.
 
 
 \begin{sagecode}[caption={\texttt{countCompleteSubmoduleGenerators}
-  Fortsetzung (IV)}, 
-  firstnumber=241]
+  Fortsetzung (IV)}]
     #setup return values
-    cdef np.ndarray[int,ndim=1,mode="c"] genCountsC
-    genCountsC = np.zeros(decompCount, dtype=np.int32)
+    cdef np.ndarray[unsigned long long,ndim=1,mode="c"] genCountsC
+    genCountsC = np.zeros(decompCount, dtype=np.ulonglong)
 
     cdef unsigned long long pcn = \
             processFiniteField(mipoC, decompCount,
                     polysC,<int*>polysCountC.data,
                     <char*>evalToZeroC.data,
+                    <int*>maxLenPolysPerDecompC.data,
                     matsC,maxMatPower,<int*>frobPowersC.data,
-                    <int*>genCountsC.data, m, p, q,
+                    <unsigned long long*>genCountsC.data, m, p, q,
                     <int*>barFactorsC.data, <int*>lenBarFactorsC.data,
                     countBarFactors,
                     <int*>commonBarFactorC.data,lenCommonBarFactor,
@@ -2937,94 +2916,6 @@ darum, viele Körpererweiterungen mit immer gleichem Erweiterungsgrad zu
 betrachten. Beispielsweise sind für $n = 30$ genau
 $64902$ Körpererweiterungen zu prüfen, wobei das größte auftauchende $q$
 gleich $809993$ ist.
-%und damit der größte zu betrachtende Körper
-%$21\,\allowbreak
- %366\,\allowbreak
- %880\,\allowbreak
- %187\,\allowbreak
- %906\,\allowbreak
- %632\,\allowbreak
- %687\,\allowbreak
- %514\,\allowbreak
- %074\,\allowbreak
- %105\,\allowbreak
- %613\,\allowbreak
- %675\,\allowbreak
- %429\,\allowbreak
- %853\,\allowbreak
- %637\,\allowbreak
- %389\,\allowbreak
- %181\,\allowbreak
- %949\,\allowbreak
- %057\,\allowbreak
- %288\,\allowbreak
- %253\,\allowbreak
- %929\,\allowbreak
- %247\,\allowbreak
- %658\,\allowbreak
- %456\,\allowbreak
- %282\,\allowbreak
- %382\,\allowbreak
- %468\,\allowbreak
- %815\,\allowbreak
- %886\,\allowbreak
- %964\,\allowbreak
- %073\,\allowbreak
- %599\,\allowbreak
- %674\,\allowbreak
- %916\,\allowbreak
- %653\,\allowbreak
- %373\,\allowbreak
- %765\,\allowbreak
- %754\,\allowbreak
- %199\,\allowbreak
- %896\,\allowbreak
- %430\,\allowbreak
- %060\,\allowbreak
- %696\,\allowbreak
- %944\,\allowbreak
- %213\,\allowbreak
- %682\,\allowbreak
- %519\,\allowbreak
- %652\,\allowbreak
- %698\,\allowbreak
- %462\,\allowbreak
- %471\,\allowbreak
- %628\,\allowbreak
- %340\,\allowbreak
- %522\,\allowbreak
- %570\,\allowbreak
- %646\,\allowbreak
- %913\,\allowbreak
- %923\,\allowbreak
- %734\,\allowbreak
- %591\,\allowbreak
- %660\,\allowbreak
- %041\,\allowbreak
- %323\,\allowbreak
- %668\,\allowbreak
- %864\,\allowbreak
- %602\,\allowbreak
- %928\,\allowbreak
- %439\,\allowbreak
- %707\,\allowbreak
- %352\,\allowbreak
- %577\,\allowbreak
- %304\,\allowbreak
- %227\,\allowbreak
- %818\,\allowbreak
- %869\,\allowbreak
- %137\,\allowbreak
- %311\,\allowbreak
- %550\,\allowbreak
- %893\,\allowbreak
- %478\,\allowbreak
- %904\,\allowbreak
- %281\,\allowbreak
- %581\,\allowbreak
- %752\,\allowbreak
- %801$
-%Elemente besitzt.
 Da in diesen Bereichen das Aufstellen von Frobenius-Matrizen, Additions- und
 Multiplikationstabellen nicht mehr praktikabel ist, haben wir uns entschieden,
 die gesamte Existenzsuche in \sage zu implementieren.
@@ -3155,7 +3046,8 @@ wie folgt generiert.
 Bereits \citeauthor{morgan1996} haben in \autocite{morgan1996} für alle 
 $p^n < 10^{50}$ mit $p\leq 97$ ein primitives, vollständig normales Polynom 
 von Grad $n$ über $\F_p$ angegeben. Betrachtet man diese Tabellen, so ist
-auffällig, dass sehr viele dieser Polynome Trinome sind. Man kann sich leicht
+auffällig, dass sehr viele dieser Polynome Trinome, also Polynome, bei denen
+lediglich drei Koeffizienten nicht verschwinden, sind. Man kann sich leicht
 überlegen, dass ein Binom nicht Minimalpolynom eines vollständig normalen
 Elements einer Körpererweiterung sein kann und bemerke, dass sich 
 zwei Koeffizienten des Minimalpolynoms eines primitiv vollständig normalen
@@ -3183,7 +3075,7 @@ Elements etwas eingrenzen lassen:
   linear unabhängig sind. 
   Die Primitivität der Norm erhalten wir sofort durch
   \[ \Nm_{\F_{q^n}\mid \F_q}(u) \speq= u\cdot u^q\cdot \ldots\cdot u^{q^n-1}
-    u^{\frac{q^n-1}{q-1}}\,.\]
+    = u^{\frac{q^n-1}{q-1}}\,.\]
   Aus der Primitivität von $u$ folgt nun $\ord(u^{\frac{q^n-1}{q-1}}) = q-1$
   und damit $\ord((-1)^na_0) = q-1$.
 \end{proof}
@@ -3202,22 +3094,24 @@ folgende Ordnungsrelation:
   $\{ 0,\ldots,n\}$, das die Indizes der nicht verschwindenden 
   Koeffizienten von $f$ in
   aufsteigender Reihenfolge repräsentiert, d.h. ist $i(f) = i_1i_2\ldots i_k$,
-  so gilt $i_1<i_2<\ldots<i_k$ und $a_{i_j} \neq 0$ für alle 
+  so gilt $i_1<i_2<\ldots<i_k$ und $a_{j} \neq 0$ für alle 
   $j \in \{i_1,\ldots,i_k\}$. Analog sei $a(f)$ das Wort über dem Alphabet 
   $\F_q$, das die nicht verschwindenden Koeffizienten von $f$ 
-  ihrem Index aufsteigend nach repräsentiert, d.h. ist 
+  ihrem Index absteigend nach repräsentiert, d.h. ist 
   $a(f) = a_{i_1}a_{i_2}\ldots a_{i_k}$, so ist 
-  $i_1<i_2<\ldots<i_k$ und für alle $j \in \{i_1,\ldots,i_k\}$ gilt:
-  $a_{i_j}$ ist der nicht verschwindende Koeffizient
-  von $x^{i_j}$ in $f$.
+  $i_1>i_2>\ldots>i_k$ und für alle $j \in \{i_1,\ldots,i_k\}$ gilt:
+  $a_{j}$ ist der nicht verschwindende Koeffizient
+  von $x^{j}$ in $f$.
 
   Dann heißt $f$ \emph{kleiner oder gleich} $g$, 
   geschrieben $f\preceq g$, falls gilt:
   \begin{enumerate}
-    \item $i(f)$ ist lexikographisch kleiner oder gleich $i(g)$ und bei
+    \item $i(f)$ ist kürzer oder gleich lang $i(g)$
+      und bei Gleichheit gilt zusätzlich:
+    \item $i(f)$ lexikographisch kleiner oder gleich $i(g)$ und bei
       Gleichheit gilt zusätzlich:
-    \item $a(f)$ ist kleiner oder gleich $a(g)$, wobei eine Ordnung
-      auf $\F_q$ gegeben ist ist wie folgt:
+    \item $a(f)$ ist lexikographisch kleiner oder gleich $a(g)$, 
+      wobei eine Ordnung auf $\F_q$ gegeben ist ist wie folgt:
       \begin{itemize}
         \item Ist $q = p$ für eine Primzahl $p$, so wähle die natürliche Ordnung von
           $\F_p \cong \{ 0,1,\ldots,p-1\}$.
@@ -3241,6 +3135,19 @@ hier stets Polynome
   \item mit „kleineren“ Koeffizienten (vgl. obige Definition)
 \end{itemize}
 bevorzugt werden.
+
+\begin{bemerkung}
+  Die oben vorgestellte Ordnung entspricht nicht ganz derer, die von 
+  \citeauthor{morgan1996} in \autocite{morgan1996} verwendet wurde. Die dortige
+  basierte auf einem Vergleich der Hamming-Gewichte und bei Gleichheit auf 
+  der Zahl $N_f \in \N^\ast$, die für
+  $f(x) = x^n+\sum_{i=0}^{n-1} a_ix^i$ über $\F_p$ durch
+  $N_f := p^n + \sum_{i=0}^{n-1} a_ip^i$ (für $a_i \in \{0,\ldots,p-1\}$)
+  gegeben war. Wir empfanden jedoch beispielsweise das Polynom
+  $f(x) = x^4+2x^3+x+2$ kleiner als das Polynom
+  $g(x) = x^4+x^3+x^2+2$. In der Ordnung von \citeauthor{morgan1996} ist jedoch
+  $N_f = 140$ größer als $N_g = 119$.
+\end{bemerkung}
 
 
 Die konkrete Suche nach einem $\PCN$-Polynom für ein Paar $(n,q)$ 
@@ -3537,11 +3444,13 @@ def runGenerator(border,startPrime,stopPrime,onlyR):
                 q = p**r
 \end{sagecode}
 
-In den Tabellen in \autoref{anh:pcns} findet man die Ergebnisse unsere
-computergestützten Suche.
+In den Tabellen der angehängten CD findet man die Ergebnisse unsere
+computergestützten Suche. (Die genaue Syntax der \texttt{csv}-Dateien wird
+später beschrieben.)
 
 
 \subsection{Implementierung einer $\PCN$-Suche II}
+\label{subsec:impl_pcn_ii}
 
 Leider waren wir nicht in der Lage für alle Paare $(p^r,n)$ obige Implementierung
 zu nutzen, da gerade für große $r$ in sinnvoller Rechenzeit kein $\PCN$-Polynom
@@ -3604,7 +3513,7 @@ def findAnyPCN(p,r,n):
 \end{sagecode}
 
 
-Die „unschönen“ Ergebnisse dieser Funktion wurden im Anhang speziell
+Die „unschönen“ Ergebnisse dieser Funktion wurden in den Tabellen speziell
 gekennzeichnet.
 
 
@@ -3614,12 +3523,30 @@ Mit Hilfe der hier vorgestellten Funktionen zur Findung von $\PCN$-Polynomen
 konnte nun bewiesen werden, dass für alle $n \in \{ 2,3,\ldots,33\}$ und für
 alle Primzahlpotenzen $q$ ein primitiv vollständig normales Polynom von Grad
 $n$ über $\F_q$ existiert (\thref{satz:hauptsatz_g}). Dies stellt in der Tat
-eine 
+eine Neuerung in der Forschung über die Existenz von primitiv vollständig
+normalen Elementen in Erweiterungen endlicher Körper dar und trägt letztendlich
+dazu bei, einen Teil der Antwort auf die große Frage der generellen Existenz
+von $\PCN$-Elementen zu liefern.
+
+In der angehängten CD befinden sich im Ordner \texttt{Tables} die Ergebnisse
+der $\PCN$-Suche. Die Dateinamen entsprechen dem Schema 
+\texttt{pcns\_$n$\_$r$}
+und ein Eintrag \texttt{$p$, poly, modulus} bedeutet, dass
+\texttt{poly} ein primitiv vollständig normales Polynom von Grad $n$ über 
+\[ \F_{p^r} = \F_p[a]\big/(\texttt{modulus}) \]
+ist. \texttt{modulus} entfällt selbstredend, falls $r = 1$ gilt. Die Primzahlen
+$p$ sind innerhalb einer Datei in aufsteigender Reihenfolge sortiert.
+Für die Ergebnisse der Funktion "findAnyPCN" aus \autoref{subsec:impl_pcn_ii}
+wurde an die Primzahl $p$ ein \texttt{!} angehängt, um herauszustellen, dass
+diese Polynome nicht die kleinsten im Sinne der gewählten Ordnung 
+(\thref{def:polynomordnung}) sind.
 
 
-Wie man anhand der Tabellen im Anhang erkennen kann, konnten wir nachweisen,
-dass für sehr viele Erweiterungen primitiv vollständig normale Trinome
-existieren. Inbesondere kann man erkennen, dass wenn $q$ nur groß genug wird,
+Wir schließen die vorliegende Arbeit mit einer interessanten Entdeckung, die
+man bei Betrachtung der berechneten $\PCN$-Polynome besonders auffällig
+erscheint:
+Für sehr viele Erweiterungen existieren primitiv vollständig normale Trinome. 
+Inbesondere kann man erkennen, dass wenn $q$ nur groß genug wird,
 offenbar stets ein $\PCN$-Trinom vorhanden ist. Dieses faszinierende Resultat 
 legt die folgende Vermutung nahe, die bisher gänzlich unklar bleibt und für die 
 zumindest im Rahmen dieser Arbeit keine Möglichkeit eines 

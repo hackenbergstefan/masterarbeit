@@ -86,6 +86,10 @@ openright
 
 \usepackage{longtable}
 
+%\usepackage{nomencl}
+%\renewcommand{\nomname}{Liste der verwendeten Symbole}
+%\makenomenclature
+
 
 %% Listings setup %%%%%%%%%%%%%%%%
 \lstset{
@@ -243,7 +247,7 @@ openright
 \theorembodyfont{\normalfont}
 \newtheorem{bemerkung}[satz]{Bemerkung}
 %\theoremsymbol{{\color{gray}$\triangle$}}
-\theoremsymbol{\color{gray}\ensuremath\filledmedtriangleup}
+\theoremsymbol{\color{gray}\rotatebox{90}{\ensuremath\filledmedtriangleup}}
 \newtheorem{beispiel}[satz]{Beispiel}
                                      
 \theoremstyle{plain}
@@ -599,7 +603,6 @@ openright
   \newunit}
 
 
-
 \begin{document}
 
 %% Trennungen %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -685,7 +688,12 @@ openright
 \cleardoubleemptypage
 
 \input{intro}
+
+
 \mainmatter
+%\printnomenclature
+
+\input{symbols}
 \input{grundbegriffe}
 \input{kreisteilungspolynome}
 \input{moduln}
@@ -693,6 +701,7 @@ openright
 \input{vollst-normalbasen}
 \input{enumeration}
 \input{implementierung}
+\input{extro}
 
 
 \nocite{*}
@@ -733,5 +742,8 @@ openright
 
 %\addchap{Fragen 1}
 %\input{fragen1}
+
+\addchap*{Fragen 2014-12-04}
+\input{fragen2}
 
 \end{document}

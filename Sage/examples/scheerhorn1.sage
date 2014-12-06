@@ -12,15 +12,15 @@ def getDegOver(x,F):
             return i
 
 ###
-q = 13
-n = 7   # nu(n) | q+1
+#q = 13
+#n = 7   # nu(n) | q+1
 #n = 9  # nu(n) | q-1
 #n = 4   # nu(n) | q+1
 ###
 
 ###
-#q = 2
-#n = 27 # nu(n) | q+1
+q = 2
+n = 27 # nu(n) | q+1
 ###
 
 

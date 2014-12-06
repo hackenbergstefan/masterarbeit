@@ -40,9 +40,9 @@ finden sind.
 
 \begin{definition}[Hauptidealbereich]
   Sei $R$ ein Integritätsbereich, so heißt $R$ \emph{Hauptidealbereich}
-  oder \emph{Hauptidealring}, falls jedes Ideal $I\ideal R$ ein
+  oder \emph{Hauptidealring}, falls jedes Ideal $I\subseteq R$ ein
   Hauptideal ist, d.h. ein $r \in R$ existiert mit
-  $I = (r)$.
+  $I = (r)$. Dabei notiere wie üblich $(r)$ das von $r$ erzeugte Ideal.
 \end{definition}
 
 
@@ -66,8 +66,8 @@ finden sind.
 
 
 \begin{bemerkung}
-  $\ggT$ und $\kgV$ sind nur bis auf Assoziiertheit gleich, wie man sich leicht
-  überlegen kann.
+  $\ggT$ und $\kgV$ sind jeweils nur bis auf Assoziiertheit 
+  eindeutig, wie man sich leicht überlegen kann.
 \end{bemerkung}
 
 \begin{definition}[irreduzibles Element]
@@ -130,21 +130,22 @@ finden sind.
   (\autocite[Theorem 7.1]{lang2002algebra}).
 \end{proof}
 
-\begin{definition}[Ordnung/Exponent eines Moduls]
-  Sei $M$ ein $R$-Modul. Existiert ein $r \in R$ mit
-  \[ rM \speq= 0\,,\]
-  so heißt $r$ \emph{Ordnung von $M$} oder \emph{Exponent von $M$}.
+\begin{definition}[Ordnung eines Moduls]
+  Seien $R$ ein Hauptidealbereich und $M$ ein $R$-Modul. 
+  Das bezüglich der Zerlegung in irreduzible Faktoren kleinste 
+  $r \in R$, das weder $0$ noch eine Einheit ist, mit
+  \[ rM \speq= 0\]
+  heißt \emph{Ordnung von $M$}.
 \end{definition}
 
-
-Nun können wir ein zentrales Resultat über Moduln mit Exponenten beweisen, das
+Nun können wir ein zentrales Resultat über Moduln mit Ordnung beweisen, das
 sich so auch beispielsweise in \autocite[Lemma 8.10]{hartley1974rings}
 wiederfindet.
 
 \begin{satz}[Zerlegungssatz für Moduln mit Ordnung]
   \label{satz:zerlegungssatz_moduln}
   Seien $R$ ein Hauptidealbereich und 
-  $M$ ein nicht-trivialer $R$-Modul mit Exponent $r$, also $rM = 0$.
+  $M$ ein nicht-trivialer $R$-Modul mit Ordnung $r$, also $rM = 0$.
   Sei $r = e p_1^{\alpha_1}\ldots p_k^{\alpha_k}$ eine Zerlegung in irreduzible
   Faktoren, sodass die $p_i$ paarweise nicht assoziiert sind, 
   so existieren eindeutig bestimmte $R$-Moduln 

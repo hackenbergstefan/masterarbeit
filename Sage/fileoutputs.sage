@@ -269,16 +269,16 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
                 mustUpdate = True
                 if allinfo.has_key(key):
                     mustUpdate = False
-                    print "already done: ", p,r,n
+                    #print "already done: ", p,r,n
                     info = allinfo[key]
                     if isOnlyNormal and not info.has_key("norm"):
                         info["norm"] = cn
                         info["pnorm"] = pcn
-                        print "\tupdate norm!",info
+                        #print "\tupdate norm!",info
                     elif not isOnlyNormal and not info.has_key("cn"):
                         info["cn"] = cn
                         info["pcn"] = pcn
-                        print "\tupdate cn!", info
+                        #print "\tupdate cn!", info
                     elif dt > info["date"]: 
                         info["date"] = dt
                         if isOnlyNormal:
@@ -304,13 +304,11 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
                         info["pcn"] = pcn
                     allinfo[key] = info
                 
-                if p == 2 and r == 1 and n == 6:
-                    print "p=",p, "r=",r, " q=",q," n=",n," cn=",cn," pcn=",pcn," gens=",gens,dt
-                    print "\t",allinfo[key]
     #print sorted(allinfo.keys())
     # do outputs
     # first remove all old files
     purge("../Latex/tables/", "enumerations.*")
+    purge("../Tables/Enumerations/", "enumerations.*")
 
     #do P outputs
     psDone = []
@@ -323,30 +321,50 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
         info = allinfo[(p,r,n)]
         #print "info = ",info
         fileout = "../Latex/tables/enumerationsPCN_P_"+str(info["p"])+".tex"
+        fileoutTables = "../Tables/Enumerations/enumerationsPCN_P_"+str(info["p"])+".csv"
         fileoutNorm = "../Latex/tables/enumerationsPN_P_"+str(info["p"])+".tex"
+        fileoutTablesNorm = "../Tables/Enumerations/enumerationsPN_P_"+str(info["p"])+".csv"
         if info["p"] in psDone:
             fout = open(fileout,'a')
+            foutTables = open(fileoutTables,'a')
             if info.has_key("norm"):
                 foutNorm = open(fileoutNorm,'a')
+                if not os.path.exists(fileoutTablesNorm):
+                    foutTablesNorm = open(fileoutTablesNorm,'w')
+                    foutTablesNorm.write("q, p, r, n, N, PN\n")
+                else: foutTablesNorm = open(fileoutTablesNorm,'a')
         else:
             fout = open(fileout,'w')
+            foutTables = open(fileoutTables,'w')
+            foutTables.write("q, p, r, n, CN, PCN, gens\n")
             if info.has_key("norm"):
                 foutNorm = open(fileoutNorm,'w')
+                foutTablesNorm = open(fileoutTablesNorm,'w')
+                foutTablesNorm.write("q, p, r, n, N, PN\n")
             psDone += [p]
+
         gensString = ""
+        gensString_tables = ""
         for idx, (k,t,pi,count) in enumerate(info["gens"]):
             gensString += "$("+k+","+t+","+pi+")"
+            gensString_tables += "("+k+" "+t+" "+pi+")"
             k = Integer(k)
             t = Integer(t)
             pi = Integer(pi)
             if isRegular(p,r,k,t,pi):
                 gensString += "^\\dagger"
+                gensString_tables += "*"
             gensString += "$: "+count
-            if idx < len(info["gens"])-1: gensString += ",\\ "
+            gensString_tables += ": "+count
+            if idx < len(info["gens"])-1: 
+                gensString += ",\\ "
+                gensString_tables += " "
 
         isBasicString = ""
+        isBasicString_tables = ""
         if isCompletelyBasic(info["p"],info["r"],info["n"]):
             isBasicString = "$^\\ast$"
+            isBasicString_tables = "*"
 
         outString = str(info["q"])\
                 +" & "+str(info["p"])\
@@ -356,10 +374,19 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
                 +" & "+str(info["pcn"])\
                 +" & "+gensString\
                 +"\\\\"
+        outString_tables = str(info["q"])\
+                +", "+str(info["p"])\
+                +", "+str(info["r"])\
+                +", "+str(info["n"])\
+                +", "+str(info["cn"])+isBasicString_tables\
+                +", "+str(info["pcn"])\
+                +", "+gensString_tables
         
         #print outString
         fout.write(outString+"\n")
         fout.close()
+        foutTables.write(outString_tables+"\n")
+        foutTables.close()
 
         if not p in pFilesCreated: pFilesCreated += [p]
         
@@ -371,8 +398,16 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
                     +" & "+str(info["norm"])\
                     +" & "+str(info["pnorm"])\
                     +"\\\\"
+            outString_tables = str(info["q"])\
+                    +", "+str(info["p"])\
+                    +", "+str(info["r"])\
+                    +", "+str(info["n"])\
+                    +", "+str(info["norm"])\
+                    +", "+str(info["pnorm"])
             foutNorm.write(outString+"\n")
             foutNorm.close()
+            foutTablesNorm.write(outString_tables+"\n")
+            foutTablesNorm.close()
     print "pFilesCreated = ",pFilesCreated
     
     #do N outputs
@@ -389,25 +424,38 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
         #print "info = ",info
         fileout = "../Latex/tables/enumerationsPCN_N_"+str(info["n"])+".tex"
         fileoutNorm = "../Latex/tables/enumerationsPN_N_"+str(info["n"])+".tex"
+        fileout_tables = "../Tables/Enumerations/enumerationsPCN_N_"+str(info["n"])+".csv"
+        fileoutNorm_tables = "../Tables/Enumerations/enumerationsPN_N_"+str(info["n"])+".csv"
         if info["n"] in nsDone:
             fout = open(fileout,'a')
+            fout_tables = open(fileout_tables,'a')
         else:
             fout = open(fileout,'w')
+            fout_tables = open(fileout_tables,'w')
+            fout_tables.write("q, p, r, n, CN, PCN, gens\n")
             nsDone += [n]
         gensString = ""
+        gensString_tables = ""
         for idx, (k,t,pi,count) in enumerate(info["gens"]):
             gensString += "$("+k+","+t+","+pi+")"
+            gensString_tables += "("+k+" "+t+" "+pi+")"
             k = Integer(k)
             t = Integer(t)
             pi = Integer(pi)
             if isRegular(p,r,k,t,pi):
                 gensString += "^\\dagger"
+                gensString_tables += "*"
             gensString += "$: "+count
-            if idx < len(info["gens"])-1: gensString += ",\\ "
+            gensString_tables += ": "+count
+            if idx < len(info["gens"])-1: 
+                gensString += ",\\ "
+                gensString_tables += " "
 
         isBasicString = ""
+        isBasicString_tables = ""
         if isCompletelyBasic(info["p"],info["r"],info["n"]):
             isBasicString = "$^\\ast$"
+            isBasicString_tables = "*"
 
         outString = str(info["q"])\
                 +" & "+str(info["p"])\
@@ -417,15 +465,24 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
                 +" & "+str(info["pcn"])\
                 +" & "+gensString\
                 +"\\\\"
+        outString_tables = str(info["q"])\
+                +", "+str(info["p"])\
+                +", "+str(info["r"])\
+                +", "+str(info["n"])\
+                +", "+str(info["cn"])+isBasicString_tables\
+                +", "+str(info["pcn"])\
+                +", "+gensString_tables
         
         #print outString
         fout.write(outString+"\n")
         fout.close()
+        fout_tables.write(outString_tables+"\n")
+        fout_tables.close()
 
         if not n in nFilesCreated: nFilesCreated += [n]
     
     print "nFilesCreated = ",nFilesCreated
-    return allinfo
+    #return allinfo
 
 def findPCN2CSV_allinone(basePath,n):
     fileins = []

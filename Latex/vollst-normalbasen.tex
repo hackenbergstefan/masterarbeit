@@ -4,13 +4,13 @@
 In den vorherigen Kapiteln haben wir einige Resultate zu Normalbasen kennen
 gelernt. Es stellt sich jedoch ganz natürlich die Frage, ob dieser Begriff
 nicht erweitert werden kann: Für eine Körpererweiterung $E$ über $F$ existieren
-im Allgemeinen Zwischenkörper $E \mid K \mid F$, so wollen wir untersuchen,
+im Allgemeinen Zwischenkörper $E \mid K \mid F$ und wir wollen untersuchen,
 ob ein Element $w \in E$, welches normal über $F$ ist, auch normal über allen
 Zwischenkörpern bleibt. Solche Elemente wollen wir \emph{vollständig normal}
 nennen. Ähnlich zu normalen Elementen kann man mit Hilfe der Modulstrukturen
 von Körpererweiterungen eine Theorie aufbauen, die es erlaubt, vollständig
-normale Elemente in vollständige Erzeuger (\thref{def:vollst_erzeuger}) zu
-zerlegen, wie es für normale Elemente aus \thref{kor:summe_erzeuger_normal}
+normale Elemente in \emph{vollständige Erzeuger} (\thref{def:vollst_erzeuger}) zu
+zerlegen, wie man es für normale Elemente aus \thref{kor:summe_erzeuger_normal}
 kennt. Hachenberger konnte in \autocite{hachenberger1997finite} ausarbeiten, wie
 die simultan auftretenden Modulstrukturen zu behandeln sind. Wir wollen hier
 die zentralen Resultate lediglich ohne Beweise zitieren. Eine ebenfalls gute
@@ -29,7 +29,7 @@ Kapitelüberschrift wiederfinden lässt.
 \end{definition}
 
 Ein besonders trivialer Fall würde auftreten, wenn bereits alle normalen
-Elemente eine Körpererweiterung auch vollständig normal wären. Man kann zeigen,
+Elemente einer Körpererweiterung auch vollständig normal wären. Man kann zeigen,
 dass dies in der Tat unter gewissen Bedingungen auftreten kann und verleiht
 dieser Konstellation den Namen \emph{einfach}.
 
@@ -50,9 +50,9 @@ dieser Konstellation den Namen \emph{einfach}.
     \item Für jeden Primteiler $r \mid m$ ist jedes normale Element in 
       $\F_{q^m}$ über $\F_q$ auch normal in $\F_{q^m}$ über $\F_{q^r}$.
     \item Für jeden Primteiler $r \mid m$ teilt $r$ nicht
-      $\ord_{(\frac m r)'}(q)$.
+      $\ord_{r'}(q)$.
   \end{enumerate}
-  Dabei ist $\tfrac m r = (\tfrac m r)'\,p^b$ mit $\ggT((\tfrac m r)',p) = 1$.
+  Dabei ist $\tfrac m r = r'\,p^b$ mit $\ggT(r',p) = 1$.
 \end{satz}
 \begin{proof}
   \autocite[Corollary 15.8]{hachenberger1997finite}.
@@ -73,10 +73,10 @@ dieser Konstellation den Namen \emph{einfach}.
 \end{proof}
 
 Im Abschnitt über normale Elemente konnten wir herausarbeiten, dass die
-Zerlegung von $x^n-1$ in Kreisteilungspolynome eine guter Startpunkt ist, um
+Zerlegung von $x^n-1$ in Kreisteilungspolynome ein guter Startpunkt ist, um
 normale Elemente zu konstruieren und die Modulstrukturen zu beschreiben. Jedoch
 zeigt es sich, dass im Allgemeinen ein Element, dessen $q$-Ordnung einem
-Kreisteilungspolynom entspricht, eine $q^d$-Ordnung für einen Teiler $d$ von
+Kreisteilungspolynom entspricht, eine $q^d$-Ordnung für Teiler $d$ von
 $n$ besitzt, die kein reines Kreisteilungspolynom mehr ist. 
 Also muss eine passende Klasse von Polynomen gefunden werden, um die
 verschiedenen simultan auftauchenden $q^d$-Ordnungen zu erfassen: 
@@ -84,7 +84,7 @@ verschiedenen simultan auftauchenden $q^d$-Ordnungen zu erfassen:
 
 \begin{definition}[verallgemeinertes Kreisteilungspolynom]
   Sei $F$ ein endlicher Körper. Seien $k,t\geq 1$ natürliche Zahlen und 
-  $k$ teilerfremd zu $\charak F$, so heißt
+  $k$ teilerfremd zur Charakteristik von $F$, so heißt
   \[ \Phi_{k,t}(x) \speq{:=} \Phi_k(x^t) \ \in F[x]\]
   \emph{verallgemeinertes Kreisteilungspolynom}.
 \end{definition}
@@ -104,16 +104,17 @@ verschiedenen simultan auftauchenden $q^d$-Ordnungen zu erfassen:
 \begin{definition}[vollständiger Erzeuger]
   \label{def:vollst_erzeuger}
   Sei $\C_{k,t}$ ein verallgemeinerter Kreisteilungsmodul über $\F_q$.
-  $w \in \bar F$ heißt 
+  $w \in \bar \F_q$ heißt 
   \emph{vollständiger Erzeuger von $\C_{k,t}$}, falls
   $w$ ein Erzeuger von $\C_{k,t}$ als $\F_{q^d}[x]$-Modul 
   für alle Teiler $d$ des Modulcharakters $\frac{kt}{\nu(k)}$ ist.
 \end{definition}
 
 \begin{definition}[Zerlegung in verallgemeinerte Kreisteilungsmoduln]
-  Sei $\Phi_{k,t}$ ein verallgemeinertes Kreisteilungspolynom über $F$.
-  $\Delta \subseteq F[x]$ heißt eine 
-  \emph{Zerlegung von $\Phi_{k,t}$ in verallgemeinerte Kreisteilungspolynome}, 
+  Sei $\Phi_{k,t}$ ein verallgemeinertes Kreisteilungspolynom über $\F_q$.
+  $\Delta \subseteq \F_q[x]$ heißt eine 
+  \emph{Zerlegung von $\Phi_{k,t}$ in verallgemeinerte Kreisteilungspolynome
+  über $\F_q$}, 
   falls $\Delta$ nur verallgemeinerte Kreisteilungspolynome enthält, diese
   paarweise teilerfremd sind und
   \[ \Phi_{k,t}(x) \speq= \prod_{\Psi \in \Delta} \Psi(x)\,. \]
@@ -126,15 +127,15 @@ verschiedenen simultan auftauchenden $q^d$-Ordnungen zu erfassen:
 \begin{definition}[verträgliche Zerlegung]
   \label{def:vertraeglich}
   Sei $\Delta$ eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte
-  Kreisteilungspolynome über $F$.
+  Kreisteilungspolynome über $\F_q$.
   Dann heißt $\Delta$ 
   \emph{verträgliche Zerlegung} falls gilt: Für jedes 
   $(l,s) \in i(\Delta)$ sei
-  $w_{l,s} \in \bar F$ ein vollständiger Erzeuger von 
-  $\C_{l,s}$ über $F$,
+  $w_{l,s} \in \bar \F_q$ ein vollständiger Erzeuger von 
+  $\C_{l,s}$ über $\F_q$,
   so ist 
   \[ w = \sum_{(l,s) \in i(\Delta)} w_{l,s} \]
-  ein vollständiger Erzeuger von $\C_{k,t}$ über $F$.
+  ein vollständiger Erzeuger von $\C_{k,t}$ über $\F_q$.
 \end{definition}
 
 
@@ -176,7 +177,7 @@ nachstehender Zerlegungssatz beschreibt.
 
 
 Sicherlich kann man sich nun fragen, in welchen Fällen die kanonische Zerlegung
-von eines erweiterten Kreisteilungspolynoms in Kreisteilungspolynome noch
+eines erweiterten Kreisteilungspolynoms in Kreisteilungspolynome noch
 verträglich ist. Nach \autocite[Theorem 19.10]{hachenberger1997finite} 
 ist die kanonische Zerlegung von $\Phi_{k,t}(x)^\pi$ verträglich über 
 $\F_q$, falls $\ord_{\nu(kt')}(q)$ und $t'$ teilerfremd sind. Dies motiviert
@@ -222,23 +223,23 @@ Resultats.
   Sei $\C_{k,p^b}$ ein regulärer verallgemeinerter Kreisteilungsmodul über
   $\F_q$. Schreibe
   \[ \ord_k(q) \speq= \ord_{\nu(k)}(q) \ \prod_{r \in \pi(k)} r^{\alpha_r}\,,\]
-  wobei $\pi(k)$ die Primteiler von $k$ bezeichnen.
+  wobei $\pi(k)$ die Menge der Primteiler von $k$ bezeichne.
   Dann heißt
   \[ \tau \speq{:=} \tau(q,k) \speq{:=} \prod_{r\in \pi(k)} 
     r^{\lfloor \frac{\alpha_r}{2}\rfloor}\]
   der \emph{$\tau$-Teiler von $\C_{k,p^b}$}.
 \end{definition}
 
-\begin{satz}[Über reguläre Erweiterungen]
+\begin{satz}[über reguläre Erweiterungen]
   \label{satz:regulare_erweiterungen}
   Sei $\F_q$ ein endlicher Körper von Charakteristik $p$. 
   Seien $k$ eine positive ganze Zahl teilerfremd zu $q$ und 
   $\C_{k,p^b}$ ein regulärer verallgemeinerter Kreisteilungsmodul. Dann gilt:
   \begin{enumerate}
-    \item Ist $\C_{k,p^b}$ nicht ausfallend, so ist $u \in \bar F$ genau dann
+    \item Ist $\C_{k,p^b}$ nicht ausfallend, so ist $u \in \bar \F_q$ genau dann
       ein vollständiger Erzeuger von $\C_{k,p^b}$, falls
       \[ \Ord_{q^\tau}(u) \speq= \Phi_{\frac k \tau,\, p^b} \,.\]
-    \item Ist $\C_{k,p^b}$ ausfallend, so ist $u\in \bar F$ genau dann
+    \item Ist $\C_{k,p^b}$ ausfallend, so ist $u\in \bar \F_q$ genau dann
       ein vollständiger Erzeuger von $\C_{k,p^b}$, falls
       \[ \Ord_{q^\tau}(u) \speq= \Phi_{\frac k \tau,\, p^b} \quad
         \text{und}\quad 

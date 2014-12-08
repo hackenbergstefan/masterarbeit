@@ -78,7 +78,7 @@ finden sind.
     p\mid a \lor p\mid b\,.\]
 \end{definition}
 
-\begin{definition}[Faktorieller Ring]
+\begin{definition}[faktorieller Ring]
   Ein Integritätsbereich $R$ heißt \emph{faktorieller Ring}, falls jedes
   Element $0\neq r \in R$ eine Zerlegung in irreduzible Faktoren besitzt, d.h.
   \[ r \speq= e a_1 \ldots a_n\]
@@ -118,6 +118,13 @@ finden sind.
   \[ M = Rx\,.\]
 \end{definition}
 
+\begin{bemerkung}
+  In mancher Literatur wird auch die Schreibweise $M = (x)$ für einen
+  zyklischen Modul benutzt, jedoch suggeriert $(x)$ ein Ideal in $R$ zu
+  bezeichnen. Da dies im Allgemeinen nicht der Fall ist, verzichten wir auf
+  diese Schreibweise.
+\end{bemerkung}
+
 
 \begin{satz}
   \label{satz:untermoduln_bleiben_zyklisch}
@@ -132,10 +139,11 @@ finden sind.
 
 \begin{definition}[Ordnung eines Moduls]
   Seien $R$ ein Hauptidealbereich und $M$ ein $R$-Modul. 
-  Das bezüglich der Zerlegung in irreduzible Faktoren kleinste 
+  Falls $r \in R\setminus\{0\}$ existiert mit $rM = 0$, so heißt
+  das bezüglich der Zerlegung in irreduzible Faktoren kleinste 
   $r \in R$, das weder $0$ noch eine Einheit ist, mit
   \[ rM \speq= 0\]
-  heißt \emph{Ordnung von $M$}.
+  \emph{Ordnung von $M$}.
 \end{definition}
 
 Nun können wir ein zentrales Resultat über Moduln mit Ordnung beweisen, das
@@ -155,7 +163,7 @@ wiederfindet.
 \begin{proof}
   Zu Beginn stellen wir fest, dass die geforderte Zerlegung für $r$ existiert
   und eindeutig ist, in dem wir ($R$ ist faktoriell nach 
-  \thref{satz:hid_sind_faktoriell}) $r$ in irreduzibele
+  \thref{satz:hid_sind_faktoriell}) $r$ in irreduzible
   Elemente zerlegen und dann diejenigen, die zueinander assoziiert sind,
   zusammenfassen. Ferner notieren wir $d_i = \frac{r}{p_i^{\alpha_i}}$.
   Kümmern wir uns nun um die Eindeutigkeit. Sei also 
@@ -200,8 +208,25 @@ wiederfindet.
 
 \begin{bemerkung}
   Es ist klar, dass $V_r$ wieder zu einem $R$-Modul wird, da sich $V_r$ auch
-  lesen lässt, als der Kern des Modulhomomorphismus
+  lesen lässt als der Kern des Modulhomomorphismus
   \[ M\to M,\ a \mapsto ra\,.\]
+\end{bemerkung}
+
+
+\begin{definition}[Annihilator]
+  Sei $M$ ein $R$-Modul. Für $S\subset M$ heißt
+  \[ \Ann_R(S) := \{ r \in R:\ sr = 0\ \forall s\in S\}\]
+  der \emph{Annihilator von $S$ in $R$}. 
+  Für $S= \{x\}$ schreibe $\Ann_R(x) := \Ann_R(\{x\})$.
+\end{definition}
+
+\begin{bemerkung}
+  Man spricht in obiger Definition auch vom \emph{Annihilator-Ideal}, da in der
+  Tat $\Ann_R(S)$ ein Ideal in $R$ ist. Insbesondere, falls 
+  $M = xR$ ein zyklischer $R$-Modul über einem Hauptidealbereich $R$ ist, so
+  ist 
+  \[ \Ann_R(x) \speq= (r)\]
+  für ein $r\in R$.
 \end{bemerkung}
 
 \begin{satz}
@@ -216,8 +241,8 @@ wiederfindet.
 \begin{proof}
   Zunächst ist klar, dass $V_r+V_s$ und $V_r\cap V_s$ wiederum $R$-Moduln sind.
   \begin{enumerate}
-    \item Sei $x\in V_t$, so ist $t \in \Ann_Rx$ nach Definition des
-      Annihilators. Dieser ist ein Ideal, also sind auch $s,t\in \Ann_Rx$.
+    \item Sei $x\in V_t$, so ist $t \in \Ann_R(x)$ nach Definition des
+      Annihilators. Dieser ist ein Ideal, also sind auch $s,t\in \Ann_R(x)$.
       Damit folgt sofort $x \in V_r\cap V_s$.
       Sei umgekehrt $x \in V_r \cap V_s$, also $rx = 0$ und $sx = 0$. 
       Nach Definition des $\ggT$ existieren $r',s'\in R$ mit 
@@ -227,41 +252,19 @@ wiederfindet.
       $V_r+V_s \subseteq V_T$. Sei umgekehrt $z\in V_T$.
       Schreibe nun $r = r't$, $s = s't$ und setze
       $x := s'z$, $y:=r'z$. Dann ist 
-      \[ rx \speq= rs'z \speq= Tz \speq= r'sz \speq= sy \]
-      und wegen $Tz = 0$ folgt $x\in U_r$ und $y \in U_s$. Da nach Wahl nun
+      ohne Einschränkung $rs'=T=sr'$ und 
+      \[ rx \speq= rs'z \speq= Tz \speq= r'sz \speq= sy\,. \]
+      Wegen $Tz = 0$ folgt $x\in V_r$ und $y \in V_s$. Da nach Wahl nun
       $(r')+(s') = (1)$, existieren $\alpha,\beta\in R$ mit 
       $\alpha r' + \beta s' = 1$ und wir folgern
       \[ z \speq= \alpha r'z + \beta s'z \speq= \alpha y + \beta x \,.\]
   \end{enumerate}
 \end{proof}
 
-\begin{definition}[Annihilator]
-  Sei $M$ ein $R$-Modul. Für $S\subset M$ heißt
-  \[ \Ann_R(S) := \{ r \in R:\ sr = 0\ \forall s\in S\}\]
-  der \emph{Annihilator von $S$ in $R$}. 
-  Für $S= \{x\}$ schreibe $\Ann_R(x) := \Ann_R(\{x\})$.
-\end{definition}
-
-\begin{bemerkung}
-  In mancher Literatur wird auch die Schreibweise $M = (x)$ für einen
-  zyklischen Modul benutzt, jedoch suggeriert $(x)$ ein Ideal in $R$ zu
-  bezeichnen. Da dies im Allgemeinen nicht der Fall ist, verzichten wir auf
-  diese Schreibweise.
-\end{bemerkung}
-
-\begin{bemerkung}
-  Man spricht in obiger Definition auch vom \emph{Annihilator-Ideal}, da in der
-  Tat $\Ann_R(S)$ ein Ideal in $R$ ist. Insbesondere, falls 
-  $M = xR$ ein zyklischer $R$-Modul über einem Hauptidealbereich $R$ ist, so
-  ist 
-  \[ \Ann_R(x) \speq= (r)\]
-  für ein $r\in R$.
-\end{bemerkung}
-
 
 \begin{lemma}
   \label{lemma:zyklischer_modul_iso}
-  Sei $M = xR$ ein zyklischer $R$-Modul. Dann gilt
+  Sei $M = Rx$ ein zyklischer $R$-Modul. Dann gilt
   \[M \speq\cong R\big/\Ann_R(x)\]
   als $R$-Moduln und dieser Isomorphismus ist kanonisch.
 \end{lemma}
@@ -283,7 +286,7 @@ wiederfindet.
   Nach \thref{lemma:zyklischer_modul_iso} ist $Z \cong R\big/(p^\alpha)$. Damit
   stehen die Teilmoduln von $Z$ in Bijektion zu den Teilmoduln von
   $R$ (gelesen als $R$-Modul), die $(p^\alpha)$ enthalten. Solch ein
-  Teilmoduln ist also gerade ein Ideal $(r)$ mit 
+  Teilmodul ist also gerade ein Ideal $(r)$ mit 
   $(p^\alpha)\subseteq (r)$. Da $p$ prim ist, folgt $r = up^\beta$ für
   $0\leq\beta \leq \alpha$ und $u\in R^\times$, wobei $u=1$ \obda angenommen
   werden kann. Damit sind die $Z_\beta$ die einzigen Teilmoduln von $Z$.
@@ -302,7 +305,7 @@ wiederfindet.
   $\delta \in \Ann_R(rx)$. Für die andere Inklusion sei $s \in \Ann_R(rx)$,
   also $srx = 0$. Damit ist aber $sr \in \Ann_R(x)$ und
   $\lambda \mid sr$. Mit $\lambda = \delta t$ und $sr = sr't$ folgt
-  für $t\neq 0$ (der Fall $t=0$ ist ohnehin trivial) $\delta \mid sr'$.
+  $\delta \mid sr'$.
   Nach Definition des $\ggT$ sind $r'$ und $\delta$ teilerfremd, wodurch
   $\delta \mid s$. Also $s \in (\delta)$.
 \end{proof}
@@ -318,7 +321,8 @@ wiederfindet.
   $(ab) \subseteq \Ann_R(x+y)$. Ist nun $t(x+y) = 0$ für ein $t \in R$, so
   ist $z:= tx = -ty \in (x)\cap(y)$. Ferner ist 
   $(x)\cap(y) \subseteq V_a \cap V_b$ nach Voraussetzung. 
-  Nach \thref{satz:schnitt_plus_vs} (1) ist aber $V_a \cap V_b = (0)$.
+  Nach \thref{satz:schnitt_plus_vs} (1) ist aber 
+  $V_a \cap V_b = V_1 =  (0)$,
   also auch $z=0$. Damit ist 
   \[ t \in \Ann_R(x)\cap \Ann_R(y) \speq= (a)\cap(b) \speq= 
     \speq= (\kgV(a,b)) \speq= (ab)\,,\]
@@ -331,11 +335,11 @@ wiederfindet.
 
 \begin{definition}[$(V,\tau)$]
   \label{def:V_tau}
-  Sei $\K$ ein Körper und $V$ ein $\K$-Vektorraum und 
+  Sei $\K$ ein Körper, $V$ ein $\K$-Vektorraum und 
   $\tau \in \End_\K(V)$, so können wir $V$ als $\K[x]$-Modul auffassen:
   \[ f(x) \cdot v \speq{:=} f(\tau)(v)\]
   für alle $f(x) \in \K[x]$ und $v\in V$.
-  Nenne das Paar $(V,\tau)$ \emph{$\K[x]$-Modul bzgl. $\tau$}.
+  Nenne das Paar $(V,\tau)$ ein \emph{$\K[x]$-Modul bzgl. $\tau$}.
 \end{definition}
 
 \begin{notation}
@@ -357,12 +361,12 @@ wiederfindet.
   von Grad $n$ und 
   \[\tau = \sigma: \funcdef{E & \to & E\\
     v &\mapsto & v^q}\]
-  der Frobenius von $E$, so ist
-  \[ \mu_\tau(x) \ =\ \chi_\tau(x) \ =\ x^n - 1\,,\]
-  denn: Es ist klar, dass $n = \deg \chi_\tau$ und da nach dem Satz von
-  Cayley-Hamilton ist $\sigma$ Nullstelle von $\chi_\tau$. Daher teilt
-  $\mu_\tau$ das charakteristische Polynom. Jedoch kennen wir das
-  Minimalpolynom von $\tau$: Nach dem Dedekindschen Lemma
+  der Frobenius von $F$, so ist
+  \[ \mu_\sigma(x) \ =\ \chi_\sigma(x) \ =\ x^n - 1\,,\]
+  denn: Es ist klar, dass $n = \deg \chi_\sigma$ und nach dem Satz von
+  Cayley-Hamilton ist $\sigma$ Nullstelle von $\chi_\sigma$. Daher teilt
+  $\mu_\sigma$ das charakteristische Polynom. Jedoch kennen wir das
+  Minimalpolynom von $\sigma$: Nach dem Dedekindschen Lemma
   (\thref{satz:dedekindsches_lemma}) ist 
   $\id_E,\sigma,\ldots,\sigma^{n-1}$ linear unabhängig über $E$, 
   also insbesondere über $F$, und $\sigma^n = \id_E$.
@@ -372,7 +376,7 @@ wiederfindet.
 \begin{definition}[$\tau$-Ordnung, Teilmodul]
   Sei $(V,\tau)$ ein $\K[x]$-Modul. Zu jedem $v \in V$ betrachte den
   $\K[x]$-Modulhomomorphismus
-  \[ \psi_v: \funcdef{\K[x] & \to & V \\
+  \[ \psi_v: \funcdef{\K[x] & \to & V\,, \\
     f(x) & \mapsto & f(x)\cdot v }  \]
   Sei ferner $\dim V < \infty$.
   \begin{enumerate}
@@ -387,16 +391,16 @@ wiederfindet.
 \begin{bemerkung}
   Die Eindeutigkeit der $\tau$-Ordnung wird sofort klar, wenn man sich
   überlegt, dass für einen Hauptidealbereich $R$ mit $(a) = (b) \subseteq R$ 
-  gilt: Schreibe $a = b b'$ und $b = a a'$ so gilt $a = a a'b'$, also 
+  gilt: Schreibe $a = b b'$ und $b = a a'$, so gilt $a = a a'b'$, also 
   $a'b' = 1$. Damit unterscheiden sich die Erzeuger zweier gleicher Hauptideale
-  lediglich um eine Einheit. Wir haben jedoch $K[x]^\times = \K^\times$. Die
+  lediglich um eine Einheit. Wir haben jedoch $\K[x]^\times = \K^\times$. Die
   Forderung nach Normiertheit klärt damit abschließend die Eindeutigkeit.
 \end{bemerkung}
 
 
 \begin{bemerkung}
   In Notation von \autoref{sec:Moduln} gilt offensichtlich
-  \[ \Ann_{\K[x]}(v) \speq= \ker\psi_v \,.\]
+  \[ \Ann_{\K[x]}(v) \speq= \big(\Ord_\tau(v)\big) \,.\]
 \end{bemerkung}
 
 \begin{notation}
@@ -454,12 +458,12 @@ wiederfindet.
     \deg\mu_\tau \speq\leq \deg \chi_\tau \]
   und 
   \[ \Ord_\tau (v) \speq\mid \mu_\tau \speq\mid \chi_\tau \,,\]
-  wobei die erste Teilbarkeitsrelation per definitionem erfüllt ist und die
+  wobei die erste Teilbarkeitsrelation per Definition erfüllt ist und die
   zweite gerade der Satz von Cayley-Hamilton ist.
-  Damit kommen wir zum direkten Beweis:
+  Damit kommen wir zum eigentlichen Beweis:
   \begin{description}
     \item["`$\Rightarrow$"'] Sei $V$ also zyklisch bzgl. $w$, so ist dies nach
-      obigem äquivalent zu $\deg(\Ord_\tau(w)) = n$. Daraus folgt aber sofort
+      Obigem äquivalent zu $\deg(\Ord_\tau(w)) = n$. Daraus folgt aber sofort
       $\mu_t = \chi_\tau$, da beide normiert sind.
     \item["`$\Leftarrow$"'] Zunächst sei behauptet, dass es stets ein 
       $w \in V$ gibt mit $\Ord_\tau(w) = \mu_\tau$. Sei dazu 
@@ -503,15 +507,15 @@ wiederfindet.
     \item Dies ist lediglich eine Umformulierung von
       \thref{satz:zerlegungssatz_moduln}
       und \thref{lemma:teilmoduln_prim_moduln}.
-    \item Sei $v \in V$ ein Erzeuger von $V_g$, so ist per definitionem von 
+    \item Sei $v \in V$ ein Erzeuger von $V_g$, so ist 
       $g(x)\cdot v = 0$. Also $\Ord_\tau(v) \mid g(x)$. Schreibe
       $\Ord_\tau(v) =: h(x)$, so folgt
-      \[ h(x)\cdot V_g \speq= \K[x]\cdot (h(x)\cdot v) \speq=0
-      \quad\Leftrightarrow\quad g(x) \mid h(x)\,.\]
+      \[ h(x)\cdot V_g \speq= \K[x]\cdot (h(x)\cdot v) \speq=0\,.\]
+      Also $g(x) = h(x)$.
       Ist andererseits $w \in V$ mit $\Ord_\tau(w) = g(x)$, 
       so können wir zunächst festhalten, dass $\K[x] \cdot w \subseteq V_g$.
       Sei ferne $x \in V$ ein Erzeuger von $V_g$. Dann ist $w = f(x)\cdot v$ für
-      ein $f(x)\in \K[x]$ und ferner $\ggT(f(x),g(x)) = 1$ nach 
+      ein $f(x)\in \K[x]$ mit $\ggT(f(x),g(x)) = 1$ nach 
       \thref{lemma:eigenschaften_tau_ordnung}. Also existieren
       $f'(x),g'(x)\in \K[x]$ mit $f'f + g'g = 1$. Wir folgern:
       \[ v \speq= (f'(x)f(x) + g'(x)g(x)) \cdot v \speq=
@@ -570,9 +574,9 @@ in \autocite[Theorem 8.6]{hachenberger1997finite} wieder.
       \[ \Ord_\tau(w) \speq= \prod_{\delta\in \Delta} \Ord_\tau(w_\delta)\]
       und $\Ord_\tau(w)$ ist ein normierter Teiler von $g(x)$.
     \item $w$ ist ein Erzeuger von $V_g$ genau dann, wenn für alle 
-      $\delta\in\Delta$ auch $w_\delta$ Erzeuger von $V_\delta$ ist.
+      $\delta\in\Delta$ auch $w_\delta$ Erzeuger von $V_\delta$ sind.
     \item Ist $V_g = \oplus_{i \in I} V_i$ eine Zerlegung in Teilmoduln,
-      so existieren eine Zerlgung $\Delta$ von $g$ und 
+      so existieren eine Zerlegung $\Delta$ von $g$ und 
       eine Bijektion $\pi:I\to\Delta$, so dass $V_i = V_{\pi(i)}$.
   \end{enumerate}
 \end{satz}

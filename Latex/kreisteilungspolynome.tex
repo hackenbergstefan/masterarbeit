@@ -10,7 +10,7 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 \begin{definition}[Kreisteilungskörper, Einheitswurzeln]
   Sei $n\in\N^\ast$. Der Zerfällungskörper von $x^n-1 \in K[x]$ heißt
   der \emph{$n$-te Kreisteilungskörper} und wird mit $K\kl n$ notiert.
-  Die Nullstellen von $x^n-1$ in $K\kl n$ heißen \emph{$n$-ten
+  Die Nullstellen von $x^n-1$ in $K\kl n$ heißen \emph{$n$-te
   Einheitswurzeln} und die Menge derer wird mit $E\kl n$ bezeichnet.
 \end{definition}
 
@@ -35,14 +35,15 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 \begin{definition}[primitive Einheitswurzeln]
   Sei $n\in \N^\ast$ und $p\nmid n$. Dann heißen die Erzeuger von 
   $E\kl n$ \emph{primitive $n$-te Einheitswurzeln}. 
-  Die Untergruppe der primitiven Einheitswurzeln wird mit
+  Die Untergruppe der primitiven $n$-ten Einheitswurzeln wird mit
   $C\kl n$ bezeichnet.
 \end{definition}
 
 
 \begin{definition}[Kreisteilungspolynom]
   Seien $n \in \N^\ast$, $p\nmid n$. Das Polynom 
-  \[ \Phi_n(x) \speq{:=} \prod_{\zeta \in C\kl n} (x - \zeta)\]
+  \[ \Phi_n(x) \speq{:=} \prod_{\zeta \in C\kl n} (x - \zeta)\ \in 
+    K\kl n[x]\]
   heißt \emph{$d$-tes Kreisteilungspolynom}.
 \end{definition}
 
@@ -69,7 +70,7 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
   \[ \ord_n(q) \speq{:=} \ord([q]_n)\]
   die \emph{multiplikative Ordnung von $q$ modulo $n$},
   wobei $[q]_n$ die Restklasse von $q$ in $\Z_n$ bezeichnet und 
-  die Ordnung als Gruppenordnung in den Einheiten von $\Z_n$, notiert 
+  die Ordnung in der Einheitengruppe von $\Z_n$, notiert 
   durch $\Z_n^\times$, zu lesen ist.
 \end{definition}
 
@@ -124,7 +125,7 @@ uns über die gesamte Arbeit hinweg begleiten wird.
   können wir folgern, dass $\deg f = \ord_n(q)$.
   Da $f(x)$ als beliebiger irreduzibler Teiler von $\Phi_n(x)$ gewählt wurde,
   folgt sofort die Behauptung, wenn man sich überlegt, dass der Grad des
-  $n$-ten Kreisteilungspolynoms per definitionem gerade $\varphi(n)$ ist.
+  $n$-ten Kreisteilungspolynoms per Definition gerade $\varphi(n)$ ist.
 \end{proof}
 
 
@@ -171,7 +172,7 @@ Dies motiviert nachstehende Definition.
   \label{def:nebenklassen_mod_m}
   Für $m,q\in\N$ mit $\ggT(m,q) = 1$ und $j \in \{0,\ldots,m-1\}$ definieren wir
   \[ M_q(j\bmod m) \speq{:=} \{ j\,q^i \bmod m:\ i\in\N\} \speq= 
-    \{j,\ jq,\ jq^2,\ jq^3,\ldots\ \bmod m\}\]
+    \{j,\ jq,\ jq^2,\ jq^3,\ldots\ \bmod m\}\,.\]
   Ein vollständiges Repräsentantensystem von Nebenklassen 
   der Untergruppe $M_q(1\bmod m)$
   in $\Z_m$ sei mit $R_q(m)$ bezeichnet. Für $l=1,\ldots,m-1$
@@ -237,7 +238,7 @@ Dies motiviert nachstehende Definition.
 Nun können wir uns überlegen, ob und wie unterschiedliche Kreisteilungspolynome
 zusammenhängen und kommen dabei auf die bekannten Resultate, die z.B. in 
 \autocite[Proposition 10.6, 10.7]{hachenberger1997finite} zu finden sind. Um
-diese anzugeben, benötigen wir jedoch noch eine Definitionen und zitieren
+diese anzugeben, benötigen wir jedoch noch eine Definition und zitieren
 einige Eigenschaften.
 
 \begin{definition}
@@ -324,7 +325,7 @@ einige Eigenschaften.
   und $\zeta \in C\kl{kd t_0}$ beliebig. Dann ist 
   \[ \ord(\zeta^t) = \ord((\zeta^{t_0d})^{\frac{\bar t}{d}})
     = k\,,\]
-  da per definitionem von $\cl_k(t)$ gerade $\ggT(\bar t, kt_0) = 1$.
+  da per Definition von $\cl_k(t)$ gerade $\ggT(\bar t, kt_0) = 1$.
   Also gilt $\psi_t(C\kl{kdt_0}) \subseteq C\kl k$
   und damit
   \[ \bigcupdot_{d\mid \bar t} C\kl{kdt_0} \speq\subseteq 
@@ -360,8 +361,7 @@ Binom $x^n-\beta \in \F_q[x]$ irreduzibel ist.
 \begin{proof}
   Zunächst ist klar, dass $p \nmid n$ erfüllt sein muss, da ansonsten 
   $\beta' \in \F_q^\ast$ existiert mit $\beta'^p = \beta$ 
-  ($(\ \dot\ )^p$ ist ein
-  Automorphismus auf $\F_q$ nach \thref{satz:frob_auto}). Damit wäre
+  (vgl. \thref{satz:frob_auto}), also wäre
   $x^n-\beta = (x^\frac n p - \beta')^p$ eine Faktorisierung.
   Nun sei $u$ eine Nullstelle von $x^n-\beta$, so lässt sich beobachten, dass
   (in Notation des Beweises von
@@ -405,7 +405,7 @@ interessieren wir uns hier vorangig für den Zerfall der Kreisteilungspolynome
 aber genau das Wissen über die Irreduzibiltät von
 Binomen lässt uns Bedingungen formulieren, die dazu führen, dass ein
 Kreisteilungspolynom über einem gegebenen endlichen Körper in irreduzible
-Binome zerfällt
+Binome zerfällt.
 Später (\autoref{sec:stark_regulare_erweiterungen}) werden wir diese
 Bedingungen \emph{stark regulär} (\thref{def:stark_regular}) nennen und
 einsehen, dass sie eine wesentliche Rolle bei der expliziten Konstruktion 
@@ -491,7 +491,7 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   was offenbar ein wohldefinierter Gruppenhomomorphismus bleibt.
   Offensichtlich ist $\ker\psi_t = E\kl t$. Da $\ggT(m,t) = 1$, also 
   $E\kl{mt} = E\kl m \odot E\kl t$ als leichte Folgerung aus
-  \thref{satz:zykl_gruppen}, ist $\psi$ auch surjektiv.
+  \thref{satz:zykl_gruppen}, ist $\psi_t$ auch surjektiv.
 
   Ist nun $\alpha \in C\kl m$ eine Nullstelle von $f(x)$, 
   so existiert -- wiederum
@@ -626,7 +626,7 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
         \frac{2\cdot 3}{6} &\speq=& 1\,. 
     \end{alignat*}
     Wir wollen nun herausfinden, welche Teiler $f_{1,1}(x)$ und $f_{3,1}(x)$ 
-    von $\varphi_7(x)$ und $\varphi_{21}(x)$ sind. Wir übernehmen den Zerfall
+    von $\Phi_7(x)$ und $\Phi_{21}(x)$ sind. Wir übernehmen den Zerfall
     der Kreisteilungspolynome aus \thref{beispiel:zerfall_x21_1_1}
     und können einsehen, dass
     \[ f_{1,1}(x) \speq= x^3+x^2+1\,,\qquad
@@ -694,8 +694,8 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
 \begin{beispiel}
   Als zweites Beispiel wollen wir uns einen Fall betrachten, 
   in dem $\Delta_q(d,m)$ nicht immer $1$ ist.
-  Sei $p=q=3$, $m=5$ und $t:= 4$.
-  Also müssen wir ein Vertretersystem von Restklassen ${}\bmod 20$ betrachten:
+  Sei $p=q=3$, $m=5$ und $t= 4$.
+  Also müssen wir ein Vertretersystem von Restklassen modulo $20$ betrachten:
   \[\begin{array}[t]{r|l}
     l \in R_3(20) & M_2(l \bmod 20) \\\hline
     0 & 0 \\
@@ -718,13 +718,13 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
   wobei wir $\zeta \in C\kl{20}$ mit Minimalpolynom $x^4+2x^3+x+1$ gewählt
   haben.
   Nun können wir den Zerfall von $\Phi_5(x)$ und $\Phi_{10}(x)$ in Termen von
-  $\zeta$ anhand der Restklassen ${}\bmod{20}$ beschreiben:
+  $\zeta$ anhand der Restklassen modulo $20$ beschreiben:
   \[\setlength{\arraycolsep}{2pt}\everymath{\displaystyle}
     \begin{array}{rcccc} 
       \Phi_5(x)&=& x^4 + x^3 + x^2 + x + 1\\
       &=& (x-\zeta^4)(x-\zeta^{8})(x-\zeta^{12})(x-\zeta^{16})\,, \\[10pt]
       \Phi_{10}(x) &=& x^{4} + 2 x^{3} + x^{2} + 2 x + 1 \\
-      &=& (x-\zeta^2)(x-\zeta^6)(x-\zeta^{14})(x-\zeta^{16})\,.
+      &=& (x-\zeta^2)(x-\zeta^6)(x-\zeta^{14})(x-\zeta^{18})\,.
     \end{array}\]
   Die Restklassen für $l=0,5,10$ gehören zu den Kreisteilungspolynomen 
   $\Phi_1(x), \Phi_4(x)$ und $\Phi_2(x)$, die wir für ein Beispiel zu
@@ -741,7 +741,7 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
       \frac{2\cdot 4}{4} &\speq=& 2\,. 
   \end{alignat*}
   Nun ist klar, wie $f(x^t)$ über $\F_3$ zerfällt:
-  \[\small f(x^3) \speq= \big(
+  \[\small f(x^4) \speq= \big(
     \tikz[baseline]{\node[anchor=base,rounded corners,fill=gray!5]
       (n)
       {$\displaystyle x^4+x^3+x^2+x+1$};

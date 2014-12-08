@@ -12,7 +12,7 @@ normale) Elemente zu konstruieren.
 \section{Grundlegende Ideen}
 
 Seien im Folgenden stets $F := \F_q$ ein endlicher Körper von 
-Charakteristik $p$ und $E := \F_{q^n} \mid F$ eine Körpererweiterung.
+Charakteristik $p$ und $E := \F_{q^n}$ über $F$ eine Körpererweiterung.
 Wir wiederholen kurz die Definition einer \emph{Normalbasis}.
 
 \begin{definition}[normales Element, normales Polynom, Normalbasis]
@@ -29,7 +29,7 @@ Wir wiederholen kurz die Definition einer \emph{Normalbasis}.
 \end{definition}
 
 Wir wollen nun die Begriffe der normalen Elemente und der Erzeuger von
-zyklischen Moduln aus vorhergehendem Kapitel in Zusammenhang bringen. Dazu
+zyklischen Moduln aus dem vorhergehenden Kapitel in Zusammenhang bringen. Dazu
 müssen wir uns Gedanken machen, wie sich Normalität im Kontext der
 Modulstruktur einer Körpererweiterung lesen lässt.
 
@@ -126,7 +126,7 @@ normalen Elemente.
   $x^3+5$) wiederzufinden:
   \[ (x^3+3)\cdot w \speq= w^{q^3} + 3 w \speq= 
     w(w^{7^3-1} +3) \speq= w(w^{342}+3) \speq{\overset{!}{=}} 0.\]
-  Da $w \neq 0$ und per definitionem der Kreisteilungspolynome 
+  Da $w \neq 0$ und per Definition der Kreisteilungspolynome 
   $(-3),(-5)\in \F_7$ primitive $3$-te Einheitswurzeln sind, 
   brauchen wir ein $w$ mit $\ord(w^{342}) = 3$; 
   was obiges $u$ gerade erfüllt! Damit ist also $u^{18} = u^{342}$ 
@@ -144,8 +144,7 @@ Ein entscheidender Vorteil in der Konstruktion eines normalen Elements in
 obigem Beispiel war der Zerfall der Kreisteilungspolynome in Binome. Aus 
 \thref{satz:kreisteilungspolynome_binome}
 wissen wir bereits, wann die Kreisteilungspolynome in Binome zerfallen.
-Damit können wir diese sehr einfache Möglichkeit Normalbasen explizit anzugeben,
-als Reihe von Aussagen formulieren:
+Damit haben wir eine sehr einfache Möglichkeit, Normalbasen explizit anzugeben.
 
 \begin{definition}[stark regulär]
   \label{def:stark_regular}
@@ -166,12 +165,12 @@ als Reihe von Aussagen formulieren:
   Seien $q,m \in \N^\ast$ mit $q,m > 1$ und $\nu(m) \mid \nu(q-1)$. Dann gilt:
   \begin{enumerate}
     \item Ist $m$ ungerade oder $q\equiv 1 \bmod 4$, so gilt
-      \[ \ord_m(q) \speq= \frac{m}{\ggT(\pi_m(q-1),m)}\,.\]
+      \[ \ord_m(q) \speq= \frac{m}{\ggT(\cl_m(q-1),m)}\,.\]
     \item Ist $m\equiv 0\bmod 4$ und $q\equiv 2 \bmod 4$, so gilt
-      \[ \ord_m(q) \speq= 2\,\frac{m}{\ggT(\pi_m(q^2-1),m)}\,.\]
+      \[ \ord_m(q) \speq= 2\,\frac{m}{\ggT(\cl_m(q^2-1),m)}\,.\]
     \item Ist $m\equiv 2\bmod 4$ und $q\equiv 2 \bmod 4$, so gilt
       \[ \ord_m(q) \speq= \ord_{\frac m 2}(q) \speq=
-        \frac{m}{\ggT(\pi_m(q-1),m)}\,.\]
+        \frac{m}{\ggT(\cl_m(q-1),m)}\,.\]
   \end{enumerate}
 \end{lemma}
 \begin{proof}
@@ -191,7 +190,7 @@ als Reihe von Aussagen formulieren:
 \begin{satz}
   \label{satz:konstruktion_q_ordnung}
   Sei $F = \F_q$ ein endlicher Körper und $m \in \S_q$. Seien
-  $l := \pi_m(q-1)$, $a := \ggT(l,m)$ und $u \in \bar\F_q$ eine primitive
+  $l := \cl_m(q-1)$, $a := \ggT(l,m)$ und $u \in \bar\F_q$ eine primitive
   $(ml)$-te Einheitswurzel. Dann gilt:
   \begin{enumerate}
     \item $\F_q(u) = \F_{q^m} =: E$.
@@ -202,12 +201,12 @@ als Reihe von Aussagen formulieren:
 \begin{proof}
   \begin{enumerate}
   \item Aus \thref{lemma:cl_2} haben wir 
-   $\pi_m(q^m-1) = m\pi_m(q-1) = ml$ und
+   $\cl_m(q^m-1) = m\cl_m(q-1) = ml$ und
     damit nach \thref{lemma:ordn_1} 
     \[ [F(u):F] \speq= \ord_{ml}(q) \speq= 
-      \frac{ml}{\ggT(\pi_{ml}(q-1), ml} \speq=
+      \frac{ml}{\ggT(\cl_{ml}(q-1), ml} \speq=
       \frac{ml}{l} \speq= m\,,\]
-    da $\nu(ml) = \nu(m)$, wegen $l = \pi_m(q-1)$.
+    da $\nu(ml) = \nu(m)$, wegen $l = \cl_m(q-1)$.
   \item Sei nun $\zeta \in F^\ast$ eine primitive $a$-te Einheitswurzel. Dann
     ist nach \thref{satz:kreisteilungspolynome_binome}
     \[ \Phi_m(x) \speq= \prod_{i\in I_a} (x^{\frac m a} - \zeta^i).\]
@@ -219,11 +218,11 @@ als Reihe von Aussagen formulieren:
         &=\quad u\big( u^{q^{\frac m a}-1} - \zeta^i \big)\,, \tag{$\ast$}
     \end{align*}
     wobei wie üblich $\sigma: E \to E, x \mapsto x^q$ den Frobenius von
-    $E\mid F$ meint. Wir wollen nun zeigen, dass $\Ord_q(u) = (x^{\frac m a} -
+    $F$ meint. Wir wollen nun zeigen, dass $\Ord_q(u) = (x^{\frac m a} -
     \zeta^i)$ für ein $i\in I_a$, explizit also, dass $(\ast) = 0$ für ein
     $i\in I_a$ gilt. Dazu müssen wir $q^{\frac m a} -1$ genauer untersuchen:
     Wiederum nach \thref{lemma:cl_2} haben wir:
-    \[ \pi_m(q^{\frac m a} -1 ) \speq= \frac m a \pi_m(q-1) \speq=
+    \[ \cl_m(q^{\frac m a} -1 ) \speq= \frac m a \cl_m(q-1) \speq=
       \frac{ml}{a} \speq= \kgV(m,l) \speq{=:} c\,.\]
     Nun ist $q^{\frac m a}-1 = ck$ für 
     ein $k\in\N$ mit $\ggT(k,ml) = 1$, wie man sich anhand der 
@@ -256,41 +255,41 @@ als Reihe von Aussagen formulieren:
 \end{proof}
 
 Da wir nun die einzelnen Bausteine kennen, können wir auf die Faktorisierung
-und damit auf eine explizite Angabe eines normalen Elements zu schließen:
+und damit auf eine explizite Angabe eines normalen Elements schließen:
 
 \begin{kor}
   \label{kor:konstruktion-q-ordnung}
   Für $F = \F_q$, $n\in \S_q$ sei $\lambda \in F^\ast$ eine primitive 
-  $\pi_n(q-1)$-te Einheitswurzel. Zu jedem $m \mid n$ seien
+  $\cl_n(q-1)$-te Einheitswurzel. Zu jedem $m \mid n$ seien
   \begin{itemize}
-    \item $a(q,m) := \ggT(m,\pi_m(q-1))$ und
+    \item $a(q,m) := \ggT(m,\cl_m(q-1))$ und
     \item $I_a := \{ i\leq a:\ \ggT(i,a) = 1\}$.
   \end{itemize}
   Dann ist
   \[ x^n-1 \speq= \prod_{m\mid n}\ \prod_{i\in I_{a(q,m)}} 
-    \left( x^\frac{m}{a(q,m)} - \lambda^{\frac{\pi_n(q-1)}{a(q,m)} i}\right)\]
+    \left( x^\frac{m}{a(q,m)} - \lambda^{\frac{\cl_n(q-1)}{a(q,m)} i}\right)\]
   die vollständige Faktorisierung von $x^n-1$ über $\F_q$.
 \end{kor}
 \begin{proof}
-  Da  $\ord\big(\lambda^{\frac{\pi_n(q-1)}{a(q,m}}\big) = a(q,m)$
+  Da  $\ord\big(\lambda^{\frac{\cl_n(q-1)}{a(q,m}}\big) = a(q,m)$
   und für $m\mid n$ offensichtlich auch $m\in \S_q$, ist obige Aussage lediglich
   eine Anwendung von \thref{satz:konstruktion_q_ordnung}.
 \end{proof}
 
 \begin{satz}
-  Seien $F = \F_q$ ein endlicher Körper, $n\in \S_q$ und $L:=\pi_n(q-1)$.
+  Seien $F = \F_q$ ein endlicher Körper, $n\in \S_q$ und $L:=\cl_n(q-1)$.
   Ferner sei $u \in \bar F$ eine primitive $(nL)$-te Einheitswurzel. Dann ist
   mit Notation aus \thref{kor:konstruktion-q-ordnung}
   \[ w \speq{:=} \sum_{m\mid n} \ \sum_{i\in I_a}
-    u^{\frac{n\, L}{m\, \pi_m(q-1)}i}\]
+    u^{\frac{n\, L}{m\, \cl_m(q-1)}i}\]
   normal in $E := \F_{q^n}$ über $F$.
 \end{satz}
 \begin{proof}
   Im Grunde haben wir bereits alles gezeigt. Daher reicht ein kurzer Kommentar,
   warum wir \thref{satz:konstruktion_q_ordnung} anwenden können aus. Es ist
   trivialerweise 
-  \[ \ord\big( u^{\frac{nL}{m\pi_m(q-1)}} \big) \speq=
-    m\, \pi_m(q-1)\]
+  \[ \ord\big( u^{\frac{nL}{m\cl_m(q-1)}} \big) \speq=
+    m\, \cl_m(q-1)\]
   und damit sind alle Voraussetzungen erfüllt.
 \end{proof}
 
@@ -310,21 +309,21 @@ und damit auf eine explizite Angabe eines normalen Elements zu schließen:
   \label{lemma:hoehere_wurzeln_auch_erzeuger}
   Seien die Voraussetzungen wie in \thref{satz:konstruktion_q_ordnung}, also
   $F = \F_q$ ein endlicher Körper und $m\in \S_q$. Setze ferner 
-  $l := \pi_m(q-1)$, $a := \ggT(l,m)$. 
+  $l := \cl_m(q-1)$, $a := \ggT(l,m)$. 
   Ist nun $\theta$ eine primitive $(nf)$-te Einheitswurzel für 
   $l \mid f \mid q-1$, so ist $\Ord_q(\theta)$ ein irreduzibler Teiler
   von $\Phi_m(x)$ über $F[x]$.
 \end{lemma}
 \begin{proof}
   Sei $f = le$ mit $\ggT(e,l) = 1$. Diese Zerlegung ist möglich, da
-  $l$ per definitionem der größte Teiler von $q-1$ ist, dessen Primfaktoren
+  $l$ per Definition der größte Teiler von $q-1$ ist, dessen Primfaktoren
   allesamt in $m$ vorkommen, d.h. jeder Primfaktor von $q-1$ der $l$ teilt,
   kommt dort bereits in maximaler Potenz vor.
   Damit reicht es -- wenn wir wir den Beweis von
   \thref{satz:konstruktion_q_ordnung} noch einmal nachvollziehen -- zu zeigen,
   dass $\ggT(mle, ck) = ce$ für $c := \kgV(m,l)$ und 
   $q^{\frac m a} -1 = ck$ für ein $k$ mit $\ggT(k,ml) = 1$. Da $\ggT(e,l) = 1$,
-  ist per definitionem von $l$ auch $\ggT(e,m) = 1$ und damit auch
+  ist per Definition von $l$ auch $\ggT(e,m) = 1$ und damit auch
   $\ggT(e,c) = 1$. Da $e \mid q-1\mid q^{\frac m a -1}$ zerfällt $k$ 
   in $k = \bar k k_e$ mit $e \mid k_e$ und $\ggT(\bar k,e) = 1$. Damit
   folgt $\ggT(mle, ck) = ce$ und wir haben
@@ -349,7 +348,7 @@ Als Korollar dieses Lemmas können wir einen Satz von \citeauthor{semaev:1989}
   Aus \thref{satz:binom_irreduzibel} und \thref{satz:binom_irreduzibel_aquiv}
   wissen wir, dass für $a \in \F_q^\ast$ das Polynom
   $x^n-a \in \F_q[x]$ genau dann irreduzibel ist, wenn
-  $p\nmid n$, $\nu(n) \mid f := \ord(a)$, $l := \pi_n(q-1)\mid f$ und
+  $p\nmid n$, $\nu(n) \mid f := \ord(a)$, $l := \cl_n(q-1)\mid f$ und
   $q \equiv 1 \bmod 4$, falls $4\mid n$. 
   Ist bereits $q\equiv 1 \bmod 4$, falls $n$ gerade, so sind wir genau in der 
   Situation, dass $n$ stark regulär ist.
@@ -374,7 +373,7 @@ beschreibt und in ganz ähnlicher Form in \autocite[Theorem
   \label{lemma:erzeuger_von_irred_teilmoduln}
   Seien die Voraussetzungen wie in \thref{satz:konstruktion_q_ordnung}, also
   $F = \F_q$ ein endlicher Körper und $m\in \S_q$. Setze ferner 
-  $l := \pi_m(q-1)$, $a := \ggT(l,m)$. Ist dann $u$ eine primitive 
+  $l := \cl_m(q-1)$, $a := \ggT(l,m)$. Ist dann $u$ eine primitive 
   $(ml)$-te Einheitswurzel mit $\Ord_q(u) = f(x)$ für $f(x)$ einen irreduziblen
   monischen Teiler von $\Phi_m(x)$, so gilt für $v \in E:= \F_{q^m}$:
   \[ \Ord_q(v) = f(x) \quad\Leftrightarrow\quad
@@ -382,10 +381,10 @@ beschreibt und in ganz ähnlicher Form in \autocite[Theorem
 \end{lemma}
 \begin{proof}
   In \thref{kor:moduln_ueber_v_g} haben wir gezeigt, dass für $v \in E$ gilt
-  \[ v \in E_f \quad\Leftrightarrow\quad v = g(x)\cdot u 
-    \text{ für ein } g(x) \in F[x]_{<\deg f},\ \ggT(f,g) = 1\]
+  \[ v \in V_f \quad\Leftrightarrow\quad v = g(x)\cdot u 
+    \text{ für ein } g(x) \in F[x]_{<\deg f}\]
   Da $f$ irreduzibel von Grad $\frac m a$ ist, sind alle $v \in
-  E_f\setminus\{0\}$ von $q$-Ordnung $f$ und es folgt die Behauptung.
+  V_f\setminus\{0\}$ von $q$-Ordnung $f$ und es folgt die Behauptung.
 \end{proof}
 
 \begin{bemerkung}
@@ -402,11 +401,11 @@ beschreibt und in ganz ähnlicher Form in \autocite[Theorem
 Die Erkenntnisse über stark reguläre Erweiterungen wollen wir nutzen, um
 Normalbasen auch in einem allgemeineren Kontext angeben zu können. Ist nämlich
 $m\in\N$ ungerade mit $p\nmid m$ und setzen wir $s = \ord_{\nu(m)}(q)$, 
-so erkennen wir, dass $\nu(m) \mid q^s-1$ per definitionem von
+so erkennen wir, dass $\nu(m) \mid q^s-1$ per Definition von
 $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$! 
 
 \begin{definition}[regulär]
-  Sei $q = p^r$ eine Primzahlpotenz und $n\in \N_{>0}$. Setze 
+  Sei $q = p^r$ eine Primzahlpotenz und $n\in \N^\ast$. Setze 
   $n = n' p^c$ mit $p\nmid n'$. Das Paar $(q,n)$ heißt \emph{regulär}, falls
   $\ggT(n, \ord_{\nu(n')}(q)) = 1$. 
   Ist $F = \F_q$ und $E = \F_{q^n}$, so nenne die Erweiterung $E\mid F$ 
@@ -419,7 +418,7 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
   und $m\in\N$ ungerade mit $p\nmid m$.
   Setze $s := \ord_{\nu(m)}(q)$, 
   $l := \cl_m(q^s-1)$, $b:= b(q,m) = \ggT(l,m)$, $E := \F_{q^m}$ und
-  $E' = \F_{q^{sm}}$. Ist dann
+  $E' := \F_{q^{sm}}$. Ist dann
   $u$ eine primitive $(ml)$-te Einheitswurzel, so gilt
   \begin{enumerate}
     \item $F(u) = E'$,
@@ -430,26 +429,26 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
   \end{enumerate}
 \end{satz}
 \begin{proof}
-  Wie zu beginn dieses Abschnitts erwähnt, sieht man leicht, dass
+  Wie zu Beginn dieses Abschnitts erwähnt, sieht man leicht, dass
   $m \in \S_{q^s}$.
   \begin{enumerate}
     \item Analog zum Beweis von \thref{satz:konstruktion_q_ordnung} 
       folgern wir $\ord_{ml}(q) = sm$.
     \item Nach \thref{satz:konstruktion_q_ordnung} ist nun
-      $g(x) := \Ord_{q^s}$ ein über $K := \F_{q^s}$ irreduzibler Teiler von
-      $\Phi_m(x)$. Sei nun $\zeta\in K$ eine primitive $b$-te Einheitswurzel,
+      $g(x) := \Ord_{q^s}(u)$ ein über $K := \F_{q^s}$ irreduzibler Teiler von
+      $\Phi_m(x)$. Sei nun $\zeta\in K^\ast$ eine primitive $b$-te Einheitswurzel,
       so gilt ohne Einschränkung
       \[ g(x) \speq= x^{\frac m b} -\zeta\]
       Definiere nun $f(x) := \prod_{i=0}^{s-1} (x^{\frac m b} - \zeta^{q^i})$, 
       so ist $f(x)$ ein irreduzibler monischer Teiler von $\Phi_m(x)$ über $F$,
       wie man sich leicht überlegt, betrachtet man den Zerfall von
-      $\Phi_m(x)$ über $F$. Per definitionem von $g(x)$ ist auch
+      $\Phi_m(x)$ über $F$. Per Definition von $g(x)$ ist auch
       $f(\sigma^s)(u) = 0$. Also $\Ord_q(u) \mid f(x^s)$.
       Es bleibt nun zu zeigen, dass $\Ord_q(u) = f(x^s)$:
       Schreibe dazu $h(x) := \Ord_q(u)$. 
       Betrachten wir nun 
-      \[ \Omega_F:\funcdef{ F[x] &\to& E':= \F_{q^{ms}}, \\
-        p(x) &\mapsto& p(\sigma^s)(u),}\]
+      \[ \Omega_F:\funcdef{ F[x] &\to& E'\,, \\
+        p(x) &\mapsto& p(\sigma^s)(u)\,,}\]
       so stellen wir fest, dass $\ker\Omega_F = (f(x))$, da $f(x)$ ist irreduzibel
       über $F$ ist.
       Bezeichne nun $M := \im\Omega_F$. Dann ist 
@@ -463,10 +462,10 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
       für $N := \im\Omega_K$. Ferne ist klar, dass $M\subseteq N$, da
       $\Omega_F = \Omega_K\mid_{F[x]}$, womit wir durch Gleichheit der
       $F$-Dimensionen $M=N$ schließen können.
-      Schließlich sei $\Gamma_u: F[x]\to E',\ p(x) \mapsto p(\sigma)(u)$., so
+      Schließlich sei $\Gamma_u: F[x]\to E',\ p(x) \mapsto p(\sigma)(u)$, so
       ist $\ker\Gamma_u = (h(x))$ per Definition von $h(x)= \Ord_q(u)$. 
       Nach \thref{satz:moduln_ueber_v_g} (3) folgt sofort
-      $\im\Gamma_u = V_h$ mit $V_h := \{ w\in E':\ h(\sigma)(w) = 0 \}$
+      $\im\Gamma_u = V_h$ mit $V_h = \{ w\in E':\ h(\sigma)(w) = 0 \}$
       und wegen $\Omega_F = \Gamma_u \circ (p(x)\mapsto p(x^s))$ ist
       $N = M = \im\Omega_F \subseteq \im \Gamma_h$. Nach 
       \thref{satz:moduln_ueber_v_g} (4) ist $V_h$ zyklisch, also invariant
@@ -476,7 +475,7 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
       Für $i=0,\ldots,s-1$ sind diese jedoch über $K$ paarweise teilerfremd
       und wir folgern
       \[ \sum_{i=0}^{s-1} N_i \speq= \bigoplus_{i=0}^{s-1} N_i 
-        \speq= \{ w \in E':\ f(\sigma^s)(w) = 0 \} := V_{f(x^s)} 
+        \speq= \{ w \in E':\ f(\sigma^s)(w) = 0 \} = V_{f(x^s)} 
         \speq\subseteq V_h\,.\]
       Ergo $h(x) \mid f(x^s)$, mithin $h(x) = f(x^s)$.
     \item Nach Definition von $R_q(m)$ (vgl. auch 
@@ -513,7 +512,7 @@ sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$
 \end{satz}
 \begin{proof}
   Zerlegen wir $s = \bar s p^\beta$ mit $p\nmid \bar s$, so ist 
-  nach Voraussetzungen $\ggT(\bar s, m) = 1$ und wir sind in der Situation von
+  nach Voraussetzung $\ggT(\bar s, m) = 1$ und wir sind in der Situation von
   \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys}. Damit gilt
   \[ \Phi_m(x^s) \speq= \Phi_m(x^{\bar s})^{p^\beta}
     \speq= \prod_{d \mid \bar s} \Phi_{md}(x)^{p^\beta}\,.\]
@@ -602,7 +601,7 @@ Auch für reguläre Erweiterungen wollen wir ein Analogon von
   also $F := \F_q$ ein endlicher Körper für eine Primzahlpotenz $q = p^r$ 
   und $m\in\N$ ungerade mit $p\nmid m$.
   Setze $s := \ord_{\nu(m)}(q)$, 
-  $l := \pi_m(q^s-1)$, $b:= b(q,m) := \ggT(l,m)$, $E := \F_{q^m}$ und
+  $l := \cl_m(q^s-1)$, $b:= b(q,m) := \ggT(l,m)$, $E := \F_{q^m}$ und
   $E' = \F_{q^{sm}}$. 
   Ist nun $\theta$ eine primitive $(nf)$-te Einheitswurzel für 
   $l \mid f \mid q^s-1$, so ist $\Ord_q(\theta) = f(x^s)$ für 
@@ -634,7 +633,7 @@ für den wir Erzeuger (und letztendlich normale Elemente) konstruieren wollen.
 \end{satz}
 \begin{proof}
   Auf der einen Seite haben wir 
-  \[ \Ord_q(g(x)\cdot u) \speq\mid x^m-1 \speq= \prod_{d\mid m} \Phi_m(x)\,, \]
+  \[ \Ord_q(g(x)\cdot u) \speq\mid x^m-1 \speq= \prod_{d\mid m} \Phi_d(x)\,, \]
   da $g(x)\cdot u$ nach Voraussetzung in $\F_{q^m}$ liegt.
   %da $g(x) \cdot u$ nach Voraussetzung Grad $m$ über $F$ hat und auf der
   anderen Seite gilt nach \thref{lemma:eigenschaften_tau_ordnung}
@@ -665,7 +664,7 @@ für den wir Erzeuger (und letztendlich normale Elemente) konstruieren wollen.
 \section{Normalbasen mit Dickson-Polynomen}
 
 Im vorangegangenen Abschnitt haben wir uns primitiver Einheitswurzeln,
-also Nullstellen der Kreisteilungspolynomen, bedient,
+also Nullstellen der Kreisteilungspolynome, bedient,
 um normale Elemente in (stark) regulären Erweiterungen zu konstruieren. Im
 Folgenden werden wir erkennen, dass sich auch Nullstellen gewisser anderer
 Polynome, namentlich Dickson-Polynome, nutzen lassen, um in speziellen
@@ -806,7 +805,7 @@ betrachteten Erweiterungskörper, wie die beiden nachstehenden Sätze angeben.
 \end{satz}
 
 In \autocites{scheerhorn:1996}{scheerhorn:1997} werden die Beweise dieser
-Resultate ohne Zuhilfenahme der allgemeinen Theorie über (stark) reguläre
+Resultate ohne Zuhilfenahme der Theorie über (stark) reguläre
 Erweiterungen geführt, wie wir sie im letzten Abschnitt kennengelernt haben.
 Wir wollen uns nun im Folgenden überlegen, dass die Theorie der vorherigen
 Abschnitte an diesem Punk ein besseres Verständnis der Struktur der Zerlegung 
@@ -955,7 +954,7 @@ Man bemerke, dass im Beweis von \thref{satz:scheerhorn1}
 $\theta + a\theta\inv$ lediglich eine
 Abwandlung von $\theta + \theta^{q^n} = \Tr_{E'\mid E}(\theta)$ ist!
 Daher ist das Resultat vielleicht auch nicht besonders überraschend,
-da wir in \thref{satz:q_ordnung_von_trace} erkannt haben, wie die Spurfunktion
+da wir in \thref{satz:q_ordnung_von_trace} erkannt haben, dass die Spurfunktion
 zur Konstruktion von normalen Elementen in regulären Erweiterungen zentral ist.
 In Notation des vorherigen Abschnittes würde man die beiden Sätze von
 Scheerhorn vielleicht auf die folgende Art und Weise aufschreiben. 
@@ -967,14 +966,14 @@ Zusatzvoraussetzungen) ein normales Element zu konstruieren.
   \label{satz:scheerhorn_erweitert}
   Seien $F := \F_q$ ein endlicher Körper von Charakteristik $p$ und $m\in
   \N^\ast$ ungerade mit $p\nmid n$ und $\nu(n)\mid q^2-1$. Sind $a,b\in F$, 
-  sodass $D_n(x,a)-b \in F[x]$ irreduzibel mit Nullstelle $\gamma \in E:=
+  sodass $D_n(x,a)-b \in F[x]$ irreduzibel ist mit Nullstelle $\gamma \in E:=
   \F_{q^n}$, so gilt:
   \begin{enumerate}
     \item $E = F(\gamma)$,
     \item Ist $\nu(n)\mid (q+1)$, so gilt:
       Für alle $l\in R_q(n)$ mit $r_q(l\bmod n) = \ord_q(m)$ 
       für einen Teiler $m$ von $n$ ist 
-      $\Ord_q(D_l(\gamma,a))$ ist ein irreduzibler monischer Teiler von
+      $\Ord_q(D_l(\gamma,a))$ ein irreduzibler monischer Teiler von
       $\Phi_m(x)$.
     \item Setze 
       \[ v := \sum_{l\in R_q(n)} D_l(\gamma,a)\,. \]
@@ -1040,7 +1039,7 @@ die Nullstellen desselbigen invertiert.
   $\{ 1\} \cup \{\theta^l+a^l\theta^{-l}:\ l=1,\ldots,n-1\}$ eine 
   $\F_q$-Basis von $F_{q^n}$ bildet. Offensichtlich ist
   $s(\theta-t+a\theta\inv)\inv$ genau dann normal über $\F_q$, wenn
-  $(\theta+t+a\theta\inv$ normal über $\F_q$ ist. Also überlegen wir uns,
+  $\theta+t+a\theta\inv$ normal über $\F_q$ ist. Also überlegen wir uns,
   für welche $\alpha = a_0 + \sum_{i=1}^{n-1} a_i(\theta^i+a^i\theta^{-i})$
   das Produkt $\alpha(\theta-t+a\theta\inv)$ in $\F_q^\ast$ liegt.
   Durch Ausmultiplizieren erkennt man, dass die Koeffizienten $a_i$ gerade 
@@ -1049,12 +1048,12 @@ die Nullstellen desselbigen invertiert.
   Rechnung). Damit ist $\alpha(\theta-t+a\theta\inv) \in \F_q^\ast$, falls
   \[ \alpha \speq= E_{n-1}(t,a) + \sum_{i=1}^{n-1} E_{n-1-i}(t,a)
     (\theta^ia^i+\theta^{-i})\,.\]
-  Die Aussage folgt dann sofort mit \thref{satz:scheerhorn1} 
-  (oder \thref{satz:scheerhorn_erweitert})
+  Die Behauptung des Satzes folgt dann sofort mit \thref{satz:scheerhorn1} 
+  (oder \thref{satz:scheerhorn_erweitert}).
 \end{proof}
 
 
-Ferner können wir genau diese Folgerung benutzen, um vollsändig normale
+Ferner können wir genau diese Folgerung benutzen, um vollständig normale
 Polynome, also solche, die über jedem Zwischenkörper normal sind, anzugeben.
 
 \begin{satz}[{\autocite[Theorem 5]{scheerhorn:1997}}]

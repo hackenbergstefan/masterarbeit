@@ -1,4 +1,5 @@
 \chapter{Existenz und Enumeration primitiv vollständig normaler Elemente}
+\label{chap:existenz_und_enumeration}
 
 In den vorangegangenen Kapiteln haben wir lediglich normale und vollständig
 normale Elemente in Erweiterungen endlicher Körper betrachtet. Es existiert
@@ -7,7 +8,7 @@ großem Interesse ist: Primitivität (\thref{def:primitiv}). Zusammen haben wir
 nun drei Eigenschaften eines Elements $u \in E$ einer Erweiterung endlicher
 Körper $E\mid F$ kennengelernt, die von Interesse sind. Daher ist es nur
 sinnvoll sich der Frage zu widmen, \emph{wie viele} Elemente mit den jeweiligen
-Eigenschaften es gibt. Mit \thref{satz:zykl_gruppen} und 
+Eigenschaften existieren. Mit \thref{satz:zykl_gruppen} und 
 \thref{satz:mult_gruppe_endl_korper_zyklisch} ist sofort klar, dass es in
 $\F_q$ genau $\varphi(q-1)$ primitive Elemente gibt! Daher ist die
 Fragestellung nach der Anzahl primitiver Elemente schnell gelöst. Darüber
@@ -100,9 +101,10 @@ zu formulieren:
 
 Bisher haben wir all diese Probleme nicht ausreichend geklärt. Doch im
 folgenden Abschnitt wollen wir uns jenen Fragestellungen zunächst theoretisch
-widmen, um in den darauffolgenden gezielte Enumerationen auf Basis der
+widmen, um in den darauffolgenden gezielte experimentelle Untersuchungen 
+auf Basis der
 theoretischen Resultate, die über (vollständig) normale Elemente im bisherigen
-Verlauf erarbeitet wurden, durchzuführen, um für die offen bleibenden Fragen 
+Verlauf erarbeitet wurden, durchzuführen.
 
 
 \section{Theoretische Enumerationen und Existenzaussagen}
@@ -226,7 +228,7 @@ reguläre Erweiterungen) zu beantworten:
   \autocite[Proposition 21.1, Proposition 21.2]{hachenberger1997finite}.
 \end{proof}
 
-Ferner lässt sich daraus eine Abschätzung für die Anzahl von vollständig
+Darüber hinaus lässt sich so eine Abschätzung für die Anzahl von vollständig
 normalen Elementen einer regulären Körpererweiterung ableiten.
 
 \begin{satz}
@@ -280,8 +282,8 @@ $\{ (2,2),\ldots,(2,18),\allowbreak\
   (8,2),\ldots,(8,5),\allowbreak\ 
   (9,2),\ldots,(9,5)\}$ die Werte $\CN(q,n)$ und $\PCN(q,n)$ bestimmen können.
 Betrachten wir einmal diese Zahlenkonstellationen und fragen uns, ob wir diese
-nicht durch obige theoretische Resultate abdecken kann, so müssen wir
-feststellen, dass die Anzahlen der vollständig normalen Elemente lediglich
+nicht durch obige theoretische Resultate abdecken können, so müssen wir
+feststellen, dass bei den Anzahlen der vollständig normalen Elemente lediglich
 die Paare $(2,6), (2,10),(2,12),(2,18), (3,8), (3,10), (5,6)$ nicht einfach und
 nicht regulär sind, also $\CN(q,n)$ nicht bereits aus obigen Sätzen
 folgt.
@@ -291,5 +293,5 @@ Daher setzen wir uns im Folgenden das Ziel, die Tabelle von
 erweitern, um ein weitaus breiteres Spektrum an Zahlwerten präsentieren zu
 können. Dabei sei angemerkt, dass in \autocite{morgan1996} die theoretischen
 Überlegungen aus \autoref{chap:vollst_normalbasen} gänzlich unbeachtet blieben.
-Wir wollen diese jedoch in nachfolgender Implementierung intensiv nutzen, um
+Wir wollen diese in nachfolgender Implementierung intensiv nutzen, um
 bestmögliche Ausbeute vorhanderer Rechenleistung zu erhalten.

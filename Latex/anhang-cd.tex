@@ -1,0 +1,329 @@
+\chapter{CD- und Online-Resourcen}
+\newcommand{\normalcomma}{{\normalfont ,} }
+
+\section{CD}
+\label{anh:sec:cd}
+Auf beiliegender CD findet man die folgenden Ordner:
+
+\begin{tabular}{>{\ttfamily}l}
+  ./Tables/Enumerations/ \\
+  ./Tables/PCNs/ \\
+  ./Sage
+\end{tabular}
+
+\subsection{\texttt{./Tables/Enumerations}}
+
+In analoger Syntax zu Anhang \ref{anh:sec:enumerationen} finden sich in diesem
+Ordner die Tabellen der Enumerationen als digitale Version wieder.
+Wie in Anhang \ref{anh:sec:enumerationen} sind die Tabellen dort nach konstanten
+$p$ (\texttt{enumerationsPCN\_P\_$p$.csv}) und konstanten $n$ 
+(\texttt{enumerationsPCN\_N\_$n$.csv}) separiert. Die Enumerationen, bei denen
+lediglich die Anzahl normaler und primitiv normaler Elemente bestimmt wurde,
+liegen in den Dateien \texttt{enumerationsPN\_P\_$p$.csv}.
+
+Die Syntax der Einträge entspricht genau der der entsprechenden 
+Tabellen. Lediglich das Symbol $^\dagger$ zur Kennzeichnung von regulären
+Kreisteilungsmoduln wurde durch \texttt{*} ersetzt.
+
+Es sind folgende Dateien in diesem Ordner enthalten:
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+enumerationsPCN\_P\_2.csv\normalcomma
+enumerationsPCN\_P\_3.csv\normalcomma
+enumerationsPCN\_P\_5.csv\normalcomma
+enumerationsPCN\_P\_7.csv\normalcomma
+enumerationsPCN\_P\_11.csv\normalcomma
+enumerationsPCN\_P\_13.csv\normalcomma
+enumerationsPCN\_P\_17.csv\normalcomma
+enumerationsPCN\_P\_19.csv\normalcomma
+enumerationsPCN\_P\_23.csv\normalcomma
+enumerationsPCN\_P\_29.csv\normalcomma
+enumerationsPCN\_P\_31.csv\normalcomma
+enumerationsPCN\_P\_37.csv\normalcomma
+enumerationsPCN\_P\_41.csv\normalcomma
+enumerationsPCN\_P\_43.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+enumerationsPCN\_N\_3.csv\normalcomma
+enumerationsPCN\_N\_4.csv\normalcomma
+enumerationsPCN\_N\_6.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+enumerationsPN\_P\_2.csv\normalcomma
+enumerationsPN\_P\_3.csv\normalcomma
+enumerationsPN\_P\_5.csv
+\end{tabular}
+
+\subsection{\texttt{./Tables/PCNs}}
+
+In diesem Ordner sind die Ergebnisse der Suche nach primitiv vollständig
+normalen Polynome (\autoref{sec:existenz_pcn}) gespeichert. 
+In der Datei \texttt{pcns\_$n$\_$r$.csv} ist für jede Primzahlpotenz 
+$p^r < n^4$ ein primitiv vollständig normales Polynom hinterlegt. 
+Ein Eintrag \texttt{$p$, poly, modulus} bedeutet, dass
+\texttt{poly} ein primitiv vollständig normales Polynom von Grad $n$ über 
+\[ \F_{p^r} = \F_p[a]\big/(\texttt{modulus}) \]
+ist. \texttt{modulus} entfällt selbstredend, falls $r = 1$ gilt. Die Primzahlen
+$p$ sind innerhalb einer Datei in aufsteigender Reihenfolge sortiert.
+Das Polynom ist in den meisten Fällen
+kleinste bezüglich der Ordnung aus \thref{def:polynomordnung}. 
+Ist dies bei einem Eintrag nicht der Fall (vgl. \autoref{subsec:impl_pcn_ii}),
+so wurde ein \texttt{!} der Primzahl $p$ angehängt, um dies kenntlich zu
+machen.
+
+Es sind folgende Dateien in diesem Ordner enthalten:
+
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_6\_1.csv\normalcomma
+pcns\_6\_2.csv\normalcomma
+pcns\_6\_3.csv\normalcomma
+pcns\_6\_4.csv\normalcomma
+pcns\_6\_5.csv\normalcomma
+pcns\_6\_6.csv\normalcomma
+pcns\_6\_7.csv\normalcomma
+pcns\_6\_8.csv\normalcomma
+pcns\_6\_9.csv\normalcomma
+pcns\_6\_10.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_10\_1.csv\normalcomma
+pcns\_10\_2.csv\normalcomma
+pcns\_10\_3.csv\normalcomma
+pcns\_10\_4.csv\normalcomma
+pcns\_10\_5.csv\normalcomma
+pcns\_10\_6.csv\normalcomma
+pcns\_10\_7.csv\normalcomma
+pcns\_10\_8.csv\normalcomma
+pcns\_10\_9.csv\normalcomma
+pcns\_10\_10.csv\normalcomma
+pcns\_10\_11.csv\normalcomma
+pcns\_10\_12.csv\normalcomma
+pcns\_10\_13.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_12\_1.csv\normalcomma
+pcns\_12\_2.csv\normalcomma
+pcns\_12\_3.csv\normalcomma
+pcns\_12\_4.csv\normalcomma
+pcns\_12\_5.csv\normalcomma
+pcns\_12\_6.csv\normalcomma
+pcns\_12\_7.csv\normalcomma
+pcns\_12\_8.csv\normalcomma
+pcns\_12\_9.csv\normalcomma
+pcns\_12\_10.csv\normalcomma
+pcns\_12\_11.csv\normalcomma
+pcns\_12\_12.csv\normalcomma
+pcns\_12\_13.csv\normalcomma
+pcns\_12\_14.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_14\_1.csv\normalcomma
+pcns\_14\_2.csv\normalcomma
+pcns\_14\_3.csv\normalcomma
+pcns\_14\_4.csv\normalcomma
+pcns\_14\_5.csv\normalcomma
+pcns\_14\_6.csv\normalcomma
+pcns\_14\_7.csv\normalcomma
+pcns\_14\_8.csv\normalcomma
+pcns\_14\_9.csv\normalcomma
+pcns\_14\_10.csv\normalcomma
+pcns\_14\_11.csv\normalcomma
+pcns\_14\_12.csv\normalcomma
+pcns\_14\_13.csv\normalcomma
+pcns\_14\_14.csv\normalcomma
+pcns\_14\_15.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_15\_1.csv\normalcomma
+pcns\_15\_2.csv\normalcomma
+pcns\_15\_3.csv\normalcomma
+pcns\_15\_4.csv\normalcomma
+pcns\_15\_5.csv\normalcomma
+pcns\_15\_6.csv\normalcomma
+pcns\_15\_7.csv\normalcomma
+pcns\_15\_8.csv\normalcomma
+pcns\_15\_9.csv\normalcomma
+pcns\_15\_10.csv\normalcomma
+pcns\_15\_11.csv\normalcomma
+pcns\_15\_12.csv\normalcomma
+pcns\_15\_13.csv\normalcomma
+pcns\_15\_14.csv\normalcomma
+pcns\_15\_15.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_18\_1.csv\normalcomma
+pcns\_18\_2.csv\normalcomma
+pcns\_18\_3.csv\normalcomma
+pcns\_18\_4.csv\normalcomma
+pcns\_18\_5.csv\normalcomma
+pcns\_18\_6.csv\normalcomma
+pcns\_18\_7.csv\normalcomma
+pcns\_18\_8.csv\normalcomma
+pcns\_18\_9.csv\normalcomma
+pcns\_18\_10.csv\normalcomma
+pcns\_18\_11.csv\normalcomma
+pcns\_18\_12.csv\normalcomma
+pcns\_18\_13.csv\normalcomma
+pcns\_18\_14.csv\normalcomma
+pcns\_18\_15.csv\normalcomma
+pcns\_18\_16.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_20\_1.csv\normalcomma
+pcns\_20\_2.csv\normalcomma
+pcns\_20\_3.csv\normalcomma
+pcns\_20\_4.csv\normalcomma
+pcns\_20\_5.csv\normalcomma
+pcns\_20\_6.csv\normalcomma
+pcns\_20\_7.csv\normalcomma
+pcns\_20\_8.csv\normalcomma
+pcns\_20\_9.csv\normalcomma
+pcns\_20\_10.csv\normalcomma
+pcns\_20\_11.csv\normalcomma
+pcns\_20\_12.csv\normalcomma
+pcns\_20\_13.csv\normalcomma
+pcns\_20\_14.csv\normalcomma
+pcns\_20\_15.csv\normalcomma
+pcns\_20\_16.csv\normalcomma
+pcns\_20\_17.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_22\_1.csv\normalcomma
+pcns\_22\_2.csv\normalcomma
+pcns\_22\_3.csv\normalcomma
+pcns\_22\_4.csv\normalcomma
+pcns\_22\_5.csv\normalcomma
+pcns\_22\_6.csv\normalcomma
+pcns\_22\_7.csv\normalcomma
+pcns\_22\_8.csv\normalcomma
+pcns\_22\_9.csv\normalcomma
+pcns\_22\_10.csv\normalcomma
+pcns\_22\_11.csv\normalcomma
+pcns\_22\_12.csv\normalcomma
+pcns\_22\_13.csv\normalcomma
+pcns\_22\_14.csv\normalcomma
+pcns\_22\_15.csv\normalcomma
+pcns\_22\_16.csv\normalcomma
+pcns\_22\_17.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_24\_1.csv\normalcomma
+pcns\_24\_2.csv\normalcomma
+pcns\_24\_3.csv\normalcomma
+pcns\_24\_4.csv\normalcomma
+pcns\_24\_5.csv\normalcomma
+pcns\_24\_6.csv\normalcomma
+pcns\_24\_7.csv\normalcomma
+pcns\_24\_8.csv\normalcomma
+pcns\_24\_9.csv\normalcomma
+pcns\_24\_10.csv\normalcomma
+pcns\_24\_11.csv\normalcomma
+pcns\_24\_12.csv\normalcomma
+pcns\_24\_13.csv\normalcomma
+pcns\_24\_14.csv\normalcomma
+pcns\_24\_15.csv\normalcomma
+pcns\_24\_16.csv\normalcomma
+pcns\_24\_17.csv\normalcomma
+pcns\_24\_18.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_26\_1.csv\normalcomma
+pcns\_26\_2.csv\normalcomma
+pcns\_26\_3.csv\normalcomma
+pcns\_26\_4.csv\normalcomma
+pcns\_26\_5.csv\normalcomma
+pcns\_26\_6.csv\normalcomma
+pcns\_26\_7.csv\normalcomma
+pcns\_26\_8.csv\normalcomma
+pcns\_26\_9.csv\normalcomma
+pcns\_26\_10.csv\normalcomma
+pcns\_26\_11.csv\normalcomma
+pcns\_26\_12.csv\normalcomma
+pcns\_26\_13.csv\normalcomma
+pcns\_26\_14.csv\normalcomma
+pcns\_26\_15.csv\normalcomma
+pcns\_26\_16.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_28\_1.csv\normalcomma
+pcns\_28\_2.csv\normalcomma
+pcns\_28\_3.csv\normalcomma
+pcns\_28\_4.csv\normalcomma
+pcns\_28\_5.csv\normalcomma
+pcns\_28\_6.csv\normalcomma
+pcns\_28\_7.csv\normalcomma
+pcns\_28\_8.csv\normalcomma
+pcns\_28\_9.csv\normalcomma
+pcns\_28\_10.csv\normalcomma
+pcns\_28\_11.csv\normalcomma
+pcns\_28\_12.csv\normalcomma
+pcns\_28\_13.csv\normalcomma
+pcns\_28\_14.csv\normalcomma
+pcns\_28\_15.csv\normalcomma
+pcns\_28\_16.csv\normalcomma
+pcns\_28\_17.csv\normalcomma
+pcns\_28\_18.csv\normalcomma
+pcns\_28\_19.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_30\_1.csv\normalcomma
+pcns\_30\_2.csv\normalcomma
+pcns\_30\_3.csv\normalcomma
+pcns\_30\_4.csv\normalcomma
+pcns\_30\_5.csv\normalcomma
+pcns\_30\_6.csv\normalcomma
+pcns\_30\_7.csv\normalcomma
+pcns\_30\_8.csv\normalcomma
+pcns\_30\_9.csv\normalcomma
+pcns\_30\_10.csv\normalcomma
+pcns\_30\_11.csv\normalcomma
+pcns\_30\_12.csv\normalcomma
+pcns\_30\_13.csv\normalcomma
+pcns\_30\_14.csv\normalcomma
+pcns\_30\_15.csv\normalcomma
+pcns\_30\_16.csv\normalcomma
+pcns\_30\_17.csv\normalcomma
+pcns\_30\_18.csv\normalcomma
+pcns\_30\_19.csv
+\end{tabular}
+
+\subsection{\texttt{./Sage}}
+
+Dieser Ordner beinhaltet die Quellcodes der in 
+\autoref{chap:existenz_und_enumeration} vorgestellten Funktionen:
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+\end{tabular}
+
+
+\section{Online}
+Das gesamte Arbeitsverzeichnis dieser Arbeit ist unter
+
+\url{https://github.com/hackenbergstefan/masterarbeit/}
+
+zugänglich. Die Datenstruktur ist dabei wie folgt gegeben:
+
+\begin{tabular}{>{\ttfamily}lp{10cm}}
+  ./CD & Vollständiger Inhalt der angehängten CD wie in 
+    Anhang \ref{anh:sec:cd} beschrieben\\
+  ./Latex & Ordner mit \LaTeX-Quellcodes\\
+  ./Sage & Ordner mit \sage-Quellcodes und Ausgabedateien\\
+  ./Tables & Ergebnisse der \sage-Funktionen, identisch mit
+    dem Ordner \texttt{Tables} auf angehängter CD (vgl. Anhang
+    \ref{anh:sec:cd})\\
+  ./Masterarbeit.pdf & Kompilierte Version der Arbeit
+\end{tabular}

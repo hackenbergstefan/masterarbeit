@@ -1,10 +1,11 @@
 \chapter{Grundbegriffe}
 \label{chap:grundbegriffe}
 
-Wir eröffnen den Hauptteil der Arbeit mit dem Zusammentragen
-einiger grundlegender Resultate, die dem Leser sicherlich bekannt sind. 
-Daher werden wir die meisten Aussagen 
-lediglich ohne Beweis zitieren. Wir beginnen dabei bei der Gruppentheorie und
+%Wir eröffnen den Hauptteil der Arbeit mit dem Zusammentragen
+Tragen wir zunächst 
+einige grundlegende Resultate zusammen, die dem Leser sicherlich bekannt sind. 
+Daher zitieren wir die meisten Aussagen 
+lediglich ohne Beweis. Wir beginnen dabei bei der Gruppentheorie und
 insbesondere zyklische Gruppen. Diese werden uns später
 helfen, die Untergruppe der (primitiven) Einheitswurzeln
 in \autoref{chap:kreisteilungspolynome} zu verstehen. Im anschließenden Abschnitt
@@ -104,9 +105,9 @@ Gruppe eines endlichen Körpers einen Namen zu geben.
 
 \begin{satz}
   \label{satz:frob_auto}
-  Seien $F = \F_q$ ein endlicher Körper der Charakteristik $p\neq 0$ und 
+  Seien $F := \F_q$ ein endlicher Körper der Charakteristik $p\neq 0$ und 
   $n\in \N^\ast$. Dann ist
-  \[ \sigma_n: \funcdef{F &\to& F\\
+  \[ \sigma_n: \funcdef{F &\to& F\,,\\
     a &\mapsto& a^{p^n}}\]
   ein Automorphismus auf $F$.
 \end{satz}
@@ -122,16 +123,19 @@ Gruppe eines endlichen Körpers einen Namen zu geben.
 \begin{satz}
   \label{satz:frob_fix}
   Sei $q$ eine Primzahlpotenz und $n\in \N^\ast$. Der Automorphismus
-  \[ \sigma: \funcdef{\F_{q^n} &\to& \F_{q^n}\\
+  \[ \sigma: \funcdef{\F_{q^n} &\to& \F_{q^n}\,,\\
     a &\mapsto& a^q}\]
   hält die Elemente von $\F_q$ fest, also 
   \[ \sigma |_{\F_q} = \id_{\F_q}\,.\]
   Ferner ist $\sigma^k \neq \id_{\F_{q^n}}$ für $k=1,\ldots,n-1$, alle
   $\sigma^k$s sind paarweise verschiedene Automorphismen und 
   $\sigma^n = \id_{\F_{q^n}}$.
-  $\sigma$ heißt auch \emph{Frobenius-Endomorphismus} oder
-  \emph{Frobenius-Automorphismus}.
+  $\sigma$ heißt auch \emph{Frobenius-Endomorphismus},
+  \emph{Frobenius-Automorphismus} oder kurz \emph{Frobenius}.
 \end{satz}
+\begin{proof}
+  \autocite[Theorem 7.1]{wan2003lectures}.
+\end{proof}
 
 
 Bezeichne $\Gal(E \mid F)$ die Galoisgruppe einer Galoiserweiterung $E$ über
@@ -155,7 +159,7 @@ unabhängig sind. Dies gilt sogar in einem größeren Kontext:
 
 \begin{satz}[Dedekindsches Lemma]
   \label{satz:dedekindsches_lemma}
-  Seinen $K,L$ zwei Körper, $n \in \N$ und $\tau_1,\ldots,\tau_n: K\to L$
+  Seien $K,L$ zwei Körper, $n \in \N$ und $\tau_1,\ldots,\tau_n: K\to L$
   verschiedene injektive Körperhomorphismen. Dann ist für jedes $x \in K$
   \[ \{\tau_1(x),\ldots,\tau_n(x) \}\]
   linear unabhängig über $L$.
@@ -174,7 +178,7 @@ $\F_{q^n}$ besitzt. Beides fasst nachstehender Satz zusammen.
 
 \begin{satz}
   \label{satz:nst_irred_polys}
-  Ist $f(x) \in \F_q[x]$ ein irreduzibles Polynom vom Grad $n$. Dann 
+  Sei $f(x) \in \F_q[x]$ ein irreduzibles Polynom vom Grad $n$. Dann 
   existiert eine Nullstelle $\alpha$ von $f(x)$ in $\F_{q^n}$, alle 
   Nullstellen von $f(x)$ sind einfach und gegeben durch
   \[ \alpha, \alpha^q, \alpha^{q^2}, \ldots, \alpha^{q^{n-1}}\ \in \F_{q^n}\,.\]

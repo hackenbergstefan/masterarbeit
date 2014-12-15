@@ -719,6 +719,20 @@ welche wir im Folgenden zitieren wollen.
   \autocites[Lemma 2.3, Lemma 2.6 (i)]{lidl1993dickson}.
 \end{proof}
 
+\begin{proposition}
+  \label{prop:dickson_linear_unabhangig}
+  Sei $a \in \F_q$. Für alle $n\geq 0$ sind die Polynome
+  $D_0(x,a), \ldots, D_n(x,a)$ linear unabhängig über $\F_q$.
+\end{proposition}
+\begin{proof}
+  Dies lässt sich per Induktion und obiger Rekursionsgleichung
+  sehr leicht einsehen: Der Induktionsanfang ist
+  mit $n = 1$ durch $D_0(x,a) = 2$ und $D_1(x,a) = x$ erledigt.
+  Sei also $n > 1$, so ist $D_n(x,a) = xD_{n-1}(x,a)-aD_{n-2}(x,a)$.
+  Die Polynome $D_1(x,a),\ldots,D_{n-1}(x,a)$ sind nach Induktionsvoraussetzung
+  jedoch linear unabhängig.
+\end{proof}
+
 Ferner können wir eine  relativ einfache Charakterisierung angeben, wann ein
 Polynom der Form $D_n(x,a)-b$ irreduzibel ist.
 
@@ -749,6 +763,7 @@ Polynom der Form $D_n(x,a)-b$ irreduzibel ist.
 \end{proposition}
 \begin{proof}
   \autocite[Theorem 4]{gao1994}
+  %\autocite[Theorem 7.39]{lidl1993dickson}.
 \end{proof}
 
 Da die weiteren Aussagen lediglich für ungerade Erweiterungen bewiesen werden,
@@ -765,6 +780,34 @@ noch einmal verfassen.
   irreduzibel genau dann, wenn $\nu(n)\mid e_i$, aber 
   $\nu(n)\nmid \tfrac{q^2-1}{e_i}$ für $i=1,2$.
 \end{kor}
+
+Ferner lässt sich spezifizieren in welchem Körper die Nullstellen $\beta_1$ 
+und $\beta_2$ liegen.
+
+\begin{kor}
+  \label{kor:dickson_quadr}
+  Seien $n\geq 3$ eine ungerade Zahl und $a,b \in \F_q^\ast$. Ist $D_n(x,a)-b$
+  irreduzibel über $\F_q$, so gilt:
+  \begin{enumerate}
+    \item Ist $\nu(n) \mid (q-1)$, so zerfällt
+      $x^2-bx+a^n = (x-\beta_1)(x-\beta_2)$ über $\F_q$.
+    \item Ist $\nu(n) \mid (q^2-1)$, aber $\nu(n)\nmid (q-1)$, so ist
+      $x^2-bx+a^n$ über $\F_q$ irreduzibel.
+  \end{enumerate}
+\end{kor}
+\begin{proof}
+  Seien $\beta_1$ und $\beta_2$ die Nullstellen von $x^2-bx+a^n$ mit 
+  $\ord(\beta_i) = e_i$ für $i=1,2$, so ist $\nu(n) \mid e_i$ nach 
+  \thref{kor:dickson_irred}, aber $\nu(n)\nmid \frac{q^2-1}{e_i}$ für $i=1,2$.
+  \begin{enumerate}
+    \item Wäre $x^2-bx+a^n$ über $\F_q$ irreduzibel und
+      $\beta \in \F_{q^2}\setminus\F_q$ eine Nullstelle, so
+      ist $\ord(\beta) \mid q^2-1$ aber $\ord(\beta) \nmid q-1$,
+      im Widerspruch zu $\nu(n)\mid q-1$.
+    \item Lägen $\beta_1,\beta_2$ in $\F_q$, so folgte $e_i \mid q-1$ im
+      Widerspruch zu $\nu(n)\mid e_i$ und $\nu(n)\nmid q-1$.
+  \end{enumerate}
+\end{proof}
 
 
 \citeauthor{scheerhorn:1996} zeigt in
@@ -819,7 +862,8 @@ und die Verwendung der Dickson-Polynome motivieren.
   Betrachten wir die vorliegende Situation, so sehen wir, dass
   $s := \ord_{\nu(n)}(q) = 2$ und damit $n \in \S_{q^2}$.
   Sei nun 
-  $x^2-bx+a^n = (x -\beta)(x -a^n\beta\inv)$ über $K := \F_{q^2}$.
+  $x^2-bx+a^n = (x -\beta)(x -a^n\beta\inv)$ über $K := \F_{q^2}$
+  (vgl. \thref{kor:dickson_quadr}).
   Dann ist 
   nach \thref{satz:binom_irreduzibel} und \thref{satz:binom_irreduzibel_aquiv} 
   $x^n-\beta \in \F_{q^2}[x]$ irreduzibel.
@@ -917,8 +961,8 @@ und die Verwendung der Dickson-Polynome motivieren.
   \[\{1\}\cup \{ D_i(\theta+a\theta\inv,a):\ i=1,\ldots,n-1\} \]
   eine $F$-Basis von $\F_{q^n}$ ist, da alle $D_i(x,a)$ für
   $i\geq 1$ linear unabhängig über $F$ nach 
-  \autocite[???]{lidl1993dickson} sind. Diese Basis lässt sich nach Erzeugern
-  wie oben gezeigt partitionieren.
+  \thref{prop:dickson_linear_unabhangig} sind. Diese Basis lässt sich nach 
+  Erzeugern wie oben gezeigt partitionieren.
 \end{proof}
 
 %\begin{bemerkung}
@@ -956,11 +1000,13 @@ Abwandlung von $\theta + \theta^{q^n} = \Tr_{E'\mid E}(\theta)$ ist!
 Daher ist das Resultat vielleicht auch nicht besonders überraschend,
 da wir in \thref{satz:q_ordnung_von_trace} erkannt haben, dass die Spurfunktion
 zur Konstruktion von normalen Elementen in regulären Erweiterungen zentral ist.
-In Notation des vorherigen Abschnittes würde man die beiden Sätze von
-Scheerhorn vielleicht auf die folgende Art und Weise aufschreiben. 
-Insbesondere erlaubt es die Theorie aus den vorherigen Abschnitten, den Fall
-$\nu(n)\mid (q-1)$ zu erweitern, um auch dort (unter leichten
-Zusatzvoraussetzungen) ein normales Element zu konstruieren.
+%In Notation des vorherigen Abschnittes würde man die beiden Sätze von
+%Scheerhorn vielleicht auf die folgende Art und Weise aufschreiben. 
+%Insbesondere erlaubt es die Theorie aus den vorherigen Abschnitten, den Fall
+%$\nu(n)\mid (q-1)$ zu erweitern, um auch dort (unter leichten
+%Zusatzvoraussetzungen) ein normales Element zu konstruieren.
+Insbesondere erlaubt es die Theorie des vorherigen Abschnitts die beiden Sätze 
+auf den Fall $\nu(n)\mid q^2-1$ zu erweitern.
 
 \begin{satz}
   \label{satz:scheerhorn_erweitert}
@@ -970,7 +1016,7 @@ Zusatzvoraussetzungen) ein normales Element zu konstruieren.
   \F_{q^n}$, so gilt:
   \begin{enumerate}
     \item $E = F(\gamma)$,
-    \item Ist $\nu(n)\mid (q+1)$, so gilt:
+    \item Ist $\nu(n)\nmid q-1$, so gilt:
       Für alle $l\in R_q(n)$ mit $r_q(l\bmod n) = \ord_q(m)$ 
       für einen Teiler $m$ von $n$ ist 
       $\Ord_q(D_l(\gamma,a))$ ein irreduzibler monischer Teiler von
@@ -978,14 +1024,15 @@ Zusatzvoraussetzungen) ein normales Element zu konstruieren.
     \item Setze 
       \[ v := \sum_{l\in R_q(n)} D_l(\gamma,a)\,. \]
       Dann ist $v \in E$ normal über $F$, falls
-      $\nu(n)\mid (q+1)$ oder $a^l\neq -1$ für alle $l \in R_q(n)$.
+      $\nu(n)\nmid q-1$ oder $a^l\neq -1$ für alle $l \in R_q(n)$.
   \end{enumerate}
 \end{satz}
 \begin{proof}
-  Für $\nu(n)\mid (q+1)$ liegt gerade \thref{satz:scheerhorn1} vor und es gibt
-  nichts mehr zu zeigen. 
-  Für $\nu(n)\mid (q-1)$ bleibt anzugeben, warum $v$ normal über $F$ ist, wenn
-  $a^l\neq -1$ für alle $l\in R_q(n)$. 
+  Für $\nu(n)\nmid q-1$ 
+  sehen wir, dass weiterhin $n\in \S_{q^2}$ und damit der Beweis 
+  von \thref{satz:scheerhorn1} auch hier gültig ist.
+  Für $\nu(n)\mid q-1$ bleibt anzugeben, warum $v$ normal über $F$ ist, wenn
+  $a^l\neq -1$ für alle $l\in R_q(n)$:
   Da in $v$ gerade je zwei Erzeuger pro irreduziblem Teilmodul von $E$
   vorkommen, ist sicherzustellen, dass diese sich nicht gegenseitig aufheben:
   Existierte $a^l = -1$ für ein $l\in R_q(n)$, so wäre
@@ -993,26 +1040,28 @@ Zusatzvoraussetzungen) ein normales Element zu konstruieren.
 \end{proof}
 
 
-\subsection{Normale und vollständig normale Polynome mit
+\section{Normale und vollständig normale Polynome mit
   Dickson-Poly\-nomen}
 
 Mit Hilfe dieser Resultate lassen sich nun relativ einfach vollständig normale
 Polynome angeben, wie sie in \autocite[Section 3]{scheerhorn:1997} und 
 \autocite[Section 4]{scheerhorn:1996} zu finden sind. Ihre Beweise beinhalten
 keine besondere Beachtung der Modulstrukturen und sollen daher hier nur
-nachvollzogen werden.
+nachvollzogen werden. Wie im vorhergehenden Abschnitt können wir den Fall
+$\nu(n)\mid q+1$ wieder erweitern.
 Zunächst brauchen wir jedoch eine Transformation eines Polynoms, welches gerade
 die Nullstellen desselbigen invertiert.
 
 \begin{definition}[reziprokes Polynom]
-  Sei $f(x) \in \K[x]$ ein Polynom über einem Körper $\K$. Dann heißt
+  Sei $f(x) \in \K[x]$ ein Polynom über einem Körper $\K$ mit 
+  $f(0)\neq 0$. Dann heißt
   \[ f^\ast(x) \speq{:=} \tfrac{1}{f(0)}\, x^{\deg f}\, f(\tfrac 1 x)
     \quad \in \K[x] \]
   \emph{reziprokes Polynom von $f(x)$}.
 \end{definition}
 
 \begin{bemerkung}
-  Man bemerke, dass das reziproke Polynom stets monisch ist.
+  Man bemerke, dass das reziproke Polynom stets normiert ist.
 \end{bemerkung}
 
 \begin{bemerkung}
@@ -1020,9 +1069,10 @@ die Nullstellen desselbigen invertiert.
   $f^\ast(x)$, wie man sofort erkennen kann.
 \end{bemerkung}
 
-\begin{satz}[{\autocite[Theorem 4]{scheerhorn:1997}}]
+\begin{satz}%[{\autocite[Theorem 4]{scheerhorn:1997}}]
   \label{satz:scheerhorn3}
-  Seien $n\geq 3$ ein Produkt aus ungeraden Primteilern von $(q+1)$ und
+  Seien $n\geq 3$ ein Produkt aus ungeraden Primteilern von 
+  $q^2-1$ mit $\nu(n) \nmid q-1$ und
   $D_n(x,a)-b \in \F_q[x]$ irreduzibel. Seien ferner $s,t\in \F_q$ mit
   $s\neq 0$. Dann ist
   \[ \big(D_n(sx+t,a)-b\big)^\ast\]
@@ -1056,9 +1106,10 @@ die Nullstellen desselbigen invertiert.
 Ferner können wir genau diese Folgerung benutzen, um vollständig normale
 Polynome, also solche, die über jedem Zwischenkörper normal sind, anzugeben.
 
-\begin{satz}[{\autocite[Theorem 5]{scheerhorn:1997}}]
+\begin{satz}%[{\autocite[Theorem 5]{scheerhorn:1997}}]
   \label{satz:scheerhorn4}
-  Seien $n\geq 3$ ein Produkt aus ungeraden Primteilern von $(q+1)$ und
+  Seien $n\geq 3$ ein Produkt aus ungeraden Primteilern von 
+  $q^2-1$ mit $\nu(n)\nmid q-1$ und
   $D_n(x,a)-b \in \F_q[x]$ irreduzibel. Seien ferner $s,t\in \F_q$ mit
   $s\neq 0$. Ist $d$ ein Teiler von $n$, so ist
   \[ \big(D_n(sx+t,a)-b\big)^\ast\]
@@ -1085,24 +1136,41 @@ Diese werden wir hier nicht beweisen und der Leser sei auf
 
 
 \begin{kor}
-  Sei $n\geq 3$ ein Produkt ungerader Primfaktoren von $(q-1)$ und sei
+  Sei $n\geq 3$ ein Produkt ungerader Primfaktoren von $q^2-1$ mit
+  $\nu(n)\nmid q-1$ und sei
+  $D_n(x,a) -b$ irreduzibel über $\F_q$. Dann ist
+  \[ \big(D_n(x,1) -b\big)^\ast\]
+  ein vollständig normales Polynom über $\F_q$.
+\end{kor}
+\begin{proof}
+  \autocite[Corollary 1]{scheerhorn:1997} mit
+  \thref{satz:scheerhorn4}.
+\end{proof}
+
+
+\begin{kor}
+  Sei $n\geq 3$ ein Produkt ungerader Primfaktoren von $q^2-1$
+  mit $\nu(n)\nmid q-1$ und sei
   $D_n(x,a) -b$ irreduzibel über $\F_q$. Ist ferner $n\nequiv 0 \bmod 3$, so
   ist
   \[ \big(D_n(x\pm 1,1) -b\big)^\ast\]
   ein vollständig normales Polynom über $\F_q$.
 \end{kor}
 \begin{proof}
-  \autocite[Corollary 2]{scheerhorn:1997}.
+  \autocite[Corollary 2]{scheerhorn:1997} mit 
+  \thref{satz:scheerhorn4}.
 \end{proof}
 
 \begin{kor}
-  Sei $n\geq 3$ ein Produkt ungerader Primfaktoren von $(q-1)$ und sei
+  Sei $n\geq 3$ ein Produkt ungerader Primfaktoren von $q^2-1$ mit
+  $\nu(n)\nmid q-1$ und sei
   $D_n(x,a) -b$ irreduzibel über $\F_q$. Dann ist
   \[ \big(D_n(x\pm 2,1) -b\big)^\ast\]
   ein vollständig normales Polynom über $\F_q$.
 \end{kor}
 \begin{proof}
-  \autocite[Corollary 3]{scheerhorn:1997}.
+  \autocite[Corollary 3]{scheerhorn:1997} mit 
+  \thref{satz:scheerhorn4}.
 \end{proof}
 
 

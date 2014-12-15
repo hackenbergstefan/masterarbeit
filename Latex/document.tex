@@ -245,9 +245,12 @@ openright
 \theoremstyle{plain}
 \theoremheaderfont{\normalfont\sffamily\itshape}
 \theorembodyfont{\normalfont}
-\newtheorem{bemerkung}[satz]{Bemerkung}
 %\theoremsymbol{{\color{gray}$\triangle$}}
-\theoremsymbol{\color{gray}\rotatebox{90}{\ensuremath\filledmedtriangleup}}
+\theoremsymbol{%
+  \tikz[baseline]{
+    \path[fill=gray] (0,0)--(1.3ex,0)--(1.3ex,1.3ex)--cycle;
+    }}
+\newtheorem{bemerkung}[satz]{Bemerkung}
 \newtheorem{beispiel}[satz]{Beispiel}
                                      
 \theoremstyle{plain}
@@ -432,7 +435,12 @@ openright
 % makes volume of journal bold and adds colon
 \DeclareFieldFormat[article]{volume}{\textbf{#1}}
 \DeclareFieldFormat[article,incollection]{pages}{#1}
+\DeclareFieldFormat[book]{publisher}{(#1)}
 %\DeclareFieldFormat[article]{date}{\addcomma #1}
+\DefineBibliographyStrings{ngerman}{%
+  editor={(Hrsg.)\adddot},
+  andothers={et al\adddot}
+}
 
 
 \DeclareBibliographyDriver{article}{%

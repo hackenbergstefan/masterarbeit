@@ -9,9 +9,9 @@ import time
 import os
 import ast
 
-def findAnyPCN_polynom(p,r,n):
+def findAnyPCN_polynom(p,r,n, primitivity_with_bar_factors=False):
     if r == 1:
-        return findAnyPCN_polynom_prime(p,n)
+        return findAnyPCN_polynom_prime(p,n,primitivity_with_bar_factors)
 
     q = p**r
     F = GF(q,'a')
@@ -24,8 +24,21 @@ def findAnyPCN_polynom(p,r,n):
     Ex = PolynomialRing(E,'x')
     h = Hom(F,E)[0]
     primOrder = E.order()-1
-    
     primitives = []
+
+    #setup facotrs of q^n-1
+    barFactors = None
+    if primitivity_with_bar_factors:
+        if is_even(n):
+            primFactors = (q**(n/2)-1).prime_divisors() + \
+                    (q**(n/2)+1).prime_divisors()
+        else:
+            primFactors = (q**n-1).prime_divisors()
+        barFactors = []
+        for i in range(len(primFactors)):
+            barFactors += [ prod( primFactors[:i] + primFactors[i+1:] )]
+        barFactors = sorted(barFactors)
+    
     
     #setup factors of x^n-1
     divs = get_proper_subfield_divisors(p,r,n)
@@ -76,9 +89,12 @@ def findAnyPCN_polynom(p,r,n):
                 for fac,mul in Ex(f.map_coefficients(h)).factor():
                     if fac.degree() == 1:
                         x = -fac[0]
-                        if isCompletelyNormal(x,E,q,divs,\
-                                    fieldsAll,facsAll,prodsAll) and \
-                                x.multiplicative_order() == primOrder:
+                        if isPrimitive(x,primOrder,barFactors) and \
+                                isCompletelyNormal(x,E,q,divs,\
+                                fieldsAll,facsAll,prodsAll):
+                        #if isCompletelyNormal(x,E,q,divs,\
+                                    #fieldsAll,facsAll,prodsAll) and \
+                                    #isPrimitive(x,primOrder,barFactors):
                             #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                 #"prim: ", (x.multiplicative_order() == E.order()-1)
                             return x,f
@@ -93,16 +109,19 @@ def findAnyPCN_polynom(p,r,n):
                 for fac,mul in Ex(f.map_coefficients(h)).factor():
                     if fac.degree() == 1:
                         x = -fac[0]
-                        if isCompletelyNormal(x,E,q,divs,\
-                                    fieldsAll,facsAll,prodsAll) and \
-                                x.multiplicative_order() == primOrder:
+                        if isPrimitive(x,primOrder,barFactors) and \
+                                isCompletelyNormal(x,E,q,divs,\
+                                fieldsAll,facsAll,prodsAll):
+                        #if isCompletelyNormal(x,E,q,divs,\
+                                    #fieldsAll,facsAll,prodsAll) and \
+                                    #isPrimitive(x,primOrder,barFactors):
                             #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                 #"prim: ", (x.multiplicative_order() == E.order()-1)
                             return x,f
                         else: break
                     else: break
     # test rest
-    for length in xrange(1,n-2):
+    for length in xrange(1,n-1):
         for idcs in itertools.combinations(xrange(1,n-1),length):
             for xs in itertools.product(xrange(1,q),repeat=length+1):
                 for x in primitives:
@@ -114,9 +133,12 @@ def findAnyPCN_polynom(p,r,n):
                     for fac,mul in Ex(f.map_coefficients(h)).factor():
                         if fac.degree() == 1:
                             y = -fac[0]
-                            if isCompletelyNormal(y,E,q,divs,\
-                                    fieldsAll,facsAll,prodsAll) and \
-                                    y.multiplicative_order() == primOrder:
+                            if isPrimitive(y,primOrder,barFactors) and \
+                                    isCompletelyNormal(y,E,q,divs,\
+                                    fieldsAll,facsAll,prodsAll):
+                            #if isCompletelyNormal(y,E,q,divs,\
+                                    #fieldsAll,facsAll,prodsAll) and \
+                                    #isPrimitive(x,primOrder,barFactors):
                                 #print "x = ",x,"\tcn: ",isCompletelyNormal(x,F),\
                                     #"prim: ", (x.multiplicative_order() == E.order()-1)
                                 return y,f
@@ -124,7 +146,7 @@ def findAnyPCN_polynom(p,r,n):
                         else: break
 
 # special function for testing extensions of PrimeFields
-def findAnyPCN_polynom_prime(p,n):
+def findAnyPCN_polynom_prime(p,n,primitivity_with_bar_factors=False):
     p = Integer(p)
     n = Integer(n)
     F = GF(p)
@@ -135,9 +157,21 @@ def findAnyPCN_polynom_prime(p,n):
     primOrder = orderE-1
 
     polyList = []
-
-    
     primitives = []
+
+    #setup facotrs of q^n-1
+    barFactors = None
+    if primitivity_with_bar_factors:
+        if is_even(n):
+            primFactors = (q**(n/2)-1).prime_divisors() + \
+                    (p**(n/2)+1).prime_divisors()
+        else:
+            primFactors = (q**n-1).prime_divisors()
+        barFactors = []
+        for i in range(len(primFactors)):
+            barFactors += [ prod( primFactors[:i] + primFactors[i+1:] )]
+        barFactors = sorted(barFactors)
+    
 
     #setup factors of x^n-1
     divs = get_proper_subfield_divisors(p,1,n)
@@ -169,14 +203,12 @@ def findAnyPCN_polynom_prime(p,n):
                     coeffN *= (-1)
                     primitives = [coeffN] + primitives
                 f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
-                print f,"\t\t",numsf(f)
-                polyList += [f]
-                continue
+                #print f
                 if not f.is_irreducible(): continue
                 
                 E = GF(orderE, name='a', modulus=f)
 
-                if E.gen().multiplicative_order() == primOrder \
+                if isPrimitive(E.gen(),primOrder,barFactors) \
                         and isCompletelyNormal(E.gen(),E,p,\
                             divs,fieldsAll,facsAll,prodsAll):
                     return E.gen(),f
@@ -186,13 +218,11 @@ def findAnyPCN_polynom_prime(p,n):
             for coeffN in primitives:
                 f = Fx.gen()**n + coeffT*Fx.gen()**(n-1) + coeffN
                 #print "not first:",f
-                print f,"\t\t",numsf(f)
-                polyList += [f]
-                continue
+                #print f,"\t\t",numsf(f)
                 if not f.is_irreducible(): continue
                 E = GF(orderE, name='a', modulus=f)
 
-                if E.gen().multiplicative_order() == primOrder \
+                if isPrimitive(E.gen(),primOrder,barFactors) \
                         and isCompletelyNormal(E.gen(),E,p,\
                             divs,fieldsAll,facsAll,prodsAll):
                     return E.gen(),f
@@ -206,17 +236,24 @@ def findAnyPCN_polynom_prime(p,n):
                     f = Fx.gen()**n + xs[0]*Fx.gen()**(n-1) + x
                     for j,j2 in enumerate(idcs):
                         f += xs[length-j] * Fx.gen() ** j2
-                    print f,"\t\t",numsf(f)
-                    polyList += [f]
-                    continue
+                    #print f
                     if not f.is_irreducible(): continue
                     E = GF(orderE, name='a', modulus=f)
 
-                    if E.gen().multiplicative_order() == primOrder \
+                    if isPrimitive(E.gen(),primOrder,barFactors)\
                             and isCompletelyNormal(E.gen(),E,p,\
                                 divs,fieldsAll,facsAll,prodsAll):
                         return E.gen(),f
-    return polyList
+
+
+def isPrimitive(x,primOrder,barFactors):
+    if barFactors == None:
+        return x.multiplicative_order() == primOrder
+    else:
+        for b in barFactors:
+            if x**b == 1: return False
+        return True
+
 
 def numsf(f):
     #i_f = [ i for (i,a) in enumerate(list(f)) if a != 0 ]
@@ -327,6 +364,53 @@ def runGenerator(border,pRange=None,rRange=None):
                 yield p,r
                 r += 1
                 q = p**r
+
+
+def findAnyPCN_polynom_wrapper_mullen_level(\
+        pRange=[2,97], rRange=[1,1], nRange=[2,10**50], border=10**50,\
+        cpuNum=1, fileoutput=False, filepath="pcns_range_"):
+    if fileoutput:
+        st = datetime.datetime.\
+                fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
+    
+    gen = runGeneratorMullen(border,pRange,rRange,nRange)
+    
+    pool = Pool(cpuNum)
+    for p,r,n,(x,pol) in pool.imap_unordered( findAnyPCN_polynom__star, gen):
+        print "(",p,", ",r,", ",n, ") = ", pol
+        if fileoutput:
+            with open(filepath+st,'a') as f:
+                f.write(str(p)+"\t"+str(r)+"\t"+str(n)
+                        +"\t"+str(pol)+"\n")
+            f.close();
+    pool.close()
+    pool.join()
+
+
+
+def runGeneratorMullen(border,pRange,rRange,nRange):
+    stopP = pRange[1]
+    startP = pRange[0]
+    startR = rRange[0]
+    stopR = rRange[1]
+    startN = nRange[0]
+    stopN = nRange[1]
+    p = startP
+    r = startR
+    n = startN
+    while True:
+        q = p**r
+        yield Integer(p),Integer(r),Integer(n)
+        n += 1
+        if n > stopN or p**(r*n) > border:
+            n = startN
+            r += 1
+            if r > stopR or p**(r*n) > border: 
+                r = startR
+                p = next_prime(p)
+                if p > stopP: return
+
+
 
 
 

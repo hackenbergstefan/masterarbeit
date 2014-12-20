@@ -31,7 +31,7 @@ bibtotoc,           % Literaturverzeichnis im Inhalt
 DIV = 15,
 headsepline,
 openany,
-BCOR=0.5cm,
+BCOR=0.9cm,
 pointlessnumbers,        %keine Punkte nach Überschriften
 chapterprefix=true,
 openright
@@ -364,7 +364,7 @@ openright
 \newcommand{\const}{\ensuremath \mathrm{const}}
 \newcommand{\divp}[1]{\ensuremath [#1]} %Divisorpunkt
 \newcommand{\probn}[1]{{\sffamily #1}} %Problem Name
-\newcommand{\obda}{\small oBdA\space}
+\newcommand{\obda}{{\small oBdA\space}}
 \newcommand{\inv}{^{-1}}
 \newcommand{\kl}[1]{^{(#1)}}
 \newcommand{\sage}{\texttt{Sage}\xspace}
@@ -438,9 +438,27 @@ openright
 \DeclareFieldFormat[book]{publisher}{(#1)}
 %\DeclareFieldFormat[article]{date}{\addcomma #1}
 \DefineBibliographyStrings{ngerman}{%
-  editor={(Hrsg.)\adddot},
-  andothers={et al\adddot}
+  editors={(Hrsg.)\adddot},
+  andothers={et al\adddot},
+  byeditor={Hrsg.:}
 }
+
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{
+      \step[fieldsource=origvolume]
+        \step[fieldset=usera,origfieldval]
+    }
+    \map{
+      \step[fieldsource=origpages]
+        \step[fieldset=userb,origfieldval]
+    }
+  }
+}
+\DeclareFieldFormat[customa]{usera}{\textbf{#1}}
+\DeclareFieldFormat[customa]{origyear}{#1}
+\DeclareFieldFormat[customa]{userb}{#1}
+\DeclareFieldFormat[customa]{pages}{#1}
 
 
 \DeclareBibliographyDriver{article}{%
@@ -529,6 +547,19 @@ openright
     {}%
   \usebibmacro{finentry}}
 
+\renewbibmacro*{editor+others}{%
+  \ifboolexpr{
+    test \ifuseeditor
+    and
+    not test {\ifnameundef{editor}}
+  }
+    {\printnames{editor}%
+     \setunit{\space}%
+     \usebibmacro{editor+othersstrg}%
+     \clearname{editor}}
+    {}}
+
+
 \DeclareBibliographyDriver{incollection}{%
   \usebibmacro{bibindex}%
   \usebibmacro{begentry}%
@@ -539,6 +570,63 @@ openright
   \printlist{language}%
   \newunit\newblock
   \usebibmacro{byauthor}%
+  \newunit\newblock
+  \usebibmacro{in:}%
+  \usebibmacro{maintitle+booktitle}%
+  \newunit\newblock
+  \usebibmacro{byeditor+others}%
+  \newunit\newblock
+  \printfield{edition}%
+  \newunit
+  \iffieldundef{maintitle}
+    {\printfield{volume}%
+     \printfield{part}}
+    {}%
+  \newunit
+  \printfield{volumes}%
+  \newunit\newblock
+  \usebibmacro{series+number}%
+  \newunit\newblock
+  \printfield{note}%
+  \newunit\newblock
+  \usebibmacro{publisher+location+date}%
+  \newunit\newblock
+  \usebibmacro{chapter+pages}%
+  \newunit\newblock
+  \iftoggle{bbx:isbn}
+    {\printfield{isbn}}
+    {}%
+  \newunit\newblock
+  \usebibmacro{doi+eprint+url}%
+  \newunit\newblock
+  \usebibmacro{addendum+pubstate}%
+  \setunit{\bibpagerefpunct}\newblock
+  \usebibmacro{pageref}%
+  \newunit\newblock
+  \iftoggle{bbx:related}
+    {\usebibmacro{related:init}%
+     \usebibmacro{related}}
+    {}%
+  \usebibmacro{finentry}}
+
+\DeclareBibliographyDriver{customa}{%
+  \usebibmacro{bibindex}%
+  \usebibmacro{begentry}%
+  \usebibmacro{author/translator+others}%
+  \setunit{\labelnamepunct}\newblock
+  \usebibmacro{title}%
+  \newunit
+  \printlist{language}%
+  \newunit\newblock
+  \usebibmacro{byauthor}%
+  \newunit\newblock
+  \usebibmacro{journal}
+  \newunit
+  \printfield{usera}
+  \addcomma\addspace
+  \printfield{origyear}
+  \addcomma\addspace
+  \printfield{userb}
   \newunit\newblock
   %\usebibmacro{in:}%
   \usebibmacro{maintitle+booktitle}%
@@ -578,7 +666,6 @@ openright
     {}%
   \usebibmacro{finentry}}
 
-
 \newbibmacro*{publisher+location+date}{%
   %\printlist{location}%
   %\iflistundef{publisher}
@@ -611,6 +698,15 @@ openright
   \newunit}
 
 
+\newbibmacro{origvolume}{%
+  \printfield{origvolume}%
+  \setunit*{\adddot}%
+  \printfield{orignumber}%
+  \setunit{\addcomma\space}%
+  \printfield{eid}}
+
+
+
 \begin{document}
 
 %% Trennungen %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -628,7 +724,7 @@ openright
 \thispagestyle{empty}
 \newcommand{\Rule}{\rule{\textwidth}{1mm}}
 \begin{center}\sffamily\bfseries
-\LARGE\textcolor{gray}{Masterarbeit}
+\LARGE\textcolor{gray}{Masterarbeit\\ im Studiengang Mathematik}
 \par\vspace*{2cm}
 \tikz[baseline]{ \node[anchor=base, minimum width=\textwidth,
   text=mycol,
@@ -654,8 +750,11 @@ openright
 \normalfont\sffamily\large der\\
 \bfseries\Large Universität Augsburg
 \vfill
-\normalfont\sffamily\large betreut durch \\
+\normalfont\sffamily\large Erstprüfer \\
 \bfseries\Large Prof. Dr. Dirk Hachenberger\par
+\vspace*{0.3cm}
+\normalfont\sffamily\large Zweitprüfer \\
+\bfseries\Large Prof. Dr. Dieter Jungnickel\par
 \vfill
 \normalfont\sffamily\large Stand\\
 \bfseries\Large \today
@@ -665,17 +764,9 @@ openright
 
 %% Angaben zur Standardformatierung des Titels %%%%%%%%%%%%%%%%%%%%%%%%
 %\titlehead{Titelkopf }
-\subject{\large Masterarbeit}
-\title{\Huge }
-%\subtitle{Grundlegende Resultate zu elliptischen Kurven, Konstruktionen und
-%Eigenschaften der Weil-Paarung, ein
-%algorithmischer Überblick zu elliptischen Kurven in der Kryptographie und die
-%kryptographische Anwendung der Weil-Paarung mit Hilfe des MOV-Algorithmus}
-\author{\vspace*{2cm}\\\normalsize von\\\Large Stefan Hackenberg}
 %\and{Der Name des Co-Autoren}
 %\thanks{Fußnote}     % entspr. \footnote im Fließtext
 %\date{}              % falls anderes, als das aktuelle gewünscht
-\publishers{{\small geschrieben an der} \\ Universität Augsburg}
 
 %% Widmungsseite %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -711,6 +802,9 @@ openright
 \input{implementierung}
 \input{extro}
 
+\clearpage
+\addcontentsline{toc}{chapter}{Listings}
+\lstlistoflistings
 
 \nocite{*}
 \printbibliography

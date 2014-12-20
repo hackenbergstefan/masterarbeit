@@ -8,22 +8,23 @@ $x^n-1 \in K[x]$ über $K$ zerfällt. Dazu orientieren wir uns
 an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 
 \begin{definition}[Kreisteilungskörper, Einheitswurzeln]
+  \label{def:kreisteilungskorper}
   Sei $n\in\N^\ast$. Der Zerfällungskörper von $x^n-1 \in K[x]$ heißt
   der \emph{$n$-te Kreisteilungskörper} und wird mit $K\kl n$ notiert.
   Die Nullstellen von $x^n-1$ in $K\kl n$ heißen \emph{$n$-te
-  Einheitswurzeln} und die Menge derer wird mit $E\kl n$ bezeichnet.
+  Einheitswurzeln} und die Menge derer wird mit $U\kl n$ bezeichnet.
 \end{definition}
 
 
 \begin{satz}
   Sei $n\in \N^\ast$.
   \begin{enumerate}
-    \item Sei $p\nmid n$. Dann ist $E\kl n$ eine zyklische Gruppe (bzgl. der
+    \item Sei $p\nmid n$. Dann ist $U\kl n$ eine zyklische Gruppe (bzgl. der
       Multiplikation in $K\kl n$) der Ordnung $n$.
     \item Ist $p \mid n$ und schreibt man $n = p^e m$ 
       für positive ganze Zahlen $m$ und $e$ mit $p\nmid m$, so
-      ist $K\kl n = K\kl m$ und $E\kl n= E\kl m$ und die Nullstellen von
-      $x^n-1 \in K[x]$ sind gerade die Elemente in $E\kl m$ jedoch jeweils mit
+      ist $K\kl n = K\kl m$ und $U\kl n= U\kl m$ und die Nullstellen von
+      $x^n-1 \in K[x]$ sind gerade die Elemente in $U\kl m$ jedoch jeweils mit
       Multiplizität $p^e$.
   \end{enumerate}
 \end{satz}
@@ -33,18 +34,20 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 
 
 \begin{definition}[primitive Einheitswurzeln]
+  \label{def:primitive_einheitswurzeln}
   Sei $n\in \N^\ast$ und $p\nmid n$. Dann heißen die Erzeuger von 
-  $E\kl n$ \emph{primitive $n$-te Einheitswurzeln}. 
-  Die Untergruppe der primitiven $n$-ten Einheitswurzeln wird mit
+  $U\kl n$ \emph{primitive $n$-te Einheitswurzeln}. 
+  Die Menge der primitiven $n$-ten Einheitswurzeln wird mit
   $C\kl n$ bezeichnet.
 \end{definition}
 
 
 \begin{definition}[Kreisteilungspolynom]
+  \label{def:kreisteilungspolynom}
   Seien $n \in \N^\ast$, $p\nmid n$. Das Polynom 
   \[ \Phi_n(x) \speq{:=} \prod_{\zeta \in C\kl n} (x - \zeta)\ \in 
     K\kl n[x]\]
-  heißt \emph{$d$-tes Kreisteilungspolynom}.
+  heißt \emph{$n$-tes Kreisteilungspolynom}.
 \end{definition}
 
 \begin{satz}
@@ -66,6 +69,7 @@ an \autocite{lidl1997finite} und \autocite{wan2003lectures}.
 
 
 \begin{definition}
+  \label{def:multiplikative_ordnung_mod}
   Für zwei teilerfremde natürliche Zahlen $q,n$ größer Null sei
   \[ \ord_n(q) \speq{:=} \ord([q]_n)\]
   die \emph{multiplikative Ordnung von $q$ modulo $n$},
@@ -133,9 +137,9 @@ Im Beweis obigen Satzes haben wir gesehen, dass die Wirkung der Galoisgruppe
 $\Gal(\F_{q^n}\mid \F_q)$ auf der Menge der primitiven $n$-ten Einheitswurzeln
 $C\kl n$ (die Wirkung ist selbstredend durch Einsetzen gegeben) diese in 
 Teilmengen der Mächtigkeit $\ord_n(q)$ zerlegt.
-Dies lässt sich natürlich auf $E\kl n$ übertragen, da ja gerade 
+Dies lässt sich natürlich auf $U\kl n$ übertragen, da ja gerade 
 nach \thref{satz:zykl_gruppen}
-$E\kl n = \bigcupdot_{d\mid n} C\kl d$. 
+$U\kl n = \bigcupdot_{d\mid n} C\kl d$. 
 Dies motiviert nachstehende Definition.
 
 
@@ -242,6 +246,7 @@ diese anzugeben, benötigen wir jedoch noch eine Definition und zitieren
 einige Eigenschaften.
 
 \begin{definition}
+  \label{def:closure}
   Seien $r,n\in \N$, so definiere
   \[ \cl_r(n) \speq{:=} \max\{k \in \N^\ast:\ k \mid n,\ \nu(k) \mid \nu(r)
   \}\,.\]
@@ -288,7 +293,7 @@ einige Eigenschaften.
       \[ \Phi_k(x^t) \speq= \Phi_{kt}(x) \ \in K[x]\,.\]
     \item Sind $t$ und $k$ teilerfremd, so gilt
       \[ \Phi_k(x^t) \speq= \prod_{d\mid t} \Phi_{kd}(x)\ \in K[x]\,.\]
-    \item Insbesondere gilt: Ist $q = p^r$ eine Primzahlpotenz,
+    \item Insbesondere gilt: Seien $q = p^r$ eine Primzahlpotenz,
       $t,k\in\N^\ast$ mit $p\nmid t,k$ und $\pi$ eine Potenz von $p$. Sei ferner
       $t = \cl_k(t)\cdot \bar t$, so gilt
       \[ \Phi_k(x^{t\pi}) \speq= 
@@ -373,8 +378,8 @@ Binom $x^n-\beta \in \F_q[x]$ irreduzibel ist.
   Beweis von \thref{satz:zerfall_kreisteilungspolys} überlegen kann, 
   nicht trivial (vgl. \autocite[Proposition 5.3.5]{hachenberger2015}). 
   Damit ist (2) der Behauptung
-  klar, so dass $x^n-\beta \mid \Phi_{ne}(x)$. Ferner zerfällt nach
-  \thref{satz:zerfall_kreisteilungspolys} $\Phi_{ne}(x)$ in 
+  klar, so dass $x^n-\beta \mid \Phi_{ne}(x)$. Ferner zerfällt $\Phi_{ne}(x)$
+  nach \thref{satz:zerfall_kreisteilungspolys} in 
   $\frac{\varphi(ne)}{\ord_{ne}(q)}$ irreduzible Faktoren von jeweils Grad
   $\ord_{ne}(q)$. Damit wird auch (3) der Behauptung augenblicklich klar.
 \end{proof}
@@ -412,12 +417,12 @@ Bedingungen \emph{stark regulär} (\thref{def:stark_regular}) nennen und
 einsehen, dass sie eine wesentliche Rolle bei der expliziten Konstruktion 
 von Normalbasen spielen.
 
-\begin{satz}
+\begin{satz}[{\autocite[Proposition 8.10]{hachenberger2013vorlesung}}]
   \label{satz:kreisteilungspolynome_binome}
   Seien $\F_q$ ein endlicher Körper von Charakteristik $p$ und $m \in \N^\ast$.
   Es gelte $p\nmid m$, $\nu(m)\mid q-1$ und $4\mid q-1$, falls $2\mid m$.
   Setze $l := \cl_m(q-1)$, $a := \ggT(l,m)$ und $I_a := \{ j\in \N^\ast:\ 
-  j\geq a,\ \ggT(j,a)=1\}$. Ist $\zeta \in \F_q^\ast$ eine primitive 
+  j\leq a,\ \ggT(j,a)=1\}$. Ist $\zeta \in \F_q^\ast$ eine primitive 
   $a$-te Einheitswurzel, so ist
   \[ \Phi_m(x) \speq= \prod_{j\in I_a} \big( x^\frac m a - \zeta^j\big) \]
   die vollständige Faktorisierung des $m$-ten Kreisteilungspolynoms über
@@ -486,28 +491,28 @@ Teiler. Diese Frage beantwortet nachstehender Satz.
 \begin{proof}
   Wie schon im Beweis von
   \thref{satz:zusammenhang_unterschiedlicher_kreisteilungspolys} betrachten wir
-  den Gruppenhomomorphismus $\psi_t$, diesmal eingeschränkt auf $E\kl{mt}$:
-  \[ \psi_t:\ \funcdef{E\kl{mt} & \to& E\kl m\,,\\
+  den Gruppenhomomorphismus $\psi_t$, diesmal eingeschränkt auf $U\kl{mt}$:
+  \[ \psi_t:\ \funcdef{U\kl{mt} & \to& U\kl m\,,\\
     x &\mapsto& x^t\,,}\]
   was offenbar ein wohldefinierter Gruppenhomomorphismus bleibt.
-  Offensichtlich ist $\ker\psi_t = E\kl t$. Da $\ggT(m,t) = 1$, also 
-  $E\kl{mt} = E\kl m \odot E\kl t$ als leichte Folgerung aus
+  Offensichtlich ist $\ker\psi_t = U\kl t$. Da $\ggT(m,t) = 1$, also 
+  $U\kl{mt} = U\kl m \odot U\kl t$ als leichte Folgerung aus
   \thref{satz:zykl_gruppen}, ist $\psi_t$ auch surjektiv.
 
   Ist nun $\alpha \in C\kl m$ eine Nullstelle von $f(x)$, 
   so existiert -- wiederum
   weil $m$ und $t$ teilerfremd sind -- genau ein $\beta \in C\kl m$ mit
   $\beta^t = \alpha$. Damit ist also
-  \[ \psi_t\inv(\{\alpha\}) \speq= \beta\, E\kl t \speq=
+  \[ \psi_t\inv(\{\alpha\}) \speq= \beta\, U\kl t \speq=
     \bigcupdot_{d\mid t}\ \beta\, C\kl d \,.\]
   Notiert wieder $\sigma$ der Frobenius von
   $\F_q$, so sind nach \thref{satz:nst_irred_polys}
   $\sigma^j(\alpha)$, $j=0,\ldots,\delta-1$ für 
   $\delta=\ord_q(m)$ die Nullstellen von $f(x)$. Da $p\nmid t$ bleibt
-  die Menge der $t$-en Einheitswurzeln invariant unter $\sigma $ und 
+  die Menge der $t$-ten Einheitswurzeln invariant unter $\sigma $ und 
   damit ist die Menge der Nullstellen von $f(x^t)$ gerade
   \begin{equation}
-    \bigcupdot_{j=0}^{\delta-1} \sigma^j(\beta)\, E\kl t \speq=
+    \bigcupdot_{j=0}^{\delta-1} \sigma^j(\beta)\, U\kl t \speq=
     \bigcupdot_{j=0}^{\delta-1}\ \bigcupdot_{d\mid t}\ \beta^{q^j}\, C\kl d
     \speq=
     \bigcupdot_{d\mid t}\ \bigcupdot_{j=0}^{\delta-1}\ \beta^{q^j}\, C\kl d

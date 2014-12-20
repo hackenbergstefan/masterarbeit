@@ -15,6 +15,7 @@ Fragestellung nach der Anzahl primitiver Elemente schnell gelöst. Darüber
 hinaus wollen wir die folgenden Notationen treffen.
 
 \begin{definition}
+  \label{def:anzahlen}
   Seien $\F_q$ ein endlicher Körper und $n \in \N^\ast$, so bezeichne
   $\cal N(q,n)$, $\CN(q,n)$, $\PN(q,n)$ bzw. $\PCN(q,n)$ die Anzahl der 
   normalen, vollständig normalen, primitiv normalen bzw. primitiv vollständig
@@ -107,7 +108,7 @@ theoretischen Resultate, die über (vollständig) normale Elemente im bisherigen
 Verlauf erarbeitet wurden, durchzuführen.
 
 
-\section{Theoretische Enumerationen und Existenzaussagen}
+\section{Theoretische Enumerationen und Exis\-tenz\-aus\-sa\-gen}
 
 
 Wir starten mit einem wohlbekannten Resultat, das eine Antwort auf die Frage
@@ -138,7 +139,8 @@ Damit wäre auch \thref{prob:cn>0} beantwortet! Von den Existenzfragen bleibt
 damit noch die Existenz von primitiv normalen und primitiv vollständig normalen
 Elementen in beliebigen Erweiterungen offen. Erstere beantwortete
 \citeauthor{lenstra1987} \citeyear{lenstra1987} \autocite{lenstra1987}
-nach den Vorarbeiten von Carlitz und Davenport.
+nach den Vorarbeiten von Carlitz \autocite{carlitz1952} und 
+Davenport \autocite{davenport1968}.
 
 \begin{satz}[Satz von der primitiven Normalbasis]
   \label{satz:primitive_normalbasis}
@@ -153,7 +155,7 @@ nach den Vorarbeiten von Carlitz und Davenport.
 Bleibt also nur noch die Frage nach der Existenz primitiver vollständig
 normaler Elemente. Auch wenn Hachenberger 
 \citeyear{hachenberger2001} \autocite{hachenberger2001} und 
-\citeyear{hachenberger2014} \autocite{hachenberger2014} die beiden
+2014 \autocite{hachenberger2014} die beiden
 nachstehenden bedeutsamen Resultate beweisen konnte, bleibt die Suche nach 
 $\PCN$-Elementen weiterhin ein offenes Problem, dem wir uns im weiteren Verlauf
 experimentell widmen wollen.
@@ -161,12 +163,15 @@ experimentell widmen wollen.
 \begin{satz}
   \label{satz:pcn_in_regular}
   Seien $q$ eine Primzahlpotenz und $n \in \N^\ast$, so dass
-  $\F_{q^n}$ über $\F_q$ eine reguläre Erweiterung ist. Sei ferner
-  $4\mid (q-1)$, falls $q$ ungerade und $n$ gerade ist. Dann existiert ein
+  $\F_{q^n}$ über $\F_q$ eine reguläre Erweiterung ist. 
+  %Sei ferner
+  %$4\mid (q-1)$, falls $q$ ungerade und $n$ gerade ist. 
+  Dann existiert ein
   primitives Element in $\F_{q^n}$, das vollständig normal über $\F_q$ ist.
 \end{satz}
 \begin{proof}
-  \autocite[Theorem 1.4]{hachenberger2001}.
+  \autocite[Theorem 1.4]{hachenberger2001} und 
+  \autocite{hachenberger2014regexc}.
 \end{proof}
 
 

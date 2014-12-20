@@ -521,7 +521,7 @@ def findPCN2CSV_allinone(basePath,n):
 
     # do output
     # first clear old files
-    purge("../Tables/", "pcns_"+str(n)+"_*")
+    purge("../Tables/PCNs/", "pcns_"+str(n)+"_*")
 
     keysSorted = sorted(processedPairs.keys(), \
             key=lambda prpoly: (prpoly[1],prpoly[0]))
@@ -532,7 +532,7 @@ def findPCN2CSV_allinone(basePath,n):
         polyF = Fx(poly)
         polyList = list(polyF)
         
-        fout = open("../Tables/pcns_"+str(n)+"_"+str(r)+".csv",'a')
+        fout = open("../Tables/PCNs/pcns_"+str(n)+"_"+str(r)+".csv",'a')
         # if new r or p write fileheader
         if idx == 0 or r != processedPairs[keysSorted[idx-1]][1]:
             if r == 1:
@@ -554,6 +554,58 @@ def findPCN2CSV_allinone(basePath,n):
     with open(basePath+"missing_pairs_"+str(n),'w') as f:
         f.write(str(pairsToCheck))
     f.close()
+
+def findPCNRange2CSV_allinone(basePath):
+    fileins = []
+    fileins += glob.glob(basePath+'pcns_range_*')
+
+    processedPairs = dict()
+
+    for filein in fileins:
+        with open(filein) as f:
+            dt = datetime.datetime.strptime(
+                    re.search("_(\d+\-\d+\-\d+_\d+:\d+:\d)",filein).groups()[0],\
+                    "%Y-%m-%d_%H:%M:%S")
+            for line in f:
+                if all(c in string.whitespace for c in line): continue
+                splits = str.split(line,"\t")
+                try:
+                    p = Integer(splits[0])
+                    r = Integer(splits[1])
+                    n = Integer(splits[2])
+                    poly = splits[3].strip()
+                except:
+                    continue
+                if not processedPairs.has_key((p,r,n)):
+                    processedPairs[(p,r,n)] = (p,r,n,poly,dt)
+                else:
+                    # only update if newer and this file is not "additional"
+                    if processedPairs[(p,r,n)][4] < dt:
+                        processedPairs[(p,r,n)] = (p,r,n,poly,dt)
+        f.close()
+
+    # do output
+    # first clear old files
+    purge("../Tables/PCNs/", "pcns_range.csv")
+    with open("../Tables/PCNs/pcns_range.csv",'w') as fout:
+        fout.write("p,\tn,\tpoly\n")
+    fout.close()
+
+    keysSorted = sorted(processedPairs.keys(), \
+            key=lambda prpoly: (prpoly[0],prpoly[1],prpoly[2]))
+    for idx,key in enumerate(keysSorted):
+        p,r,n,poly,dt = processedPairs[key]
+        F = GF(p**r,'a')
+        Fx = PolynomialRing(F,'x')
+        polyF = Fx(poly)
+        polyList = list(polyF)
+        
+        fout = open("../Tables/PCNs/pcns_range.csv",'a')
+        # if new r or p write fileheader
+        # write to ../Tables csv file
+        fout.write(str(p)+",\t"+str(n)+",\t"+str(polyF)+"\n")
+
+    fout.close()
 
 
 

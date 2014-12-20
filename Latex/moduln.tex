@@ -140,7 +140,8 @@ finden sind.
 \begin{definition}[Ordnung eines Moduls]
   Seien $R$ ein Hauptidealbereich und $M$ ein $R$-Modul. 
   Falls $r \in R\setminus\{0\}$ existiert mit $rM = 0$, so heißt
-  das bezüglich der Zerlegung in irreduzible Faktoren kleinste 
+  %das bezüglich der Zerlegung in irreduzible Faktoren kleinste 
+  das bezüglich Teilbarkeit (und bis auf Multiplikation mit Einheiten) kleinste
   $r \in R$, das weder $0$ noch eine Einheit ist, mit
   \[ rM \speq= 0\]
   \emph{Ordnung von $M$}.
@@ -214,6 +215,7 @@ wiederfindet.
 
 
 \begin{definition}[Annihilator]
+  \label{def:annihilator}
   Sei $M$ ein $R$-Modul. Für $S\subset M$ heißt
   \[ \Ann_R(S) := \{ r \in R:\ sr = 0\ \forall s\in S\}\]
   der \emph{Annihilator von $S$ in $R$}. 
@@ -374,6 +376,7 @@ wiederfindet.
 
 
 \begin{definition}[$\tau$-Ordnung, Teilmodul]
+  \label{def:tau_ordnung}
   Sei $(V,\tau)$ ein $\K[x]$-Modul. Zu jedem $v \in V$ betrachte den
   $\K[x]$-Modulhomomorphismus
   \[ \psi_v: \funcdef{\K[x] & \to & V\,, \\

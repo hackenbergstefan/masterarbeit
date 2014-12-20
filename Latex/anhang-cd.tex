@@ -198,6 +198,26 @@ pcns\_20\_17.csv
 \end{tabular}
 
 \begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_21\_1.csv\normalcomma
+pcns\_21\_2.csv\normalcomma
+pcns\_21\_3.csv\normalcomma
+pcns\_21\_4.csv\normalcomma
+pcns\_21\_5.csv\normalcomma
+pcns\_21\_6.csv\normalcomma
+pcns\_21\_7.csv\normalcomma
+pcns\_21\_8.csv\normalcomma
+pcns\_21\_9.csv\normalcomma
+pcns\_21\_10.csv\normalcomma
+pcns\_21\_11.csv\normalcomma
+pcns\_21\_12.csv\normalcomma
+pcns\_21\_13.csv\normalcomma
+pcns\_21\_14.csv\normalcomma
+pcns\_21\_15.csv\normalcomma
+pcns\_21\_16.csv\normalcomma
+pcns\_21\_17.csv
+\end{tabular}
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
 pcns\_22\_1.csv\normalcomma
 pcns\_22\_2.csv\normalcomma
 pcns\_22\_3.csv\normalcomma
@@ -254,7 +274,9 @@ pcns\_26\_12.csv\normalcomma
 pcns\_26\_13.csv\normalcomma
 pcns\_26\_14.csv\normalcomma
 pcns\_26\_15.csv\normalcomma
-pcns\_26\_16.csv
+pcns\_26\_16.csv\normalcomma
+pcns\_26\_17.csv\normalcomma
+pcns\_26\_18.csv
 \end{tabular}
 
 \begin{tabular}{>{\small\ttfamily}p{\textwidth}}
@@ -301,12 +323,33 @@ pcns\_30\_18.csv\normalcomma
 pcns\_30\_19.csv
 \end{tabular}
 
+Ferner ist die Datei
+
+\begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+pcns\_range.csv
+\end{tabular}
+
+enthalten, in der die jeweils kleinsten (bzgl. \thref{def:polynomordnung})
+$\PCN$-Polynome von Grad $n$ über $\F_{p^r}$ 
+für $r = 1$ und alle Primzahlen $p<1000$ mit $p^n < 10^{70}$
+aufgeführt werden.
+Die Syntax der Einträge ist dabei analog zu oben, wobei $n$ ergänzt
+wurde, d.h. der Eintrag
+\texttt{$p$, $n$, poly} bedeutet, dass
+\texttt{poly} das kleinste $\PCN$-Polynom von Grad $n$ über 
+$\F_p$ ist.
+
+
 \subsection{\texttt{./Sage}}
 
 Dieser Ordner beinhaltet die Quellcodes der in 
 \autoref{chap:existenz_und_enumeration} vorgestellten Funktionen:
 
 \begin{tabular}{>{\small\ttfamily}p{\textwidth}}
+enumeratePCNs.c\\
+enumeratePCNs.spyx\\
+findAnyPCN\_additional.spyx\\
+findAnyPCN\_trinom.spyx
 \end{tabular}
 
 
@@ -327,3 +370,11 @@ zugänglich. Die Datenstruktur ist dabei wie folgt gegeben:
     \ref{anh:sec:cd})\\
   ./Masterarbeit.pdf & Kompilierte Version der Arbeit
 \end{tabular}
+
+\vfill
+\begin{center}
+  \begin{tikzpicture}
+    \path[draw=gray] (0,0) rectangle (12.4cm,12.4cm);
+  \end{tikzpicture}
+\end{center}
+

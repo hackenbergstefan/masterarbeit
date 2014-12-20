@@ -14,7 +14,7 @@ zerlegen, wie man es für normale Elemente aus \thref{kor:summe_erzeuger_normal}
 kennt. Hachenberger konnte in \autocite{hachenberger1997finite} ausarbeiten, wie
 die simultan auftretenden Modulstrukturen zu behandeln sind. Wir wollen hier
 die zentralen Resultate lediglich ohne Beweise zitieren. Eine ebenfalls gute
-Übersicht dazu findet man in \autocite[Section 5.4]{mullen2013handbook}.
+Übersicht dazu findet man in \autocite{hachenberger2013handbook}.
 Wir beginnen bei der grundlegendsten Definition, die sich ja bereits in der
 Kapitelüberschrift wiederfinden lässt.
 
@@ -28,10 +28,12 @@ Kapitelüberschrift wiederfinden lässt.
   Polynom} sind analog zu \thref{def:normal} zu setzen.
 \end{definition}
 
-Ein besonders trivialer Fall würde auftreten, wenn bereits alle normalen
+Ein besonderer Fall würde natürlich auftreten, wenn bereits alle normalen
 Elemente einer Körpererweiterung auch vollständig normal wären. Man kann zeigen,
 dass dies in der Tat unter gewissen Bedingungen auftreten kann und verleiht
-dieser Konstellation den Namen \emph{einfach}.
+dieser Konstellation den Namen \emph{einfach}%
+\footnote{Im englischssprachigen Raum wird
+dieser Begriff \emph{completely basic} genannt.}.
 
 \begin{definition}[einfach]
   \label{def:einfach}
@@ -83,6 +85,7 @@ verschiedenen simultan auftauchenden $q^d$-Ordnungen zu erfassen:
 \emph{verallgemeinerte Kreisteilungspolynome}.
 
 \begin{definition}[verallgemeinertes Kreisteilungspolynom]
+  \label{def:verallgemeinertes_kreisteilungspolynom}
   Sei $F$ ein endlicher Körper. Seien $k,t\geq 1$ natürliche Zahlen und 
   $k$ teilerfremd zur Charakteristik von $F$, so heißt
   \[ \Phi_{k,t}(x) \speq{:=} \Phi_k(x^t) \ \in F[x]\]
@@ -148,7 +151,8 @@ schwerer ist, als das der normalen Elemente, da sich dort Elemente
 mit teilerfremden $q$-Ordnungen \emph{immer} zu einem Element summieren, dessen
 $q$-Ordnung gerade das Produkt der $q$-Ordnungen ist 
 (vgl. \thref{satz:zerlegungssatz_zykl_vektorraume}); mit anderen Worten 
-also die Summe von Erzeugern disjunkter Teilmoduln stets wieder einen Erzeuger
+also die Summe von Erzeugern bis auf das Nullelement disjunkter 
+Teilmoduln stets wieder einen Erzeuger
 liefert. Dies ist bei vollständigen Erzeugern nur bedingt gegeben, wie
 nachstehender Zerlegungssatz beschreibt.
 
@@ -169,7 +173,8 @@ nachstehender Zerlegungssatz beschreibt.
   eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte Kreisteilungspolynome und
   diese ist verträglich genau dann, wenn
   \[ r^a \nmid \ord_{\nu(kt')}(q) \]
-  mit $a = \max\{ b\in \N: r^b \mid t\}$.
+  mit $a = \max\{ b\in \N: r^b \mid t\}$ und 
+  $t=t'p^b$ für $\ggT(t',p)=1$.
 \end{satz}
 \begin{proof}
   \autocite[Decomposition Theorem, Section 19]{hachenberger1997finite}.
@@ -179,15 +184,19 @@ nachstehender Zerlegungssatz beschreibt.
 Sicherlich kann man sich nun fragen, in welchen Fällen die kanonische Zerlegung
 eines erweiterten Kreisteilungspolynoms in Kreisteilungspolynome noch
 verträglich ist. Nach \autocite[Theorem 19.10]{hachenberger1997finite} 
-ist die kanonische Zerlegung von $\Phi_{k,t}(x)^\pi$ verträglich über 
-$\F_q$, falls $\ord_{\nu(kt')}(q)$ und $t'$ teilerfremd sind. Dies motiviert
+ist die kanonische Zerlegung von $\Phi_{k,t}(x)^\pi$ für $\pi$ eine Potenz der
+Charakteristik verträglich über 
+$\F_q$, falls $\ord_{\nu(kt')}(q)$ und $t'$ teilerfremd sind,
+wobei wieder $t = t'p^b$ mit $\ggT(t',p)=1$ für $p=\charak\F_q$. Dies motiviert
 dieser Klasse von Kreisteilungsmoduln einen eigenen Namen zu geben:
 
 \begin{definition}[regulär]
   \label{def:regulaer}
   Ein verallgemeinerter Kreisteilungsmodul $\C_{k,t}$ 
-  mit $\ggT(k,t)=1$ heißt \emph{regulär} über $\F_q$,
-  falls $\ord_{\nu(k\,t')}(q)$ und $k\,t$ teilerfremd sind.
+  mit $\ggT(k,t)=1$ heißt \emph{regulär} über 
+  einem endlichen Körper $\F_q$ der Charakteristik $p$,
+  falls $\ord_{\nu(k\,t')}(q)$ und $k\,t$ teilerfremd sind für
+  $t=t'p^b$ mit $\ggT(t',p)=1$.
 
   Eine Körpererweiterung $\F_{q^m} \mid \F_q$ heißt \emph{regulär}, falls
   $\C_{1,m}$ regulär ist.

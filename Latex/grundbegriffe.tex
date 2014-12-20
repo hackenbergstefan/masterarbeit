@@ -6,8 +6,8 @@ Tragen wir zunächst
 einige grundlegende Resultate zusammen, die dem Leser sicherlich bekannt sind. 
 Daher zitieren wir die meisten Aussagen 
 lediglich ohne Beweis. Wir beginnen dabei bei der Gruppentheorie und
-insbesondere zyklische Gruppen. Diese werden uns später
-helfen, die Untergruppe der (primitiven) Einheitswurzeln
+insbesondere mit zyklischen Gruppen. Diese werden uns später
+helfen, die Untergruppe der Einheitswurzeln
 in \autoref{chap:kreisteilungspolynome} zu verstehen. Im anschließenden Abschnitt
 rekapitulieren wir ein wenig die Galoistheorie von endlichen Körpern.
 Insbesondere wollen wir wiederholen, dass die 
@@ -46,6 +46,7 @@ werden, wiederholen wir die wohlbekannte Definition der Eulerschen
 Phifunktion und geben wir dann die wichtigsten Rechenregeln an.
 
 \begin{definition}[Eulersche Phifunktion]
+  \label{def:euler_phi}
   %\nomenclature{$\varphi$}{Eulersche Phifunktion}
   Die Funktion
   \[ \varphi: \funcdef{\N^\ast &\to& \N^\ast,\\
@@ -54,6 +55,7 @@ Phifunktion und geben wir dann die wichtigsten Rechenregeln an.
 \end{definition}
 
 \begin{definition}[quadratfreier Teil]
+  \label{def:quadratfreier_teil}
   Sei $n \in \N$ und $n = p_1^{r_1}\cdot\ldots\cdot p_l^{r_l}$ seine
   Primfaktorzerlegung. Dann heißt
   \[ \nu(n) \speq{:=} p_1\cdot \ldots\cdot p_l\]
@@ -160,9 +162,11 @@ unabhängig sind. Dies gilt sogar in einem größeren Kontext:
 \begin{satz}[Dedekindsches Lemma]
   \label{satz:dedekindsches_lemma}
   Seien $K,L$ zwei Körper, $n \in \N$ und $\tau_1,\ldots,\tau_n: K\to L$
-  verschiedene injektive Körperhomorphismen. Dann ist für jedes $x \in K$
-  \[ \{\tau_1(x),\ldots,\tau_n(x) \}\]
-  linear unabhängig über $L$.
+  verschiedene injektive Körperhomorphismen. 
+  Sind $c_1,\ldots,c_n \in L$ mit
+  \[ c_1\tau_1(x)+ \ldots+ c_n\tau_n(x)
+    \quad\text{für jedes $x\in K$}\,,\]
+  so gilt $c_1=\ldots=c_n=0$.
 \end{satz}
 \begin{proof}
   \autocite[Satz 27.2]{karpfinger2010algebra}.

@@ -67,6 +67,7 @@ liefert. Insbesondere gewinnen wir so eine Formel für die Anzahl aller
 normalen Elemente.
 
 \begin{definition}
+  \label{def:polynom_phi}
   Sei $f(x) \in \F_q[x]$ ein Polynom über einem endlichen Körper. Definiere
   \[ \phi_q(f) \speq{:=} |\{ g(x) \in \F_q[x]:\ 
     \deg g < \deg f,\ \ggT(f,g) = 1\}|\,.\]
@@ -187,7 +188,7 @@ Damit haben wir eine sehr einfache Möglichkeit, Normalbasen explizit anzugeben.
   \autocite[Lemma 19.7]{hachenberger1997finite}.
 \end{proof}
 
-\begin{satz}
+\begin{satz}[{\autocite[Satz 8.12]{hachenberger2013vorlesung}}]
   \label{satz:konstruktion_q_ordnung}
   Sei $F = \F_q$ ein endlicher Körper und $m \in \S_q$. Seien
   $l := \cl_m(q-1)$, $a := \ggT(l,m)$ und $u \in \bar\F_q$ eine primitive
@@ -257,7 +258,7 @@ Damit haben wir eine sehr einfache Möglichkeit, Normalbasen explizit anzugeben.
 Da wir nun die einzelnen Bausteine kennen, können wir auf die Faktorisierung
 und damit auf eine explizite Angabe eines normalen Elements schließen:
 
-\begin{kor}
+\begin{kor}[{{\autocite[Korollar 8.11]{hachenberger2013vorlesung}}}]
   \label{kor:konstruktion-q-ordnung}
   Für $F = \F_q$, $n\in \S_q$ sei $\lambda \in F^\ast$ eine primitive 
   $\cl_n(q-1)$-te Einheitswurzel. Zu jedem $m \mid n$ seien
@@ -276,7 +277,7 @@ und damit auf eine explizite Angabe eines normalen Elements schließen:
   eine Anwendung von \thref{satz:konstruktion_q_ordnung}.
 \end{proof}
 
-\begin{satz}
+\begin{satz}[{{\autocite[Korollar 8.13]{hachenberger2013vorlesung}}}]
   Seien $F = \F_q$ ein endlicher Körper, $n\in \S_q$ und $L:=\cl_n(q-1)$.
   Ferner sei $u \in \bar F$ eine primitive $(nL)$-te Einheitswurzel. Dann ist
   mit Notation aus \thref{kor:konstruktion-q-ordnung}
@@ -342,7 +343,7 @@ Als Korollar dieses Lemmas können wir einen Satz von \citeauthor{semaev:1989}
   gilt 
   \[ \F_{q^n} \speq= \bigoplus_{l\in R_q(n)} \langle \theta^l\rangle_q\,,\]
   wobei $\langle \theta^l\rangle_q := 
-  \spann_{\F_q}\{ \theta^i \mid i\in M_q(l\bmod n)\}$.
+  \spann_{\F_q}\{ \theta^i:\ i\in M_q(l\bmod n)\}$.
 \end{satz}
 \begin{proof}
   Aus \thref{satz:binom_irreduzibel} und \thref{satz:binom_irreduzibel_aquiv}
@@ -412,7 +413,7 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
   \emph{regulär}.
 \end{definition}
 
-\begin{satz}
+\begin{satz}[{{\autocite[Satz 9.3]{hachenberger2013vorlesung}}}]
   \label{satz:konstruktion_q_ordnung_reg}
   Seien $F := \F_q$ ein endlicher Körper für eine Primzahlpotenz $q = p^r$ 
   und $m\in\N$ ungerade mit $p\nmid m$.
@@ -491,7 +492,9 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
 
 Nun haben wir also Elemente mit $q$-Ordnung $\Phi_m(x^s)$ gefunden. Es stellt
 sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$ 
-\glqq basteln\grqq können. Dies zeigt uns der folgende Satz:
+\glqq basteln\grqq können. Dies zeigt uns der folgende Satz, wobei 
+die Punkte (1) und (2) aus 
+\autocite[Satz 9.4]{hachenberger2013vorlesung} stammen:
 
 \begin{satz}
   \label{satz:q_ordnung_von_trace}
@@ -636,7 +639,7 @@ für den wir Erzeuger (und letztendlich normale Elemente) konstruieren wollen.
   \[ \Ord_q(g(x)\cdot u) \speq\mid x^m-1 \speq= \prod_{d\mid m} \Phi_d(x)\,, \]
   da $g(x)\cdot u$ nach Voraussetzung in $\F_{q^m}$ liegt.
   %da $g(x) \cdot u$ nach Voraussetzung Grad $m$ über $F$ hat und auf der
-  anderen Seite gilt nach \thref{lemma:eigenschaften_tau_ordnung}
+  Andererseits gilt nach \thref{lemma:eigenschaften_tau_ordnung}
   \[ \Ord_q(g(x)\cdot u) \speq= \frac{f(x^s)}{\ggT(f(x^s), g(x))} 
     \speq\mid f(x^s) \,.\]
   Wir wissen jedoch aus \thref{satz:zerfall_f_x_s} (vgl. auch den Beweis von
@@ -671,6 +674,7 @@ Polynome, namentlich Dickson-Polynome, nutzen lassen, um in speziellen
 regulären Erweiterungen normale Elemente zu konstruieren.
 
 \begin{definition}[Dickson-Polynom]
+  \label{def:dickson}
   Sei $n \in \N^\ast$. Für $a \in \F_q$ definieren wir das
   \emph{$n$-te Dickson-Polynom erster Art über $\F_q$} 
   (hier auch nur \emph{$n$-tes Dickson-Polynom}) als
@@ -744,7 +748,7 @@ Polynom der Form $D_n(x,a)-b$ irreduzibel ist.
     \beta_1,\beta_2 \in \F_{q^2}\]
   und $e_i = \ord(\beta_i)$ für $i=1,2$. Es ist
   \[ D_n(x,a) + b \]
-  irreduzibel genau dann, wenn für sowohl (1), als auch (2) für $i=1,2$ erfüllt
+  irreduzibel genau dann, wenn sowohl (1), als auch (2) für $i=1,2$ erfüllt
   sind:
   \begin{enumerate}
     \item Jeder ungerade Primteiler von $n$ teilt $e_i$, jedoch nicht
@@ -829,7 +833,7 @@ betrachteten Erweiterungskörper, wie die beiden nachstehenden Sätze angeben.
   eine Zerlegung von $E$ in irreduzible $F[x]$-Teilmoduln, wobei
   \[ \langle D_l(\gamma,a)\rangle_q \speq{:=}
     \spann_F\{ D_i(\gamma,a) \mid i\in M_q(l\bmod n)\} \,,\]
-  so dass $\{ D_i(\gamma,a) \mid i\in M_q(l\bmod n)\}$ eine $F$-Basis von
+  so dass $\{ D_i(\gamma,a):\ i\in M_q(l\bmod n)\}$ eine $F$-Basis von
   $\langle D_l(\gamma,a)\rangle_q$ ist.
 \end{satz}
 
@@ -1053,6 +1057,7 @@ Zunächst brauchen wir jedoch eine Transformation eines Polynoms, welches gerade
 die Nullstellen desselbigen invertiert.
 
 \begin{definition}[reziprokes Polynom]
+  \label{def:reziprokes_polynom}
   Sei $f(x) \in \K[x]$ ein Polynom über einem Körper $\K$ mit 
   $f(0)\neq 0$. Dann heißt
   \[ f^\ast(x) \speq{:=} \tfrac{1}{f(0)}\, x^{\deg f}\, f(\tfrac 1 x)
@@ -1132,7 +1137,9 @@ Nun lassen sich einige Korollare ziehen, in denen spezielle Werte für $a,b,s,t$
 dazu führen, dass die geforderten Eigenschaften aus 
 \thref{satz:scheerhorn3} bzw. \thref{satz:scheerhorn4} erfüllt sind.
 Diese werden wir hier nicht beweisen und der Leser sei auf
-\autocite{scheerhorn:1997} verwiesen.
+\autocite{scheerhorn:1997} verwiesen. Erneut sind wir in der Lage, die
+Korollare für den erweiterten Fall $\nu(n)\mid q^2-1$ mit $\nu(n)\nmid q-1$ zu
+formulieren.
 
 
 \begin{kor}

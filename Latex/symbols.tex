@@ -1,0 +1,104 @@
+\addchap*{Liste verwendeter Symbole}
+
+\renewcommand{\arraystretch}{1.2}
+
+\subsubsection{Allgemeines}
+\begin{longtable}[h]{>{\raggedright}p{4cm}@{\qquad}p{10cm}}
+$\N$ & Menge der natürlichen Zahlen mit $0$\\
+$\Z$ & Menge der ganzen Zahlen\\
+$\Z_m$ & ganze Zahlen modulo $m$\\
+$F[x]$ & univariater Polynomring über $F$\\
+$F[x]_{<k}$ & Menge der univariaten Polynome über $F$ vom Grad kleiner $k$\\
+$\varphi$ & Eulersche Phifunktion (\thref{def:euler_phi})\\
+$M^\ast$ & Menge $M$ ohne das Element $0$\\
+\end{longtable}
+
+\subsubsection{Gruppentheoretisches}
+\begin{longtable}[h]{>{\raggedright}p{4cm}@{\qquad}p{10cm}}
+$\langle a \rangle$ & von $a$ erzeugte Gruppe\\
+$\ord(u)$ & gruppentheoretische Ordnung des Elements $u$\\
+\end{longtable}
+
+\subsubsection{Ringe und Moduln}
+\begin{longtable}[h]{>{\raggedright}p{4cm}@{\qquad}p{10cm}}
+$(r)$ & von $r$ erzeugtes Ideal\\
+$M^\times$ & Einheiten von $M$\\
+$V_r$ & die von $r$ annihilierten Elemente
+  (\thref{def:V_r})\\
+$\Ann_R(S)$ & Annihilator von $S$ in $R$
+  (\thref{def:annihilator})\\
+$f(x)\cdot v$ & Multiplikation im $K[x]$-Modul bzgl. $\tau$
+  (\thref{def:V_tau})\\
+$\Ord_\tau(v)$ & $\tau$-Ordnung von $v$ 
+  (\thref{def:tau_ordnung})\\
+\end{longtable}
+
+\subsubsection{Zahlentheoretisches}
+\begin{longtable}[h]{>{\raggedright}p{4cm}@{\qquad}p{10cm}}
+$\nu(n)$ & quadratfreier Teil von $n$ (\thref{def:quadratfreier_teil})\\
+$\ord_n(q)$ & multiplikative Ordnung von $q$ modulo $n$
+  (\thref{def:multiplikative_ordnung_mod})\\
+$M_q(l\bmod m)$ & $:=\{l\,q^i\bmod m:\ i\in \N\}$ 
+  (\thref{def:nebenklassen_mod_m})\\
+$R_q(m)$ & vollständiges Repräsentantensystem von $M_q(1\bmod n)$
+  (\thref{def:nebenklassen_mod_m})\\
+$r_q(l\bmod m)$ & Länge der Bahn von $M_q(l\bmod m)$
+  (\thref{def:nebenklassen_mod_m})\\
+$\cl_r(n)$ & Abschluss von $r$ in $n$
+  (\thref{def:closure})\\
+$\Delta_q(m,d)$ & $:= \tfrac{\varphi(d) \ord_m(q)}{\ord_{md}(q)}$
+  (\thref{satz:zerfall_f_x_s})\\
+\end{longtable}
+
+\subsubsection{Endliche Körper}
+\begin{longtable}[h]{>{\raggedright}p{4cm}@{\qquad}p{10cm}}
+$\F_q$ & Endlicher Körper mit $q$ Elementen\\
+$\bar F$ & algebraischer Abschluss eines Körpers $F$\\
+$\Tr_{E\mid F}$ & Spurfunktion von $E$ nach $F$\\
+$\Nm_{E\mid F}$ & Normfunktion von $E$ nach $F$\\
+$\charak(\F_q)$ & Charakteristik von $\F_q$\\
+$\sigma$ & Frobenius-Endomorphismus
+  (\thref{satz:frob_fix})\\
+$\Gal(E\mid F)$ & Galoisgruppe einer Körpererweiterung $E$ über $F$\\
+$K\kl n$ & $n$-ter Kreisteilungskörper
+  (\thref{def:kreisteilungskorper})\\
+$U\kl n$ & Menge der $n$-ten Einheitswurzeln
+  (\thref{def:kreisteilungskorper})\\
+$C\kl n$ & Menge der primitiven $n$-ten Einheitswurzeln
+  (\thref{def:primitive_einheitswurzeln})\\
+$\phi_q(f)$ & Polynomversion der Eulerschen Phifunktion
+  (\thref{def:polynom_phi})\\
+$\C_{k,t}$ & verallgemeinerter Kreisteilungsmodul
+  (\thref{def:verallgemeinerter_kreisteilungsmodul})\\
+$\tau(q,k)$ & $\tau$-Teiler
+  (\thref{def:tau})\\
+\end{longtable}
+
+
+\subsubsection{Spezielle Polynome}
+\begin{longtable}[h]{>{\raggedright}p{4cm}@{\qquad}p{10cm}}
+$\Phi_n(x)$ & $n$-tes Kreisteilungspolynom 
+  (\thref{def:kreisteilungspolynom})\\
+$\Phi_{k,t}(x)$ & verallgemeinertes Kreisteilungspolynom
+  (\thref{def:verallgemeinertes_kreisteilungspolynom})\\
+$D_n(x,a)$ & Dickson-Polynom erster Art
+  (\thref{def:dickson})\\
+$E_n(x,a)$ & Dickson-Polynom zweiter Art
+  (\thref{def:dickson})\\
+$f^\ast(x)$ & reziprokes Polynom von $f(x)$
+  (\thref{def:reziprokes_polynom})\\
+\end{longtable}
+
+\subsubsection{Spezielle Mengen}
+\begin{longtable}[h]{>{\raggedright}p{4cm}@{\qquad}p{10cm}}
+$\S_q$ & Menge der Grade stark regulärer Erweiterungen über $\F_q$
+  (\thref{def:stark_regular})\\
+$\cal N(q,n)$, $\CN(q,n)$, $\PN(q,n)$, $\PCN(q,n)$ &
+  Anzahl normaler, vollständig normaler, primitiv normaler, 
+  primitiv vollständig normaler Elemente von $\F_{q^n}$ über $\F_q$
+  (\thref{def:anzahlen})\\
+$\G$ & Menge der $n$, für die für alle Primzahlpotenzen $q$
+  ein primitiv vollständig normales Element in $\F_{q^n}$ über $\F_q$ existiert\\
+\end{longtable}
+
+\renewcommand{\arraystretch}{1}

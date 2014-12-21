@@ -37,7 +37,7 @@ Grundsätzlich wurde zur konkreten Suche und Enumeration primitiver und
 vollständig normaler Elemente das Computeralgebrasystem \sage verwendet.
 \sage bietet bereits die Möglichkeit in endlichen Körpern zu rechnen. Jedoch
 hat sich herausgestellt, dass die zugrunde liegenden \Clang-Bibliotheken 
-(im Allgemeinen Fall ist dies das \texttt{Pari C library}%
+(im allgemeinen Fall ist dies das \texttt{Pari C library}%
 \footnote{vgl. \url{http://www.sagemath.org/doc/reference/%
 rings_standard/sage/rings/finite_rings/constructor.html}}) 
 zu langsam sind. Dies ist sicherlich auf die Allgemeinheit ihrer
@@ -65,7 +65,7 @@ Also wird ein Element $w \in \F_q$ als Array der Länge $r+1$ beschrieben,
 wobei die nullte Stelle des Arrays auch den Koeffizienten von $x^0$ meint, und
 alle Berechnungen (insb. Multiplikation) modulo $f(x)$ ausgeführt werden.
 
-Es hat sich herausgestellt, dass es von Vorteil ist, neben dem die Koeffizienten
+Es hat sich herausgestellt, dass es von Vorteil ist, neben dem Koeffizienten
 tragenden Array ein weiteres Array mitzuführen, welches die
 Indizes speichert, deren zugehörige Koeffizienten nicht verschwinden. Letztlich
 fehlt noch, wie es in \Clang üblich und notwendig ist, die Länge des
@@ -315,10 +315,10 @@ inline void addFFElem(struct FFElem *ff1, struct FFElem *ff2,
 
 Wie später aus der Beschreibung anderer Algorithmen hervorgeht, ist es von
 Vorteil, wenn das Ergebnis einer Addition bereits eines der beiden addierten
-Elemente ist. Auf diese Weise spart man das Anlegen unnötiger Hilfs-@FFElem@s.
+Elemente ist. Auf diese Weise spart man sich das Anlegen unnötiger Hilfs-@FFElem@s.
 Wie man schnell einsieht, werden jeweils nur die beiden Indexarrays durchlaufen
 und lediglich wenn der Wert der jeweiligen Stellen übereinstimmt, muss eine
-Addition ausgeführt werden; ansonsten reicht es den jeweiligen Koeffizienten 
+Addition ausgeführt werden; ansonsten reicht es, den jeweiligen Koeffizienten 
 zu übernehmen.
 
 
@@ -661,7 +661,7 @@ nachstehendes Beispiel.
   die binäre Variante wohl die bessere Wahl.\\
   Wollen wir $u^{10}$ berechnen, so sehen wir aus
   \[ 10 \speq= 1010_2 \speq= 101_3\,,\]
-  dass in diesem Fall die binäre Exponentiation 4 Quadierungen und eine
+  dass in diesem Fall die binäre Exponentiation $3$ Quadierungen und eine
   allgemeine Multiplikation erfordert, die $3$-adische Variante jedoch nur 
   $2$ Matrixmultiplikationen und $1$ allgemeine Multiplikation. Letzteres lässt
   sich sogar auf eine Matrixmultiplikation reduzieren, berechnet man die
@@ -1179,7 +1179,7 @@ inline void applyFrob_noCache(struct FFElem *ff, struct FFElem *mipo,
 
 \subsection{Testen von vollständigen Erzeugern}
 
-Wie bereits erwähnt ist $u\in \F_{q^m}$ über $\F_q$ genau dann ein vollständiger
+Wie bereits erwähnt, ist $u\in \F_{q^m}$ über $\F_q$ genau dann ein vollständiger
 Erzeuger eines verallgemeinerten Kreisteilungsmoduls $\C_{k,t}$, wenn
 \[ \Ord_{q^d}(u) \speq= \Phi_{\nu(k),\, \frac{kt}{\nu(k)d}} \qquad
   \forall d\mid \tfrac{k\,t}{\nu(k)}\,.\]
@@ -1206,7 +1206,7 @@ auf den Fall $d=1$ beschränken können; andernfalls vollführe man lediglich ei
     h(F_i)(\sigma)(u) \speq\neq 0 \quad \forall i=1,\ldots,r \,.\]
 \end{lemma}
 \begin{proof}
-  Klar per definitionem der $q$-Ordnung und \thref{lemma:einbettung_egal}.
+  Klar per Definition der $q$-Ordnung und \thref{lemma:einbettung_egal}.
 \end{proof}
 
 
@@ -1336,7 +1336,7 @@ Notation noch einmal formulieren möchten.
   Dann gilt
   \[ \C_{k,t} \speq= \big\{ f(\sigma)(u):\ f(x) \in F[x]_{<\varphi(k)t}\big\} \,,\]
   wobei wiederum $\sigma$ den Frobenius von $F$ und 
-  $\varphi$ die Eulersche $\varphi$-Funktion notieren.
+  $\varphi$ die Eulersche Phifunktion notieren.
 \end{lemma}
 \begin{proof}
   \thref{kor:moduln_ueber_v_g} mit der Erkenntnis, dass
@@ -1353,7 +1353,7 @@ Die Generierung der $f$s erfolgt direkt in \autoref{lst:calcSubmoduleElements},
 wobei die Elemente aus $F$ wieder mittels eines injektiven Körperhomomorphismus 
 $F\to E$ als @FFElem*@-Array namens @elementsF@ übergeben werden.
 
-Wie erwähnt müssen wir dieses Verfahren natürlich mit einem vollständigen
+Wie erwähnt, müssen wir dieses Verfahren natürlich mit einem vollständigen
 Erzeuger starten. Es ist sicherzustellen, dass sich dieser am aktuellen Knoten 
 der Liste @struct Node *root@ befindet.
 
@@ -1437,8 +1437,8 @@ zulässt), da $1\in F[x]$ ja wieder $(1)(\sigma)(u) = \id(u) = u$ liefert.
 @maxLenPoly@ gibt dabei die maximale Länge der zu betrachtenden Polynome an (in
 hiesiger Notation also @maxLenPoly@$= \varphi(k)t+1$). Die Polynome selbst
 werden in zwei Schritten erzeugt: Sei $l := $@maxLenPoly@, so
-durchläuft das @int@-Array @curPoly@ alle Elemente aus $\{0,\ldots,q-1\}^l$
-Das korrekte Polynom in $E[x]$ wird dann durch einsetzen jeder Stelle 
+durchläuft das @int@-Array @curPoly@ alle Elemente aus $\{0,\ldots,q-1\}^l$.
+Das korrekte Polynom in $E[x]$ wird dann durch Einsetzen jeder Stelle 
 dieses Tupels aus $\{0,\ldots,q-1\}^l$ in die @elementsF@ erzeugt und in 
 @curFPoly@ gespeichert.
 
@@ -1525,7 +1525,7 @@ Zerlegung liefert (sich also alle vollständig normalen Elemente auf einen
 einzigen Modul konzentrieren können) und in vielen Zerlegungen ein 
 verallgemeinerter
 Kreisteilungsmodul vorkommt, der verglichen mit den anderen Moduln dieser
-Zerlegung, besonders viele Elemente enthält, hat sich die Speicherung
+Zerlegung besonders viele Elemente enthält, hat sich die Speicherung
 \emph{aller} Erzeuger als schlecht erwiesen. Daher sind wir dazu übergegangen,
 den größten Kreisteilungsmodul dynamisch zu enumerieren. Das bedeutet, dass
 alle anderen verallgemeinerten Kreisteilungsmoduln vorab durch 
@@ -1547,7 +1547,7 @@ Erzeuger des größten Kreisteilungsmoduls auch Teil einer gültigen Kombination
 zu einem vollständig normalen Element ist. Dieser „Fehler” in der Berechnung
 der Anzahl @genCounts@ wird in Zeile \texttt{120} am Ende der Funktion
 korrigiert. Der Erzeuger selbst befindet sich wieder am aktuellen Knoten der
-der letzten Liste des Arrays @roots@, da die Datenstrukturen so
+letzten Liste des Arrays @roots@, da die Datenstrukturen so
 aufgebaut werden, dass dieser größte verallgemeinerte Kreisteilungsmodul der
 letzte ist (siehe Zeilen \texttt{26} und \texttt{28}).
 
@@ -1698,7 +1698,7 @@ bereits ein vollständiger Erzeuger eines Kreisteilungsmoduls bereits gefunden
 ist. Es ist klar, dass man diese irgendwann suchen muss, was die Funktion
 @processFiniteField@ bewerkstelligt. Gleichzeitig bildet sie den Wrapper, der
 von \sage aufgerufen wird und als Rückgabewert @unsigned long long@ die Anzahl
-der primitiven vollständig normalen Elemente trägt. Alle zu übergebenen
+der primitiv vollständig normalen Elemente trägt. Alle zu übergebenden
 Parameter werden in \sage erzeugt und wurden bereits erklärt.
 
 
@@ -1954,9 +1954,10 @@ def squarefree(n):
 \subsubsection{Ausnutzen einfacher Zerlegungen}
 
 Zunächst müsste man für jeden erweiterten Kreisteilungsmodul
-nun \emph{alle} Teiler des Modulcharakters testen, um vollständige Erzeuger zu
+\emph{alle} Teiler des Modulcharakters testen, um vollständige Erzeuger zu
 finden. Jedoch garantiert \thref{satz:einfache_erweiterungen}, dass dies in
-manchen Fällen überflüssig ist, da bei einer einfachen Erweiterung ein Erzeuger
+manchen Fällen überflüssig ist, da beispielsweise bei 
+einer einfachen Erweiterung ein Erzeuger
 eines Kreisteilungsmoduls $\C_{k,t}$ über $\F_q$ bereits ein vollständiger
 Erzeuger ist. Ist eine Erweiterung nicht einfach, so sollte man die Hoffnung
 nach einer Vereinfachung der Suche nach vollständigen Erzeugern nicht aufgeben,
@@ -1995,7 +1996,7 @@ def get_not_completely_basic_divisors(p,e,n):
     return divs
 \end{sagecode}
 
-"p_free_part" gibt wie in \thref{satz:einfache_erweiterungen} (3) zu sehen ist,
+"p_free_part" gibt, wie in \thref{satz:einfache_erweiterungen} (3) zu sehen ist,
 gerade den größten Teiler des ersten Arguments an, der nicht mehr durch $p$,
 dem zweiten Argument, teilbar ist. (Es wird dabei nicht überprüft, ob das zweite
 Argument eine Primzahl ist.)
@@ -2034,7 +2035,7 @@ müssen, reduziert, wird \thref{satz:regulare_erweiterungen} durch Rückgabe der
 Teiler $\tau$ bzw. $\tau$ und $2\tau$ (in Notation dieses Satzes)
 im ausfallenden Fall realisiert, wie die Funktion 
 "get_tau_divisors" zeigt. Die zu übergebenden Parameter bestehen wieder aus 
-$q = p^e$ und der Daten $(k,t,\pi)$ des zu betrachtenden Kreisteilungsmoduls 
+$q = p^e$ und den Daten $(k,t,\pi)$ des zu betrachtenden Kreisteilungsmoduls 
 $\C_{k,\,t\pi}$ über $\F_q$.
 
 \begin{sagecode}[caption={[\texttt{get\_tau\_divisors} aus 
@@ -2083,7 +2084,7 @@ def isExceptional(p,e, n):
 \subsubsection{Die zentrale \sage-Funktion 
   \texttt{countCompleteSubmoduleGenerators}}
 
-Als übergeordnete Funktion, die die Anzahl aller (primitiven) vollständig
+Als übergeordnete Funktion, die die Anzahl aller (primitiv) vollständig
 normale Elemente und aller vollständigen Erzeuger im Sinne des Zerlegungssatzes
 liefert, stellen wir \\
 "countCompleteSubmoduleGenerators" bereit. Als Argumente
@@ -2092,8 +2093,8 @@ betrachtenden Erweiterung. Ferner gibt es die Möglichkeit durch das optionale
 Argument "binaryPowers=False" den Test auf Primitivität durch $p$-adische
 Exponentiation durchführen zu lassen, wie in dem Absatz vor 
 \autoref{lst:isPrimitive} erwähnt wurde (vgl. auch 
-\autoref{subsub:primitivitaetstest}). Der Test auf Primitivität lässt sich auch
- durch die Übergabe von "testPrimitivity=False"
+\autoref{subsub:primitivitaetstest}). Der Test auf Primitivität lässt sich
+durch die Übergabe von "testPrimitivity=False"
 (vgl. \thref{bem:kein_test_auf_primitivitaet}) vollständig deaktivieren.
 Durch den Parameter "onlyNormal=True" wird lediglich die Anzahl der
 (primitiv) normalen Elemente durch Auslassen aller echten Teiler 
@@ -2272,7 +2273,7 @@ Additions- und Multiplikationstabellen nach
 \end{sagecode}  
 
 
-Nun sind wir bereit alle Daten nach \Clang zu transferieren. Dies ist ein
+Nun sind wir bereit, alle Daten nach \Clang zu transferieren. Dies ist ein
 notwendiges Übel, da die interne Repräsentation von \sage-Objekten nicht mit
 denen in \Clang vereinbar ist. Beispielsweise sind Listen von Ganzzahlen
 in \sage keineswegs \Clang-kompatible Arrays. 
@@ -2334,7 +2335,7 @@ cdef FFPoly **pyList2PointFFPoly(listPolys, int m):
 
 Nun können wir die Beschreibung von "countCompleteSubmoduleGenerators"
 fortsetzen und erkennen sofort die gerade vorgestellten Funktionen der
-Übersetzunug sowie die Benutzung der \texttt{numpy}-Arrays.
+Übersetzung sowie die Benutzung der \texttt{numpy}-Arrays.
 
 \begin{sagecode}[caption={\texttt{countCompleteSubmoduleGenerators}
   Fortsetzung (III)}, label=lst:countcompletesubmodulegenerators:iii]
@@ -2446,7 +2447,7 @@ wird und nicht als expliziter Rückgabewert erkennbar ist.
 
 \subsection{Ein ausführliches Beispiel}
 
-Wir wollen nun einmal das gesamte Verfahren zur Berechnung Anzahl 
+Wir wollen nun einmal das gesamte Verfahren zur Berechnung der Anzahl 
 der primitiv vollständig normalen Elemente einer Erweiterung endlicher Körper
 anhand eines Beispiels nachvollziehen. Dazu wählen wir $F := \F_2$ und 
 $n := 6$, also $E := \F_{2^6}$. Die Wahl des Minimalpolynoms dieser Erweiterung
@@ -2500,12 +2501,12 @@ von $t$ in der Größe nach absteigend sortierter Reihenfolge.
       child {node {$(1,1,2)$}
         edge from parent
           node[above, sloped, 
-            font=\scriptsize,text=gray!50]
+            font=\scriptsize,text=gray]
             {$(k,\tfrac t r, \pi)$}}
       child {node {$(3,1,2)$}
         edge from parent
           node[above,sloped,
-          font=\scriptsize,text=gray!50]
+          font=\scriptsize,text=gray]
           {$(kr,\tfrac t r, \pi)$}};
     \begin{scope}[overlay]
       \node[right=0.5cm of root, fill=gray!5,
@@ -2535,7 +2536,7 @@ benötigen werden.
     streichen. Ein zweiter Kniff schafft eine weitere Reduktion der Teilerzahl, 
     da $(1,1,2)$ regulär über $\F_2$ ist:
     \[ \ord_{\nu(k\,t')}(q) \speq= \ord_{1}(2) \speq= 1 \,. \]
-    Da $(1,1,2)$ nicht ausfallend über $\F_2$ ist, reicht es den einzigen
+    Da $(1,1,2)$ nicht ausfallend über $\F_2$ ist, reicht es, den einzigen
     Teiler zu berechnen, den wir benötigen:
     \[ \tau(q,k) \speq= \tau(2,1) \speq= 1\,,\]
     da $\ord_k(q) = \ord_1(2) = \ord_{\nu(k)}(q)$.
@@ -2544,12 +2545,12 @@ benötigen werden.
         von $\Phi_{1,1}(x)^2$ über $\F_{2^d} = \F_2$ zu berechnen:
         \[ \Phi_{1,1}(x)^2 \speq= (x+1)^2\]
         und der einzige Kofaktor ist durch
-        \[ g_{1,1,1}(x) \speq= x+1 \]
+        \[ g_{1,1,1}(x) \speq{:=} x+1 \]
         gegeben.
     \end{description}
   \item Nun zum zweiten Kreisteilungsmodul $(k,t,\pi) := (3,1,2)$. Der
     Modulcharakter ist wiederum $\frac{k\,t\,\pi}{\nu(k)} = 2$. Auch hier
-    können wir mit "notComplBasicDivisors" einen Teiler wegdiskutieren. Anders
+    können wir von "notComplBasicDivisors" einen Teiler wegdiskutieren. Anders
     als in obigem Fall ist dieser Kreisteilungsmodul nicht regulär, da 
     \[ \ord_{\nu(kt')}(q) \speq= \ord_3(2) = 2\]
     nicht teilerfremd zu $kt=2$ ist.
@@ -2558,7 +2559,7 @@ benötigen werden.
       \item[$d=1.$] Wir faktorisieren 
         \[ \Phi_{3,1}(x)^2 \speq= (x^2+x+1)^2 \qquad \in \F_2[x] \]
         und erhalten als einzigen Kofaktor dieses Teilers
-        \[ g_{2,1,1}(x) \speq= x^2+x+1\,.\]
+        \[ g_{2,1,1}(x) \speq{:=} x^2+x+1\,.\]
       \item[$d=2.$] Blicken wir noch einmal in die Definition eines
         vollständigen Erzeugers (\thref{def:vollst_erzeuger}), so sehen wir,
         dass $\C_{3,1\cdot 2}$ als $\F_{2^2}[x]$-Modul zu betrachten
@@ -2593,7 +2594,7 @@ benötigen werden.
 Als letzten Schritt des Aufstellens der Polynome fassen wir alle Ergebnisse
 zusammen und erinnern uns an die Implementierung, wo neben den Polynomen auch
 die Information, welche Polynome bei Vorliegen eines vollständigen Erzeugers in
-der Frobenius-Auswertung zu Null ausgewertet werden müssen, und die Angabe der
+der Frobenius-Auswertung zu Null ausgewertet werden müssen auch die Angabe der
 Frobenius-Potenzen benötigt werden. Da alle Polynome in \emph{eine einzige}
 Liste geschrieben werden, muss man selbstredend die Anzahl der Polynome des
 jeweiligen Kreisteilungsmoduls abspeichern. Zusammengefasst erhalten wir
@@ -2715,8 +2716,8 @@ zwischen den verschiedenen Schreibweisen von Vektoren in $\F_2^6$ und
 Polynomen in $\F_2[a]\big/(a^6 + a^4 + a^3 + a + 1)$ ohne besondere
 Kennzeichnung wechseln werden.
 \begin{description}
-  \item[$u := \vec{0&0&0&0&0&0}.$] Hier gibt es nichts zu tun.
-  \item[$u := \vec{1&0&0&0&0&0}.$] Wir blicken auf "polys" und berechnen
+  \item[$u := \vec{0&0&0&0&0&0}^T.$] Hier gibt es nichts zu tun.
+  \item[$u := \vec{1&0&0&0&0&0}^T.$] Wir blicken auf "polys" und berechnen
     \[ (x^2+1)(\sigma)(1) \speq= 0\ \checkmark,
     \qquad (x+1)(\sigma)(1) \speq= 0\ \lightning\,.\]
     Also ist $1$ kein Erzeuger von $\C_{1,1\cdot 2}$ über $\F_2$.
@@ -2724,7 +2725,7 @@ Kennzeichnung wechseln werden.
     \[ (x^4+x+1)(\sigma)(1) \speq= 1\ \lightning\,.\]
   \item[\ldots] Hier sind weitere Elemente zu denken, die ebenfalls keine 
     vollständigen Erzeuger liefern.
-  \item[$u := \vec{0&1&1&0&0&0}.$] Dieses Element liefert einen vollständigen
+  \item[$u := \vec{0&1&1&0&0&0}^T.$] Dieses Element liefert einen vollständigen
     Erzeuger des zweiten Kreisteilungsmoduls:
     \[\begin{array}{r@{\ =\ }l@{\quad}r@{\ =\ }l} 
       (x^4+x^2+1)(\sigma)(u) & 0, &
@@ -2735,7 +2736,7 @@ Kennzeichnung wechseln werden.
     Die Anwendung des Frobenius ist dabei jeweils durch obige Matrizen zu
     denken.
   \item[\ldots]
-  \item[$u := \vec{0&1&1&1&0&0}.$] Hier haben wir einen vollständigen Erzeuger
+  \item[$u := \vec{0&1&1&1&0&0}^T.$] Hier haben wir einen vollständigen Erzeuger
     des ersten Kreisteilungsmoduls, wie nachstehende Rechnung zeigt.
     \[\begin{array}{r@{\ =\ }l@{\qquad}r@{\ =\ }l} 
       (x^2+1)(\sigma)(u) & 0, &
@@ -2816,8 +2817,8 @@ Elemente (vgl. \thref{def:vertraeglich}).
     @powerFFElemSqM@ (\autoref{lst:powerffelemsqm}) beschrieben, geben hier
     jedoch nur das Ergebnis an. Es ist 
     \[ v^3 \speq=  a^5 + a^4 + a^2 + 1 \speq{=:} w\,.\]
-    Da $w \neq 1$ müssen wir fortfahren mit dem ersten Faktor aus 
-    @barFactors@:
+    Da $w \neq 1$ müssen wir mit dem ersten Faktor aus 
+    @barFactors@ fortfahren:
     \[ w^3 \speq= a^5 + a^4 + a^2\,. \]
     Auch dies ist ungleich $1$, also fahren wir fort mit 
     $w^\texttt{\scriptsize commonBiggestBarFactor}$ wie in 
@@ -2946,8 +2947,8 @@ genommene Rechenzeit lag für $(q,n)=(243,4)$ bei $98$ Stunden und $4$ Minuten.
 \subsection{Theoretische Aspekte}
 
 Zu Beginn dieses Kapitels wurde die Bezeichnung $\G$ als die Menge der
-$n\in \N^\ast$ eingeführt, für die Erweiterungen von Grad $n$ über \emph{jedem}
-endlichen Köper ein $\PCN$-Element enthalten und in
+$n\in \N^\ast$ eingeführt, für die die Erweiterungen von Grad $n$ eines 
+\emph{jeden} endlichen Köpers ein $\PCN$-Element enthalten und in
 \thref{prob:g} haben wir uns das Ziel gesetzt, möglichst viele $n$
 anzugeben, die in $\G$ liegen. Zunächst können wir alle Erweiterungen
 aufnehmen, für die $n$ über jedem $q$ einfach ist,
@@ -3005,7 +3006,7 @@ Damit können wir bereits eine große Teilmenge von $\G$ ausmachen:
 
 Doch wie können wir $\G$ noch größer werden lassen? 
 Betrachten wir einmal alle $n\in \{ 2,3,\ldots,33\}$, so sehen wir mit
-obiger Proposition, dass lediglich für 
+obiger Proposition, dass für $n$ gleich
 \[ 6,\ 12,\ 14,\ 15,\ 18,\ 20,\ 21,\ 22,\ 24,\ 26,\ 28,\ 30\]
   %34,\ 35,\ 36,\ 38,\ 40\]
 diese Frage noch offen ist.
@@ -3045,7 +3046,7 @@ Lemma:
   dem Zerlegunssatz (\thref{satz:zerlegungssatz}).
   Notiere
   \[ D_1 \speq{:=} \{ d\mid n:\ 
-    \nexists d'\mid d:\ \F_{q^n} \text{ über } \F_{q^{d'}}
+    \nexists d'\mid d,\ d'\neq d:\ \F_{q^n} \text{ über } \F_{q^{d'}}
     \text{ einfach} \}\]
   und 
   \[ D_2 \speq{:=} \{ d\in \N^\ast:\ d \mid \tfrac{k_it_i\pi}{\nu(k_i)}
@@ -3076,7 +3077,7 @@ Lemma:
   Letztlich bleibt also nur ein Wort darüber zu verlieren, warum es ausreicht
   nur Teiler aus $D$ zu betrachten: Hier stellen wir fest, dass es klar ist,
   lediglich Teiler aus $D_1$ zu betrachten, da alle weiteren Teiler von $n$
-  bereits Zwischenkörper einer einfachen Erweiterung sind.
+  bereits Zwischenkörper einer einfachen Erweiterung liefern.
   Bleibt $D_2$ zu klären. Dazu zerlege $u = u_1+\ldots+u_l$ mit
   $u_i \in \C_{k_i,t_i\pi}$ für $i=1,\ldots,l$. Nun gilt
   nach der Definition von vollständigen Erzeugern
@@ -3130,7 +3131,7 @@ def isCompletelyNormal(x,E, q, divs, fieldsAll, facsAll, prodsAll):
 
 Hier wurde auf eine Anwendung der Frobenius-Auswertung durch
 Matrixmultiplikation verzichtet, da dies via purem \sage-Code wesentlich
-langsamer ist, als Potenzieren. Wie man jedoch erkennen kann, werden bereits
+langsamer ist als Potenzieren. Wie man jedoch erkennen kann, werden bereits
 berechnete Potenzen wiederverwendet, um hier unnötigen Rechenaufwand
 einzusparen.
 Die Parameter "divs", "fieldsAll", "facsAll" und "prodsAll" werden jeweils in
@@ -3235,7 +3236,7 @@ folgende Ordnungsrelation:
           $u$ kleiner gleich $v$ für $u,v\in \F_q$ als
           $a(x) \preceq b(x)$ via dieser Definition für
           Repräsentanten $a(x)$ von $u$ und $b(x)$ von $v$ mit
-          $a(x),b(x) \in F_p[x]$ und $\deg(a),\deg(b) < \deg(h)$.
+          $a(x),b(x) \in \F_p[x]$ und $\deg(a),\deg(b) < \deg(h)$.
       \end{itemize}
   \end{enumerate}
 \end{definition}
@@ -3488,7 +3489,7 @@ def findAnyPCN_polynom(p,r,n):
                         else: break
 \end{sagecode}
 
-Man erkennt, dass wir hier die Elemente aus $F$ eigens generieren müssen, um
+Man erkennt, dass wir hier die Elemente aus "F" eigens generieren müssen, um
 den Bedingungen aus \thref{def:polynomordnung} gerecht zu werden.
 
 Sicherlich ist klar, dass man auch eine Funktion braucht, die gleich alle
@@ -3661,8 +3662,8 @@ normalen Elementen in Erweiterungen endlicher Körper dar und trägt letztendlic
 dazu bei, einen Teil der Antwort auf die große Frage der generellen Existenz
 von $\PCN$-Elementen zu liefern.
 
-In der angehängten CD befinden sich im Ordner \texttt{Tables} die Ergebnisse
-der $\PCN$-Suche. Die Dateinamen entsprechen dem Schema 
+In der angehängten CD befinden sich im Ordner \texttt{Tables/PCNs} die 
+Ergebnisse der $\PCN$-Suche. Die Dateinamen entsprechen dem Schema 
 \texttt{pcns\_$n$\_$r$.csv}
 und ein Eintrag \texttt{$p$, poly, modulus} bedeutet, dass
 \texttt{poly} ein primitiv vollständig normales Polynom von Grad $n$ über 
@@ -3679,7 +3680,7 @@ konkreten Ziel widmeten (wir wollten \thref{satz:hauptsatz_g} beweisen),
 präsentiert ihre Arbeit 
 für jede Primzahl $p\leq 97$ und jede ganze Zahl $n \geq 2$ mit
 $p^n < 10^{50}$ ein $\PCN$-Polynom. Auch diesen Bereich konnten wir erweitern
-und geben im Anhang (Anhang \ref{anh:sec:cd}) 
+und geben auf beiliegender CD (vgl. Anhang \ref{anh:sec:cd}) 
 für $r = 1$ und alle Primzahlen $p < 1000$ mit $p^n < 10^{70}$
 primitiv vollständig normale Polynome von Grad $n$ über
 $\F_{p^r}$ an.
@@ -3690,14 +3691,17 @@ Wir schließen die vorliegende Arbeit mit einer interessanten Entdeckung, die
 bei Betrachtung der berechneten $\PCN$-Polynome besonders auffällig
 erscheint:
 Für sehr viele Erweiterungen existieren primitiv vollständig normale Trinome. 
-Inbesondere kann man erkennen, dass wenn $q$ nur groß genug wird,
+Inbesondere kann man erkennen, dass 
+für konstantes $n$ und $r$, wenn $p$ nur groß genug wird,
 offenbar stets ein $\PCN$-Trinom vorhanden ist. Dieses faszinierende Resultat 
 legt die folgende Vermutung nahe, die bisher gänzlich unklar bleibt und für die 
 zumindest im Rahmen dieser Arbeit keine Möglichkeit eines 
 Beweises gefunden werden konnte.
 
 \begin{vermutung}
-  Für jedes $n\in \N^\ast$ existiert ein $P\in \N^\ast$, so dass für alle
-  Primzahlpotenzen $q \geq P$ ein primitiv vollständig normales Trinom von Grad
-  $n$ über $\F_q$ existiert.
+  Seien $n\in \N^\ast$ und $r\in \N^\ast$ beliebig.
+  Dann existiert ein $P_{n,r}\in \N^\ast$, so dass für alle
+  Primzahlen $p \geq P_{n,r}$ 
+  ein primitiv vollständig normales Trinom von Grad
+  $n$ über $\F_{p^r}$ existiert.
 \end{vermutung}

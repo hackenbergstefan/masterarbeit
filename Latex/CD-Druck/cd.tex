@@ -1,0 +1,68 @@
+\documentclass{scrartcl}
+
+\usepackage[ngerman]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+%\usepackage{anyfontsize}
+
+
+\usepackage{lmodern} %Type1-Schriftart für nicht-englische Texte
+
+\usepackage{amsmath,amssymb,MnSymbol}
+\usepackage{xcolor}
+
+
+
+%% Packages für Grafiken & Abbildungen %%%%%%%%%%%%%%%%%%%%%%
+\usepackage{calc}
+
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning,backgrounds}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+\usepackage{tikzpagenodes}
+\usepackage{tikz-cd} %%PSTricks - nicht verwendbar mit pdfLaTeX
+
+\usepackage[%
+  totalwidth=12cm,
+  totalheight=12cm,
+  paperwidth=12cm,
+  paperheight=12cm,
+  textwidth=12cm,
+  textheight=12cm
+]{geometry}
+
+
+\colorlet{mycol}{red!50!black}
+
+\begin{document}
+\pagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+  \draw (current page.center) circle (6cm);
+  \draw (current page.center) circle (1.75cm);
+  %\node [rotate=60,scale=5,text opacity=0.2]
+    %at (current page.center) {Example};
+  \node[align=center, font={\Large\sffamily\bfseries}] 
+    at ($(current page.north)-(0,2cm)$)
+    {CD zur\\ Masterarbeit};
+  \node[align=center,
+    text=mycol, font={\large\sffamily\bfseries}] 
+    (title)
+    at ($(current page.south)+(0,3cm)$)
+    {Theoretische und experimentelle\\ Untersuchungen zu Normalbasen\\
+    für Erweiterungen endlicher Körper};
+  \node[align=center,
+    text=gray, font={\normalfont\sffamily\scriptsize},
+    below=5pt of title.south, 
+    anchor=north] 
+    (von)
+    {von};
+  \node[align=center,
+    text=gray, font={\normalfont\sffamily\bfseries},
+    below=0pt of von.south, 
+    anchor=north] 
+    {Stefan Hackenberg};
+\end{tikzpicture}
+\end{document}
+

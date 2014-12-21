@@ -225,7 +225,7 @@ wiederfindet.
 \begin{bemerkung}
   Man spricht in obiger Definition auch vom \emph{Annihilator-Ideal}, da in der
   Tat $\Ann_R(S)$ ein Ideal in $R$ ist. Insbesondere, falls 
-  $M = xR$ ein zyklischer $R$-Modul über einem Hauptidealbereich $R$ ist, so
+  $M = Rx$ ein zyklischer $R$-Modul über einem Hauptidealbereich $R$ ist, so
   ist 
   \[ \Ann_R(x) \speq= (r)\]
   für ein $r\in R$.
@@ -386,7 +386,7 @@ wiederfindet.
     \item Ist $\ker\psi_v = (g(x))$ für $g(x)\in \K[x]$ normiert, so heißt
       $g(x)$ \emph{$\tau$-Ordnung von $v$}\@. Ferner ist $g(x)$ eindeutig.
       Schreibe $\Ord_\tau(v) := g(x)$.
-    \item $\K[\tau]\cdot v := \im{\psi_v}$ heißt der von \emph{$v$ erzeugte
+    \item $\K[x]\cdot v := \im{\psi_v}$ heißt der von \emph{$v$ erzeugte
       $\K[x]$-Teilmodul von $V$}.
   \end{enumerate}
 \end{definition}
@@ -445,7 +445,7 @@ wiederfindet.
 
 \begin{definition}[zyklischer {$\K\lbr x \rbr$}-Modul]
   $(V,\tau)$ heißt \emph{zyklischer $\K[x]$-Modul bzgl. $w$}, falls es ein 
-  $w\in \K$ gibt, sodass $\K[\tau]\cdot w = V$.
+  $w\in \K$ gibt, sodass $\K[x]\cdot w = V$.
 \end{definition}
 
 
@@ -517,7 +517,7 @@ wiederfindet.
       Also $g(x) = h(x)$.
       Ist andererseits $w \in V$ mit $\Ord_\tau(w) = g(x)$, 
       so können wir zunächst festhalten, dass $\K[x] \cdot w \subseteq V_g$.
-      Sei ferne $x \in V$ ein Erzeuger von $V_g$. Dann ist $w = f(x)\cdot v$ für
+      Sei ferner $v \in V$ ein Erzeuger von $V_g$. Dann ist $w = f(x)\cdot v$ für
       ein $f(x)\in \K[x]$ mit $\ggT(f(x),g(x)) = 1$ nach 
       \thref{lemma:eigenschaften_tau_ordnung}. Also existieren
       $f'(x),g'(x)\in \K[x]$ mit $f'f + g'g = 1$. Wir folgern:

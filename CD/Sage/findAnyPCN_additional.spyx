@@ -5,7 +5,7 @@ import datetime
 import time
 
 
-def findAnyPCN(p,r,n):
+def findAnyPCN(p,r,n, primitive_element=None):
     q = p**r
     F = GF(q,'a')
 
@@ -35,7 +35,11 @@ def findAnyPCN(p,r,n):
             prodsAll[d][idx] = (Gx.gen()**(n/d)-1).quo_rem(f)[0]
     
     # get one primitive element
-    x = E.primitive_element()
+    if primitive_element == None:
+        x = E.primitive_element()
+    else:
+        x = primitive_element
+        E = primitive_element.parent()
     
     lasti = 0
     y = x

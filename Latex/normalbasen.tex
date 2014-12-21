@@ -120,10 +120,11 @@ normalen Elemente.
   passenden Erweiterung von $F$ mit $\Ord_q(u)= \Phi_9$.
   Sei dazu $u \in \bar F$ eine primitive $27$-te Einheitswurzel. Dann
   gilt:
-  \[ \ord(u^{342}) \speq= \ord(u^{18}) \speq= \frac{27}{\ggT(27,18)} \speq= 3\]
+  \[ \ord(u^{342}) \speq= \ord(u^{18}) \speq= \frac{27}{\ggT(27,18)} 
+    \speq= 3\,.\]
   Wenn man sich die Frage stellt, warum an diesem Punkt gerade $342$ eine
   interessante Zahl ist, so wird man diese sofort wiederfinden, wenn man
-  versucht ein Element $w\in \bar F^\ast$ mit $q$-Ordnung $x^3+3$ (bzw.
+  versucht, ein Element $w\in \bar F^\ast$ mit $q$-Ordnung $x^3+3$ (bzw.
   $x^3+5$) wiederzufinden:
   \[ (x^3+3)\cdot w \speq= w^{q^3} + 3 w \speq= 
     w(w^{7^3-1} +3) \speq= w(w^{342}+3) \speq{\overset{!}{=}} 0.\]
@@ -190,12 +191,12 @@ Damit haben wir eine sehr einfache Möglichkeit, Normalbasen explizit anzugeben.
 
 \begin{satz}[{\autocite[Satz 8.12]{hachenberger2013vorlesung}}]
   \label{satz:konstruktion_q_ordnung}
-  Sei $F = \F_q$ ein endlicher Körper und $m \in \S_q$. Seien
+  Sei $F := \F_q$ ein endlicher Körper und $m \in \S_q$. Seien
   $l := \cl_m(q-1)$, $a := \ggT(l,m)$ und $u \in \bar\F_q$ eine primitive
   $(ml)$-te Einheitswurzel. Dann gilt:
   \begin{enumerate}
     \item $\F_q(u) = \F_{q^m} =: E$.
-    \item $\Ord_q(u)$ ist ein irreduziblerTeiler von $\Phi_m$ in $\F_q[x]$.
+    \item $\Ord_q(u)$ ist ein irreduzibler Teiler von $\Phi_m$ in $\F_q[x]$.
     \item $v := \sum_{i \in I_a} u^i$ hat $q$-Ordnung $\Phi_m$.
   \end{enumerate}
 \end{satz}
@@ -214,7 +215,7 @@ Damit haben wir eine sehr einfache Möglichkeit, Normalbasen explizit anzugeben.
     Wie in \thref{bsp:stark_regular_1} betrachten wir für $i \in I_a$:
     \begin{align*}
       (x^{\frac m a} - \zeta^i)\cdot u 
-      \quad&=\quad \big( \sigma^{\frac m a} - \zeta^i \id_E \big)\\
+      \quad&=\quad \big( \sigma^{\frac m a} - \zeta^i \id_E \big)(u)\\
         &=\quad u^{q^{\frac m a}} - \zeta^i u \\
         &=\quad u\big( u^{q^{\frac m a}-1} - \zeta^i \big)\,, \tag{$\ast$}
     \end{align*}
@@ -260,7 +261,7 @@ und damit auf eine explizite Angabe eines normalen Elements schließen:
 
 \begin{kor}[{{\autocite[Korollar 8.11]{hachenberger2013vorlesung}}}]
   \label{kor:konstruktion-q-ordnung}
-  Für $F = \F_q$, $n\in \S_q$ sei $\lambda \in F^\ast$ eine primitive 
+  Für $F := \F_q$, $n\in \S_q$ sei $\lambda \in F^\ast$ eine primitive 
   $\cl_n(q-1)$-te Einheitswurzel. Zu jedem $m \mid n$ seien
   \begin{itemize}
     \item $a(q,m) := \ggT(m,\cl_m(q-1))$ und
@@ -278,7 +279,7 @@ und damit auf eine explizite Angabe eines normalen Elements schließen:
 \end{proof}
 
 \begin{satz}[{{\autocite[Korollar 8.13]{hachenberger2013vorlesung}}}]
-  Seien $F = \F_q$ ein endlicher Körper, $n\in \S_q$ und $L:=\cl_n(q-1)$.
+  Seien $F := \F_q$ ein endlicher Körper, $n\in \S_q$ und $L:=\cl_n(q-1)$.
   Ferner sei $u \in \bar F$ eine primitive $(nL)$-te Einheitswurzel. Dann ist
   mit Notation aus \thref{kor:konstruktion-q-ordnung}
   \[ w \speq{:=} \sum_{m\mid n} \ \sum_{i\in I_a}
@@ -287,7 +288,7 @@ und damit auf eine explizite Angabe eines normalen Elements schließen:
 \end{satz}
 \begin{proof}
   Im Grunde haben wir bereits alles gezeigt. Daher reicht ein kurzer Kommentar,
-  warum wir \thref{satz:konstruktion_q_ordnung} anwenden können aus. Es ist
+  warum wir \thref{satz:konstruktion_q_ordnung} anwenden können, aus. Es ist
   trivialerweise 
   \[ \ord\big( u^{\frac{nL}{m\cl_m(q-1)}} \big) \speq=
     m\, \cl_m(q-1)\]
@@ -300,10 +301,10 @@ und damit auf eine explizite Angabe eines normalen Elements schließen:
   multiplikativer Ordnung, deren $q$-Ordnung ein irreduzibler Teiler von
   $\Phi_m(x)$ wird. Natürlich können wir dieses Konzept auch erweitern und uns
   überlegen, welche primitiven Einheitswurzeln die selbe Eigenschaft erfüllen.
-  Darüber hinaus können wir die Elemente deren $q$-Ordnung ein irreduzibler
+  Darüber hinaus können wir die Elemente, deren $q$-Ordnung ein irreduzibler
   Teiler von $\Phi_m(x)$ über $F[x]$ ist, auch durch die Modulstruktur selbst
   beschreiben.
-  Diese beiden Überlegungen wollen wir in den nächsten beiden Lemmas beweisen.
+  Diese beiden Überlegungen wollen wir in den nächsten beiden Aussagen beweisen.
 \end{bemerkung}
 
 \begin{lemma}
@@ -318,7 +319,7 @@ und damit auf eine explizite Angabe eines normalen Elements schließen:
 \begin{proof}
   Sei $f = le$ mit $\ggT(e,l) = 1$. Diese Zerlegung ist möglich, da
   $l$ per Definition der größte Teiler von $q-1$ ist, dessen Primfaktoren
-  allesamt in $m$ vorkommen, d.h. jeder Primfaktor von $q-1$ der $l$ teilt,
+  allesamt in $m$ vorkommen, d.h. jeder Primfaktor von $q-1$, der $l$ teilt,
   kommt dort bereits in maximaler Potenz vor.
   Damit reicht es -- wenn wir wir den Beweis von
   \thref{satz:konstruktion_q_ordnung} noch einmal nachvollziehen -- zu zeigen,
@@ -378,12 +379,12 @@ beschreibt und in ganz ähnlicher Form in \autocite[Theorem
   $(ml)$-te Einheitswurzel mit $\Ord_q(u) = f(x)$ für $f(x)$ einen irreduziblen
   monischen Teiler von $\Phi_m(x)$, so gilt für $v \in E:= \F_{q^m}$:
   \[ \Ord_q(v) = f(x) \quad\Leftrightarrow\quad
-    v = g(x) \cdot u\quad\text{ für ein } 0\neq g\in F[x]_{<\frac m a}\]
+    v = g(x) \cdot u\quad\text{ für ein } 0\neq g\in F[x]_{<\frac m a}\,.\]
 \end{lemma}
 \begin{proof}
   In \thref{kor:moduln_ueber_v_g} haben wir gezeigt, dass für $v \in E$ gilt
   \[ v \in V_f \quad\Leftrightarrow\quad v = g(x)\cdot u 
-    \text{ für ein } g(x) \in F[x]_{<\deg f}\]
+    \text{ für ein } g(x) \in F[x]_{<\deg f}\,.\]
   Da $f$ irreduzibel von Grad $\frac m a$ ist, sind alle $v \in
   V_f\setminus\{0\}$ von $q$-Ordnung $f$ und es folgt die Behauptung.
 \end{proof}
@@ -439,7 +440,7 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
       $g(x) := \Ord_{q^s}(u)$ ein über $K := \F_{q^s}$ irreduzibler Teiler von
       $\Phi_m(x)$. Sei nun $\zeta\in K^\ast$ eine primitive $b$-te Einheitswurzel,
       so gilt ohne Einschränkung
-      \[ g(x) \speq= x^{\frac m b} -\zeta\]
+      \[ g(x) \speq= x^{\frac m b} -\zeta\,.\]
       Definiere nun $f(x) := \prod_{i=0}^{s-1} (x^{\frac m b} - \zeta^{q^i})$, 
       so ist $f(x)$ ein irreduzibler monischer Teiler von $\Phi_m(x)$ über $F$,
       wie man sich leicht überlegt, betrachtet man den Zerfall von
@@ -450,17 +451,17 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
       Betrachten wir nun 
       \[ \Omega_F:\funcdef{ F[x] &\to& E'\,, \\
         p(x) &\mapsto& p(\sigma^s)(u)\,,}\]
-      so stellen wir fest, dass $\ker\Omega_F = (f(x))$, da $f(x)$ ist irreduzibel
+      so stellen wir fest, dass $\ker\Omega_F = (f(x))$, da $f(x)$ irreduzibel
       über $F$ ist.
       Bezeichne nun $M := \im\Omega_F$. Dann ist 
       \[ \dim_F(M) \speq= \deg f \speq= \ord_m(q) \speq= s\ \frac m b\,,\]
       wobei letzte Gleichheit aus \thref{lemma:ordn_1} und \thref{lemma:ordn_2}
       folgt. Analog sehen wir ein, dass für
       $\Omega_K: K[x] \to E',\ p(x) \mapsto p(\sigma^s)(u)$ wegen der
-      Irreduzibiltät von $g(x)$ über $K$
+      Irreduzibilität von $g(x)$ über $K$
       \[ \ker\Omega_K = (g(x)) \quad\text{und}\quad
         \dim_F(N)= [K:F]\dim_K(N) \speq= s\ \frac m b\,,\]
-      für $N := \im\Omega_K$. Ferne ist klar, dass $M\subseteq N$, da
+      für $N := \im\Omega_K$. Ferner ist klar, dass $M\subseteq N$, da
       $\Omega_F = \Omega_K\mid_{F[x]}$, womit wir durch Gleichheit der
       $F$-Dimensionen $M=N$ schließen können.
       Schließlich sei $\Gamma_u: F[x]\to E',\ p(x) \mapsto p(\sigma)(u)$, so
@@ -470,9 +471,9 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
       und wegen $\Omega_F = \Gamma_u \circ (p(x)\mapsto p(x^s))$ ist
       $N = M = \im\Omega_F \subseteq \im \Gamma_h$. Nach 
       \thref{satz:moduln_ueber_v_g} (4) ist $V_h$ zyklisch, also invariant
-      unter $\sigma$ und ergo können wir folgern, dass
+      unter $\sigma$ und wir können folgern, dass
       $N_i := \sigma^i(N) \subseteq V_h$ für alle $i\in \N$ gilt, wobei klar
-      ist, dass $N_i$ von $x^{\frac m b}-\zeta^{q^i} \in K[x]$ anihiliert wird.
+      ist, dass $N_i$ von $x^{\frac m b}-\zeta^{q^i} \in K[x]$ annihiliert wird.
       Für $i=0,\ldots,s-1$ sind diese jedoch über $K$ paarweise teilerfremd
       und wir folgern
       \[ \sum_{i=0}^{s-1} N_i \speq= \bigoplus_{i=0}^{s-1} N_i 
@@ -491,7 +492,7 @@ $\ord_{\nu(m)}(q)$. Mit anderen Worten: $m \in \S_{q^s}$!
 \end{proof}
 
 Nun haben wir also Elemente mit $q$-Ordnung $\Phi_m(x^s)$ gefunden. Es stellt
-sich jedoch die Frage, wir wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$ 
+sich jedoch die Frage, wir daraus Elemente mit $q$-Ordnung $\Phi_m(x)$ 
 \glqq basteln\grqq können. Dies zeigt uns der folgende Satz, wobei 
 die Punkte (1) und (2) aus 
 \autocite[Satz 9.4]{hachenberger2013vorlesung} stammen:
@@ -547,7 +548,7 @@ die Punkte (1) und (2) aus
   $i=1,\ldots,\Delta_q(m,d)$ und wir damit 
   \[ \ggT\big(f(x^{\bar s})^{p^\beta}, \tfrac{x^{sm}-1}{x^m-1}\big) \speq=
     \prod_{d\mid m\atop d \neq 1} \prod_{i=1}^{\Delta_q(m,d)} f_{d,i}(x) \]
-  folgern können. Abschließend sehen wir dass
+  folgern können. Abschließend sehen wir, dass
   \[ \Delta_q(m,1) \speq= \frac{\varphi(1) \ord_m(q)}{\ord_{1\cdot m}(q)}
     \speq= 1\,.\]
 \end{proof}
@@ -601,14 +602,14 @@ Auch für reguläre Erweiterungen wollen wir ein Analogon von
 \begin{lemma}
   \label{lemma:hoehere_wurzeln_auch_erzeuger_reg}
   Seien die Voraussetzungen wie in \thref{satz:konstruktion_q_ordnung_reg}, also
-  also $F := \F_q$ ein endlicher Körper für eine Primzahlpotenz $q = p^r$ 
+  $F := \F_q$ ein endlicher Körper für eine Primzahlpotenz $q = p^r$ 
   und $m\in\N$ ungerade mit $p\nmid m$.
   Setze $s := \ord_{\nu(m)}(q)$, 
   $l := \cl_m(q^s-1)$, $b:= b(q,m) := \ggT(l,m)$, $E := \F_{q^m}$ und
   $E' = \F_{q^{sm}}$. 
-  Ist nun $\theta$ eine primitive $(nf)$-te Einheitswurzel für 
+  Ist nun $\theta$ eine primitive $(mf)$-te Einheitswurzel für 
   $l \mid f \mid q^s-1$, so ist $\Ord_q(\theta) = f(x^s)$ für 
-  $f$ einen irreduzibler Teiler von $\Phi_m(x)$ über $F[x]$.
+  $f(x)$ einen irreduzibler Teiler von $\Phi_m(x)$ über $F[x]$.
 \end{lemma}
 \begin{proof}
   \thref{lemma:hoehere_wurzeln_auch_erzeuger} mit dem Beweis von
@@ -620,7 +621,7 @@ Wir können in gewisser Weise sogar eine Erweiterung von
 \thref{satz:q_ordnung_von_trace} angeben und
 gleichzeitig die Verwendung der Spurfunktion rechtfertigen. 
 Wir müssen lediglich dafür
-sorgen, dass wir ein Element dasjenigen Körpers erhalten, 
+sorgen, dass wir ein Element desjenigen Körpers erhalten, 
 für den wir Erzeuger (und letztendlich normale Elemente) konstruieren wollen.
 
 \begin{satz}
@@ -632,7 +633,7 @@ für den wir Erzeuger (und letztendlich normale Elemente) konstruieren wollen.
   %Ist $[F(g(x)\cdot u) : F] = m$, so gilt:
   Ist $g(x)\cdot u \in \F_{q^m}^\ast$ so gilt:
   \[ \Ord_q(g(x)\cdot u) \text{ ist ein monischer irreduzibler Teiler von }
-    \Phi_d(x)\,. \]
+    \Phi_m(x)\,. \]
 \end{satz}
 \begin{proof}
   Auf der einen Seite haben wir 
@@ -695,7 +696,7 @@ regulären Erweiterungen normale Elemente zu konstruieren.
   \autocite[Section 9.6]{mullen2013handbook}).
 \end{bemerkung}
 
-Die Dickson-Polynome erfüllen einige interessante Eigenschaften, 
+Die Dickson-Polynome besitzen einige interessante Eigenschaften, 
 welche wir im Folgenden zitieren wollen.
 
 \begin{proposition}
@@ -709,7 +710,7 @@ welche wir im Folgenden zitieren wollen.
 
 \begin{proposition}
   \label{satz:dickson_2}
-  Sei $a \in F_q$. Die Dickson-Polynome erster und zweiter Art 
+  Sei $a \in \F_q$. Die Dickson-Polynome erster und zweiter Art 
   erfüllen für alle $n\geq 2$ folgende Rekursionsgleichungen:
   \begin{align*}
     D_n(x,a) &\speq= xD_{n-1}(x,a) - a D_{n-2}(x,a) \,, \\
@@ -717,7 +718,7 @@ welche wir im Folgenden zitieren wollen.
   \end{align*}
   mit den Startwerten $D_0(x,a) = 2$ und $D_1(x,a)=x$ bzw.
   $E_0(x,a) = 1$ und $E_1(x,a) = x$. Ferner gilt
-  \[ D_{mn}(x,a) \speq= D_m(D_n(x,a),a^n)\]
+  \[ D_{mn}(x,a) \speq= D_m(D_n(x,a),a^n)\,.\]
 \end{proposition}
 \begin{proof}
   \autocites[Lemma 2.3, Lemma 2.6 (i)]{lidl1993dickson}.
@@ -785,7 +786,7 @@ noch einmal verfassen.
   $\nu(n)\nmid \tfrac{q^2-1}{e_i}$ für $i=1,2$.
 \end{kor}
 
-Ferner lässt sich spezifizieren in welchem Körper die Nullstellen $\beta_1$ 
+Ferner lässt sich spezifizieren, in welchem Körper die Nullstellen $\beta_1$ 
 und $\beta_2$ liegen.
 
 \begin{kor}
@@ -817,7 +818,7 @@ und $\beta_2$ liegen.
 \citeauthor{scheerhorn:1996} zeigt in
 \autocites{scheerhorn:1996}{scheerhorn:1997}, dass sich Dickson-Polynome
 eignen, um Normalbasen zu beschreiben. Im weiteren Verlauf werden wir sogar
-sehen, dass man daraus vollständig normale Polynome, also Polynome, deren
+sehen, dass sich daraus vollständig normale Polynome, also Polynome, deren
 Nullstellen vollständig normale Elemente (\thref{def:vollst_normal}) sind,
 konstruieren lassen. Alle Folgerungen über (vollständig) normale Polynome
 basieren jedoch auf zwei zentralen Resultaten über die Modulstruktur der
@@ -826,14 +827,14 @@ betrachteten Erweiterungskörper, wie die beiden nachstehenden Sätze angeben.
 \begin{satz}[{\autocite[Theorem 2]{scheerhorn:1997}}]
   \label{satz:scheerhorn1}
   Seien $n\geq 3$ ein Produkt ungerader Primzahlen von $(q+1)$ und 
-  $a,b\in \F_q =: F$, so dass $D_n(x,a)-b \in F[x]$ irreduzibel ist.
+  $a,b\in \F_q =: F$, sodass $D_n(x,a)-b \in F[x]$ irreduzibel ist.
   Sei $\gamma \in E := \F_{q^n}$ eine Wurzel von $D_n(x,a)$. Dann ist
   \[ E \speq= \langle 1\rangle_q \oplus 
-    \bigoplus_{l\in R_q(n)\setminus \{0\}} \langle D_l(\gamma,a)\rangle_q\,,\]
+    \bigoplus_{l\in R_q(n)\setminus \{0\}} \langle D_l(\gamma,a)\rangle_q\]
   eine Zerlegung von $E$ in irreduzible $F[x]$-Teilmoduln, wobei
   \[ \langle D_l(\gamma,a)\rangle_q \speq{:=}
-    \spann_F\{ D_i(\gamma,a) \mid i\in M_q(l\bmod n)\} \,,\]
-  so dass $\{ D_i(\gamma,a):\ i\in M_q(l\bmod n)\}$ eine $F$-Basis von
+    \spann_F\{ D_i(\gamma,a):\ i\in M_q(l\bmod n)\} \,,\]
+  sodass $\{ D_i(\gamma,a):\ i\in M_q(l\bmod n)\}$ eine $F$-Basis von
   $\langle D_l(\gamma,a)\rangle_q$ ist.
 \end{satz}
 
@@ -842,7 +843,7 @@ betrachteten Erweiterungskörper, wie die beiden nachstehenden Sätze angeben.
   %ist!?}
   \label{satz:scheerhorn2}
   Seien $n\geq 3$ ein Produkt ungerader Primzahlen von $(q-1)$ und
-  $a,b \in \F_q =: F$, so dass $D_n(x,a)-b\in F[x]$ irreduzibel ist.
+  $a,b \in \F_q =: F$, sodass $D_n(x,a)-b\in F[x]$ irreduzibel ist.
   Seien ferner $x^2+bx +a^n = (x-\beta)(x-a^n\beta\inv) \in \F_q$ und
   $\theta \in \F_{q^n}$ eine Wurzel von $x^n-\beta$. Setze 
   $\gamma := \theta + a\theta\inv$, so gilt für 
@@ -855,8 +856,8 @@ In \autocites{scheerhorn:1996}{scheerhorn:1997} werden die Beweise dieser
 Resultate ohne Zuhilfenahme der Theorie über (stark) reguläre
 Erweiterungen geführt, wie wir sie im letzten Abschnitt kennengelernt haben.
 Wir wollen uns nun im Folgenden überlegen, dass die Theorie der vorherigen
-Abschnitte an diesem Punk ein besseres Verständnis der Struktur der Zerlegung 
-des Erweiterungskörpers in Teilmoduln liefert. Ferner sind wir in der Lage
+Abschnitte an diesem Punkt ein besseres Verständnis der Struktur der Zerlegung 
+des Erweiterungskörpers in Teilmoduln liefert. Ferner sind wir in der Lage,
 das vielleicht überraschende Auftauchen von Dickson-Polynomen im Kontext
 (vollständig) normaler Elemente zu rechtfertigen und die benötigten 
 Eigenschaften herzuleiten, welche an diesem Punkt eine zentrale Rolle spielen
@@ -885,7 +886,7 @@ und die Verwendung der Dickson-Polynome motivieren.
   Es ist nun $\theta^{q^n} = \theta\inv$: 
   Da $\theta \in E'$, gilt $\theta^{q^{2n}} = \theta$, also
   \[ \theta^{q^{2n}-1} \speq= 1 \speq= \theta^{(q^n+1)(q^n-1)}\,. \]
-  wäre $\theta^{q^n-1} = 1$, so läge $\theta$ bereits in $\F_{q^n}$, im Widerspruch
+  Wäre $\theta^{q^n-1} = 1$, so läge $\theta$ bereits in $\F_{q^n}$, im Widerspruch
   zur Definition von $\theta$.
   Also haben wir nach \thref{satz:q_ordnung_von_zusammensetzen} 
   gerade 
@@ -895,7 +896,7 @@ und die Verwendung der Dickson-Polynome motivieren.
   (wieder in Notation von \thref{satz:zerfall_f_x_s}), denn
   mit \thref{satz:dickson_1} sehen wir, dass
   \[ D_n(\theta + a\theta\inv,a) -b \speq= \theta^n + a^n\theta^{-n} -b
-    \speq= \beta +a^n\beta\inv -b \speq= b - b\speq= 0\]
+    \speq= \beta +a^n\beta\inv -b \speq= b - b\speq= 0\,.\]
   %und da $D_n(x,a)-b \in F[x]$ irreduzibel nach Voraussetzung, hat
   %$\theta + a\theta\inv$ Grad $n$ über $F$.
   %Da mit $\theta^l$ für $l \in R_q(n)$ alle irreduziblen Teilmoduln
@@ -925,8 +926,10 @@ und die Verwendung der Dickson-Polynome motivieren.
   %$\Ord_q(\theta+a\theta\inv)$ und $\Ord_q(\theta^l+a^l\theta^{-l})$ 
   %teilerfremd (für $m \neq n$ klar und für $m=n$ wegen 
   %\thref{satz:zerfall_f_x_s} (2)).
-  Also liegt $\theta +a\theta\inv$ in $E$ (mithin ist $D_n(x,a)-b$ sein
-  Minimalpolynom über $F$). Die weiteren irreduziblen Teiler von $\Phi_n(x)$
+  Also liegt $\theta +a\theta\inv$ in $E$, sein Minimalpolynom über
+  $F$ ist $D_n(x,a)-b$ und wir setzen ohne Einschränkung 
+  $\gamma:= \theta+a\theta\inv$.
+  Die weiteren irreduziblen Teiler von $\Phi_n(x)$
   erhalten wir analog zu \thref{satz:konstruktion_q_ordnung_reg}: Für 
   $l \in R_q(n)\setminus \{ 0\}$ mit $\ggT(l,n) = 1$ ist
   $\Ord_q(\theta^l) = g(x^s)$ für einen irreduziblen monischen Teiler 
@@ -938,9 +941,9 @@ und die Verwendung der Dickson-Polynome motivieren.
   mit $\ggT(f_{1,1}(x), g_{1,1}(x)) = 1$ nach \thref{satz:zerfall_f_x_s} (2).
   Auf diese Weise lassen sich für jeden irreduziblen Teilmodul von 
   $V_{\Phi_n}$ Erzeuger angeben:
-  \[ V_{\Phi_n} \speq= \bigoplus_{i\in R_q(n)\atop \ggT(i,n)=1} 
+  \[ V_{\Phi_n} \speq= \bigoplus_{l\in R_q(n)\atop \ggT(l,n)=1} 
     \big( F[x] \cdot D_l(\theta+a\theta\inv,a)\big) \speq=
-    \bigoplus_{i\in R_q(n)\atop \ggT(i,n)=1} 
+    \bigoplus_{l\in R_q(n)\atop \ggT(l,n)=1} 
     \big( F[x]\cdot (\theta^l+a^l\theta^{-l}) \big)\,. \]
   Für alle $i \in M_q(l\mod n)$ erhalten wir 
   selbstverständlich immer Erzeuger des
@@ -989,7 +992,7 @@ und die Verwendung der Dickson-Polynome motivieren.
   hier $n$ stark regulär ist! Nach \thref{lemma:hoehere_wurzeln_auch_erzeuger}
   ist dann $\Ord_q(\theta)$ ein irreduzibler monischer Teiler von $x^n-1$. Also
   werden alle irreduziblen Teilmoduln von $\F_{q^n}$ von $\theta^l$ mit 
-  $l\in \R_q(n)$ erzeugt.  Wie im Beweis von \thref{satz:scheerhorn1} ist
+  $l\in R_q(n)$ erzeugt.  Wie im Beweis von \thref{satz:scheerhorn1} ist
   natürlich 
   \[ D_n(\theta+a\theta\inv,a)-b \speq= 0 \quad\text{und}\quad
     D_l(\theta+a\theta\inv,a) \speq= \theta^l+a^l\theta^{-l},\ l=1,\ldots,n\,. \]
@@ -1009,7 +1012,7 @@ zur Konstruktion von normalen Elementen in regulären Erweiterungen zentral ist.
 %Insbesondere erlaubt es die Theorie aus den vorherigen Abschnitten, den Fall
 %$\nu(n)\mid (q-1)$ zu erweitern, um auch dort (unter leichten
 %Zusatzvoraussetzungen) ein normales Element zu konstruieren.
-Insbesondere erlaubt es die Theorie des vorherigen Abschnitts die beiden Sätze 
+Insbesondere erlaubt es die Theorie des vorherigen Abschnitts, die beiden Sätze 
 auf den Fall $\nu(n)\mid q^2-1$ zu erweitern.
 
 \begin{satz}
@@ -1082,7 +1085,7 @@ die Nullstellen desselbigen invertiert.
   $s\neq 0$. Dann ist
   \[ \big(D_n(sx+t,a)-b\big)^\ast\]
   normal über $\F_q$ genau dann, wenn für jedes $l\in R_q(n)$ ein
-  $i\in M_q(l\bmod n)$ existiert, so dass $E_{n-1-i}(t,a)\neq 0$.
+  $i\in M_q(l\bmod n)$ existiert, sodass $E_{n-1-i}(t,a)\neq 0$.
 \end{satz}
 \begin{proof}
   Setzen wir wieder $x^2-bx+a^n = (x-\beta)(x-a^n\beta\inv)$ über $\F_{q^2}$
@@ -1120,7 +1123,7 @@ Polynome, also solche, die über jedem Zwischenkörper normal sind, anzugeben.
   \[ \big(D_n(sx+t,a)-b\big)^\ast\]
   normal über $\F_{q^d}$ genau dann, wenn für jedes 
   $l\in R_{q^d}(\tfrac n d)$ ein
-  $i\in M_{q^d}(l\bmod \tfrac n d)$ existiert, so dass 
+  $i\in M_{q^d}(l\bmod \tfrac n d)$ existiert, sodass 
   $E_{\frac n d -1-i}(t,a)\neq 0$.
 \end{satz}
 \begin{proof}

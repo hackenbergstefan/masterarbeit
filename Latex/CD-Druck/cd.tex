@@ -24,11 +24,13 @@
 \usepackage{tikzpagenodes}
 \usepackage{tikz-cd} %%PSTricks - nicht verwendbar mit pdfLaTeX
 
+
+%% Papersize for CD-Print with Canon IP7250
 \usepackage[%
-  totalwidth=12cm,
-  totalheight=12cm,
-  paperwidth=12cm,
-  paperheight=12cm,
+  totalwidth=13cm,
+  totalheight=22.48cm,
+  paperwidth=13cm,
+  paperheight=22.48cm,
   textwidth=12cm,
   textheight=12cm
 ]{geometry}
@@ -39,17 +41,21 @@
 \begin{document}
 \pagestyle{empty}
 \begin{tikzpicture}[remember picture, overlay]
-  \draw (current page.center) circle (6cm);
-  \draw (current page.center) circle (1.75cm);
-  %\node [rotate=60,scale=5,text opacity=0.2]
-    %at (current page.center) {Example};
+  \coordinate (cd north) at ($(current page.north)-(0,6cm)$);
+  \coordinate (cd south) at ($(current page.north)-(0,6cm)-(0,12cm)$);
+  \coordinate (cd center) at ($(current page.north)-(0,6cm)-(0,6cm)$);
+  %%%%%%%%%%%%%%%
+  %% help circles
+  %\draw (cd center) circle (6cm);
+  %\draw (cd center) circle (1.75cm);
+  %%%%%%%%%%%%%%%
   \node[align=center, font={\Large\sffamily\bfseries}] 
-    at ($(current page.north)-(0,2cm)$)
+    at ($(cd north)-(0,2.125cm)$)
     {CD zur\\ Masterarbeit};
   \node[align=center,
     text=mycol, font={\large\sffamily\bfseries}] 
     (title)
-    at ($(current page.south)+(0,3cm)$)
+    at ($(cd south)+(0,3cm)$)
     {Theoretische und experimentelle\\ Untersuchungen zu Normalbasen\\
     für Erweiterungen endlicher Körper};
   \node[align=center,

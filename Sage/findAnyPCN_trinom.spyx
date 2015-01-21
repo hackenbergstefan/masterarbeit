@@ -203,7 +203,7 @@ def findAnyPCN_polynom_prime(p,n,primitivity_with_bar_factors=False):
                     if not f.is_irreducible(): continue
                     E = GF(orderE, name='a', modulus=f)
 
-                    if isPrimitive(E.gen(),primOrder,barFactors) \
+                    if E.gen().multiplicative_order() == primOrder \
                             and isCompletelyNormal(E.gen(),E,p,\
                                 divs,fieldsAll,facsAll,prodsAll):
                         return E.gen(),f

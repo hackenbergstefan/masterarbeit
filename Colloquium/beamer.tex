@@ -1,0 +1,1232 @@
+\documentclass{vorlage}
+
+
+\hyphenation{Teil-mo-dul}
+\hyphenation{Teil-mo-duls}
+\hyphenation{Teil-mo-duln}
+
+\subject{Colloquium zur Masterarbeit}
+\title[Colloquium zur Masterarbeit]{Theoretische und experimentelle\\
+  Untersuchungen zu Normalbasen\\ für Erweiterungen endlicher Körper}
+%\subtitle{Differential graduierte Lie Algebren}
+
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+%\author{F.~Author\inst{1} \and S.~Another\inst{2}}
+\author{Stefan Hackenberg}
+
+% - Use the \inst command only if there are several affiliations.
+% - Keep it simple, no one is interested in your street address.
+% \institute[Universities of]
+% {
+% \inst{1}%
+% Department of Computer Science\\
+% Univ of S
+% \and
+% \inst{2}%
+% Department of Theoretical Philosophy\\
+% Univ of E}
+
+\date{04.02.2015}
+
+
+% This is only inserted into the PDF information catalog. Can be left
+% out.
+
+
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+% \pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-filename}
+% \logo{\pgfuseimage{university-logo}}
+
+
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+% \AtBeginSubsection[]
+% {
+% \begin{frame}<beamer>
+% \frametitle{Inhalt}
+% \tableofcontents[currentsection,currentsubsection]
+% \end{frame}
+% }
+
+% If you wish to uncover everything in a step-wise fashion, uncomment
+% the following command:
+ 
+
+ 
+%\beamerdefaultoverlayspecification{<+->}
+
+
+
+\begin{document}
+
+\lstMakeShortInline[
+  basicstyle = \small\normalfont\ttfamily,
+  frame = none,
+% numbers = left,
+  numberstyle = \tiny,
+% numbersep = 5pt,
+  breaklines = true,
+  %xleftmargin = 0.1\linewidth,
+  %xrightmargin = 0.1\linewidth,
+  escapeinside = {(*}{*)},
+  tabsize=3,
+  language=C,
+  style=mycstyle,
+  mathescape=true,
+  breaklines=true]@
+
+
+
+%\begin{frame}
+%\frametitle{Inhalt}
+%\tableofcontents
+%\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+\begin{tikzpicture}[remember picture,overlay]
+  \node[text=col1, text width=1.2\textwidth, align=center, 
+    font=\huge\bfseries, draw=col1, line width=1pt, inner sep=10pt,
+    rounded corners=3pt] 
+    at ($(current page.center)+(0,1cm)$)
+    (title)
+    {Theoretische und experimentelle\\
+    Untersuchungen zu Normalbasen\\ für Erweiterungen endlicher Körper};
+  \node[above=5pt of title, anchor=south, text=gray]
+    {Colloquium zur Masterarbeit};
+  \node[below=10pt of title, anchor=north]
+    (name)
+    {Stefan Hackenberg};
+  \node[below=10pt of name, anchor=north]
+    {4. Februar 2015};
+\end{tikzpicture}
+\end{frame}
+
+\section{Grundlagen}
+
+\secframe 
+
+\subsection{Definitionen}
+
+\begin{frame}{Definitionen}
+  Sei $F := \F_q$ ein endlicher Körper für eine 
+  Primzahlpotenz $q = p^r$ mit $r \geq 1$ mit einem
+  fest gewählten algebraischen Abschluss $\bar F$
+  und $E := \F_{q^n}$ eine
+  Körpererweiterung von Grad $n$.
+\begin{definition}<2->[normales Element]
+  \uncover<5->{
+  Sei $w\in E$ mit $F(w) = E$. $w$ heißt \emph{normal über $F$},
+  falls
+  \[ \{ \gamma(w):\ \gamma \in \Gal(E\mid F) \} 
+    \uncover<6->{
+    \speq=
+    \{ w, \sigma(w), \ldots, \sigma^{n-1}(w)\} \speq=
+    \{ w, w^q, \ldots, w^{q^{n-1}}\}}\]
+  eine $F$-Basis von $E$ ist.}
+  \uncover<6->{Wobei $\sigma:E\to E,\ v\mapsto v^q$ den
+  \emph{Frobenius-Endomorphismus von $F$} notiert.}
+  %$\{ \gamma(w):\ \gamma \in \Gal(E\mid F)\}$ heißt entsprechend 
+  %\emph{Normalbasis} und $g(x) \in F[x]$ mit 
+  %\[ g(x) = \prod_{\gamma \in \Gal(E\mid F)}(x - \gamma(w))\]
+  %heißt \emph{normales Polynom}.
+\end{definition}
+\begin{definition}<3->[vollständig normales Element]
+  \uncover<7->{
+  $w\in E$ heißt \emph{vollständig normal}, falls $w$ normal über jedem
+  Zwischenkörper $E \mid K\mid F$ ist.}
+\end{definition}
+\begin{definition}<4->[primitives Element]
+  \uncover<8->{
+  $w \in E$ heißt \emph{primitiv}, falls 
+  $\langle u \rangle = \emptynode{a}{$E^\ast$}$,
+  also $u$ ein Erzeuger der multiplikativen Gruppe $E^\ast$ ist.%
+  \tikz[remember picture,overlay]{
+    \node[overlayproofnode,above right=10pt of a] (b)
+        {$:= E\setminus\{0\}$};
+    \path[->,overlayproofarrow] (b) edge[bend right] (a);}}%
+\end{definition}
+\end{frame}
+
+
+\subsection{Der Frobenius}
+
+\begin{frame}{Der Frobenius}
+  \begin{definition}[Frobenius-Endomorphismus von $F$]
+    \[ \sigma: \funcdef{E &\to& E,\\
+      v &\mapsto& v^q}\]
+      heißt der \emph{Frobenius-Endomorphismus von $F$}.
+  \end{definition}
+  \begin{satz}<2->
+    Es gilt:
+    \begin{itemize}
+      \item $\sigma$ ist eine $F$-lineare Abbildung.
+      \item<3-> $\sigma\big|_{F} = \id_F$.
+      \item<4-> Das Minimalpolynom $\mu_\sigma(x)$ (also das 
+        Polynom $g(x)\in F[x]$ kleinsten Grades mit $f(\sigma) = 0$)
+        von $\sigma$ ist
+        \[\mu_\sigma(x) = x^n-1\,.\]
+    \end{itemize}
+  \end{satz}
+\end{frame}
+
+\section{Moduln}
+
+\begin{frame}{Idee zur Untersuchung von Normalbasen}
+  \begin{block}<1->{Idee}
+    Betrachte $E$ als $F[x]$-Modul durch
+    \[ \begin{array}[t]{rcl}
+        F[x]\times E & \to & E\,,\\
+      (f(x),v) &\mapsto& f(x)\cdot v := f(\emptynode{a}{$\sigma$})(v)\,.
+    \end{array}\]
+  \end{block}
+  \begin{exampleblock}<2->{Genauer}
+    Seien $f(x) = f_kx^k + \ldots + f_1x + f_0$ und $v \in E$, so ist
+    \[ f(x)\cdot v \speq= f(\sigma)(v) \speq=
+      \uncover<3->{%
+        f_k \sigma^k(v) + \ldots + f_1\sigma(v) + f_0\sigma^0(v)}
+      \uncover<4->{%
+      \speq= f_k v^{q^k} + \ldots + v^q + f_0 v\,.}\]%
+  \end{exampleblock}%
+\end{frame}
+
+
+\begin{frame}
+  \begin{block}{Definition/Lemma ($q$-Ordnung)}
+    Sei $v\in E$. Betrachte den $F[x]$-Modulhomomorphismus
+    \begin{equation*} 
+      \psi_v: \funcdef{ F[x] &\to& E\,, \\
+      f(x) &\mapsto& f(x)\cdot v\,.}
+    \end{equation*}
+    \begin{enumerate}
+      \item<2-> Ist $\ker \psi_v = (g(x))$ für ein 
+        $g(x) \in F[x]$ normiert, so heißt $g(x)$ 
+        die \emph{$q$-Ordnung von $v$}. 
+        Schreibe $\Ord_q(v) := g(x)$. Die $q$-Ordnung ist eindeutig.
+      \item<3-> $F[x] \cdot v := \im \psi_v$ heißt der von 
+        \emph{$v$ erzeugte $F[x]$-Teilmodul von $E$}.
+    \end{enumerate}
+    \uncover<4->{Zu $g(x)\mid x^n-1$ normiert definiere
+      \[ V_g := \{v \in E:\ g(x)\cdot v = 0 \}\,.\]}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}[<+->]
+  \begin{satz}
+    Es gilt:
+    \begin{enumerate}[<+->]
+      \item Für $g(x)\mid x^n-1$ normiert ist $V_g$ ein $F[x]$-Teilmodul von
+        $E$.
+      \item Alle $F[x]$-Teilmoduln von $E$ sind von dieser Form.
+      \item Die Erzeuger von $V_g$ sind genau die Elemente 
+        $v\in E$ mit $\Ord_q(v) = g(x)$, d.h. für diese gilt
+        $F[x]\cdot v = V_g$. 
+    \end{enumerate}
+  \end{satz}
+  \begin{satz}
+    Sei $g(x) \in F[x]$ mit $g(x)\mid x^n-1$ normiert 
+    und $\Delta\subset F[x]$ eine Zerlegung von $g(x)$, d.h.
+    $g(x) = \prod_{\delta\in\Delta} \delta(x)$ mit
+    $\delta\in\Delta$ paarweise teilerfremd, dann gilt
+    \begin{enumerate}[<+->]
+      \item $V_g = \oplus_{\delta\in\Delta} V_\delta$.
+      \item Jedes $w\in V_g$ lässt sich eindeutig schreiben als 
+        $w = \sum_{\delta\in\Delta} w_\delta$ mit $w_\delta \in V_\delta$.
+        Ferner gilt
+        \[ \Ord_q(w) \speq= \prod_{\delta\in\Delta} \Ord_q(w_\delta)\]
+        und $\Ord_q(w)$ ist ein normierter Teiler von $g(x)$.
+      \item $w$ ist ein Erzeuger von $V_g$ $\quad\Leftrightarrow\quad$
+        $\forall\delta\in \Delta:\ w_\delta$ ist Erzeuger von 
+        $V_\delta$.
+      %\item Ist $V_g = \oplus_{i \in I} V_i$ eine Zerlegung in Teilmoduln,
+        %so existieren eine Zerlegung $\Delta$ von $g$ und 
+        %eine Bijektion $\pi:I\to\@elta$, so dass $V_i = V_{\pi(i)}$.
+    \end{enumerate}
+  \end{satz}
+\end{frame}
+
+%\section{Explizite Angabe normaler Elemente}
+%\secframe
+
+\begin{frame}{Zurück zur Normalität}
+  \begin{lemma}
+    Für $v \in E$ gilt:
+    \[ v \text{ ist normal über $F$} 
+      \uncover<2->{\quad\Leftrightarrow\quad F[x]\cdot v = E}
+      \uncover<3->{\quad\Leftrightarrow\quad
+      \Ord_q(v) = x^n-1\,.}\]
+  \end{lemma}
+  \begin{block}<4->{Strategie: Arbeite eigenständig auf Teilmoduln}
+    Für eine geeignete Zerlegung $\Delta$ von $x^n-1$ über $F$ finde  
+    für jedes $\delta\in \Delta$ ein Element
+    $w_\delta\in E$ mit $\Ord_q(w_\delta) = \delta$.
+    Dann ist
+      \[ \sum_{\delta\in\Delta} w_\delta\]
+    normal über $F$.
+
+    \uncover<5->{Gute Zerlegung:
+      \[ x^n-1 \speq= \prod_{d\mid\bar n} 
+      \emptynode{a}{$\Phi_d$}(x)^{p^b}\]
+      für $n = \bar n p^b$ mit $p\nmid \bar n$.}
+    \tikz[remember picture,overlay]{
+      \node<5->[above right=0.5cm of a,overlayproofnode] (b) 
+        {$d$-tes Kreisteilungspolynom};
+      \path<5->[->,overlayproofarrow] (b) edge[out=180,in=90] (a);
+    }
+  \end{block}
+\end{frame}
+
+%\begin{frame}{Ein kleines Beispiel}
+  %Sei $F = \F_3$ und $E = \F_{3^4}$. Es ist über $\F_3$
+  %\[ x^4-1 \speq= \Phi_1(x)\Phi_2(x)\Phi_4(x) 
+    %\uncover<2->{\speq= (x-1)(x+1)(x^2+1)\,.}\]
+  %\begin{center}
+  %\uncover<3->{
+  %\begin{tikzpicture}
+    %\tikzstyle{style1}=[font=\scriptsize,text=gray]
+    %\tikzstyle{style2}=[font=\scriptsize]
+    %\tikzstyle{styleArr1}=[line width=1pt, blue!50,->]
+    %\matrix[column sep=10pt, row sep=3cm, ampersand replacement=\&,
+      %every node/.style={align=center}]{
+      %\node{$\F_{3^4}:$};
+        %\& \node (w1) {$w_1$};
+        %\& \node (w2) {$w_2$};
+        %\& \node (w3) {$w_3$};
+        %\& \uncover<7->{\node {$\Rightarrow$};}
+        %\& \uncover<7->{\node (sum) {$w:=w_1+w_2+w_3$};}
+        %\\
+      %%\node{$\F_{3^2}$}; 
+        %%\& \node[style1] {$x^2-1 = $\\$\Phi_1(x)\Phi_2(x)$\\
+          %%$(x-1)(x+1)$};
+        %%\\
+      %\node{$\F_{3}[x]$:};
+        %\& \uncover<4->{\node (ordq1) {$\Ord_3(w_1) = $\\$\Phi_1(x)$};}
+        %\& \uncover<5->{\node (ordq2) {$\Ord_3(w_2) =$\\$\Phi_2(x)$};}
+        %\& \uncover<6->{\node (ordq3) {$\Ord_3(w_3) = $\\$\Phi_4(x)$};}
+        %\&
+        %\& \uncover<7->{\node (ordqsum) {$\Ord_3(w) = $\\$x^4-1$};}
+        %\\
+    %};
+    %\uncover<4->{
+    %\path[styleArr1] 
+      %(w1) 
+      %edge[bend left] node[sloped,above,style2]{Erzeuger}
+        %node[sloped,below,style2]{von $V_{\Phi_1}$} 
+      %(ordq1);}
+    %\uncover<5->{
+    %\path[styleArr1] 
+      %(w2) 
+      %edge[bend left] node[sloped,above,style2]{Erzeuger}
+        %node[sloped,below,style2]{von $V_{\Phi_2}$} 
+      %(ordq2);}
+    %\uncover<6->{
+    %\path[styleArr1] 
+      %(w3) 
+      %edge[bend left] node[sloped,above,style2]{Erzeuger}
+        %node[sloped,below,style2]{von $V_{\Phi_4}$} 
+      %(ordq3);}
+    %\uncover<7->{
+    %\path[styleArr1] 
+      %(sum) 
+      %edge[bend left] node[sloped,above,style2]{$w$ normal}
+      %(ordqsum);}
+  %\end{tikzpicture}}
+  %\end{center}
+%\end{frame}
+
+
+%\begin{frame}{\glqq Gute\grqq~Erweiterungen}
+  %Explizit können auf diese Weise normale Elemente konstruiert werden für
+  %\begin{itemize}
+    %\item<2-> \emptynode{a}{\emph{stark reguläre Erweiterungen}}%
+      %\small\color{gray}, d.h. falls $p\nmid n$, $\nu(n)\mid q-1$ und $4\mid 1-q$, falls
+      %$2\mid n$, wobei
+      %\begin{itemize}
+        %\color{gray}
+        %\item $\nu(m) := p_1\cdot \ldots\cdot p_l$, falls 
+          %$m = p_1^{r_1} \cdot \ldots\cdot p_l^{r_l}$ die Primfaktorzerlegung
+          %von $m$ ist.
+      %\end{itemize}
+
+    %\item<4-> \emph{reguläre Erweiterungen}%
+      %\small\color{gray}, d.h. falls $\ggT(n,\ord_{\nu(\bar n)}(q)) = 1$
+      %für $n = \bar n p^b$ mit $p\nmid \bar n$ und
+      %\begin{itemize}
+        %\color{gray}
+        %\item $\ord_m(q) := \min\{k \in \N:\ q^k \equiv 1 \bmod m\}$,
+      %\end{itemize}
+  %\end{itemize}
+  %\uncover<3->{
+  %\tikz[remember picture,overlay]{
+    %\node[overlayproofnode,above right=20pt and 2cm of a,
+      %text width=3cm] (b) 
+      %{Hier zerfallen die Kreisteilungspolynome in Binome};
+    %\path[->,overlayproofarrow] (b) edge[out=180,in=90] (a);}}
+%\end{frame}
+
+
+\section{Vollständig normale Elemente}
+
+\secframe
+
+
+\begin{frame}{Vollständig normale Elemente}
+  \begin{definition}
+    $w\in E$ heißt \emph{vollständig normal}, falls $w$ normal über jedem
+    Zwischenkörper $E \mid K\mid F$ ist.
+  \end{definition}
+  \begin{definition}<2->{einfach}
+    $E$ über $F$ heißt \emph{einfach}, falls jedes normale Element von $E$ über
+    $F$ bereits vollständig normal ist.
+  \end{definition}
+  \begin{satz}<3->
+    $E$ über $F$ ist einfach, falls
+    \begin{itemize}
+      \item $n = r$ oder $n=r^2$ für eine Primzahl $r$.
+      \item $\bar n \mid q-1$, wobei 
+        $n = n'p^b$ mit $p\nmid n'$,
+      \item $n = p^b$ für $b\geq 0$.
+    \end{itemize}
+  \end{satz}
+\end{frame}
+
+
+\subsection{Verallgemeinerte Kreisteilungsmoduln}
+
+\begin{frame}
+  \structure{Idee:} Nutze wieder Modulstrukturen!
+  \begin{definition}<2->[verallgemeinertes Kreisteilungspolynom]
+    Für $k,t \in \N^\ast$ mit $p\nmid k$ heißt 
+    \[ \Phi_{k,t}(x) \speq{:=} \Phi_k(x^t) \quad \in F[x]\]
+    \emph{verallgemeinertes Kreisteilungspolynom}.
+  \end{definition}
+  \begin{definition}<3->[verallgemeinerter Kreisteilungsmodul]
+    Für ein verallgemeinertes Kreisteilungspolynom $\Phi_{k,t}(x)$ heißt
+    \[ \C_{k,t} \speq{:=} \{ w \in \bar F:\ \Phi_{k,t}(\sigma)(w) = 0\}\]
+    \emph{verallgemeinerter Kreisteilungsmodul}.
+    Der Modulcharakter von $\C_{k,t}$ ist $\frac{k\,t}{\nu(k)}$.
+  \end{definition}
+  \begin{definition}<4->[vollständiger Erzeuger]
+    $w \in \bar F$ heißt \emph{vollständiger Erzeuger von $\C_{k,t}$}, falls
+    $w$ ein Erzeuger von $\C_{k,t}$ als $\F_{q^d}[x]$-Modul für alle 
+    Teiler $d$ des Modulcharakters ist.
+  \end{definition}
+\end{frame}
+
+
+
+\begin{frame}{Problem}
+  \structure{Bei Erzeugern gilt:} Ist $\Delta$ eine Zerlegung von $x^n-1$ und
+  hat man für jedes $\delta\in\Delta$ ein
+  $w_\delta\in E$ mit $\Ord_q(w_\delta) = \delta(x)$, so 
+  ist $w = \sum_{\delta\in \Delta} w_\delta$ ein
+  Erzeuger von $V_{x^n-1}$ und 
+  $\Ord_q(w) = x^n-1$.\\~\\
+
+  \uncover<2->{\structure{Achtung:} Dies gilt bei vollständigen Erzeugern 
+  im Allgemeinen nicht mehr und muss gefordert werden.}
+
+  \begin{definition}<3->[verträgliche Zerlegung]
+    Sei $\Delta$ eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte
+    Kreisteilungspolynome über $\F_q$.
+    Dann heißt $\Delta$ 
+    \emph{verträgliche Zerlegung}, falls gilt: Für jedes 
+    $\Phi_{l,s} \in \Delta$ sei
+    $w_{l,s} \in \bar \F_q$ ein vollständiger Erzeuger von 
+    $\C_{l,s}$ über $\F_q$,
+    so ist 
+    \[ w = \sum_{\Phi_{l,s} \in \Delta} w_{l,s} \]
+    ein vollständiger Erzeuger von $\C_{k,t}$ über $\F_q$.
+  \end{definition}
+\end{frame}
+
+
+\begin{frame}{Zerlegungssatz für verallgemeinerte Kreisteilungsmoduln}
+  \begin{satz}[(Hachenberger 1997)]
+    Sei $\Phi_{k,t}$ ein verallgemeinertes Kreisteilungspolynom über einem
+    endlichen Körper $\F_q$ mit Charakteristik $p$. Sei $r$ eine Primzahl
+    mit
+
+    \begin{itemize}
+      \item $r \mid t$,
+      \item $r \neq p$,
+      \item $r \nmid k$.
+    \end{itemize}
+
+    Dann ist 
+    \[ \Delta_r \speq{:=} \{ \Phi_{k,\frac{t}{r}},\ \Phi_{kr, \frac{t}{r}}\}\]
+    eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte Kreisteilungspolynome und
+    diese ist verträglich genau dann, wenn
+    \[ r^a \nmid \ord_{\nu(kt')}(q) \]
+    mit $a = \max\{ b\in \N: r^b \mid t\}$ und 
+    $t=t'p^b$ für $\ggT(t',p)=1$.
+  \end{satz}
+\end{frame}
+
+
+\begin{frame}{Reguläre Kreisteilungsmoduln}
+  \begin{definition}<1->[regulär]
+    Ein verallgemeinerter Kreisteilungsmodul $\C_{k,t}$ 
+    mit $\ggT(k,t)=1$ heißt \emph{regulär} über 
+    einem endlichen Körper $\F_q$ der Charakteristik $p$,
+    falls $\ord_{\nu(k\,t')}(q)$ und $k\,t$ teilerfremd sind für
+    $t=t'p^b$ mit $\ggT(t',p)=1$.
+
+    Eine Körpererweiterung $\F_{q^m} \mid \F_q$ heißt \emph{regulär}, falls
+    $\C_{1,m}$ regulär ist.
+  \end{definition}
+  \begin{satz}[(Hachenberger 1997)]<2->
+    \only<3->{\color{gray}}
+    Sei $\F_q$ ein endlicher Körper von Charakteristik $p$. 
+    Seien $k$ eine positive ganze Zahl teilerfremd zu $q$ und 
+    $\C_{k,p^b}$ ein regulärer verallgemeinerter Kreisteilungsmodul. Dann gilt:
+    \begin{enumerate}
+      \item\only<3->{\color{gray}}
+        Ist $\C_{k,p^b}$ nicht ausfallend, so ist $u \in \bar \F_q$ genau dann
+        ein vollständiger Erzeuger von $\C_{k,p^b}$, falls
+          \only<3->{\color{black}}
+        \[ \Ord_{q^\tau}(u) \speq= \Phi_{\frac k \tau,\, p^b} \,.\]
+      \item \only<3->{\color{gray}}
+        Ist $\C_{k,p^b}$ ausfallend, so ist $u\in \bar \F_q$ genau dann
+        ein vollständiger Erzeuger von $\C_{k,p^b}$, falls
+        \only<3->{\color{black}}
+        \[ \Ord_{q^\tau}(u) \speq= \Phi_{\frac k \tau,\, p^b} \quad
+          \text{und}\quad 
+          \Ord_{q^{2\tau}}(u) \speq= \Phi_{\frac{k}{2\tau},\, p^b}\,.\]
+    \end{enumerate}
+  \end{satz}
+\end{frame}
+
+
+\section{Existenz und Enumeration primitiv vollständig normaler Elemente}
+\secframe
+
+
+\begin{frame}{Notationen}
+  \begin{definition}
+  \begin{align*}
+    \cal N(q,n) &\speq{:=} 
+      |\{ u \in \F_{q^n}:\ u\text{ ist normal über }\F_q\}|\,, \\
+    \uncover<2->{
+    \CN(q,n) &\speq{:=} 
+      |\{ u \in \F_{q^n}:\ u\text{ ist vollständig normal über }\F_q\}|\,, \\}
+    \uncover<3->{
+    \PN(q,n) &\speq{:=} 
+      |\{ u \in \F_{q^n}:\ u\text{ ist primitiv und normal über }\F_q\}|\,, \\}
+    \uncover<4->{
+    \PCN(q,n) &\speq{:=} 
+      |\{ u \in \F_{q^n}:\ u\text{ ist primitiv und vollständig 
+      normal über }\F_q\}|\,, \\}
+    \uncover<5->{
+    \G &\speq{:=}
+      \{ n\in \N^\ast, n\geq 2:\ 
+      \forall q\text{ Primzahlpotenz gilt } \PCN(q,n) > 0 \}\,.}
+  \end{align*}
+  \end{definition}
+  \begin{block}{Problemstellungen}<6->
+    \begin{tikzpicture}
+      \tikzstyle{style1} = [scale=0.7, text=blue!50,align=center]
+      \tikzstyle{style2} = [blue!20]
+      \matrix (m) [matrix of nodes, ampersand replacement=\&,
+        column sep=15pt, row sep=25pt]{
+        $\only<7->{\color{gray}} \cal N(q,n) > 0?$
+        \& $\only<9->{\color{gray}}\CN(q,n) > 0?$
+        \& $\only<10->{\color{gray}}\PN(q,n) > 0?$
+        \& $\PCN(q,n) >0?$
+        \\
+        $\only<8->{\color{gray}}\cal N(q,n) = ?$
+        \& $\CN(q,n) = ?$
+        \& $\only<12->{\color{gray}}\PN(q,n) = ?$
+        \& $\PCN(q,n) = ?$
+        \\[-5pt] \\
+      };
+      \begin{scope}[overlay]
+          \uncover<7->{
+          \node[blue,scale=4,opacity=0.5] at ($(m-1-1)+(0,5pt)$) 
+            {$\checkmark$};
+          \node[style1, below=-3pt of m-1-1] {Satz von der Normalbasis};
+          }
+          \uncover<8->{
+          \node[blue,scale=4,opacity=0.5] at ($(m-2-1)+(0,5pt)$) 
+            {$\checkmark$};
+          \node[style1, below=-3pt of m-2-1] 
+            {$\cal N(q,n) = \phi_q(x^n-1)$};
+          }
+          \uncover<9->{
+          \node[blue,scale=4,opacity=0.5] at ($(m-1-2)+(0,5pt)$) 
+            {$\checkmark$};
+          \node[style1, below=-3pt of m-1-2] 
+            {Verschärfung des Satzes\\ von der Normalbasis\\[-3pt]
+            \tiny (Blessenohl und Johnsen 1986)};
+          }
+          \uncover<10->{
+          \node[blue,scale=4,opacity=0.5] at ($(m-1-3)+(0,5pt)$) 
+            {$\checkmark$};
+          \node[style1, below=-3pt of m-1-3] 
+            {Satz von der\\ primitiven Normalbasis\\[-3pt]
+            \tiny(Lenstra, Jr. und Schoof 1987)};
+          }
+          \uncover<11->{
+          \node[style1, below=-3pt of m-2-2] 
+            {nur bekannt,\\ falls regulär};
+          }
+          \uncover<13->{
+          \node[style1, below=-3pt of m-2-4] 
+            {nur Abschätzungen und\\ Einzelfälle};
+          }
+          \uncover<14->{
+          \node[style1, below=-3pt of m-1-4] 
+            {s. nächste Folie};
+          }
+      \end{scope}
+    \end{tikzpicture}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}[<+->]{Stand der Forschung und Ziele}
+  \subject{$\PCN > 0?$}
+  \begin{satz}[(Hachenberger 2001 und 2014)]
+    Seien $q$ eine Primzahlpotenz und $n \in \N^\ast$, so dass
+    $\F_{q^n}$ über $\F_q$ eine reguläre Erweiterung ist. 
+    Dann existiert ein
+    primitives Element in $\F_{q^n}$, das vollständig normal über $\F_q$ ist.
+  \end{satz}
+  \begin{satz}[(Hachenberger 2014)]
+    Sei $n\in \N^\ast$ mit $n\geq 2$. Dann gilt:
+    Für Primzahlpotenzen $q$ mit $q \geq n^4$ existiert ein primitives Element in 
+    $\F_{q^n}$, das vollständig normal über $\F_q$ ist.
+  \end{satz}
+  \uncover<3->{\structure{Ziele:}}
+  \begin{enumerate}
+    \item \large Bestimme $\CN(q,n)$ und $\PCN(q,n)$ für möglichst viele
+      Paare $(q,n)$.
+    \item \large Versuche $\emptynode{a}{$\G$}$ möglichst groß werden zu lassen, d.h.
+      finde für möglichst viele $n$ für alle 
+      $q < n^4$ ein $\PCN$-Element in $\F_{q^n}$ über $\F_q$.
+  \end{enumerate}
+  \uncover<5->{
+  \tikz[remember picture,overlay]{
+    \node[overlayproofnode,below right=1cm of a] (b)
+    {$\G := \{ n\in \N^\ast, n\geq 2:\ 
+      \forall q\text{ Primzahlpotenz gilt } \PCN(q,n) > 0 \}$};
+    \path[->,overlayproofarrow] (b) edge[out=180,in=-90] (a);
+    }}
+\end{frame}
+
+\section{Implementierung endlicher Körper und Körpererweiterungen}
+
+\secframe
+
+\begin{frame}
+  Sei $F := \F_q$ ein endlicher Körper mit $q = p^r$ und 
+  $E := \F_{q^n}$ eine Erweiterung von Grad $n$.\\~\\
+  \uncover<2->{\structure{Beschreibung von Elementen endlicher Körper}}
+  \begin{itemize}
+    \item<3-> Ist $q = p$, so nutze
+      \[ F \speq\cong \Z_p \speq= \{ 0,1,\ldots,p-1 \} \bmod p\,. \]
+    \item<4-> Sonst nutze
+      \[ F \speq\cong \F_p[a]\big/(f(a))\]
+      für $f(a)\in \F_p[a]$ irreduzibel, normiert von Grad $n$.
+  \end{itemize}
+  \begin{beispiel}<5->
+    \[ a^8+2a^6+a^2+2 \quad\in\quad \F_{3^{10}} 
+      = \F_3[a]\big/(a^{10} + 2a^6 + 2a^5 + 2a^4 + a + 2)\]
+  \end{beispiel}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \structure{Idee:} Nutze das Computeralgebrasystem \sage.
+  \begin{beispiel}<2->
+    \begin{sageexample}
+F = GF(3^10,'a')  
+  #F.modulus() == x^10 + 2*x^6 + 2*x^5 + 2*x^4 + x + 2
+    \end{sageexample}\lstnospace
+    \begin{uncoverenv}<3->\begin{sageexample}
+w = F('a^8+2a^6+a^2+2')
+w + w; 2*w; w*w
+    \end{sageexample}\end{uncoverenv}
+  \end{beispiel}
+  ~\\
+
+  \uncover<4->{\structure{Problem:} \sage ist zu langsam!\\~\\}
+
+  \uncover<5->{\structure{Lösung:} 
+    Eigenes Library in \Clang für grundlegende Arithmetik erstellen und 
+    \sage für übergeordnete Aufgaben (Faktorisierung von Polynomen,
+    Zerlegungssatz,\ldots) nutzen.}
+\end{frame}
+
+\begin{frame}[fragile]{Grundlegende Arithmetik in Primkörpern}
+  \structure{Idee: } Nutze die \Clang-Funktion @%@.
+
+  D.h. sind $a,b \in \F_p=\{0,1,\ldots,p-1\}$, so addiere bzw. multipliziere durch
+  @($a$+$b$) % $p$@
+  und 
+  @($a$*$b$) % $p$@.
+  \\~\\
+
+  \begin{uncoverenv}<2->
+  \structure{Problem: } Zu langsam!
+  \end{uncoverenv}
+  \\~\\
+  \begin{uncoverenv}<3->
+  \structure{Gute Idee: } Nutze Additions- und Multiplikationstabellen, d.h.
+    @int@-Arrays, sodass die @($a$+$b$)@-te Stelle der Additions- und die 
+    @($a$*$b$)@-te Stelle der Multiplikationstabelle gerade das Ergebnis ist.
+  \end{uncoverenv}
+  \begin{beispiel}<4->
+    Arithmetik in $\F_3$:
+
+    \begin{minipage}{0.65\textwidth}
+    \begin{uncoverenv}<5->
+    \begin{cexample}
+int addTableRaw[] = |\emptynode{a}{}|{2, 0, 1, 2, 0, 1, 2, 0, 1}|\emptynode{b}{}|;
+int initialAddShift = 4;
+int *addTable = addTableRaw+initialAddShift;
+int multTableRaw[] = |\emptynode{c}{}|{2, 0, 1, 2, 0, 1, 2, 0, 1}|\emptynode{d}{}|;
+int initialMultShift = 4;
+int *multTable = multTableRaw+initialMultShift;
+    \end{cexample}
+    \end{uncoverenv}
+    \end{minipage}
+    \begin{minipage}{0.3\textwidth}
+    \begin{cexample}
+addTable[ 2+1 ]
+          // == 0 
+addTable[ 0-2 ]
+          // == 1
+multTable[ 2*2 ]
+          // == 1
+    \end{cexample}
+    \end{minipage}
+    \begin{uncoverenv}<6->
+    \begin{tikzpicture}[remember picture,overlay]
+      \draw[decorate,decoration={brace,amplitude=10pt}, overlayproofarrow]
+        ($(a)+(0,8pt)$) -- ($(b)+(0,8pt)$) 
+        node[midway, yshift=20pt, overlayproofnode, opacity=1] 
+        {Länge: $2\cdot 2(p-1)+1$};
+      \draw[decorate,decoration={brace,mirror,amplitude=10pt}, overlayproofarrow]
+        ($(c)-(0,0pt)$) -- ($(d)-(0,0pt)$) 
+        node[midway, yshift=-25pt, overlayproofnode, opacity=1] 
+        {Länge: $2\cdot (p-1)^2+1$};
+    \end{tikzpicture}
+    \end{uncoverenv}
+  \end{beispiel}
+\end{frame}
+
+\begin{frame}[fragile]{Elemente endlicher Körper in \Clang}
+  \structure{Ziel:} Schnelle Arithmetik durch @int@-Arrays
+  \begin{block}<2->{Elemente endlicher Körper}
+  \lstnospace
+  \begin{cexample}
+struct FFElem{
+    int *el|\emptynode{el}{;}|
+    int *idcs|\emptynode{idcs}{;}|
+    int len|\emptynode{len}{;}|
+};
+  \end{cexample}
+  \end{block}
+  %\begin{block}<3->{Invariante}
+    %Für das Indexarray @idcs@ eines @struct FFElem@ sei sichergestellt, 
+    %dass die Werte stets in absteigender Reihenfolge sortiert sind. 
+  %\end{block}
+  \begin{beispiel}<3->
+  \lstnospace
+  \begin{minipage}{0.68\textwidth}
+  \begin{uncoverenv}<4->\begin{cexample}
+struct FFElem *w = malloc(sizeof(struct FFElem));
+  \end{cexample}\end{uncoverenv}\lstnospace
+  \begin{uncoverenv}<5->\begin{cexample}
+w->el = (int[]) {2, |\ttgray 0|, 1, |\ttgray 0, 0, 0,| 2, |\ttgray 0,| 1, |\ttgray 0|};
+  \end{cexample}\end{uncoverenv}\lstnospace
+  \begin{uncoverenv}<6->\begin{cexample}
+w->idcs = (int[]) {8, 6, 2, 0, |\ttgray 0, 0, 0, 0, 0, 0|};
+  \end{cexample}\end{uncoverenv}\lstnospace
+  \begin{uncoverenv}<7->\begin{cexample}
+w->len = 4;
+  \end{cexample}\end{uncoverenv}
+  \end{minipage}$\hat=$\quad
+  \begin{minipage}{0.24\textwidth}
+  $w := a^8+2a^6+a^2+2$\\
+  $\in\F_{3^{10}}$
+  \end{minipage}
+  \end{beispiel}
+\end{frame}
+
+
+\begin{frame}[fragile]{Implementierte Methoden}
+  Implementiere auf diese Weise effizient folgende Methoden für 
+  @FFElem@s:
+  \begin{itemize}
+    \item<2-> Addition,
+    \item<3-> Multiplikation,
+    \item<4-> Quadratur,
+    \item<5-> Potenzieren via Square-and-Multiply, \emptynode{c}{}
+    \item<6-> Polynome als @struct FFElem **poly@,\emptynode{a}{}
+    \item<7-> Matrizen und Matrixmultiplikation, \emptynode{b}{}
+  \end{itemize}
+  \begin{tikzpicture}[remember picture,overlay]
+      \draw<8->[decorate,decoration={brace,amplitude=3pt}, overlayarrow]
+        ($(c)+(5pt,10pt)$) -- ($(c)+(5pt,-5pt)$)
+        node[midway, xshift=10pt, anchor=west, overlayproofnode, opacity=1]
+        {Intelligenter Primitivitätstest};
+
+      \draw<9->[decorate,decoration={brace,amplitude=5pt}, overlayarrow]
+        ($(a)+(5pt,7pt)$) -- ($(b-|a)+(5pt,-5pt)$)
+        node[midway, xshift=10pt, anchor=west, overlayproofnode, opacity=1, text width=4cm] 
+        {Frobenius-Auswertung und Test auf vollständige Erzeugereigenschaft};
+  \end{tikzpicture}
+\end{frame}
+
+
+\begin{frame}{Ein intelligenter Primitivitätstest}
+  \only<-1>{\begin{lemma}
+    \[ q-1 \speq= p_1^{\nu_1}\cdot\ldots\cdot p_l^{\nu_l}\]
+    die Primfaktorzerlegung von $q-1$. Definiere
+    für alle $i=1,\dots,l$
+    \[ \bar p_i \speq{:=}  \frac{q-1}{p_i}\,.\]
+    Dann gilt: $u \in \F_q$ ist primitiv genau dann, wenn
+    \[ u^{\bar p_i} \speq\neq 1\quad\forall i=1,\ldots,l \,.\]
+  \end{lemma}}
+  \vspace{-0.7cm}
+  \begin{minipage}[t]{0.57\textwidth}
+  \begin{lemma}[(Nutze, was schon berechnet ist!)]<2->\small
+    \uncover<3->{
+    Sei $q-1 = p_1^{\nu_1}\cdot\ldots\cdot p_l^{\nu_l}$ die 
+    absteigend sortierte Primfaktorzerlegung
+    von $q-1$, d.h. $p_1>p_2>\ldots>p_l$. Notiere}
+    \begin{itemize}
+      \item<3-> $\bar p_i := \tfrac{q-1}{p_i}$,
+      \item<4-> $d := \ggT\{ \bar p_i:\ i=1,\ldots,l\}$, \\
+        $d' := p_1$ falls $l\geq 2$ sonst $d':=1$
+      \item<5-> $v := u^d$, \quad $w := v^{d'}$,
+      \item<6-> $\bar n_1 := \tfrac{\bar p_1}{d}$, \quad
+        $\bar n_i := \tfrac{\bar p_i}{d\, d'}$ für $i=2,\ldots,l$,
+      \item<13-> $u_2 := w^{\bar n_2}$ und 
+        $u_i := w^{\bar n_i - \bar n_{i-1}}$ für $i=3,\ldots,l$.
+      \item<13-> $z_i := \prod_{j=2}^i u_j$ für $i =2,\ldots,l$.
+    \end{itemize}
+    \uncover<14->{%
+    Es gilt: $u \in \F_q$ ist genau dann nicht primitiv, falls eine der
+    nachstehenden Bedingungen erfüllt ist:}
+    \begin{columns}
+    \begin{column}{0.4\textwidth}
+    \begin{enumerate}
+      \item<14-> $v \speq= 1$.
+      \item<14-> $v^{\bar n_1} \speq= 1$.
+      \item<14-> $w \speq= 1$.
+    \end{enumerate}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+    \begin{enumerate}
+      \setcounter{enumi}{3}
+      \item<14-> $u_2 \speq= 1$.
+      \item<14-> $u_i\cdot z_{i-1} \speq= 1$ für ein $i=3,\ldots l$.
+    \end{enumerate}
+    \end{column}
+    \end{columns}
+  \end{lemma}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.40\textwidth}
+    \begin{beispiel}<3->\small
+      Sei $u \in \F_{3^{10}}$. $ 3^{10}-1 \speq= 61 \cdot 11^{2} \cdot 2^{3}$.
+      \begin{itemize}
+      \item<3->$ \hspace{-5pt}\begin{array}[t]{l@{\ =\ }l@{}l@{}l@{\ =\ }l}
+        \bar p_1 & 2^3 \cdot & 11^2 && 968\,, \\
+        \bar p_2 & 2^3 \cdot & 11 & \cdot 61 & 5368\,,\\
+        \bar p_3 & 2^2 \cdot & 11^2 & \cdot 61 & 29524\,.
+        \end{array}$
+      \item<4-> $d = \ggT\{ \bar p_1,\bar p_2,\bar p_3\} 
+        = 2^2\cdot 11 = 44$,
+        $d' = p_1 = 61$
+      \item<5-> $v := u^d = u^{44}$,\quad
+          $w := v^{d'} = v^{61}$ 
+      \item<6-> $\bar n_1 := 2$,\quad $\bar n_2 := 2$,\quad $\bar n_3 := 11$
+      \item<7-> \hspace{-5pt}$\begin{array}[t]{l@{\ =\ }l@{}l@{}l}
+          u^{\bar p_1} & \uncover<8->{v^{\bar n_1}\,,} \\
+          u^{\bar p_2} & \uncover<9->{w^{\bar n_2}}
+            &\uncover<9->{\speq{:=} u_2}
+            &\uncover<10->{\speq{:=} z_2\,,} \\
+          u^{\bar p_3} & \uncover<11->{w^9 \cdot z_2}
+            & \uncover<12->{\speq{:=} u_3\cdot z_2}
+            & \uncover<12->{\speq{:=} z_3 \,.}
+        \end{array}$
+      \end{itemize}
+    \end{beispiel}
+  \end{minipage}
+\end{frame}
+
+
+\begin{frame}{Algorithmus zur Enumeration von $\CN$- und $\PCN$-Elementen
+  in $\F_{q^n}$ über $\F_q$}
+  \begin{tikzpicture}
+    \tikzstyle{mystyle} = [text width=2.3cm, fill=blue!5, line width=0.5pt, 
+      draw=blue!60, font=\small, anchor=center]
+    \tikzstyle{overarrowstyle} = [text=blue!60!black, opacity=1]
+    \tikzstyle{ask}=[rounded corners=5pt]
+    \matrix (m) [every node/.style={mystyle},
+                column sep=0.7cm, row sep=1cm,
+                ampersand replacement=\&]{
+      \node (m-1-1) {Anwendung des Zerlegungssatzes};
+      \& \uncover<3->{\node (m-1-2){Wähle das nächste Element $u\in E$ };}
+      \& \uncover<4->{\node[ask] (m-1-3){$u$ ist vollst. Erzeuger eines
+        Teilmoduls\\\scriptsize (Nutze einfache und reguläre Erw.)};}
+      \& \uncover<7->{\node[ask] (m-1-4){vollst. Erz. für alle Teilmoduln gefunden};}
+      \\[-5pt]
+      \uncover<9->{\node (m-2-1){
+          Wähle einen Erz., generiere den Teilmodul und speichere alle
+          vollst. Erz.};}
+      \& \uncover<11->{\node[ask] (m-2-2){Alle Teilmoduln bis auf den größten
+      erzeugt};}
+      \& \uncover<12->{\node (m-2-3){Generiere vollst. Erz. des größten
+      Teilmoduls dynamisch};}
+      \& \uncover<13->{\node (m-2-4){Iteration über das kartesische Produkt der gespeicherten Erzeuger
+        und Primitivitätstest};}
+      \\
+      \uncover<14->{\node[ask] (m-3-1){Alle Erzeuger abgearbeitet};}
+      \& \uncover<16->{\node (m-3-2){Ausgabe der Anzahlen der $\CN$- und
+        $\PCN$-Elemente };}
+      \\
+      };
+    \begin{scope}[every node/.style={inner sep=1pt}]
+      \uncover<3->{\path[->,overlayarrow] (m-1-1) -- (m-1-2);}
+      \uncover<4->{\path[->,overlayarrow] (m-1-2) -- (m-1-3);}
+      \uncover<6->{\path[->,overlayarrow] (m-1-3) -- +(0,1cm) -| (m-1-2)
+        node[near start,sloped,above,overarrowstyle] {nein};}
+      \uncover<7->{\path[->,overlayarrow] (m-1-3) -- (m-1-4)
+        node[midway,sloped,above,overarrowstyle] {ja};}
+      \uncover<8->{\path[->,overlayarrow] (m-1-4) -- +(0,-1.2cm) -| (m-1-2)
+        node[near start,sloped,above,overarrowstyle] {nein};}
+      \uncover<9->{\path[->,overlayarrow] ($(m-1-4.south)+(5pt,0)$) -- +(0,-.8cm) -| (m-2-1)
+        node[pos=0.45,sloped,above,overarrowstyle] {ja};}
+      %\uncover<11->{\path[->,overlayarrow] (m-2-1.south) |-
+        %node[near start,left,overarrowstyle] {nein}
+         %++(0.5cm,-0.5cm) coordinate (tmp) -- 
+        %(m-2-1.south-|tmp);}
+      \uncover<11->{\path[->,overlayarrow] (m-2-1) -- (m-2-2) ;}
+      \uncover<11->{\path[->,overlayarrow] 
+        (m-2-2) -- +(0,-1cm) -| (m-2-1)
+        node[pos=0.1,sloped,above,overarrowstyle] {nein};}
+      \uncover<12->{\path[->,overlayarrow] (m-2-2) -- (m-2-3)
+        node[midway, sloped, above, overarrowstyle] {ja};}
+      \uncover<13->{\path[->,overlayarrow] (m-2-3) -- (m-2-4);}
+      \uncover<14->{\path[->,overlayarrow, transform canvas={xshift=10pt}] 
+        (m-2-4) -- +(0,-1.9cm) -| (m-3-1);}
+      \uncover<15->{\path[->,overlayarrow, transform canvas={xshift=-5pt}] 
+        (m-3-1) -- +(0,1.1cm) -| (m-2-3)
+        node[near start, sloped, above, overarrowstyle] {nein};}
+      \uncover<16->{\path[->,overlayarrow] (m-3-1) -- (m-3-2)
+        node[midway, sloped, above, overarrowstyle] {ja};}
+    \end{scope}
+  \end{tikzpicture}
+  %\begin{tikzpicture}[remember picture,overlay]
+    %\tikzstyle{overlaynode} = [text width=\textwidth, anchor=center,
+      %fill=blue!20,opacity=0.85, text opacity=1, line width=1pt,draw=blue!60]
+    %\node<2>[overlaynode]
+      %at ($(current page.center)-(0,1.5cm)$)
+      %{ \structure{Zerlegungssatz.}
+        %Sei $\Phi_{k,t}$ ein verallgemeinertes Kreisteilungspolynom über einem
+        %endlichen Körper $\F_q$ mit Charakteristik $p$. Sei $r$ eine Primzahl
+        %mit
+
+        %\begin{itemize}
+          %\item $r \mid t$,
+          %\item $r \neq p$,
+          %\item $r \nmid k$.
+        %\end{itemize}
+
+        %Dann ist 
+        %\[ \Delta_r \speq{:=} \{ \Phi_{k,\frac{t}{r}},\ \Phi_{kr, \frac{t}{r}}\}\]
+        %eine Zerlegung von $\Phi_{k,t}$ in verallgemeinerte Kreisteilungspolynome und
+        %diese ist verträglich genau dann, wenn
+        %\[ r^a \nmid \ord_{\nu(kt')}(q) \]
+        %mit $a = \max\{ b\in \N: r^b \mid t\}$ und 
+        %$t=t'p^b$ für $\ggT(t',p)=1$.
+      %};
+
+    %\node<5-6>[overlaynode] 
+      %at ($(current page.center)-(0,1.5cm)$)
+      %{\structure{Definition.}
+      %$w \in \bar F$ heißt \emph{vollständiger Erzeuger von $\C_{k,t}$}, falls
+      %$w$ ein Erzeuger von $\C_{k,t}$ als $\F_{q^d}[x]$-Modul für alle 
+      %Teiler $d$ des Modulcharakters ist.};
+    
+    %\node<10>[overlaynode, text width=0.6\textwidth] 
+      %at ($(current page.center)+(2cm,-1.5cm)$)
+      %{\structure{Lemma.}
+        %Sei $u\in E$ ein vollständiger Erzeuger von $\C_{k,t}$ über $F$. 
+        %Dann gilt
+        %\[ \C_{k,t} \speq= \big\{ f(\sigma)(u):\ f(x) \in F[x]_{<\varphi(k)t}\big\} \,,\]
+        %wobei wiederum $\sigma$ den Frobenius von $F$ und 
+        %$\varphi$ die Eulersche Phifunktion notieren.};
+
+  %\end{tikzpicture}
+\end{frame}
+
+
+\begin{frame}{Ergebnisse: $\CN(q,n)$ und $\PCN(q,n)$ berechnet für}
+Morgan und Mullan (1996),\qquad \uncover<2->{\textcolor{blue!80}{SH (2014)}}
+\scriptsize
+\begin{tabular}[t]{>{$}l<{$}|>{$}l<{$}}
+  q & n \\\hline
+  2 & 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+    \only<2->{\color{blue!80}, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31}\\
+  3 & 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+    \only<2->{\color{blue!80}, 13, 14, 15, 16, 17, 18, 19, 20}\\
+  4 & 2, 3, 4, 5, 6, 7, 8, 9
+    \only<2->{\color{blue!80}, 10, 11, 12, 13, 14}\\
+  5 & 2, 3, 4, 5, 6, 7, 8
+  \only<2->{\color{blue!80}, 9, 10, 11, 12}\\
+  7 & 2, 3, 4, 5, 6
+  \only<2->{\color{blue!80}, 7, 8, 9, 10, 11}\\
+  8 & 2, 3, 4, 5
+  \only<2->{\color{blue!80}, 6, 7, 8, 9}\\
+  9 & 2, 3, 4, 5
+  \only<2->{\color{blue!80}, 6, 7, 8, 9}\\
+  \uncover<2->{
+  \color{blue!80}11 & \color{blue!80} 2, 3, 4, 5, 6, 7\\
+  \color{blue!80}13 & \color{blue!80} 2, 3, 4, 5, 6, 7\\
+  \color{blue!80}16 & \color{blue!80} 2, 3, 4, 5, 6, 7\\
+  \color{blue!80}17 & \color{blue!80} 2, 3, 4, 5, 6, 7\\
+  \color{blue!80}19 & \color{blue!80} 2, 3, 4, 5, 6, 7\\
+  \color{blue!80}25 & \color{blue!80} 2, 3, 4, 5, 6\\
+  \color{blue!80}27 & \color{blue!80} 2, 3, 4\\
+  \color{blue!80}27 & \color{blue!80} 2, 3, 4, 5, 6, 7\\
+  \color{blue!80}31 & \color{blue!80} 2, 3, 4, 5, 6\\
+  \color{blue!80}31 & \color{blue!80} 2, 3, 4\\
+  \color{blue!80}37 & \color{blue!80} 2, 3, 4, 5, 6\\
+  \color{blue!80}41 & \color{blue!80} 2, 3, 4, 5, 6\\
+  \color{blue!80}43 & \color{blue!80} 2, 3, 4, 5, 6\\
+  \color{blue!80}121 & \color{blue!80} 2, 3, 4\\
+  \color{blue!80}169 & \color{blue!80} 2, 3, 4\\
+  \color{blue!80}361 & \color{blue!80} 2,3\\
+  \color{blue!80}529  & \color{blue!80} 2,3\\
+  \color{blue!80}841 & \color{blue!80} 2,3\\
+  \color{blue!80}961 & \color{blue!80} 2,3\\
+  \color{blue!80}1369 & \color{blue!80} 2\\
+  \color{blue!80}1681 & \color{blue!80} 2\\
+  \color{blue!80}1849 & \color{blue!80} 2}
+\end{tabular}
+\begin{tikzpicture}[remember picture, overlay]
+\node<2-> at ($(current page.center)+(1.5cm,-1cm)$)
+  {\begin{tabular}[t]{>{$}l<{$}|p{7cm}}
+    n & $q$ \\\hline
+    \color{blue!80}3 &\textcolor{blue!80}{%
+      2, 3, 4, 5, 7, 8, 9, 11, 13, 16, 17, 19, 23, 25, 27, 29, 31, 32, 37, 41, 43,
+      47, 49, 53, 59, 61, 64, 67, 71, 73, 79, 81, 83, 89, 97, 121, 125, 128,
+      169, 243, 256, 289, 343, 361, 512, 529, 625, 729, 841, 961}
+    \\[5pt]
+    \color{blue!80}4 & \textcolor{blue!80}{%
+      2, 3, 4, 5, 7, 8, 9, 11, 13, 16, 17, 19, 23, 25, 27, 29, 31, 32, 37, 
+      41, 43, 47, 49, 53, 59, 61, 64, 67, 71, 73, 79, 81, 83, 89, 97, 121, 125, 
+      128, 169, 243}
+    \\[5pt]
+    \color{blue!80}6 & \textcolor{blue!80}{%
+      2, 3, 4, 5, 7, 8, 9, 11, 13, 16, 17, 19, 23, 25, 27, 29, 31, 32, 37, 
+      41, 43}
+    \end{tabular}
+  };
+\end{tikzpicture}
+
+\end{frame}
+
+\section{Existenz von $\PCN$-Elementen}
+
+\secframe
+
+
+\begin{frame}{Existenz von $\PCN$-Elementen}
+  \uncover<2->{
+  \structure{Wissen: } $\PCN(q,n)$-Elemente existieren, falls
+  \begin{itemize}
+    \item $\F_{q^n}$ regulär über $\F_q$,
+    \item $q \geq n^4$.
+  \end{itemize}}
+
+  \begin{lemma}<3->
+    Sei $n \in \N^\ast$ Potenz einer beliebigen Primzahl. 
+    Dann gilt: $n$ ist regulär
+    über jeder Primzahlpotenz $q>1$.
+    %falls eine der nachstehenden
+    %Bedingungen erfüllt ist:
+    %\begin{enumerate}
+      %\item $n$ ist Potenz einer beliebigen Primzahl.
+      %\item $n = N^s$ für $s\geq 1$ und $N$ ist eine 
+        %\emph{Carmichael Zahl}%
+        %\footnote{Eine \emph{Carmichael Zahl} ist eine ungerade
+          %natürliche Zahl $N$, sodass für jeden Primteiler $r$ von $N$ gilt: 
+          %$r-1$ teilt $N-1$}.
+    %\end{enumerate}
+  \end{lemma}
+  \begin{satz}<4->
+    Für alle $n\in \N^\ast$ mit $2 \leq n \leq 33$ gilt
+    $n \in \G$ {\scriptsize$:= \{ n\in \N^\ast, n\geq 2:\ 
+      \forall q\text{ Primzahlpotenz gilt } \PCN(q,n) > 0 \}$}.
+  \end{satz}
+  \uncover<5->{
+  \structure{Vorgehen: } Sei $2\leq n\leq 33$, so dass $n$ keine Primzahlpotenz
+  ist, also 
+  \[ n \in \{ 6, 12, 14, 15, 18, 21,22,24,26,28,\emptynode{c}{30}\}\,.\] 
+  Gib dann für alle Primzahlpotenzen
+  $q < n^4$ 
+  das \glqq \emptynode{a}{kleinste}\grqq~$\PCN$-Polynom an, 
+  d.h. ein Polynom von Grad $n$ über $\F_q$, dessen
+  Nullstellen primitiv und vollständig normal sind.
+  \tikz[remember picture,overlay]{
+    \node<6->[overlayproofnode, above left=3pt and 3.5cm of a,
+      text width=2.8cm] (b)
+      {bzgl. Anzahl und Position der Koeffizienten $\neq 0$ und 
+       \glqq Größe\grqq~der Koeffizienten};
+    \path<6->[->,overlayproofarrow] (b) edge[out=0,in=90] (a);
+  }}
+  \tikz[remember picture, overlay]{
+    \node<7->[above right=-5pt and 1cm of c, overlayproofnode,text width=2cm]
+      (d) {Für $n=30$ sind $64902$ Polynome anzugeben};
+    \path<7->[->,overlayproofarrow] (d) edge[out=180,in=90] (c);
+  }
+\end{frame}
+
+
+\begin{frame}
+  \begin{lemma}
+    Sei $u \in \F_{q^n}$ über $\F_q$ ein primitiv vollständig normales Element
+    und $f(x) \speq= x^n + a_{n-1}x^{n-1}+\ldots+a_0 \in \F_q[x]$ 
+    sein Minimalpolynom. Dann gilt
+    \begin{enumerate}
+      \item $a_{n-1} \speq= -\Tr_{\F_{q^n}\mid \F_q}(u) \speq\neq 0$ und 
+      \item $(-1)^na_0 \speq= \Nm_{\F_{q^n}\mid \F_q}(u)$ ist primitiv in $\F_q$.
+    \end{enumerate}
+  \end{lemma}
+
+  \begin{block}{Folgerung}<2->
+    Die kleinsten $\PCN$-Polynome sind Trinome  von der Form
+    \[ x^n + a_{n-1} x^{n-1} + a_0\,.\]
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Algorithmus zur Findung eines $\PCN$-Polynoms von
+  Grad $n$ über $\F_q$ mit $q=p^r$}
+  \begin{tikzpicture}
+    \tikzstyle{mystyle} = [text width=2.3cm, fill=blue!5, line width=0.5pt, 
+      draw=blue!60, font=\small, anchor=center]
+    \tikzstyle{overarrowstyle} = [text=blue!60!black, opacity=1]
+    \tikzstyle{ask}=[rounded corners=5pt]
+    \matrix (m) [every node/.style={mystyle},
+                column sep=0.7cm, row sep=2cm,
+                ampersand replacement=\&]{
+      \uncover<2->{\node (m-1-1) {Wähle das nächstgrößere Polynom $f(x) \in \F_q[x]$ 
+        von Grad $n$.};}
+      \& \uncover<3->{\node[ask] (m-1-2){$f(x)$ ist irreduzibel};}
+      \& \uncover<5->{\node[ask,text width=0.8cm] (m-1-3){$r = 1$};}
+      \& \uncover<6->{\node[ask,text width=3cm] (m-1-4){
+        $a \in \F_p[a]\big/(f(a)) \cong\nobreak \F_{p^n}$
+        ist primitiv und vollständig normal.};}
+      \\[-5pt]
+      \uncover<9->{\node (m-2-1){Berechne eine Nullstelle $u$ von
+        $f(x)$ in $\F_{q^n}$.};}
+      \& \uncover<10->{\node[ask] (m-2-2){$u$ ist primitiv und vollständig normal};}
+      \&
+      \& \uncover<7->{\node (m-2-4){Ausgabe von $f(x)$.};}
+      \\[-5pt]
+     };
+    \begin{scope}[every node/.style={inner sep=1pt}]
+      \uncover<3->{\path[->,overlayarrow]
+        (m-1-1) -- (m-1-2);}
+      \uncover<4->{\path[->,overlayarrow]
+        (m-1-2) --  +(0,-1.5cm) -| (m-1-1)
+        node[pos=0.1, sloped, above, overarrowstyle] {nein};}
+      \uncover<5->{\path[->,overlayarrow]
+        (m-1-2) -- (m-1-3)
+        node[midway,sloped, above, overarrowstyle] {ja};}
+      \uncover<6->{\path[->,overlayarrow]
+        (m-1-3) -- (m-1-4)
+        node[midway,sloped, above, overarrowstyle] {ja};}
+      \uncover<7->{\path[->,overlayarrow]
+        (m-1-4) -- (m-2-4)
+        node[midway,left, overarrowstyle] {ja};}
+      \uncover<7->{\path[->,overlayarrow, transform canvas={xshift=-10pt}]
+        (m-1-4) -- +(0,1.1cm) -| (m-1-1)
+        node[pos=0.1,sloped,above, overarrowstyle] {nein};}
+      \uncover<9->{\path[->,overlayarrow]
+        (m-1-3) -- +(0,-2.2cm) -| (m-2-1)
+        node[pos=0.1,sloped,above, overarrowstyle] {nein};}
+      \uncover<10->{\path[->,overlayarrow]
+        (m-2-1) -- (m-2-2);}
+      \uncover<11->{\path[->,overlayarrow]
+        (m-2-2) |- +(-5cm,-1.5cm) 
+        node[pos=0.6,sloped,above, overarrowstyle] {nein} 
+        |- (m-1-1);}
+      \uncover<12->{\path[->,overlayarrow]
+        (m-2-2) -- (m-2-4)
+        node[pos=0.2,sloped,above, overarrowstyle] {ja};}
+    \end{scope}
+
+    \begin{pgfonlayer}{background}
+      \fill<8->[green!20, rounded corners=5pt] 
+        ($(m-1-3.north west)-(15pt,-15pt)$) rectangle 
+        ($(m-1-3.south east)+(15pt,-15pt)$);
+      \node<8->[anchor=south, text=green!50!white!80!black, font=\small,
+        align=center] 
+        at ($(m-1-3.north)+(0,3pt)$)
+        {Problem in \sage};
+    \end{pgfonlayer}
+  \end{tikzpicture}
+\end{frame}
+
+
+\begin{frame}
+  Nun bewiesen:
+  \begin{satz}
+    Für alle $n\in \N^\ast$ mit $2 \leq n \leq \emptynode{a}{33}$ gilt
+    \[ n \in \G\,.\]
+  \end{satz}
+
+  \begin{tikzpicture}[remember picture, overlay]
+    \path<2->[overlayproofarrow, shorten <=-5pt, shorten >=-5pt] 
+      (a.south west) -- (a.north east);
+    \node<2->[above=3pt of a, text=blue!80]  (b) {85};
+    \node<2->[right=2pt of b, text=blue!80, font=\scriptsize]  
+      {(Stand: 03.02.2015)};
+  \end{tikzpicture}
+
+  \begin{block}{Vermutung}<3->
+    Seien $n\in \N^\ast$ und $r\in \N^\ast$ beliebig.
+    Dann existiert ein $P_{n,r}\in \N^\ast$, so dass für alle
+    Primzahlen $p \geq P_{n,r}$ 
+    ein primitiv vollständig normales Trinom von Grad
+    $n$ über $\F_{p^r}$ existiert.
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+\begin{tikzpicture}[remember picture,overlay]
+  \node[text=col1, text width=1.2\textwidth, align=center, 
+    font=\huge\bfseries, draw=col1, line width=1pt, inner sep=10pt,
+    rounded corners=3pt] 
+    at ($(current page.center)+(0,1cm)$)
+    (title)
+    {Theoretische und experimentelle\\
+    Untersuchungen zu Normalbasen\\ für Erweiterungen endlicher Körper};
+  \node[above=5pt of title, anchor=south, text=gray]
+    {Colloquium zur Masterarbeit};
+  \node[below=10pt of title, anchor=north]
+    (name)
+    {Stefan Hackenberg};
+  \node[below=10pt of name, anchor=north]
+    {4. Februar 2015};
+\end{tikzpicture}
+\end{frame}
+\end{document}

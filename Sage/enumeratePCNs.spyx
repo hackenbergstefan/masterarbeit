@@ -121,7 +121,7 @@ def countCompleteSubmoduleGenerators(F,n, binaryPowers=True, \
         countPolysForThisDecomp = 0
         for d in divs:
             G = F.extension(Integer(d), 'c');
-            Gx = PolynomialRing(G,'x'); 
+            Gx = PolynomialRing(G,'x');
             h = Hom(G,E)[0]
             cycl = Gx.cyclotomic_polynomial(squarefree(k))\
                     (Gx.gen()**(k*t*pi/squarefree(k)/d))

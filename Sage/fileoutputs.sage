@@ -303,6 +303,7 @@ def enumsPCN2Latex_wrapper(basePath, onlyNList=[3,4,6]):
                         info["cn"] = cn
                         info["pcn"] = pcn
                     allinfo[key] = info
+
                 
     #print sorted(allinfo.keys())
     # do outputs
